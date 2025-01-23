@@ -14,7 +14,7 @@ P.Anchored = true
 P.CanCollide = false
 P.Transparency = 1
 
-local PARENT = game.Workspace.P
+local PARENT = game.Workspace.GuiP
 local OrionLib = {
 	Elements = {},
 	ThemeObjects = {},
