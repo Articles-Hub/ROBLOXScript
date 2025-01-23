@@ -671,57 +671,6 @@ function OrionLib:MakeWindow(WindowConfig)
 		WindowStuff
 	}), "Main")
 
-	if WindowConfig.ShowIcon then
-		WindowName.Position = UDim2.new(0, 50, 0, -24)
-		local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {
-			Size = UDim2.new(0, 20, 0, 20),
-			Position = UDim2.new(0, 25, 0, 15)
-		})
-		WindowIcon.Parent = MainWindow.TopBar
-	end
-
-	
-	local _currentKey = Enum.KeyCode.RightShift;
-	local isMobile = table.find({ Enum.Platform.IOS, Enum.Platform.Android }, UserInputService:GetPlatform());
-	local MobileReopenButton = SetChildren(SetProps(MakeElement("Button"), {
-		Parent = Orion,
-		Size = UDim2.new(0, 40, 0, 40),
-		Position = UDim2.new(0.5, -20, 0, 20),
-		BackgroundTransparency = 0,
-		BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Main,
-		Visible = false
-	}), {
-		AddThemeObject(SetProps(MakeElement("Image", WindowConfig.IntroToggleIcon or "http://www.roblox.com/asset/?id=8834748103"), {
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(0.5, 0, 0.5, 0),
-			Size = UDim2.new(0.7, 0, 0.7, 0),
-		}), "Text"),
-		MakeElement("Corner", 1)
-	})
-
-	MakeDraggable(MobileReopenButton, MobileReopenButton)
-
-	AddConnection(MobileReopenButton.MouseButton1Click, function()
-		MainWindow.Visible = true;
-		MobileReopenButton.Visible = false;
-	end)
-
-	AddConnection(CloseBtn.MouseButton1Up, function()
-		MainWindow.Visible = false
-		UIHidden = true
-		
-		if UserInputService.TouchEnabled then
-			MobileReopenButton.Visible = true;
-		end
-		
-		OrionLib:MakeNotification({
-			Name = "Hide Gui",
-			Content = (isMobile and 'interact icon to reopen' or 'Press Key ' .. _currentKey.Name) .. " To Repoen gui",
-			Time = 5
-		})
-		WindowConfig.CloseCallback()
-	end)
-
 	AddConnection(UserInputService.InputBegan, function(Input)
 		if Input.KeyCode == _currentKey then
 			MobileReopenButton.Visible = false; 
@@ -1807,7 +1756,6 @@ function OrionLib:MakeWindow(WindowConfig)
 			Connection:Disconnect()
 		end
 		MainWindow:Destroy()
-		MobileIcon:Destroy()
 	end
 	
 	return Functions;
