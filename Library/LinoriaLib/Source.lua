@@ -4705,6 +4705,10 @@ local function OnPlayerChange()
     end;
 end;
 
+function Library:Destroy()
+    ScreenGui:Destroy()
+                    end                    
+
 Library:GiveSignal(Players.PlayerAdded:Connect(OnPlayerChange));
 Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange));
 
