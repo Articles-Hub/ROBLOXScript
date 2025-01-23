@@ -70,6 +70,35 @@ SlapChanged.Name = "SlapChanged"
 SlapChanged.Value = ""
 end
 
+function TweenTp(Part, CFnew, Body, Speed)
+BodyEnter = Body
+if BodyEnter == true then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") == nil then
+local bv = Instance.new("BodyVelocity")
+local bg = Instance.new("BodyGyro")
+bv.Name = "VelocityHandler"
+bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+bv.MaxForce = Vector3.new(0,0,0)
+bv.Velocity = Vector3.new(0,0,0)
+bg.Name = "GyroHandler"
+bg.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+bg.MaxTorque = Vector3.new(0,0,0)
+bg.P = 1000
+bg.D = 50
+end
+end
+local Tween = game:GetService("TweenService"):Create(Part, TweenInfo.new(Speed, Enum.EasingStyle.Linear), {CFrame = CFnew})
+Tween:Play()
+Tween.Completed:Wait()
+Tween:Cancel()
+if BodyEnter == true then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler:Destroy()
+game.Players.LocalPlayer.Character.HumanoidRootPart.GyroHandler:Destroy()
+end
+end
+end
+
 function AutoFarmSlap(Choose)
 if _G.GetTeleport == "Up To You" then
 OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
@@ -2845,6 +2874,221 @@ elseif _G.AutoTpPlate == true then
 Notification("You need enter erane, or 7 people the server", 5)
 wait(0.05)
 Toggles["Get Tycoon"]:SetValue(false)
+end
+    end
+})
+
+local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
+
+Badge3Group:AddDropdown("Cloud Mastery", {
+    Text = "Cloud Mastery",
+    Values = {"Studs (200k Fly)", "Afk (200 Min)", "Pickup Player (100 Player)"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.CloudMastery = Value
+    end
+})
+
+local TweenGet = 1
+Badge3Group:AddToggle("Auto Cloud Mastery", {
+    Text = "Auto Cloud Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoCloudMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Cloud" then
+while _G.AutoCloudMastery do
+if _G.CloudMastery == "Studs (200k Fly)" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+local TweenPlay = {
+	CFrame.new(4, 113, 209),
+	CFrame.new(228, 98, -11),
+	CFrame.new(-9, 137, -215),
+	CFrame.new(-229, 138, 2)
+}
+function NextTween()
+    local TweenNextGo = TweenPlay[TweenGet]
+    TweenGet = TweenGet + 1
+    if TweenGet > #TweenPlay then
+        TweenGet = 1
+    end
+    return TweenNextGo
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true then
+    for i, v in pairs(game.Workspace:GetChildren()) do
+        if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+            local TweenTag = NextTween()
+            TweenTp(v.VehicleSeat, TweenTag, false, 0.6)
+        end
+    end
+elseif game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == false then
+    for i, v in pairs(game.Workspace:GetChildren()) do
+        if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+            TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v.VehicleSeat.CFrame, true, 0.6)
+        end
+    end
+end
+end
+elseif _G.CloudMastery == "Afk (200 Min)" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Arena.CannonIsland.Cannon.Base.CFrame * CFrame.new(0,2,35)
+wait(0.3)
+game:GetService("ReplicatedStorage").CloudAbility:FireServer()
+fireclickdetector(workspace.Lobby.Diamond.ClickDetector)
+wait(0.2)
+if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace.Lobby.Teleport1.CFrame)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.3)
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == false then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.VehicleSeat.CFrame
+                    end
+               end
+          end
+until game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true
+wait(0.7)
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+                        v.VehicleSeat.CFrame = CFrame.new(245, 129, -91)
+                    end
+               end
+wait(0.3)
+game:GetService("ReplicatedStorage").Rockmode:FireServer()
+Toggles["Anti Afk"]:SetValue(true)
+end
+elseif _G.CloudMastery == "Pickup Player (100 Player)" then
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.Humanoid.Sit == false and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if 27 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
+for i, g in pairs(game.Workspace:GetChildren()) do
+                    if g.Name:match(game.Players.LocalPlayer.Name) and g:FindFirstChild("VehicleSeat") then
+                        g.VehicleSeat.CFrame = v.Character.HumanoidRootPart.CFrame
+                    end
+               end
+end
+end
+end
+end
+end
+task.wait()
+end
+elseif _G.AutoCloudStuds == true then
+Notification("You don't have Cloud equipped", 5)
+wait(0.05)
+Toggles["Auto Cloud Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddDropdown("Brick Mastery", {
+    Text = "Brick Mastery",
+    Values = {"Fling (200 km/h)", "Aimbot Brick"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.BrickMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Brick Mastery", {
+    Text = "Auto Brick Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoBrickMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Brick" then
+while _G.AutoBrickMastery do
+if _G.BrickMastery == "Fling (200 km/h)" then
+for i, v in pairs(game.Workspace:GetChildren()) do
+        if v.Name == "Union" then
+           v.Velocity = Vector3.new(220, 0, 220) 
+        end
+    end
+elseif _G.BrickMastery == "Aimbot Brick" then
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.leaderstats.Glove.Value ~= "Spectator" then
+if game.Workspace:FindFirstChild("Union") then
+for i, a in pairs(game.Workspace:GetChildren()) do
+        if a.Name == "Union" then
+           a.Velocity = (v.Character.HumanoidRootPart.Position - a.Position).unit * 220
+        end
+    end
+end
+end
+end
+end
+end
+end
+task.wait()
+end
+elseif _G.AutoBrickMastery == true then
+Notification("You don't have Brick equipped", 5)
+wait(0.05)
+Toggles["Auto Brick Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddDropdown("Run Mastery", {
+    Text = "Run Mastery",
+    Values = {"Esp Player", "Auto Kill Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.RunMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Run Mastery", {
+    Text = "Auto Run Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoRunMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Run" then
+while _G.AutoRunMastery do
+if _G.RunMastery == "Esp Player" then
+if game.Players.LocalPlayer.Character:FindFirstChild("InLabyrinth") then
+for i,v in ipairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("InLabyrinth") then
+if v.Character.Head:FindFirstChild("RunEsp") == nil then
+RunEsp = Instance.new("BillboardGui", v.Character.HumanoidRootPart)
+RunEsp.Adornee = v.Character.HumanoidRootPart
+RunEsp.Name = "RunEsp"
+RunEsp.Size = UDim2.new(0, 100, 0, 150)
+RunEsp.AlwaysOnTop = true
+RunEspText = Instance.new("TextLabel", RunEsp)
+RunEspText.BackgroundTransparency = 1
+RunEspText.Font = Enum.Font.SourceSansBold
+RunEspText.Size = UDim2.new(0, 100, 0, 100)
+RunEspText.TextSize = 15
+RunEspText.TextStrokeTransparency = 0.5
+RunEspText.Text = "Target Player"
+end
+end
+end
+end
+elseif _G.RunMastery == "Auto Kill Player" then
+if game.Players.LocalPlayer.Character:FindFirstChild("InLabyrinth") then
+for i,v in ipairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("InLabyrinth") then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v.Character.HumanoidRootPart.CFrame, true, 0.4)
+end
+end
+end
+end
+task.wait()
+end
+elseif _G.AutoRunMastery == true then
+Notification("You don't have Run equipped", 5)
+wait(0.05)
+Toggles["Auto Run Mastery"]:SetValue(false)
 end
     end
 })
@@ -6846,16 +7090,6 @@ end
     end
 })
 
-Glove2Group:AddDropdown("Cloud Bring", {
-    Text = "Cloud Bring",
-    Values = {"Player","Your"},
-    Default = "Player",
-    Multi = false,
-    Callback = function(Value)
-_G.CloudBring = Value
-    end
-})
-
 Glove2Group:AddInput("Players", {
     Default = "",
     Numeric = false,
@@ -6875,6 +7109,16 @@ Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
 else
 Notification("Can't find player", 5)
 end
+    end
+})
+
+Glove2Group:AddDropdown("Cloud Bring", {
+    Text = "Cloud Bring",
+    Values = {"Player","Your"},
+    Default = "Player",
+    Multi = false,
+    Callback = function(Value)
+_G.CloudBring = Value
     end
 })
 
@@ -6960,13 +7204,13 @@ Glove2Group:AddToggle("Auto Full Kinetic", {
     Text = "Auto Full Kinetic",
     Default = false, 
     Callback = function(Value)
-FullKineticSpam = Value
+_G.FullKineticSpam = Value
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Kinetic" and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
-while FullKineticSpam and game.Players.LocalPlayer.leaderstats.Glove.Value == "Kinetic" do
+while _G.FullKineticSpam do
 game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = 0,["Direction"] = Vector3.new(0,0.01,0)})
 task.wait()
 end
-elseif Value == true then
+elseif _G.FullKineticSpam == true then
 Notification("You don't have Kinetic equipped.", 5)
 wait(0.05)
 Toggles["Auto Full Kinetic"]:SetValue(false)
@@ -9996,6 +10240,7 @@ gloveHits = {
     ["Jerry"] = game.ReplicatedStorage.GeneralHit,
     ["Snowroller"] = game.ReplicatedStorage.GeneralHit,
     ["Cherry"] = game.ReplicatedStorage.GeneralHit,
+    ["Infinity"] = game.ReplicatedStorage.GeneralHit,
     ------------------------------------------------------------------------
     ["ZZZZZZZ"] = game.ReplicatedStorage.ZZZZZZZHit,
     ["Brick"] = game.ReplicatedStorage.BrickHit,
