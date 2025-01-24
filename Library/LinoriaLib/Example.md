@@ -565,7 +565,6 @@ end)
 - 100% Work
 ```lua
 Library:OnUnload(function()
-    WatermarkConnection:Disconnect()
 
     print('Unloaded!')
     Library.Unloaded = true
@@ -635,8 +634,6 @@ SaveManager:LoadAutoloadConfig()
 - Here 
 ```lua
 Library:OnUnload(function()
-    WatermarkConnection:Disconnect()
-
     print('Unloaded!')
     Library.Unloaded = true
 end)
