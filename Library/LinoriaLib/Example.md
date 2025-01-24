@@ -41,7 +41,7 @@ local Window = Library:CreateWindow({
 ```lua
 local Tabs = {
     Main = Window:AddTab('Main'),
-    ['UI Settings'] = Window:AddTab('UI Settings'),l
+    ['UI Settings'] = Window:AddTab('UI Settings'),
 }
 ```
 ```lua
@@ -54,7 +54,7 @@ NameTab = Window:AddTab('NameTab'),
 local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Groupbox')
 ```
 ```lua
-local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Groupbox')
+local RightGroupBox = Tabs.Main:AddRightGroupbox('Groupbox')
 ```
 
 - We can also get our Main tab via the following code:
