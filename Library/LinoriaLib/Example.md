@@ -15,7 +15,7 @@ Set Center to true if you want the menu to appear in the center
 - Position and Size are also valid options here
 - but you do not need to define them unless you are changing them :)
     
-```
+```lua
 local Window = Library:CreateWindow({
     Title = 'Example menu',
     Center = true,
