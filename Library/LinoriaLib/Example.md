@@ -449,8 +449,8 @@ Options.KeyPicker:SetValue({ 'MB2', 'Toggle' }) -- Sets keybind to MB2, mode to 
 })
 ```
 - Button Keybind For Mobile
-```
-AddKeyPicker("Keybind", {
+```lua
+:AddKeyPicker("Keybind", {
     Default = "Y",
     Text = "Keybind",
     Mode = Library.IsMobile and "Button",
