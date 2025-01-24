@@ -25,7 +25,7 @@ local Window = Library:CreateWindow({
 })
 ```
 
-** CALLBACK NOTE: ***
+** CALLBACK NOTE: **
 - Passing in callback functions via the initial element parameters (i.e. Callback = function(Value)...) works
 
 - HOWEVER, using Toggles/Options.INDEX:OnChanged(function(Value) ... ) is the RECOMMENDED way to do this.
