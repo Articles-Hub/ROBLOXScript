@@ -1282,7 +1282,7 @@ Anti2Group:AddToggle("Anti Boss Guide", {
 _G.AntiJoinBossGuide = Value
 while _G.AntiJoinBossGuide do
 for i, v in pairs(workspace.BountyHunterRoom:GetChildren()) do
-if v.Name == "Mobel" and v:FindFirstChild("Meshes/boxshadow_Cube.005") and v["Meshes/boxshadow_Cube.005"]:FindFirstChild("Hitbox") then
+if v.Name == "Model" and v:FindFirstChild("Meshes/boxshadow_Cube.005") and v["Meshes/boxshadow_Cube.005"]:FindFirstChild("Hitbox") then
 v["Meshes/boxshadow_Cube.005"].Hitbox.CanTouch = false
 end
 end
@@ -1301,6 +1301,8 @@ for i, v in pairs(workspace:GetChildren()) do
 if v.Name == "Snowball" and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 if 36 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude then
 v.CanTouch = false
+else
+v.CanTouch = true
 end
 end
 end
@@ -2882,7 +2884,7 @@ local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
 Badge3Group:AddDropdown("Cloud Mastery", {
     Text = "Cloud Mastery",
-    Values = {"Studs (200k Fly)", "Afk (200 Min)", "Pickup Player (100 Player)"},
+    Values = {"Studs (200k Fly)", "Afk (200 Min)", "Pickup Player (100 Player)", "Death Above (50 Above)"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -2918,7 +2920,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players
     for i, v in pairs(game.Workspace:GetChildren()) do
         if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
             local TweenTag = NextTween()
-            TweenTp(v.VehicleSeat, TweenTag, false, 0.6)
+            TweenTp(v.VehicleSeat, TweenTag, false, 0.3)
         end
     end
 elseif game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == false then
@@ -2951,10 +2953,10 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                end
           end
 until game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true
-wait(0.7)
+task.wait(1)
 for i,v in pairs(game.Workspace:GetChildren()) do
                     if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
-                        v.VehicleSeat.CFrame = CFrame.new(245, 129, -91)
+                        TweenTp(v.VehicleSeat, CFrame.new(245, 129, -91), false, 1)
                     end
                end
 wait(0.3)
@@ -2962,18 +2964,67 @@ game:GetService("ReplicatedStorage").Rockmode:FireServer()
 Toggles["Anti Afk"]:SetValue(true)
 end
 elseif _G.CloudMastery == "Pickup Player (100 Player)" then
-for i,v in pairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.Humanoid.Sit == false and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
-if 27 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
+local players = game.Players:GetChildren()
+local RandomPlayer = players[math.random(1, #players)]
+if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
+if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character.Ragdolled.Value == false and RandomPlayer.Character:FindFirstChild("Mirage") == nil then
 for i, g in pairs(game.Workspace:GetChildren()) do
-                    if g.Name:match(game.Players.LocalPlayer.Name) and g:FindFirstChild("VehicleSeat") then
-                        g.VehicleSeat.CFrame = v.Character.HumanoidRootPart.CFrame
+                    if g.Name:match(game.Players.LocalPlayer.Name) and g:FindFirstChild("Seat") then
+                        RandomPlayer.Character.HumanoidRootPart.CFrame = g.Seat.CFrame
                     end
                end
+wait(0.5)
+repeat task.wait() until RandomPlayer.Character.Humanoid.Sit == true
+if RandomPlayer.Character.Humanoid.Sit == true then
+gloveHits["Cloud"]:FireServer(RandomPlayer.Character.HumanoidRootPart)
+end
+task.wait(0.5)
+end 
+end
+elseif _G.CloudMastery == "Death Above (50 Above)" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+                        TweenTp(v.VehicleSeat, CFrame.new(4, 113, 209), false, 0.4)
+                    end
+               end
+task.wait(0.5)
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true then
+game.Players.LocalPlayer.Character.Humanoid.Sit = false
+end
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) then
+if v:FindFirstChild("VehicleSeat") and v.VehicleSeat.Disabled == false then
+   v.VehicleSeat.Disabled = true
 end
 end
 end
+local players = game.Players:GetChildren()
+local RandomPlayer = players[math.random(1, #players)]
+if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
+if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character.Ragdolled.Value == false and RandomPlayer.Character:FindFirstChild("Mirage") == nil then
+game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = RandomPlayer.Character.HumanoidRootPart.CFrame
+wait(0.3)
+gloveHits["Cloud"]:FireServer(RandomPlayer.Character.HumanoidRootPart)
+end
+end
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) then
+if v:FindFirstChild("VehicleSeat") and v.VehicleSeat.Disabled == true then
+   v.VehicleSeat.Disabled = false
+end
+end
+end
+task.wait(0.15)
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true then
+for i, v in pairs(game.Workspace:GetChildren()) do
+        if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.VehicleSeat.CFrame
+        end
+    end
+end
+until game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true
 end
 end
 task.wait()
@@ -3056,8 +3107,8 @@ while _G.AutoRunMastery do
 if _G.RunMastery == "Esp Player" then
 if game.Players.LocalPlayer.Character:FindFirstChild("InLabyrinth") then
 for i,v in ipairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("InLabyrinth") then
-if v.Character.Head:FindFirstChild("RunEsp") == nil then
+if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("InLabyrinth") then
+if v.Character.HumanoidRootPart:FindFirstChild("RunEsp") == nil then
 RunEsp = Instance.new("BillboardGui", v.Character.HumanoidRootPart)
 RunEsp.Adornee = v.Character.HumanoidRootPart
 RunEsp.Name = "RunEsp"
@@ -3071,14 +3122,18 @@ RunEspText.TextSize = 15
 RunEspText.TextStrokeTransparency = 0.5
 RunEspText.Text = "Target Player"
 end
+elseif v.Character and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("InLabyrinth") == nil then
+if v.Character.HumanoidRootPart:FindFirstChild("RunEsp") then
+v.Character.HumanoidRootPart.RunEsp:Destroy()
+end
 end
 end
 end
 elseif _G.RunMastery == "Auto Kill Player" then
 if game.Players.LocalPlayer.Character:FindFirstChild("InLabyrinth") then
 for i,v in ipairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("InLabyrinth") then
-TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v.Character.HumanoidRootPart.CFrame, true, 0.4)
+if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("InLabyrinth") then
+v.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 end
 end
 end
@@ -3234,7 +3289,9 @@ for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
                     end
                 end
 for i,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                    if v:IsA("Tool") and v.Name ~= "Radio" then
                         v.Parent = game.LogService
+                    end
                 end
 game:GetService("Players").LocalPlayer.Reset:FireServer()
 wait(3.82)
@@ -4970,8 +5027,8 @@ for i, v in ipairs(game.Players:GetChildren()) do
 if v.Character:FindFirstChild("Head") and v.Character.Head:FindFirstChild("GloveEsp") then
 v.Character.Head.GloveEsp:Destroy()
 end
-if v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart:FindFirstChild(v.Name) then
-v.Character.HumanoidRootPart[v.Name]:Destroy()
+if v.Character and v.Character:FindFirstChild(v.Name) then
+v.Character[v.Name]:Destroy()
 end
 for i,f in pairs(game.Workspace:GetChildren()) do
 if f.Name == (v.Name.."_Body") then
@@ -5002,23 +5059,11 @@ if v.Character.Head:FindFirstChild("GloveEsp") and v.Character.Head.GloveEsp:Fin
 v.Character.Head.GloveEsp.TextLabel.TextColor3 = _G.ColorESP
 end
 if v.Character.Head:FindFirstChild("GloveEsp") and v.Character.Head.GloveEsp:FindFirstChild("TextLabel") then
-if _G.DistanceEsp == false and _G.SlapEsp == false then
-if v.Character.Head.GloveEsp.TextLabel.Text ~= "Glove [ "..v.leaderstats.Glove.Value.." ]" then
-v.Character.Head.GloveEsp.TextLabel.Text = "Glove [ "..v.leaderstats.Glove.Value.." ]"
-end
-elseif _G.DistanceEsp == true and _G.SlapEsp == true then
-if v.Character.Head.GloveEsp.TextLabel.Text ~= "Glove [ "..v.leaderstats.Glove.Value.." ]\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude).." ]\nSlap [ "..v.leaderstats.Slaps.Value.." ]" then
-v.Character.Head.GloveEsp.TextLabel.Text = "Glove [ "..v.leaderstats.Glove.Value.." ]\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude).." ]\nSlap [ "..v.leaderstats.Slaps.Value.." ]"
-end
-elseif _G.DistanceEsp == true and _G.SlapEsp == false then
-if v.Character.Head.GloveEsp.TextLabel.Text ~= "Glove [ "..v.leaderstats.Glove.Value.." ]\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude).." ]" then
-v.Character.Head.GloveEsp.TextLabel.Text = "Glove [ "..v.leaderstats.Glove.Value.." ]\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude).." ]"
-end
-elseif _G.DistanceEsp == false and _G.SlapEsp == true then
-if v.Character.Head.GloveEsp.TextLabel.Text ~= "Glove [ "..v.leaderstats.Glove.Value.." ]\nSlap [ "..v.leaderstats.Slaps.Value.." ]" then
-v.Character.Head.GloveEsp.TextLabel.Text = "Glove [ "..v.leaderstats.Glove.Value.." ]\nSlap [ "..v.leaderstats.Slaps.Value.." ]"
-end
-end
+v.Character.Head.GloveEsp.TextLabel.Text = 
+          (_G.GloveEsp == true and "Glove [ "..v.leaderstats.Glove.Value.." ]" or "")..
+          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude).." ]" or "")..
+          (_G.SlapEsp == true and "\nSlap [ "..v.leaderstats.Slaps.Value.." ]" or "")..
+          (_G.NameEsp == true and "\nName [ "..v.Name.." ]" or "")
 end
 if game.Workspace:FindFirstChild(v.Name.."_Body") and v.Character.Head:FindFirstChild("GloveEsp") then
 v.Character.Head.GloveEsp:Destroy()
@@ -5037,18 +5082,18 @@ GloveEspText.Size = UDim2.new(0, 100, 0, 100)
 GloveEspText.TextSize = _G.TextSize
 GloveEspText.TextColor3 = _G.ColorESP
 GloveEspText.TextStrokeTransparency = 0.5
-GloveEspText.Text = "Glove [ "..v.leaderstats.Glove.Value.." ]"
+GloveEspText.Text = ""
 end
 if _G.HighlightEsp == true then
-if v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart:FindFirstChild(v.Name) == nil then
-local HighlightEsp = Instance.new("Highlight", v.Character.HumanoidRootPart)
+if v.Character and v.Character:FindFirstChild(v.Name) == nil then
+local HighlightEsp = Instance.new("Highlight", v.Character)
 HighlightEsp.Adornee = v.Character
 HighlightEsp.Name = v.Name
 HighlightEsp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 end
 elseif _G.HighlightEsp == false then
-if v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart:FindFirstChild(v.Name) then
-v.Character.HumanoidRootPart[v.Name]:Destroy()
+if v.Character and v.Character:FindFirstChild(v.Name) then
+v.Character[v.Name]:Destroy()
 end
 end
 if _G.GhostEsp == true then
@@ -5182,12 +5227,30 @@ _G.DistanceEsp = Value
     end
 })
 
+_G.GloveEsp = false
+Misc2Esp:AddToggle("Glove Esp", {
+    Text = "Glove Esp",
+    Default = false, 
+    Callback = function(Value) 
+_G.GloveEsp = Value
+    end
+})
+
 _G.SlapEsp = false
 Misc2Esp:AddToggle("Slap Esp", {
     Text = "Slap Esp",
     Default = false, 
     Callback = function(Value) 
 _G.SlapEsp = Value
+    end
+})
+
+_G.NameEsp = false
+Misc2Esp:AddToggle("Name Esp", {
+    Text = "Name Esp",
+    Default = false, 
+    Callback = function(Value) 
+_G.NameEsp = Value
     end
 })
 
@@ -6850,6 +6913,26 @@ v.CFrame = game.Players[_G.PlayerButton2].Character.HumanoidRootPart.CFrame
 end
 end
 task.wait(0.01)
+end
+elseif Value == true then
+Notification("You don't have Ping Pong equipped.", 5)
+wait(0.05)
+Toggles["PingPong"]:SetValue(false)
+end
+    end
+})
+
+Glove2Group:AddToggle("Auto Fight Ping Pong", {
+    Text = "Auto Fight Ping Pong",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoFightPingPong = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Ping Pong" then
+while _G.AutoFightPingPong do
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Ping Pong" then
+game:GetService("ReplicatedStorage").PingPongEvent:FireServer()
+end
+task.wait()
 end
 elseif Value == true then
 Notification("You don't have Ping Pong equipped.", 5)
