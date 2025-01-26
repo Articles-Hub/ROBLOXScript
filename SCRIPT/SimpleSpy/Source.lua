@@ -217,7 +217,7 @@ function ErrorPrompt(Message,state)
     end
 end
 
-local Highlight = (isfile and loadfile and isfile("Highlight.lua") and loadfile("Highlight.lua")()) or loadstring(game:HttpGet("https://raw.githubusercontent.com/78n/SimpleSpy/main/Highlight.lua"))()
+local Highlight = (isfile and loadfile and isfile("Highlight.lua") and loadfile("Highlight.lua")()) or loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/SCRIPT/SimpleSpy/Highlights.lua"))()
 
 local SimpleSpy3 = Create("ScreenGui",{ResetOnSpawn = false})
 local Storage = Create("Folder",{})
@@ -2296,29 +2296,12 @@ function()
     TextLabel.Text = ("[%s] Display more remoteinfo"):format(configs.advancedinfo and "ENABLED" or "DISABLED")
 end)
 
-newButton("Join Discord",function()
-    return "Joins The Simple Spy Discord"
-end,
-function()
-    setclipboard("https://discord.com/invite/AWS6ez9")
-    TextLabel.Text = "Copied invite to your clipboard"
-    if request then
-        request({Url = 'http://127.0.0.1:6463/rpc?v=1',Method = 'POST',Headers = {['Content-Type'] = 'application/json', Origin = 'https://discord.com'},Body = http:JSONEncode({cmd = 'INVITE_BROWSER',nonce = http:GenerateGUID(false),args = {code = 'AWS6ez9'}})})
-    end
-end)
-
 if configs.supersecretdevtoggle then
-    newButton("Load SSV2.2",function()
-        return "Load's Simple Spy V2.2"
-    end,
-    function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
-    end)
     newButton("Load SSV3",function()
         return "Load's Simple Spy V3"
     end,
     function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/78n/SimpleSpy/main/SimpleSpySource.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/SCRIPT/SimpleSpy/Source.lua"))()
     end)
     local SuperSecretFolder = Create("Folder",{Parent = SimpleSpy3})
     newButton("SUPER SECRET BUTTON",function()
@@ -2330,4 +2313,4 @@ if configs.supersecretdevtoggle then
         local NotSound = Create("Sound",{Parent = SuperSecretFolder,Looped = false,Volume = math.random(1,5),SoundId = getsynasset(random[math.random(1,#random)])})
         NotSound:Play()
     end)
-end
+end 
