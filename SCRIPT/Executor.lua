@@ -701,7 +701,7 @@ end
 end)
 
 CreatorButton("Simple Spy", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/SCRIPT/SimpleSpy.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/SCRIPT/SimpleSpy/SourceBeta.lua"))()
 end)
 
 CreatorButton("Fly Gui", function()
