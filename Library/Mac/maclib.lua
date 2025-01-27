@@ -47,7 +47,7 @@ local assets = {
 
 --// Functions
 local function GetGui()
-	local newGui = Instance.new("ScreenGui")
+	local newGui = Instance.new("MacLib")
 	newGui.ScreenInsets = Enum.ScreenInsets.None
 	newGui.ResetOnSpawn = false
 	newGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -111,10 +111,11 @@ function MacLib:Window(Settings)
 	base.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	base.BorderSizePixel = 0
 	base.Position = UDim2.fromScale(0.5, 0.5)
-	base.Size = Settings.Size or UDim2.fromOffset(686, 450)
+	base.Size = Settings.Size or UDim2.fromOffset(868, 650)
 
 	local baseUIScale = Instance.new("UIScale")
 	baseUIScale.Name = "BaseUIScale"
+	baseUIScale.Scale = 7
 	baseUIScale.Parent = base
 
 	local baseUICorner = Instance.new("UICorner")
