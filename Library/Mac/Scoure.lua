@@ -47,7 +47,8 @@ local assets = {
 
 --// Functions
 local function GetGui()
-	local newGui = Instance.new("MacLib")
+	local newGui = Instance.new("ScreenGui")
+	newGui.Name = "MacLib"
 	newGui.ScreenInsets = Enum.ScreenInsets.None
 	newGui.ResetOnSpawn = false
 	newGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
