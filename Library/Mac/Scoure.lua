@@ -78,6 +78,30 @@ function MacLib:Window(Settings)
 
 	local macLib = GetGui()
 
+	local button = Instance.new("TextButton")
+        local uiCorner = Instance.new("UICorner")
+
+
+button.Size = UDim2.new(0, 150, 0, 150)
+button.Position = UDim2.new(0.5, -75, 0.5, -75)
+button.AnchorPoint = Vector2.new(0.5, 0.5)
+button.Text = "Mac"
+button.Font = Enum.Font.SciFi
+button.TextSize = 24
+button.TextColor3 = Color3.new(1, 1, 1)
+button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+button.Parent = macLib
+button.Draggable = true
+button.Visible = false
+
+uiCorner.CornerRadius = UDim.new(1, 0)
+uiCorner.Parent = button
+
+button.MouseButton1Click:Connect(function()
+    toggle()
+button.Visible = false
+end)
+
 	local notifications = Instance.new("Frame")
 	notifications.Name = "Notifications"
 	notifications.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -927,29 +951,7 @@ function MacLib:Window(Settings)
 	globalSettings.Parent = base
 	base.Parent = macLib
 	
-	local button = Instance.new("TextButton")
-        local uiCorner = Instance.new("UICorner")
-
-
-button.Size = UDim2.new(0, 150, 0, 150)
-button.Position = UDim2.new(0.5, -75, 0.5, -75)
-button.AnchorPoint = Vector2.new(0.5, 0.5)
-button.Text = "Mac"
-button.Font = Enum.Font.SciFi
-button.TextSize = 24
-button.TextColor3 = Color3.new(1, 1, 1)
-button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-button.Parent = newGui
-button.Draggable = true
-button.Visible = false
-
-uiCorner.CornerRadius = UDim.new(1, 0)
-uiCorner.Parent = button
-
-button.MouseButton1Click:Connect(function()
-    toggled = true
-button.Visible = false
-end)
+	
 
 	function WindowFunctions:UpdateTitle(NewTitle)
 		title.Text = NewTitle
