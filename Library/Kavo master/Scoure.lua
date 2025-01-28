@@ -427,7 +427,7 @@ function Kavo.CreateLib(params)
         pageListing.Name = "pageListing"
         pageListing.Parent = page
         pageListing.SortOrder = Enum.SortOrder.LayoutOrder
-        pageListing.Padding = UDim.new(0, 5)
+        pageListing.Padding = UDim.new(0, 9)
 
         tabButton.Name = tabName.."TabButton"
         tabButton.Parent = tabFrames
