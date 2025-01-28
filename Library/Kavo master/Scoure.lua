@@ -449,7 +449,7 @@ function Kavo.CreateLib(params)
         Tabline.Image = "rbxassetid://88200094808166"
         Tabline.BackgroundTransparency = 1
         Tabline.ZIndex = 0
-        Tabline.Parent = Main
+        Tabline.Parent = tabButton
 
         if first then
             first = false
