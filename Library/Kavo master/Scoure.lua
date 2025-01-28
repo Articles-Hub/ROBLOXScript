@@ -472,6 +472,7 @@ function Kavo.CreateLib(params)
         local UICorner = Instance.new("UICorner")
         local page = Instance.new("ScrollingFrame")
         local pageListing = Instance.new("UIListLayout")
+        local Tabstroke = Instance.new("UIStroke")
 
         local function UpdateSize()
             local cS = pageListing.AbsoluteContentSize
@@ -518,6 +519,11 @@ function Kavo.CreateLib(params)
         Tabline.BackgroundTransparency = 1
         Tabline.ZIndex = 0
         Tabline.Parent = tabButton
+        
+        Tabstroke.Name = "Tabstroke"
+        Tabstroke.Thickness = 2
+        Tabstroke.Color = Color3.new(1, 1, 1)
+        Tabstroke.Parent = tabButton
 
         if first then
             first = false
