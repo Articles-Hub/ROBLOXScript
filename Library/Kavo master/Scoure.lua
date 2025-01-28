@@ -438,13 +438,15 @@ function Kavo.CreateLib(params)
     Settings.Parent = InfoLabel
     
     Settings.MouseButton1Click:Connect(function()
-    tut = not tutu
+    tut = not tut
     if tut then
     infoContainer.Visible = false
 	pages.Visible = false
+    MainSide.tabFrames = false
     else
 	infoContainer.Visible = true
 	pages.Visible = true
+	MainSide.tabFrames = true
 	end
     end)
 
