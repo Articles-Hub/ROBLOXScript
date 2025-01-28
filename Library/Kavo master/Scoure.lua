@@ -221,6 +221,7 @@ function Kavo.CreateLib(params)
     local coverup = Instance.new("Frame")
     local title = Instance.new("TextLabel")
     local close = Instance.new("ImageButton")
+    local Mimize = Instance.new("ImageButton")
     local MainSide = Instance.new("Frame")
     local sideCorner = Instance.new("UICorner")
     local coverup_2 = Instance.new("Frame")
@@ -317,6 +318,34 @@ function Kavo.CreateLib(params)
 		}):Play()
         wait(1)
         ScreenGui:Destroy()
+    end)
+    
+    Mimize.Name = "Mimize"
+    Mimize.Parent = MainHeader
+    Mimize.BackgroundTransparency = 1.000
+    Mimize.Position = UDim2.new(0.919999988, 0, 0.137999997, 0)
+    Mimize.Size = UDim2.new(0, 21, 0, 21)
+    Mimize.ZIndex = 2
+    Mimize.Image = "rbxassetid://7733673717"
+    Mimize.ImageRectOffset = Vector2.new(284, 4)
+    Mimize.ImageRectSize = Vector2.new(24, 24)
+    Mimize.MouseButton1Click:Connect(function()
+    toggless = not toggless
+    if toggless then
+        game.TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0.336503863, 0, 0, 30),
+		}):Play()
+		Mimize.Image = "rbxassetid://7733672933"
+		MainSide.Visible = false
+		Main.Visible = false
+        else
+        game.TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0.336503863, 0, 0.275485456, 0),
+		}):Play()
+		Mimize.Image = "rbxassetid://7733673717"
+		MainSide.Visible = true
+		Main.Visible = true
+		end
     end)
 
     MainSide.Name = "MainSide"
