@@ -228,7 +228,7 @@ function Kavo.CreateLib(params)
     local InfoLabel = Instance.new("Frame")
     local Corner = Instance.new("UICorner")
     local Avatar = Instance.new("ImageLabel")
-    local Corner = Instance.new("UICorner")
+    local Corner1 = Instance.new("UICorner")
     local Settings = Instance.new("ImageButton")
     local sideCorner = Instance.new("UICorner")
     local coverup_2 = Instance.new("Frame")
@@ -414,8 +414,8 @@ function Kavo.CreateLib(params)
     InfoLabel.Parent = MainSide
 
     
-    Corner.CornerRadius = UDim.new(0, 4)
-    Corner.Parent = InfoLabel
+    Corner1.CornerRadius = UDim.new(0, 4)
+    Corner1.Parent = InfoLabel
 
     Avatar.Size = UDim2.new(0, 30, 0, 30)
     Avatar.Position = UDim2.new(0, 3, 0, 0)
@@ -431,8 +431,7 @@ function Kavo.CreateLib(params)
 
     Settings.Size = UDim2.new(0, 30, 0, 30)
     Settings.Position = UDim2.new(0.8, 0, 0, 1)
-    Settings.ImageColor3 = themeList.Header
-    Objects[MainHeader] = "BackgroundColor3"
+    Settings.ImageColor3 = Color3.fromRGB(255, 255, 255)
     Settings.Image = "rbxassetid://8997386997"
     Settings.BackgroundTransparency = 1
     Settings.Parent = InfoLabel
