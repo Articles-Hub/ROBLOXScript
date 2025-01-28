@@ -268,12 +268,12 @@ function Kavo.CreateLib(params)
     headerCover.Name = "headerCover"
     headerCover.Parent = MainHeader
     
-    Icon.Size = UDim2.new(0, 30, 0, 30)
-    Icon.Position = UDim2.new(0, 0, 0, 0)
+    Icon.Size = UDim2.new(0, 20, 0, 20)
+    Icon.Position = UDim2.new(0, 12, 0, 12)
     Icon.AnchorPoint = Vector2.new(0.5, 0.5)
     Icon.Image = kavIcon
     Icon.BackgroundTransparency = 1
-    Icon.Parent = MainHeader
+    Icon.Parent = Main
 
     coverup.Name = "coverup"
     coverup.Parent = MainHeader
@@ -288,7 +288,7 @@ function Kavo.CreateLib(params)
     title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     title.BackgroundTransparency = 1.000
     title.BorderSizePixel = 0
-    title.Position = UDim2.new(0.0171428565, 0, 0.344827592, 0)
+    title.Position = UDim2.new(0.0171428565, 30, 0.344827592, 0)
     title.Size = UDim2.new(0, 204, 0, 8)
     title.Font = Enum.Font.FredokaOne
     title.RichText = true
