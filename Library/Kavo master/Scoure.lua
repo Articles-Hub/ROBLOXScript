@@ -437,18 +437,7 @@ function Kavo.CreateLib(params)
     Settings.BackgroundTransparency = 1
     Settings.Parent = InfoLabel
     
-    Settings.MouseButton1Click:Connect(function()
-    tut = not tut
-    if tut then
-    infoContainer.Visible = false
-	pages.Visible = false
-    MainSide.tabFrames = false
-    else
-	infoContainer.Visible = true
-	pages.Visible = true
-	MainSide.tabFrames = true
-	end
-    end)
+    
 
     
     coroutine.wrap(function()
@@ -2746,6 +2735,20 @@ function Kavo.CreateLib(params)
 	            if themeList.SchemeColor == Color3.fromRGB(0,0,0) then
 	                Utility:TweenObject(label, {TextColor3 = Color3.fromRGB(255,255,255)}, 0.2)
 	            end 
+
+
+Settings.MouseButton1Click:Connect(function()
+    tut = not tut
+    if tut then
+    infoContainer.Visible = false
+	pages.Visible = false
+    MainSide.tabFrames = false
+    else
+	infoContainer.Visible = true
+	pages.Visible = true
+	MainSide.tabFrames = true
+	end
+    end)
 
 		        coroutine.wrap(function()
 		            while wait() do
