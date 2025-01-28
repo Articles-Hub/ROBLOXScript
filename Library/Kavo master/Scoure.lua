@@ -205,7 +205,7 @@ function Kavo.CreateLib(params)
     themeList = themeList or {}
     local selectedTab 
     kavName = params.Name or "Library"
-    kavIcon = params.Icon or "rblxassetid://"
+    kavIcon = params.Icon or "rbxassetid://"
     table.insert(Kavo, kavName)
     for i,v in pairs(game.CoreGui:GetChildren()) do
         if v:IsA("ScreenGui") and v.Name == kavName then
@@ -400,6 +400,7 @@ function Kavo.CreateLib(params)
     function Tabs:NewTab(tabName)
         tabName = tabName or "Tab"
         local tabButton = Instance.new("TextButton")
+        local Tabline = Instance.new("ImageLabel")
         local UICorner = Instance.new("UICorner")
         local page = Instance.new("ScrollingFrame")
         local pageListing = Instance.new("UIListLayout")
@@ -440,6 +441,15 @@ function Kavo.CreateLib(params)
         Objects[tabButton] = "TextColor3"
         tabButton.TextSize = 14.000
         tabButton.BackgroundTransparency = 1
+        tabButton.ZIndex = 1
+        
+        Tabline.Size = UDim2.new(0, 40, 0, 40)
+        Tabline.Position = UDim2.new(0, 0, 0, 20)
+        Tabline.AnchorPoint = Vector2.new(0.5, 0.5)
+        Tabline.Image = "rbxassetid://88200094808166"
+        Tabline.BackgroundTransparency = 1
+        Tabline.ZIndex = 0
+        Tabline.Parent = Main
 
         if first then
             first = false
