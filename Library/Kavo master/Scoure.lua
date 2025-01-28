@@ -443,8 +443,8 @@ function Kavo.CreateLib(params)
         tabButton.BackgroundTransparency = 1
         tabButton.ZIndex = 1
         
-        Tabline.Size = UDim2.new(0, 40, 0, 40)
-        Tabline.Position = UDim2.new(0, 0, 0, 20)
+        Tabline.Size = UDim2.new(0, 25, 0, 25)
+        Tabline.Position = UDim2.new(0, 0, 0, 10)
         Tabline.AnchorPoint = Vector2.new(0.5, 0.5)
         Tabline.Image = "rbxassetid://88200094808166"
         Tabline.BackgroundTransparency = 1
