@@ -446,7 +446,7 @@ function Kavo.CreateLib(params)
     else
 	infoContainer.Visible = true
 	pages.Visible = true
-	
+	end
     end)
 
     
