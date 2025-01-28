@@ -1,6 +1,6 @@
 # Kavo Ui Library Master
 
-## Getting Loadstring Old
+## Getting Loadstring
 ```lua
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/Kavo%20master/Scoure.lua"))()
 ```
