@@ -332,19 +332,21 @@ function Kavo.CreateLib(params)
     Mimize.MouseButton1Click:Connect(function()
     toggless = not toggless
     if toggless then
-        game.TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0.336503863, 0, 0, 30),
+        game.TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, 525, 0, 30),
 		}):Play()
 		Mimize.Image = "rbxassetid://7733672933"
 		MainSide.Visible = false
-		Main.Visible = false
+		infoContainer.Visible = false
+		pages.Visible = false
         else
-        game.TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0.336503863, 0, 0.275485456, 0),
+        game.TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, 525, 0, 318),
 		}):Play()
 		Mimize.Image = "rbxassetid://7733673717"
 		MainSide.Visible = true
-		Main.Visible = true
+		infoContainer.Visible = true
+		pages.Visible = true
 		end
     end)
 
@@ -376,6 +378,7 @@ function Kavo.CreateLib(params)
 
     tabListing.Name = "tabListing"
     tabListing.Parent = tabFrames
+    tabListing.Padding = UDim.new(0, 9)
     tabListing.SortOrder = Enum.SortOrder.LayoutOrder
 
     pages.Name = "pages"
@@ -456,7 +459,7 @@ function Kavo.CreateLib(params)
         pageListing.Name = "pageListing"
         pageListing.Parent = page
         pageListing.SortOrder = Enum.SortOrder.LayoutOrder
-        pageListing.Padding = UDim.new(0, 9)
+        pageListing.Padding = UDim.new(0, 5)
 
         tabButton.Name = tabName.."TabButton"
         tabButton.Parent = tabFrames
