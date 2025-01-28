@@ -2973,7 +2973,7 @@ local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
 Badge3Group:AddDropdown("Cloud Mastery", {
     Text = "Cloud Mastery",
-    Values = {"Studs (200k Fly)", "Afk (200 Min)", "Pickup Player (100 Player)", "Death Above (50 Above)"},
+    Values = {"Studs (200k Fly)", "Afk (200 Min)", "Pickup Player (100 Player)"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -3070,55 +3070,10 @@ end
 task.wait(0.5)
 end 
 end
-elseif _G.CloudMastery == "Death Above (50 Above)" then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
-for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
-                        TweenTp(v.VehicleSeat, CFrame.new(4, 113, 209), false, 0.4)
-                    end
-               end
-task.wait(0.5)
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true then
-game.Players.LocalPlayer.Character.Humanoid.Sit = false
-end
-for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name:match(game.Players.LocalPlayer.Name) then
-if v:FindFirstChild("VehicleSeat") and v.VehicleSeat.Disabled == false then
-   v.VehicleSeat.Disabled = true
-end
-end
-end
-local players = game.Players:GetChildren()
-local RandomPlayer = players[math.random(1, #players)]
-if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
-if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character.Ragdolled.Value == false and RandomPlayer.Character:FindFirstChild("Mirage") == nil then
-game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = RandomPlayer.Character.HumanoidRootPart.CFrame
-wait(0.3)
-gloveHits["Cloud"]:FireServer(RandomPlayer.Character.HumanoidRootPart, true)
-end
-end
-for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name:match(game.Players.LocalPlayer.Name) then
-if v:FindFirstChild("VehicleSeat") and v.VehicleSeat.Disabled == true then
-   v.VehicleSeat.Disabled = false
-end
-end
-end
-task.wait(0.15)
-repeat task.wait()
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true then
-for i, v in pairs(game.Workspace:GetChildren()) do
-        if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.VehicleSeat.CFrame
-        end
-    end
-end
-until game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true
-end
 end
 task.wait()
 end
-elseif _G.AutoCloudStuds == true then
+elseif _G.AutoCloudMastery == true then
 Notification("You don't have Cloud equipped", 5)
 wait(0.05)
 Toggles["Auto Cloud Mastery"]:SetValue(false)
@@ -3128,7 +3083,7 @@ end
 
 Badge3Group:AddDropdown("Brick Mastery", {
     Text = "Brick Mastery",
-    Values = {"Fling (200 km/h)", "Aimbot Brick"},
+    Values = {"Fling (200 km/h)", "Aimbot Brick", "Aimbot Brick 2"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -3165,6 +3120,31 @@ end
 end
 end
 end
+elseif _G.BrickMastery == "Aimbot Brick 2" then
+for i, b in pairs(game.Workspace:GetChildren()) do
+if b.Name == "Union" and 4 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - b.Position).Magnitude then
+local BrickTag = b
+local EligiblePlayers = {}
+for i,v in pairs(game.Players:GetChildren()) do
+    if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+       if game.Players.LocalPlayer.Character:FindFirstChild("entered") and v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Left Leg") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+          if v.leaderstats.Glove.Value ~= "Spectator" then
+             if 50 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
+                table.insert(EligiblePlayers, v)
+             end
+          end
+       end
+    end
+end
+if #EligiblePlayers > 0 then
+local GetPlayer = EligiblePlayers[math.random(1, #EligiblePlayers)]
+if GetPlayer.Character:FindFirstChild("Left Leg") and game.Workspace:FindFirstChild("Union") then
+    BrickTag.Velocity = (GetPlayer.Character["Left Leg"].Position - BrickTag.Position).unit * 100
+end
+EligiblePlayers = {}
+end
+end
+end
 end
 task.wait()
 end
@@ -3172,6 +3152,50 @@ elseif _G.AutoBrickMastery == true then
 Notification("You don't have Brick equipped", 5)
 wait(0.05)
 Toggles["Auto Brick Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddDropdown("Wormhole Mastery", {
+    Text = "Wormhole Mastery",
+    Values = {"Place", "Teleport Time", "Ambush Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.WormholeMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Wormhole Mastery", {
+    Text = "Auto Wormhole Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoWormholeMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Wormhole" then
+while _G.AutoWormholeMastery do
+if _G.WormholeMastery == "Place" then
+game:GetService("ReplicatedStorage").WormholePlace:FireServer()
+elseif _G.WormholeMastery == "Teleport Time" then
+game:GetService("ReplicatedStorage").WormholeTP:FireServer(CFrame.new(-57.48336410522461, -4.672852516174316, 67.94768524169922, 0.5769212245941162, 0.0005397791974246502, 0.8167997002601624, 1.468715993269143e-07, 0.9999997615814209, -0.0006609398988075554, -0.8167998790740967, 0.00038141835830174387, 0.5769210457801819))
+elseif _G.WormholeMastery == "Ambush Player" then
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil or game.Players.LocalPlayer.leaderstats.Glove.Value == "Error" then
+if 30 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
+game:GetService("ReplicatedStorage").WormholeTP:FireServer(CFrame.new(-57.48336410522461, -4.672852516174316, 67.94768524169922, 0.5769212245941162, 0.0005397791974246502, 0.8167997002601624, 1.468715993269143e-07, 0.9999997615814209, -0.0006609398988075554, -0.8167998790740967, 0.00038141835830174387, 0.5769210457801819))
+end
+end
+end
+end
+end
+end
+task.wait()
+end
+elseif _G.AutoWormholeMastery == true then
+Notification("You don't have Wormhole equipped", 5)
+wait(0.05)
+Toggles["Auto Wormhole Mastery"]:SetValue(false)
 end
     end
 })
@@ -4820,19 +4844,6 @@ gloveHits["Mace"]:FireServer(v:WaitForChild(_G.SlapAuraCharacter), 100)
 else
 gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v:WaitForChild(_G.SlapAuraCharacter))
 end
-end
-end
-end
-end
-for i, c in pairs(workspace:GetChildren()) do
-if string.find(c.Name, "Å") and c:FindFirstChild("HumanoidRootPart") then
-if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - c.HumanoidRootPart.Position).Magnitude then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
-gloveHits["Boxer"]:FireServer(v, true)
-elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
-gloveHits["Mace"]:FireServer(v:WaitForChild(_G.SlapAuraCharacter), 100)
-else
-gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v:WaitForChild(_G.SlapAuraCharacter))
 end
 end
 end
