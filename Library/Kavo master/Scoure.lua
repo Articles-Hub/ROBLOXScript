@@ -214,9 +214,9 @@ function Kavo.CreateLib(params)
     end
     local ScreenGui = Instance.new("ScreenGui")
     local Main = Instance.new("Frame")
-    local Icon = Instance.new("ImageLabel")
     local MainCorner = Instance.new("UICorner")
     local MainHeader = Instance.new("Frame")
+    local Icon = Instance.new("ImageLabel")
     local headerCover = Instance.new("UICorner")
     local coverup = Instance.new("Frame")
     local title = Instance.new("TextLabel")
@@ -255,13 +255,6 @@ function Kavo.CreateLib(params)
     Main.Position = UDim2.new(0.336503863, 0, 0.275485456, 0)
     Main.Size = UDim2.new(0, 525, 0, 318)
 
-    Icon.Size = UDim2.new(0, 40, 0, 40)
-    Icon.Position = UDim2.new(0, 4, 0, 2)
-    Icon.AnchorPoint = Vector2.new(0.5, 0.5)
-    Icon.Image = kavIcon
-    Icon.BackgroundTransparency = 1
-    Icon.Parent = Main
-
     MainCorner.CornerRadius = UDim.new(0, 4)
     MainCorner.Name = "MainCorner"
     MainCorner.Parent = Main
@@ -274,6 +267,13 @@ function Kavo.CreateLib(params)
     headerCover.CornerRadius = UDim.new(0, 4)
     headerCover.Name = "headerCover"
     headerCover.Parent = MainHeader
+    
+    Icon.Size = UDim2.new(0, 30, 0, 30)
+    Icon.Position = UDim2.new(0, 0, 0, 0)
+    Icon.AnchorPoint = Vector2.new(0.5, 0.5)
+    Icon.Image = kavIcon
+    Icon.BackgroundTransparency = 1
+    Icon.Parent = MainHeader
 
     coverup.Name = "coverup"
     coverup.Parent = MainHeader
