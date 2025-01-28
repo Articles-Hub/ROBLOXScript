@@ -5,6 +5,8 @@ local tweeninfo = TweenInfo.new
 local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 
+pfp = "https://www.roblox.com/headshot-thumbnail/image?userId=".. game.Players.LocalPlayer.UserId .."&width=420&height=420&format=png"
+
 local Utility = {}
 local Objects = {}
 
@@ -406,7 +408,7 @@ function Kavo.CreateLib(params)
     
     InfoLabel.Size = UDim2.new(1, 0, 0, 30)
     InfoLabel.Position = UDim2.new(0, 0, 0.897499979, 0)
-    InfoLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+    InfoLabel.BackgroundColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 16, themeList.SchemeColor.g * 255 - 15, themeList.SchemeColor.b * 255 - 28)
     InfoLabel.Active = true
     InfoLabel.BackgroundTransparency = 0
     InfoLabel.Parent = MainSide
@@ -417,9 +419,10 @@ function Kavo.CreateLib(params)
 
     Avatar.Size = UDim2.new(0, 30, 0, 30)
     Avatar.Position = UDim2.new(0, 3, 0, 0)
-    Avatar.BackgroundColor3 = Color3.new(0, 0, 0)
+    Avatar.BackgroundColor3 = themeList.Header
+    Objects[MainHeader] = "BackgroundColor3"
     Avatar.ImageColor3 = Color3.new(1, 0, 0)
-    Avatar.Image = "rbxassetid://0"
+    Avatar.Image = pfp
     Avatar.ImageTransparency = 0.5
     Avatar.BackgroundTransparency = 0
     Avatar.Parent = InfoLabel
@@ -429,7 +432,8 @@ function Kavo.CreateLib(params)
 
     Settings.Size = UDim2.new(0, 30, 0, 30)
     Settings.Position = UDim2.new(0.8, 0, 0, 1)
-    Settings.ImageColor3 = Color3.new(26, 26, 31)
+    Settings.ImageColor3 = themeList.Header
+    Objects[MainHeader] = "BackgroundColor3"
     Settings.Image = "rbxassetid://8997386997"
     Settings.BackgroundTransparency = 1
     Settings.Parent = InfoLabel
