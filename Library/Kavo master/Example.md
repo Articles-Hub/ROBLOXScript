@@ -7,7 +7,11 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Artic
 
 ## Creating UI Library Window
 ```lua
-local Window = Library.CreateLib("Name", "Ocean")
+local Window = Library.CreateLib({
+Name = "Kavo Mastered",
+Theme = "DarkTheme",
+Icon = "rbxassetid://138402442857139",
+})
 ```
 
 ## Theme
