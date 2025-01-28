@@ -409,7 +409,7 @@ function Kavo.CreateLib(params)
     InfoLabel.BackgroundColor3 = Color3.new(1, 1, 1)
     InfoLabel.Active = true
     InfoLabel.BackgroundTransparency = 0
-    InfoLabel.Parent = gui
+    InfoLabel.Parent = MainSide
 
     
     Corner.CornerRadius = UDim.new(0, 4)
