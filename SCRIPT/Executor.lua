@@ -1113,33 +1113,6 @@ end
 end
 end)
 
-_G.Dex = {
-	["Workspace"] = true,
-	["InfoPart"] = false,
-	["InfoMeshPart"] = false
-}
-
-CreateToggle("Workspace", function(Value)
-for v in pairs(_G.Dex) do
-     _G.Dex[v] = false
-end
-_G.Dex["Workspace"] = Value
-end)
-
-CreateToggle("Info Part", function(Value)
-for v in pairs(_G.Dex) do
-     _G.Dex[v] = false
-end
-_G.Dex["InfoPart"] = Value
-end)
-
-CreateToggle("Info MeshPart", function(Value)
-for v in pairs(_G.Dex) do
-     _G.Dex[v] = false
-end
-_G.Dex["InfoMeshPart"] = Value
-end)
-
 ----// Save Script \\----
 
 makefolder("ExecuteGet/Script")
@@ -2693,7 +2666,7 @@ local TextBox = Instance.new("TextBox")
 TextBox.Size = UDim2.new(0.94, 0, 0.6, 0)
 TextBox.Position = UDim2.new(0.03, 0, 0.35, 0)
 TextBox.BackgroundColor3 = Color3.new(255,255,255)
-TextBox.Text = "Click target (Get Show, Turn On / OFF)\n Go to settings, scroll down to the bottom to turn off the necessary ones."
+TextBox.Text = "Click target (Get Show, Turn On / OFF)."
 TextBox.TextWrapped = true
 TextBox.ClipsDescendants = true
 TextBox.MultiLine = true
@@ -2701,6 +2674,107 @@ TextBox.ClearTextOnFocus = false
 TextBox.TextColor3 = Color3.new(0,0,0)
 TextBox.TextSize = 12
 TextBox.Parent = Frame29
+
+local NextButton = Instance.new("TextButton")
+NextButton.Size = UDim2.new(0.07, 0, 0.1, 0)
+NextButton.Position = UDim2.new(0.93, 0, -0.12, 0)
+NextButton.BackgroundColor3 = Color3.new(255, 255, 255)
+NextButton.Text = ">"
+NextButton.TextSize = 15
+NextButton.BackgroundTransparency = 0
+NextButton.TextColor3 = Color3.new(0, 0, 0)
+NextButton.Parent = Frame29
+NextButton.MouseButton1Click:Connect(function()
+game.CoreGui.Execute.Frame29.Frame.Visible = not game.CoreGui.Execute.Frame29.Frame.Visible
+if game.CoreGui.Execute.Frame29.Frame.Visible == false then
+NextButton.Text = ">"
+else
+NextButton.Text = "<"
+end
+end)
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0.6, 0, 1, 0)
+Frame.Position = UDim2.new(1.02, 0, 0, 0)
+Frame.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame.BorderColor3 = Color3.new(0, 0, 0)
+Frame.BorderSizePixel = 1
+Frame.Active = true
+Frame.Visible = false
+Frame.BackgroundTransparency = 0 
+Frame.Parent = Frame29
+
+local ScrollingFrame = Instance.new("ScrollingFrame")
+ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+ScrollingFrame.Position = UDim2.new(0, 0, 0, 0)
+ScrollingFrame.BackgroundColor3 = Color3.new(1, 1, 1)
+ScrollingFrame.BorderColor3 = Color3.new(0, 0, 0)
+ScrollingFrame.BorderSizePixel = 1
+ScrollingFrame.BackgroundTransparency = 0 
+ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+ScrollingFrame.ScrollBarThickness = 0
+ScrollingFrame.Parent = Frame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.Parent = ScrollingFrame
+
+function CreateToggleFrame(Name,call,Winds)
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Size = UDim2.new(1, 0, 0.2, 0)
+TextLabel.Position = UDim2.new(0, 0, 0, 0)
+TextLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+TextLabel.Text = Name
+TextLabel.TextSize = 10
+TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+TextLabel.BackgroundTransparency = 0 
+TextLabel.TextColor3 = Color3.new(0,0,0)
+TextLabel.Parent = ScrollingFrame
+
+_G.ToggleGet = false
+local ToggleButton = Instance.new("ImageButton")
+ToggleButton.Size = UDim2.new(0.2, 0, 0.8, 0)
+ToggleButton.Position = UDim2.new(0.78, 0, 0.1, 0)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 186, 117)
+ToggleButton.ImageColor3 = Color3.fromRGB(245, 21, 17)
+ToggleButton.Image = "rbxassetid://7743878857"
+ToggleButton.Parent = TextLabel
+ToggleButton.MouseButton1Click:Connect(function()
+_G.ToggleGet = not _G.ToggleGet
+ToggleButton.Image = (_G.ToggleGet and "rbxassetid://3944680095") or "rbxassetid://7743878857"
+ToggleButton.ImageColor3 = (_G.ToggleGet and Color3.fromRGB(17, 245, 97)) or Color3.fromRGB(245, 21, 17)
+pcall(call,_G.ToggleGet)
+end)
+end
+
+_G.Dex = {
+	["Workspace"] = false,
+	["InfoPart"] = false,
+	["InfoMeshPart"] = false
+}
+
+CreateToggleFrame("Workspace", function(Value)
+for v in pairs(_G.Dex) do
+     _G.Dex[v] = false
+end
+_G.Dex["Workspace"] = Value
+end)
+
+CreateToggleFrame("Info Part", function(Value)
+for v in pairs(_G.Dex) do
+     _G.Dex[v] = false
+end
+_G.Dex["InfoPart"] = Value
+end)
+
+CreateToggleFrame("Info MeshPart", function(Value)
+for v in pairs(_G.Dex) do
+     _G.Dex[v] = false
+end
+_G.Dex["InfoMeshPart"] = Value
+end)
 
 game.Players.LocalPlayer:GetMouse().Button1Down:Connect(function()
     if _G.ToggleDex == true then
@@ -2771,7 +2845,7 @@ if game.Players.LocalPlayer:GetMouse().Target and game.Players.LocalPlayer:GetMo
         Code.Name..".Transparency = "..tostring(Code.Transparency).."\n"..
         Code.Name..".Reflectance = "..tostring(Code.Reflectance).."\n"..
         Code.Name..".Color = Color3.new("..tostring(Code.Color)..")\n"..
-        Code.Name..".Shape = Enum.Material."..tostring(Code.Shape)..")\n"
+        Code.Name..".Shape = Enum.Material."..tostring(Code.Shape)
     elseif _G.Dex["InfoMeshPart"] == true then
         TextBox.Text = 
         "local "..Code.Name..' = Instance.new("MeshPart", '..(CodeString:gsub("."..Code.Name, "") or "nil")..')\n'..
