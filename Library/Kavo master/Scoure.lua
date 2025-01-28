@@ -228,7 +228,7 @@ function Kavo.CreateLib(params)
     local InfoLabel = Instance.new("Frame")
     local Corner = Instance.new("UICorner")
     local Avatar = Instance.new("ImageLabel")
-    local Corner = Instance.new("UICorner")
+    local corner = Instance.new("UICorner")
     local Settings = Instance.new("ImageButton")
     local sideCorner = Instance.new("UICorner")
     local coverup_2 = Instance.new("Frame")
@@ -414,8 +414,8 @@ function Kavo.CreateLib(params)
     InfoLabel.Parent = MainSide
 
     
-    Corner.CornerRadius = UDim.new(0, 4)
-    Corner.Parent = InfoLabel
+    corner.CornerRadius = UDim.new(0, 4)
+    corner.Parent = InfoLabel
 
     Avatar.Size = UDim2.new(0, 30, 0, 30)
     Avatar.Position = UDim2.new(0, 3, 0, 0)
@@ -440,7 +440,6 @@ function Kavo.CreateLib(params)
     Settings.MouseButton1Click:Connect(function()
     tut = not tutu
     if tut then
-    MainSide.
     infoContainer.Visible = false
 	pages.Visible = false
     else
@@ -536,6 +535,7 @@ function Kavo.CreateLib(params)
         Tabstroke.Thickness = 2
         Tabstroke.Color = Color3.new(1, 1, 1)
         Tabstroke.Parent = tabButton
+        Tabstroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
         if first then
             first = false
