@@ -523,6 +523,7 @@ function Kavo.CreateLib(params)
         Tabstroke.Name = "Tabstroke"
         Tabstroke.Thickness = 2
         Tabstroke.Color = Color3.new(1, 1, 1)
+	Tabstroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
         Tabstroke.Parent = tabButton
 
         if first then
