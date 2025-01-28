@@ -223,6 +223,11 @@ function Kavo.CreateLib(params)
     local close = Instance.new("ImageButton")
     local Mimize = Instance.new("ImageButton")
     local MainSide = Instance.new("Frame")
+    local InfoLabel = Instance.new("Frame")
+    local Corner = Instance.new("UICorner")
+    local Avatar = Instance.new("ImageLabel")
+    local Corner = Instance.new("UICorner")
+    local Settings = Instance.new("ImageButton")
     local sideCorner = Instance.new("UICorner")
     local coverup_2 = Instance.new("Frame")
     local tabFrames = Instance.new("Frame")
@@ -327,8 +332,6 @@ function Kavo.CreateLib(params)
     Mimize.Size = UDim2.new(0, 21, 0, 21)
     Mimize.ZIndex = 2
     Mimize.Image = "rbxassetid://7733673717"
-    Mimize.ImageRectOffset = Vector2.new(284, 4)
-    Mimize.ImageRectSize = Vector2.new(24, 24)
     Mimize.MouseButton1Click:Connect(function()
     toggless = not toggless
     if toggless then
@@ -374,7 +377,7 @@ function Kavo.CreateLib(params)
     tabFrames.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     tabFrames.BackgroundTransparency = 1.000
     tabFrames.Position = UDim2.new(0.0438990258, 0, -0.00066378375, 0)
-    tabFrames.Size = UDim2.new(0, 135, 0, 283)
+    tabFrames.Size = UDim2.new(0, 135, 0, 243)
 
     tabListing.Name = "tabListing"
     tabListing.Parent = tabFrames
@@ -400,6 +403,36 @@ function Kavo.CreateLib(params)
     infoContainer.ClipsDescendants = true
     infoContainer.Position = UDim2.new(0.299047619, 0, 0.874213815, 0)
     infoContainer.Size = UDim2.new(0, 368, 0, 33)
+    
+    InfoLabel.Size = UDim2.new(1, 0, 0, 30)
+    InfoLabel.Position = UDim2.new(0, 0, 0.897499979, 0)
+    InfoLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+    InfoLabel.Active = true
+    InfoLabel.BackgroundTransparency = 0
+    InfoLabel.Parent = gui
+
+    
+    Corner.CornerRadius = UDim.new(0, 4)
+    Corner.Parent = InfoLabel
+
+    Avatar.Size = UDim2.new(0, 30, 0, 30)
+    Avatar.Position = UDim2.new(0, 3, 0, 0)
+    Avatar.BackgroundColor3 = Color3.new(0, 0, 0)
+    Avatar.ImageColor3 = Color3.new(1, 0, 0)
+    Avatar.Image = "rbxassetid://0"
+    Avatar.ImageTransparency = 0.5
+    Avatar.BackgroundTransparency = 0
+    Avatar.Parent = InfoLabel
+
+    Corner.CornerRadius = UDim.new(1, 0)
+    Corner.Parent = Avatar
+
+    Settings.Size = UDim2.new(0, 30, 0, 30)
+    Settings.Position = UDim2.new(0.8, 0, 0, 1)
+    Settings.ImageColor3 = Color3.new(26, 26, 31)
+    Settings.Image = "rbxassetid://8997386997"
+    Settings.BackgroundTransparency = 1
+    Settings.Parent = InfoLabel
 
     
     coroutine.wrap(function()
