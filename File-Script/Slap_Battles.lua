@@ -1799,23 +1799,6 @@ task.wait()
     end
 })
 
-Anti2Group:AddToggle("Anti Reaper", {
-    Text = "Anti Reaper",
-    Default = false,
-    Callback = function(Value)
-_G.AntiReaper = Value
-            while _G.AntiReaper do
-for i,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                    if v.Name == "DeathMark" then
-                        game:GetService("ReplicatedStorage").ReaperGone:FireServer(game:GetService("Players").LocalPlayer.Character.DeathMark)
-                    game:GetService("Lighting"):WaitForChild("DeathMarkColorCorrection"):Destroy() 
-                    end
-                end
-task.wait()
-end
-    end
-})
-
 Anti2Group:AddToggle("Anti Pusher", {
     Text = "Anti Pusher",
     Default = false,
@@ -3864,7 +3847,7 @@ _G.EggCodes = Value
     end
 })
 
- Misc1Basic:AddButton("Write Keypad", function()
+ Misc1Basic:AddButton("Easter Egg Keypad", function()
 if not workspace:FindFirstChild("Keypad") then
 Notification("Server in don't have keypad.", 5)
 else
@@ -7005,85 +6988,6 @@ end
     end
 })
 
-Glove2Group:AddInput("SpeedOrbit", {
-    Default = "20",
-    Numeric = false,
-    Text = "Speed",
-    Placeholder = "UserSpeed",
-    Callback = function(Value)
-if Value == "inf" or Value == "Inf" or Value == "infinity" or Value == "Infinity" then
-OrbitSpeed = 9e9
-else
-OrbitSpeed = Value
-end
-    end
-})
-
-Glove2Group:AddSlider("ExtendOrbit", {
-    Text = "Extend Orbit",
-    Default = 0,
-    Min = 0,
-    Max = 100,
-    Rounding = 0,
-    Compact = true,
-    Callback = function(Value)
-_G.ExtendPingPong = Value
-    end
-})
-
-Glove2Group:AddDropdown("Orbit Clone", {
-    Text = "Clone",
-    Values = {"Cherry","Replica"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-_G.OrbitClone = Value
-    end
-})
-
-Glove2Group:AddToggle("Clone Orbit", {
-    Text = "Clone Orbit",
-    Default = false, 
-    Callback = function(Value) 
-_G.OrbitCloneAuto = Value
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Cherry" or game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
-while _G.OrbitCloneAuto do
-if _G.OrbitClone == "Cherry" then
-if workspace:FindFirstChild("cherry_storage") then
-for i, v in pairs(workspace.cherry_storage:GetChildren()) do
-if v.Name == ("Cherry "..game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("clone_remote") then
-v.clone_remote:FireServer()
-v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
-end
-end
-end
-elseif _G.OrbitClone == "Replica" then
-for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name == ("Å"..game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
-v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
-                    end
-               end
-end
-task.wait()
-end
-elseif _G.OrbitCloneAuto == true then
-Notification("You don't have Cherry or Replica equipped", 5)
-wait(0.05)
-Toggles["Clone Orbit"]:SetValue(false)
-end
-    end
-})
-
-Glove2Group:AddDropdown("Ping Pong Choose", {
-    Text = "Ping Pong",
-    Values = {"Fling", "Fling Player", "Orbit", "Orbit Player"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-_G.PingPongServer = Value
-    end
-})
-
 Glove2Group:AddInput("Players", {
     Default = "",
     Numeric = false,
@@ -7103,6 +7007,93 @@ Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
 else
 Notification("Can't find player", 5)
 end
+    end
+})
+
+Glove2Group:AddInput("SpeedOrbit", {
+    Default = "20",
+    Numeric = false,
+    Text = "Speed",
+    Placeholder = "UserSpeed",
+    Callback = function(Value)
+if Value == "inf" or Value == "Inf" or Value == "infinity" or Value == "Infinity" then
+OrbitSpeed = 9e9
+else
+OrbitSpeed = Value
+end
+    end
+})
+
+Glove2Group:AddSlider("Extend", {
+    Text = "Extend Ability",
+    Default = 0,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+    Compact = true,
+    Callback = function(Value)
+_G.ExtendPingPong = Value
+    end
+})
+
+Glove2Group:AddDropdown("Clone", {
+    Text = "Clone",
+    Values = {"Orbit", "Orbit Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.Clone = Value
+    end
+})
+
+Glove2Group:AddToggle("Auto Clone", {
+    Text = "Auto Clone",
+    Default = false, 
+    Callback = function(Value) 
+_G.CloneAuto = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Cherry" or game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
+while _G.CloneAuto do
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Cherry" then
+if workspace:FindFirstChild("cherry_storage") then
+for i, v in pairs(workspace.cherry_storage:GetChildren()) do
+if v.Name == ("Cherry "..game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("clone_remote") then
+v.clone_remote:FireServer()
+if _G.Clone == "Orbit" then
+v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
+elseif _G.Clone == "Orbit Player" then
+v.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton2].Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
+end
+end
+end
+end
+elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == ("Å"..game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
+if _G.Clone == "Orbit" then
+v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
+elseif _G.Clone == "Orbit Player" then
+v.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton2].Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
+end
+                    end
+               end
+end
+task.wait()
+end
+elseif _G.CloneAuto == true then
+Notification("You don't have Cherry or Replica equipped", 5)
+wait(0.05)
+Toggles["Auto Clone"]:SetValue(false)
+end
+    end
+})
+
+Glove2Group:AddDropdown("Ping Pong Choose", {
+    Text = "Ping Pong",
+    Values = {"Fling", "Fling Player", "Orbit", "Orbit Player", "Nuke"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.PingPongServer = Value
     end
 })
 
@@ -7175,6 +7166,13 @@ v.CFrame = game.Players[_G.PlayerButton2].Character.HumanoidRootPart.CFrame
                     end
                 end
 end
+elseif _G.PingPongServer == "Nuke" then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == (game.Players.LocalPlayer.Name.."_PingPongBall") then
+v.CFrame = game.workspace.Origo.CFrame * CFrame.new(math.random(-_G.ExtendPingPong, _G.ExtendPingPong), -5, math.random(-_G.ExtendPingPong, _G.ExtendPingPong))
+
+                    end
+                end
 end
 task.wait(0.01)
 end
@@ -7343,13 +7341,14 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                 end
 elseif _G.RobHitbox == "You" then
 for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name == "Field" then
-                    if 0 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude then
-                        v.Size = Vector3.new(_G.ExtendHitboxRob,_G.ExtendHitboxRob,_G.ExtendHitboxRob)
-                        v.BrickColor = BrickColor.new(_G.ColorHitboxRob)
-                    end
-                    end
-                end
+         if v.Name == "Field" and 0 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude then
+              FieldRob = v
+         end
+     end
+if FieldRob then
+   FieldRob.Size = Vector3.new(_G.ExtendHitboxRob,_G.ExtendHitboxRob,_G.ExtendHitboxRob)
+   FieldRob.BrickColor = BrickColor.new(_G.ColorHitboxRob)
+end
 end
 task.wait()
 end
@@ -7754,10 +7753,6 @@ end)
 
 game.Workspace.NoChanged.Changed:Connect(function()
 Toggles["Anti Fort"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Reaper"]:SetValue(game.Workspace.NoChanged.Value)
 end)
 
 game.Workspace.NoChanged.Changed:Connect(function()
