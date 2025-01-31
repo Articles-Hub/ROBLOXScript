@@ -135,7 +135,7 @@ local dropdown = Section:NewDropdown("Dropdown","Info",
     {"Bruh, "Bag"} -- used to select what you need
 , function(Value)
 if Value == "Bruh" then
-   print("Bruh)
+   print("Bruh")
 elseif Value == "Bag" then
    print("Bag")
 else
