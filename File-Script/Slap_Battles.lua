@@ -1387,12 +1387,8 @@ Anti2Group:AddToggle("Anti Snowball", {
 _G.AntiSnowball = Value
 while _G.AntiSnowball do
 for i, v in pairs(workspace:GetChildren()) do
-if v.Name == "Snowball" and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-if 36 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude then
-v.CanTouch = false
-else
-v.CanTouch = true
-end
+if v.Name == "Snowball" then
+v:Destroy()
 end
 end
 task.wait()
@@ -1425,6 +1421,24 @@ while _G.AntiBus do
 for i,v in pairs(game.Workspace:GetChildren()) do
                     if v.Name == "BusModel" then
                         v.CanTouch = false
+                        v.CanQuery = false
+                    end
+                end
+task.wait()
+end
+    end
+})
+
+Anti2Group:AddToggle("Anti Agger", {
+    Text = "Anti Agger",
+    Default = false,
+    Callback = function(Value)
+_G.AntiAgger = Value
+while _G.AntiAgger do
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == "vfx_pulse" then
+                        v.CanTouch = false
+                        v.CanQuery = false
                     end
                 end
 task.wait()
@@ -2965,6 +2979,7 @@ _G.CloudMastery = Value
 })
 
 local TweenGet = 1
+_G.GetPlayerSit = {}
 Badge3Group:AddToggle("Auto Cloud Mastery", {
     Text = "Auto Cloud Mastery",
     Default = false, 
@@ -2978,7 +2993,17 @@ local TweenPlay = {
 	CFrame.new(4, 113, 209),
 	CFrame.new(228, 98, -11),
 	CFrame.new(-9, 137, -215),
-	CFrame.new(-229, 138, 2)
+	CFrame.new(-229, 138, 2),
+	CFrame.new(265, 78, 198),
+	CFrame.new(75, -74, 48),
+	CFrame.new(-229, 138, 2),
+	CFrame.new(170, -90, -101),
+    CFrame.new(-63, -88, -112),
+    CFrame.new(-123, -77, 97),
+    CFrame.new(110, -78, 81),
+   CFrame.new(-367, -72, -11),
+   CFrame.new(-497, -73, -18),
+   CFrame.new(-437, 106, -27)
 }
 function NextTween()
     local TweenNextGo = TweenPlay[TweenGet]
@@ -3038,15 +3063,21 @@ end
 elseif _G.CloudMastery == "Pickup Player (100 Player)" then
 local players = game.Players:GetChildren()
 local RandomPlayer = players[math.random(1, #players)]
+if _G.GetPlayerSit == RandomPlayer then
+  return RandomPlayer
+end
 if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
 if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character.Ragdolled.Value == false and RandomPlayer.Character:FindFirstChild("Mirage") == nil then
+repeat task.wait()
 for i, g in pairs(game.Workspace:GetChildren()) do
                     if g.Name:match(game.Players.LocalPlayer.Name) and g:FindFirstChild("Seat") then
                         RandomPlayer.Character.HumanoidRootPart.CFrame = g.Seat.CFrame
                     end
                end
-wait(0.5)
-repeat task.wait() until RandomPlayer.Character.Humanoid.Sit == true
+until RandomPlayer.Character.Humanoid.Sit == true
+if _G.GetPlayerSit ~= RandomPlayer then
+table.insert(_G.GetPlayerSit, RandomPlayer)
+end
 if RandomPlayer.Character.Humanoid.Sit == true then
 gloveHits["Cloud"]:FireServer(RandomPlayer.Character.HumanoidRootPart)
 end
@@ -3463,12 +3494,12 @@ firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), works
 end
 repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Tool") or game.Players.LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool")
 for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                    if v:IsA("Tool") and v.Name ~= "Radio" then
+                    if v.Name ~= "Radio" then
                         v.Parent = game.LogService
                     end
                 end
 for i,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-                    if v:IsA("Tool") and v.Name ~= "Radio" then
+                    if v.Name ~= "Radio" then
                         v.Parent = game.LogService
                     end
                 end
@@ -4419,6 +4450,10 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 task.wait()
 end
 while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Draw4" do
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+task.wait()
+end
+while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Agger" do
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 task.wait()
 end
@@ -6538,21 +6573,25 @@ end)
 
 Glove1Group:AddButton("Kick Player Za Hando", function()
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Za Hando" then
-OGWS = game.Players.LocalPlayer.Character.Humanoid.WalkSpeed
-OGJP = game.Players.LocalPlayer.Character.Humanoid.JumpPower
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
 v.CanTouch = false
 end
-game:GetService("ReplicatedStorage").Erase:FireServer()
-wait(0.47)
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 0
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = 0
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-725,310,-2)
+wait(0.5)
+game:GetService("ReplicatedStorage").Erase:FireServer()
+wait(0.2)
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+for i, v1 in pairs(game.Workspace:GetChildren()) do
+                    if v1.ClassName == "Part" and v1.Name == "Part" then
+                         v1.Velocity = (v.Character.Head.Position - a.Position).unit * 1000
+                    end
+                end
+end
+end
+end
 wait(3.75)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = OGWS
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = OGJP
 for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
 v.CanTouch = true
 end
@@ -10584,6 +10623,7 @@ gloveHits = {
     ["Cherry"] = game.ReplicatedStorage.GeneralHit,
     ["Infinity"] = game.ReplicatedStorage.GeneralHit,
     ["Draw4"] = game.ReplicatedStorage.GeneralHit,
+    ["Aggro"] = game.ReplicatedStorage.GeneralHit,
     ------------------------------------------------------------------------
     ["ZZZZZZZ"] = game.ReplicatedStorage.ZZZZZZZHit,
     ["Brick"] = game.ReplicatedStorage.BrickHit,
