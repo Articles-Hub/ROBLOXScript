@@ -6576,8 +6576,6 @@ if game.Players.LocalPlayer.leaderstats.Glove.Value == "Za Hando" then
 for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
 v.CanTouch = false
 end
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-725,310,-2)
-wait(0.5)
 game:GetService("ReplicatedStorage").Erase:FireServer()
 wait(0.2)
 for i,v in pairs(game.Players:GetChildren()) do
@@ -6585,12 +6583,14 @@ if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirs
 if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
 for i, v1 in pairs(game.Workspace:GetChildren()) do
                     if v1.ClassName == "Part" and v1.Name == "Part" then
-                         v1.Velocity = (v.Character.Head.Position - a.Position).unit * 1000
+                         v1.CFrame = v.Character.Head.CFrame
                     end
                 end
 end
 end
 end
+wait(0.3)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-725,310,-2)
 wait(3.75)
 for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
 v.CanTouch = true
