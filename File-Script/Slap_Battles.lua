@@ -915,14 +915,43 @@ table.insert(BadgeFailure , v)
 end
 end
 
-GeneralBadge = InfoServer3Group:AddLabel("General Badge [ ✅ - "..(#BadgeSuccess == 0 and "Nah" or #BadgeSuccess).." / ❌ - "..(#BadgeFailure == 0 and "Nah" or #BadgeFailure).." ]", true)
+InfoServer3Group:AddInput("Players", {
+    Default = "",
+    Numeric = false,
+    Text = "",
+    Finished = true,
+    Placeholder = "Username",
+    Callback = function(Value)
+if Value ~= "" or Value ~= " " then
+local PlayerTarget = Value
+local PlayerTa
+for _, v in pairs(game.Players:GetPlayers()) do
+if string.sub(v.Name, 1, #PlayerTarget):lower() == PlayerTarget:lower() then
+PlayerTa = v
+break
+end
+end
+if PlayerTa then
+_G.CheckGlovePlayer = PlayerTa.Name
+PlayersCheck:SetText("Player Check [ ✅ ] [ ".._G.CheckGlovePlayer.." ]", 5)
+else
+PlayersCheck:SetText("Player Check [ ❌ ]", 5)
+end
+end
+    end
+})
+
+GeneralBadge = InfoServer3Group:AddLabel("General Glove / Badge [ ✅ - "..(#BadgeSuccess == 0 and "Nah" or #BadgeSuccess).." / ❌ - "..(#BadgeFailure == 0 and "Nah" or #BadgeFailure).." ]", true)
+PlayersCheck = InfoServer3Group:AddLabel("Player Check [ User ]", true)
 
 InfoServer3Group:AddButton({
-    Text = "Check Badge",
+    Text = "Check Glove / Badge",
     Func = function()
 local BadgeSuccess = {}
 local BadgeFailure = {}
-for i, v in pairs(game.Players.LocalPlayer._unlockedGloves:GetChildren()) do
+local PlayerTarg = game.Players:FindFirstChild(_G.CheckGlovePlayer) or game.Players.LocalPlayer
+local UnlockedGloves = PlayerTarg:FindFirstChild("_unlockedGloves")
+for i, v in pairs(UnlockedGloves:GetChildren()) do
 if v.Value == true then
 table.insert(BadgeSuccess, v)
 end
@@ -930,8 +959,8 @@ if v.Value == false then
 table.insert(BadgeFailure , v)
 end
 end
-GeneralBadge:SetText("General Badge [ ✅ - "..(#BadgeSuccess == 0 and "Nah" or #BadgeSuccess).." / ❌ - "..(#BadgeFailure == 0 and "Nah" or #BadgeFailure).." ]", true)
-for i, v in pairs(game.Players.LocalPlayer._unlockedGloves:GetChildren()) do
+GeneralBadge:SetText("General Glove / Badge [ ✅ - "..(#BadgeSuccess == 0 and "Nah" or #BadgeSuccess).." / ❌ - "..(#BadgeFailure == 0 and "Nah" or #BadgeFailure).." ]", true)
+for i, v in pairs(UnlockedGloves:GetChildren()) do
 GloveBadges["Check "..v.Name]:SetText("Glove [ "..v.Name.." - "..(v.Value == true and "✅" or "❌").." ]", true)
 end
     end
@@ -1041,6 +1070,61 @@ end
 end
     end
 })
+
+local InfoServer4Group = Tabs.Tab:AddRightGroupbox("Search Glove Player")
+
+InfoServer4Group:AddInput("GlovePlayers", {
+    Default = "",
+    Numeric = false,
+    Text = "Search Glove",
+    Finished = true,
+    Placeholder = "Glove",
+    Callback = function(Value)
+local GlovePlayer = Value
+local Glove
+for _, v in pairs(game.Workspace.Lobby.GloveStands:GetChildren()) do
+if string.sub(v.Name, 1, #GlovePlayer):lower() == GlovePlayer:lower() then
+Glove = v
+break
+end
+end
+if Glove then
+_G.GlovePlayer = Glove.Name
+TagGlove:SetText("Glove Check [ ✅ ] [ "..Glove.Name.." ]", 5)
+else
+TagGlove:SetText("Glove Check [ ❌ ]", 5)
+end
+    end
+})
+
+TagGlove = InfoServer4Group:AddLabel("Glove Search [ Nah ]", true)
+
+InfoServer4Group:AddButton({
+    Text = "Search Glove",
+    Func = function()
+_G.GloveSearch = {}
+_G.PlayerOwner = {}
+for i, v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer then
+for i, b in pairs(v._unlockedGloves:GetChildren()) do
+if b.Name == _G.GlovePlayer and b.Value == true then
+table.insert(_G.GloveSearch, b)
+_G.PlayerOwner[#_G.PlayerOwner + 1] = (v.Name == v.DisplayName and v.Name or v.Name.." ("..v.DisplayName..")")
+OwnerPlayer:SetText("Owner [\n"..(_G.PlayerOwner == nil and "Nah" or (table.concat(_G.PlayerOwner, ",\n"))).."\n]", true)
+end
+end
+end
+end
+if #_G.GloveSearch > 0 then
+SearchPlayer:SetText("Player Owner [ "..(#_G.GloveSearch == 0 and "Nah" or #_G.GloveSearch).." ]", true)
+elseif #_G.GloveSearch == 0 then
+SearchPlayer:SetText("Player Owner [ Nah ]")
+end
+    end
+})
+
+SearchPlayer = InfoServer4Group:AddLabel("Player Owner [ Nah ]", true)
+OwnerPlayer = InfoServer4Group:AddLabel("Owner [ Nah ]", true)
 
 local Script1Group = Tabs.Tab1:AddLeftGroupbox("Script Basic")
 
@@ -1412,40 +1496,6 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Bus", {
-    Text = "Anti Bus",
-    Default = false,
-    Callback = function(Value)
-_G.AntiBus = Value
-while _G.AntiBus do
-for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name == "BusModel" then
-                        v.CanTouch = false
-                        v.CanQuery = false
-                    end
-                end
-task.wait()
-end
-    end
-})
-
-Anti2Group:AddToggle("Anti Agger", {
-    Text = "Anti Agger",
-    Default = false,
-    Callback = function(Value)
-_G.AntiAgger = Value
-while _G.AntiAgger do
-for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name == "vfx_pulse" then
-                        v.CanTouch = false
-                        v.CanQuery = false
-                    end
-                end
-task.wait()
-end
-    end
-})
-
 Anti2Group:AddToggle("Anti Ghost Player", {
     Text = "Anti Ghost Player",
     Default = false,
@@ -1675,23 +1725,6 @@ for i, v in pairs(workspace:GetChildren()) do
     end
 end
 end
-task.wait()
-end
-    end
-})
-
-Anti2Group:AddToggle("Anti Brick", {
-    Text = "Anti Brick",
-    Default = false,
-    Callback = function(Value)
-_G.AntiBrick = Value
-while _G.AntiBrick do
-for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name == "Union" then
-                        v.CanTouch = false
-                        v.CanQuery = false
-                    end
-                end
 task.wait()
 end
     end
@@ -3091,81 +3124,6 @@ elseif _G.AutoCloudMastery == true then
 Notification("You don't have Cloud equipped", 5)
 wait(0.05)
 Toggles["Auto Cloud Mastery"]:SetValue(false)
-end
-    end
-})
-
-Badge3Group:AddDropdown("Brick Mastery", {
-    Text = "Brick Mastery",
-    Values = {"Fling (200 km/h)", "Aimbot Brick", "Aimbot Brick 2"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-_G.BrickMastery = Value
-    end
-})
-
-Badge3Group:AddToggle("Auto Brick Mastery", {
-    Text = "Auto Brick Mastery",
-    Default = false, 
-    Callback = function(Value) 
-_G.AutoBrickMastery = Value
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Brick" then
-while _G.AutoBrickMastery do
-if _G.BrickMastery == "Fling (200 km/h)" then
-for i, v in pairs(game.Workspace:GetChildren()) do
-        if v.Name == "Union" then
-           v.Velocity = Vector3.new(220, 0, 220) 
-        end
-    end
-elseif _G.BrickMastery == "Aimbot Brick" then
-for i,v in pairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") and v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
-if v.leaderstats.Glove.Value ~= "Spectator" then
-if game.Workspace:FindFirstChild("Union") then
-for i, a in pairs(game.Workspace:GetChildren()) do
-        if a.Name == "Union" then
-           a.Velocity = (v.Character.Head.Position - a.Position).unit * 300 + Vector3.new(0, -50, 0)
-        end
-    end
-end
-end
-end
-end
-end
-elseif _G.BrickMastery == "Aimbot Brick 2" then
-for i, b in pairs(game.Workspace:GetChildren()) do
-if b.Name == "Union" and 4 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - b.Position).Magnitude then
-local BrickTag = b
-local EligiblePlayers = {}
-for i,v in pairs(game.Players:GetChildren()) do
-    if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-       if game.Players.LocalPlayer.Character:FindFirstChild("entered") and v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Left Leg") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
-          if v.leaderstats.Glove.Value ~= "Spectator" then
-             if 50 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
-                table.insert(EligiblePlayers, v)
-             end
-          end
-       end
-    end
-end
-if #EligiblePlayers > 0 then
-local GetPlayer = EligiblePlayers[math.random(1, #EligiblePlayers)]
-if GetPlayer.Character:FindFirstChild("Left Leg") and game.Workspace:FindFirstChild("Union") then
-    BrickTag.Velocity = (GetPlayer.Character["Left Leg"].Position - BrickTag.Position).unit * 100
-end
-EligiblePlayers = {}
-end
-end
-end
-end
-task.wait()
-end
-elseif _G.AutoBrickMastery == true then
-Notification("You don't have Brick equipped", 5)
-wait(0.05)
-Toggles["Auto Brick Mastery"]:SetValue(false)
 end
     end
 })
@@ -4682,7 +4640,20 @@ end)
     Finished = true,
     Placeholder = "UserGlove",
     Callback = function(Value)
-_G.EquipGlove = Value
+local GlovePlayer = Value
+local Glove
+for _, v in pairs(game.Workspace.Lobby.GloveStands:GetChildren()) do
+if string.sub(v.Name, 1, #GlovePlayer):lower() == GlovePlayer:lower() then
+Glove = v
+break
+end
+end
+if Glove then
+_G.EquipGlove = Glove.Name
+Notification("Found Glove [ ".._G.EquipGlove.." ]", 5)
+else
+Notification("Can't find Glove", 5)
+end
     end
 })
 
@@ -6571,35 +6542,6 @@ end
 end
 end)
 
-Glove1Group:AddButton("Kick Player Za Hando", function()
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Za Hando" then
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = false
-end
-game:GetService("ReplicatedStorage").Erase:FireServer()
-wait(0.2)
-for i,v in pairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
-for i, v1 in pairs(game.Workspace:GetChildren()) do
-                    if v1.ClassName == "Part" and v1.Name == "Part" then
-                         v1.CFrame = v.Character.Head.CFrame
-                    end
-                end
-end
-end
-end
-wait(0.3)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-725,310,-2)
-wait(3.75)
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = true
-end
-else
-Notification("You don't have Za Hando equipped.", 5)
-end
-end)
-
 Glove1Group:AddToggle("Auto Sbeve All Player", {
     Text = "Auto Sbeve All Player",
     Default = false, 
@@ -7695,10 +7637,6 @@ Toggles["Anti Ball Baller"]:SetValue(game.Workspace.NoChanged.Value)
 end)
 
 game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Bus"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
 Toggles["Anti Mail"]:SetValue(game.Workspace.NoChanged.Value)
 end)
 
@@ -7756,10 +7694,6 @@ end)
 
 game.Workspace.NoChanged.Changed:Connect(function()
 Toggles["Anti Run"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Brick"]:SetValue(game.Workspace.NoChanged.Value)
 end)
 
 game.Workspace.NoChanged.Changed:Connect(function()
@@ -9187,7 +9121,6 @@ for i, v in pairs(Anims) do
         end
     end
 task.wait()
-if string.sub(msg, 1, 3):lower() == "/e " then
 if string.lower(msg) == "/e l" then
    Anims["L"]:Play()
 elseif string.lower(msg) == "/e groove" then
@@ -9209,9 +9142,6 @@ elseif string.lower(msg) == "/e thriller" then
    Anims["Thriller"]:Play()
 elseif string.lower(msg) == "/e spasm" then
    Anims["Spasm"]:Play()
-else
-Notification("You chat wrong name emotes, Chat [ /e Emote Name ]", 5)
-end
 end
 game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
     if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
