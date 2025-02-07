@@ -2229,6 +2229,7 @@ do
 
         local Toggle = {
             Value = Info.Default or false;
+            ValueCallback = Info.CallbackDe or false;
             Type = 'Toggle';
             Visible = typeof(Info.Visible) ~= "boolean" and true or Info.Visible;
 
@@ -2303,7 +2304,7 @@ do
                 return true
             end
         );
-
+        
         function Toggle:UpdateColors()
             Toggle:Display();
         end;
@@ -2373,6 +2374,10 @@ do
             Library:RemoveFromRegistry(ToggleLabel)
             ToggleLabel.TextColor3 = Library.RiskColor
             Library:AddToRegistry(ToggleLabel, { TextColor3 = 'RiskColor' })
+        end
+        
+        if Toggle.ValueCallback then
+            Toggle:SetValue(true)
         end
 
         Toggle:Display();
