@@ -981,19 +981,19 @@ _G.AutoSetInfo = Value
 if _G.AutoSetInfo == true then
 AutoSetInfoServer = game:GetService("RunService").RenderStepped:Connect(function()
 if _G.AutoSetInfo == true then
-CanYouFps:SetText("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]", true)
-CanYouPing:SetText("Your Ping [ "..game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString().." ]", true)
+CanYouFps:SetText("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]")
+CanYouPing:SetText("Your Ping [ "..game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString().." ]")
 ServerPlayer:SetText("Player In Server [ "..#game.Players:GetPlayers().." / "..game.Players.MaxPlayers.." ]", true)
-TimeServer:SetText("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]", true)
-TimeNow:SetText("Now Time [ "..os.date("%X").." ]", true)
+TimeServer:SetText("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]")
+TimeNow:SetText("Now Time [ "..os.date("%X").." ]")
 if tonumber(os.date("%H")) >= 5 and tonumber(os.date("%H")) < 12 then
-AlarmTime:SetText("Good Morning [ "..tonumber(os.date("%H")).." Hour ]", true)
+AlarmTime:SetText("Good Morning [ "..tonumber(os.date("%H")).." Hour ]")
 elseif tonumber(os.date("%H")) >= 12 and tonumber(os.date("%H")) < 17 then
-AlarmTime:SetText("Good Afternoon [ "..tonumber(os.date("%H")).." Hour ]", true)
+AlarmTime:SetText("Good Afternoon [ "..tonumber(os.date("%H")).." Hour ]")
 elseif tonumber(os.date("%H")) >= 17 and tonumber(os.date("%H")) < 21 then
-AlarmTime:SetText("Good Evening [ "..tonumber(os.date("%H")).." Hour ]", true)
+AlarmTime:SetText("Good Evening [ "..tonumber(os.date("%H")).." Hour ]")
 else
-AlarmTime:SetText("Good Night [ "..tonumber(os.date("%H")).." Hour ]", true)
+AlarmTime:SetText("Good Night [ "..tonumber(os.date("%H")).." Hour ]")
 end
 if game.Workspace:FindFirstChild("RoomsFolder") then
 PocketSpawn = {}
@@ -1004,60 +1004,60 @@ end
 end
 end
 if #PocketSpawn == 0 then
-PocketKeypad:SetText("Pocket Room [ No ]", true)
+PocketKeypad:SetText("Pocket Room [ No ]")
 elseif #PocketSpawn > 0 then
-PocketKeypad:SetText("Pocket Room [ Yes ] [ "..#PocketSpawn.." ]", true)
+PocketKeypad:SetText("Pocket Room [ Yes ] [ "..#PocketSpawn.." ]")
 end
-AgeAccYou:SetText("You Account Age [ "..game.Players.LocalPlayer.AccountAge.." ]", true)
+AgeAccYou:SetText("You Account Age [ "..game.Players.LocalPlayer.AccountAge.." ]")
 if game.Players.LocalPlayer.Character.Humanoid.Health == 0 then
-ResetTime:SetText("Time Spawn [ "..game.Players.RespawnTime.." ]", true)
+ResetTime:SetText("Time Spawn [ "..game.Players.RespawnTime.." ]")
 else
-ResetTime:SetText("Time Spawn [ Not Dead ]", true)
+ResetTime:SetText("Time Spawn [ Not Dead ]")
 end
-CodeKeypad:SetText("Code Keypad [ "..tostring((#game.Players:GetPlayers()) * 25 + 1100 - 7).." ]", true)
+CodeKeypad:SetText("Code Keypad [ "..tostring((#game.Players:GetPlayers()) * 25 + 1100 - 7).." ]")
 if not game.Workspace:FindFirstChild("Keypad") then
-KeypadSpawn:SetText("Keypad Spawn [ No ]", true)
+KeypadSpawn:SetText("Keypad Spawn [ No ]")
 else
-KeypadSpawn:SetText("Keypad Spawn [ Yes ]", true)
+KeypadSpawn:SetText("Keypad Spawn [ Yes ]")
 end
 if not game.Workspace:FindFirstChild("Toolbox") then
-ToolboxSpawn:SetText("Player Spawn Toolbox [ No ]", true)
+ToolboxSpawn:SetText("Player Spawn Toolbox [ No ]")
 else
-ToolboxSpawn:SetText("Player Spawn Toolbox [ Yes ]", true)
+ToolboxSpawn:SetText("Player Spawn Toolbox [ Yes ]")
 end
 if not game.Workspace:FindFirstChild("Gravestone") then
-GravestoneSpawn:SetText("Gravestone Spawn [ No ]", true)
+GravestoneSpawn:SetText("Gravestone Spawn [ No ]")
 else
-GravestoneSpawn:SetText("Gravestone Spawn [ Yes ]", true)
+GravestoneSpawn:SetText("Gravestone Spawn [ Yes ]")
 end
 if not game.Workspace:FindFirstChild("Gift") then
-GiftSpawn:SetText("Player Spawn Gift [ No ]", true)
+GiftSpawn:SetText("Player Spawn Gift [ No ]")
 else
-GiftSpawn:SetText("Player Spawn Gift [ Yes ]", true)
+GiftSpawn:SetText("Player Spawn Gift [ Yes ]")
 end
 if workspace.Arena.island5.Slapples:FindFirstChild("GoldenSlapple") and workspace.Arena.island5.Slapples.GoldenSlapple:FindFirstChild("Glove") and workspace.Arena.island5.Slapples.GoldenSlapple.Glove.Transparency == 1 then
-GoldenSlappleSpawn:SetText("Golden Slapple Spawn [ No ]", true)
+GoldenSlappleSpawn:SetText("Golden Slapple Spawn [ No ]")
 else
-GoldenSlappleSpawn:SetText("Golden Slapple Spawn [ Yes ]", true)
+GoldenSlappleSpawn:SetText("Golden Slapple Spawn [ Yes ]")
 end
 if game.Workspace:FindFirstChild("JetOrb") then
-OrbSpawn:SetText("Spawn Orb [ Jet ]", true)
+OrbSpawn:SetText("Spawn Orb [ Jet ]")
 elseif game.Workspace:FindFirstChild("PhaseOrb") then
-OrbSpawn:SetText("Spawn Orb [ Phase ]", true)
+OrbSpawn:SetText("Spawn Orb [ Phase ]")
 elseif game.Workspace:FindFirstChild("SiphonOrb") then
-OrbSpawn:SetText("Spawn Orb [ Siphon ]", true)
+OrbSpawn:SetText("Spawn Orb [ Siphon ]")
 elseif game.Workspace:FindFirstChild("MATERIALIZEOrb") then
-OrbSpawn:SetText("Spawn Orb [ MATERIALIZE ]", true)
+OrbSpawn:SetText("Spawn Orb [ MATERIALIZE ]")
 else
-OrbSpawn:SetText("Spawn Orb [ No ]", true)
+OrbSpawn:SetText("Spawn Orb [ No ]")
 end
-CheckNullShards:SetText("Check Null Shard [ "..game.ReplicatedStorage.PlayerData[game.Players.LocalPlayer.Name].NullShards.Value.." ]", true)
-CheckTournamentWins:SetText("Check Tournament Win [ "..game.ReplicatedStorage.PlayerData[game.Players.LocalPlayer.Name].TournamentWins.Value.." ]", true)
-CheckSlap:SetText("Check Slap [ "..game.Players.LocalPlayer.leaderstats.Slaps.Value.." ]", true)
-GloveCheck:SetText("You're Using Glove [ "..game.Players.LocalPlayer.leaderstats.Glove.Value.." ]", true)
-PlateTime:SetText("Plate Time [ "..game.Players.LocalPlayer.PlayerGui.PlateIndicator.TextLabel.Text.." ]", true)
+CheckNullShards:SetText("Check Null Shard [ "..game.ReplicatedStorage.PlayerData[game.Players.LocalPlayer.Name].NullShards.Value.." ]")
+CheckTournamentWins:SetText("Check Tournament Win [ "..game.ReplicatedStorage.PlayerData[game.Players.LocalPlayer.Name].TournamentWins.Value.." ]")
+CheckSlap:SetText("Check Slap [ "..game.Players.LocalPlayer.leaderstats.Slaps.Value.." ]")
+GloveCheck:SetText("You're Using Glove [ "..game.Players.LocalPlayer.leaderstats.Glove.Value.." ]")
+PlateTime:SetText("Plate Time [ "..game.Players.LocalPlayer.PlayerGui.PlateIndicator.TextLabel.Text.." ]")
 GravityYou:SetText("Gravity [ "..game.Workspace.Gravity.." ]", true)
-PositionYou:SetText("Position In Your [ "..tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)).." ]", true)
+PositionYou:SetText("Position In Your [ "..tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)).." ]")
 end
 end)
 end
@@ -1109,14 +1109,14 @@ if v ~= game.Players.LocalPlayer then
 for i, b in pairs(v._unlockedGloves:GetChildren()) do
 if b.Name == _G.GlovePlayer and b.Value == true then
 table.insert(_G.GloveSearch, b)
-_G.PlayerOwner[#_G.PlayerOwner + 1] = (v.Name == v.DisplayName and v.Name or v.Name.." ("..v.DisplayName..")")
-OwnerPlayer:SetText("Owner [\n"..(_G.PlayerOwner == nil and "Nah" or (table.concat(_G.PlayerOwner, ",\n"))).."\n]", true)
+_G.PlayerOwner[#_G.PlayerOwner + 1] = (v.Name == v.DisplayName and " • "..v.Name or " • "..v.Name.." ("..v.DisplayName..")")
+OwnerPlayer:SetText("Owner [\n"..(_G.PlayerOwner == 0 and "Nah" or (table.concat(_G.PlayerOwner, ",\n"))).."\n]")
 end
 end
 end
 end
 if #_G.GloveSearch > 0 then
-SearchPlayer:SetText("Player Owner [ "..(#_G.GloveSearch == 0 and "Nah" or #_G.GloveSearch).." ]", true)
+SearchPlayer:SetText("Player Owner [ "..(#_G.GloveSearch == 0 and "Nah" or #_G.GloveSearch).." ]")
 elseif #_G.GloveSearch == 0 then
 SearchPlayer:SetText("Player Owner [ Nah ]")
 end
@@ -2776,6 +2776,24 @@ end
 until game.Players.LocalPlayer.Character:WaitForChild("Ragdolled").Value == false
 else
 Notification("You don't have equiped Cloud | Badge Fish | You are in the lobby.", 5)
+end
+    end
+})
+
+Badge2Group:AddButton({
+    Text = "Get Join Cheese",
+    Func = function()
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "el gato" and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Arena.CannonIsland.Cannon.Base.CFrame * CFrame.new(0,2,35)
+wait(0.3)
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+wait(1.2)
+workspace.Cheese.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5)
+if fireclickdetector then
+fireclickdetector(workspace.Cheese.ClickDetector)
+end
+else
+Notification("You don't have el gato equipped, or you aren't in the arena", 5)
 end
     end
 })
@@ -10094,7 +10112,7 @@ end
 end)
 elseif game.PlaceId == 103505724406848 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - Maze Bind",
+	Title = "Article Hub - Map Zombie",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -10353,6 +10371,74 @@ local Misc2Group = Tabs.Tab:AddLeftGroupbox("Badge")
 Misc2Group:AddButton("Teleport Badge", function()
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.rooms["room exit"].EXIT.CFrame
 end)
+elseif game.PlaceId == 97220865182663 then
+local Window = Library:CreateWindow({
+    Title = "Article Hub - Boss Mouse",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+    AutoLock = true,
+    ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+if workspace.Game:FindFirstChild("Buildings") and workspace.Game.Buildings:FindFirstChild("City") and workspace.Game.Buildings.City:FindFirstChild("City") == nil then
+game:GetService("ReplicatedStorage").Remotes.PlaceBuilding:FireServer("City", Vector3.new(4.6566128730773926e-09, 43.496280670166016, -45), 0)
+end
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local Misc1Group = Tabs.Tab:AddLeftGroupbox("Badge")
+
+Misc1Group:AddButton("Get Glove 3000 Orb", function()
+game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("UnlockGloveWithOrbs"):FireServer()
+end)
+
+Misc1Group:AddToggle("Auto Slap Rat", {
+    Text = "Auto Slap Rat",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoSlapMouse = Value
+while _G.AutoSlapMouse do
+if game.Workspace:FindFirstChild("Game") and game.Workspace.Game:FindFirstChild("Enemies") then
+for i,v in pairs(workspace.Game.Enemies:GetChildren()) do
+	if v.Name == "Rat" and v:FindFirstChild("Hitbox") then
+	    v.Hitbox.Anchored = true
+		game:GetService("ReplicatedStorage").Remotes.GloveHit:FireServer(v.Hitbox)
+		end
+	end
+end
+task.wait()
+end
+    end
+})
+
+Misc1Group:AddToggle("AutoFarm Apple", {
+    Text = "AutoFarm Apple",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoFarmApple = Value
+while _G.AutoFarmApple do
+if game.Workspace:FindFirstChild("Game") and game.Workspace.Game:FindFirstChild("Buildings") then
+for i,v in pairs(workspace.Game.Buildings:GetChildren()) do
+if v.Name == "Farm" and v:FindFirstChild("Farm") then
+for i, b in pairs(v:GetChildren()) do
+if b.Name == "Farm" and b:FindFirstChild("Hitbox") then
+game:GetService("ReplicatedStorage").Remotes.GloveHit:FireServer(b.Hitbox)
+end
+end
+end
+end
+end
+task.wait()
+end
+    end
+})
 end
 
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
