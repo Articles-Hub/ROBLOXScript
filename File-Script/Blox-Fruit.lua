@@ -225,6 +225,49 @@ for i, v in pairs(game:GetService("Players").LocalPlayer.Character:GetChildren()
         end
 end
 
+if BloxFruitSea1 == true then
+   _G.Boss = {
+        "The Gorilla King",
+        "Bobby",
+        "Yeti",
+        "Mob Leader",
+        "Vice Admiral",
+        "Warden",
+        "Chief Warden",
+        "Swan",
+        "Magma Admiral",
+        "Fishman Lord",
+        "Wysper",
+        "Thunder God",
+        "Cyborg",
+        "Saber Expert"
+    }
+elseif BloxFruitSea2 == true then
+    _G.Boss = {
+        "Diamond",
+        "Jeremy",
+        "Fajita",
+        "Don Swan",
+        "Smoke Admiral",
+        "Cursed Captain",
+        "Darkbeard",
+        "Order",
+        "Awakened Ice Admiral",
+        "Tide Keeper"
+    };
+elseif BloxFruitSea3 == true then
+    _G.Boss = {
+        "Stone",
+        "Hydra Leader",
+        "Kilo Admiral",
+        "Captain Elephant",
+        "Beautiful Pirate",
+        "rip_indra True Form",
+        "Longma",
+        "Soul Reaper",
+        "Cake Queen"
+    }
+end
 function CheckLevel()
 local Level = game:GetService("Players").LocalPlayer.Data.Level.Value
 if BloxFruitSea1 == true then
@@ -308,7 +351,7 @@ _G.Quest = {
 	["Tên nhiệm vụ"] = "SnowQuest",
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Snow Bandit",
-	["Nhiệm vụ cần đến"] = CFrame.new(1386, 87, -1328),
+	["Nhiệm vụ cần đến"] = CFrame.new(1384, 87, -1295),
 	["Chờ Mods Spawn"] = CFrame.new(1356, 105, -1328)
 }
 elseif Level <= 119 then
@@ -317,7 +360,7 @@ _G.Quest = {
 	["Tên nhiệm vụ"] = "SnowQuest",
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Snowman",
-	["Nhiệm vụ cần đến"] = CFrame.new(1386, 87, -1298),
+	["Nhiệm vụ cần đến"] = CFrame.new(1384, 87, -1295),
 	["Chờ Mods Spawn"] = CFrame.new(1356, 105, - 1328)
 }
 elseif Level <= 149 then
@@ -403,6 +446,8 @@ _G.SettingToggle = {
 	["Attack Aura"] = false,
 	["Tween Fruit"] = false,
 	["Auto Random Fruit"] = false,
+	["Auto Tween Fruit"] = false,
+	["Auto Store Fruit"] = false,
 	----------------------------------------------
 	["Tool Attack"] = "Melee",
 	-----------------------------------------------
@@ -411,6 +456,16 @@ _G.SettingToggle = {
 	-----------------------------------------------
 	["Speed Tween"] = 300,
 	-----------------------------------------------
+	["AutoFarm Boss"] = {
+		["Boss"] = "Nah",
+		["Auto"] = false
+	},
+	["Chip Fruit"] = {
+		["ChipBuy"] = "Light",
+		["Auto Buy Chip"] = false,
+		["Started"] = false,
+		["Auto Raid"] = false
+	},
 	["Remove"] = {
 		["Notify"] = false,
 		["Dame"] = false
@@ -436,6 +491,7 @@ local Window = Library:CreateWindow({
 Tabs = {
 	Tab = Window:AddTab("Main", "rbxassetid://7734053426"),
 	Tab1 = Window:AddTab("Sea", "rbxassetid://10747376931"),
+	Tab2 = Window:AddTab("Fruit", "rbxassetid://10709790875"),
 	Tab8 = Window:AddTab("Misc", "rbxassetid://4370318685"),
 	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
 }
@@ -502,6 +558,9 @@ if (_G.Quest["Nhiệm vụ cần đến"].Position - game:GetService("Players").
     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", _G.Quest["Tên nhiệm vụ"], _G.Quest["Nhiệm vụ cấp"])
 end
 elseif string.find(game.Players.LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, _G.Quest["Nhiệm vụ con mobs"]) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == true then
+if game:GetService("Workspace").Enemies:FindFirstChild(_G.Quest["Nhiệm vụ con mobs"]) == nil then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, _G.Quest["Chờ Mods Spawn"], true, (_G.Quest["Chờ Mods Spawn"].Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
 for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
 if _G.SettingToggle["AutoFarm Level"] == true and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
 if v.Name == (_G.Quest["Nhiệm vụ con mobs"]) then
@@ -540,6 +599,166 @@ task.wait()
 end
     end
 })
+
+Main1Group:AddDropdown("Boss", {
+    Title = "Boss",
+    Values = _G.Boss,
+    Default = 1,
+    Multi = false,
+    Callback = function(Value)
+_G.SettingToggle["AutoFarm Boss"]["Boss"] = Value
+    end
+})
+
+Main1Group:AddToggle("AutoFarmBoss", {
+    Text = "AutoFarm Boss",
+    Default = false,
+    Tooltip = "Tự Động Farm Trùm",
+    Callback = function(Value)
+        _G.SettingToggle["AutoFarm Boss"]["Auto"] = Value
+        if Value == false then
+            CancelTween()
+            Noclip(true)
+        end
+while _G.SettingToggle["AutoFarm Boss"]["Auto"] do
+Noclip(false)
+for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+if _G.SettingToggle["AutoFarm Boss"]["Auto"] == true and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+if v.Name == (_G.SettingToggle["AutoFarm Boss"]["Boss"]) then
+repeat task.wait()
+AutoHaki()
+EquipTool(_G.ToolAttack)
+if _G.SettingToggle["Attack Aura"] == false then
+AttackNoCoolDown()
+end
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+v.HumanoidRootPart.Transparency = 1
+v.HumanoidRootPart.CanCollide = false
+v.Humanoid.JumpPower = 0
+v.Humanoid.WalkSpeed = 0
+sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+until _G.SettingToggle["AutoFarm Boss"]["Auto"] == false or v.Parent == nil or v.Humanoid.Health == 0
+end
+end
+end
+task.wait()
+end
+    end
+})
+
+local Fruit1Group = Tabs.Tab2:AddLeftGroupbox("Fruit")
+
+Fruit1Group:AddToggle("Auto Random Fruit", {
+    Text = "Auto Random Fruit",
+    Default = false,
+    Tooltip = "Tự Động Ngẫu Nhiên Trái",
+    Callback = function(Value)
+_G.SettingToggle["Auto Random Fruit"] = Value
+while _G.SettingToggle["Auto Random Fruit"] do
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "Buy")
+task.wait()
+end
+    end
+})
+
+Fruit1Group:AddToggle("Auto Tween Fruit", {
+    Text = "Auto Tween Fruit",
+    Default = false,
+    Tooltip = "Tự Động Bay Dến Trái",
+    Callback = function(Value)
+_G.SettingToggle["Auto Tween Fruit"] = Value
+ if Value == false then
+            CancelTween()
+            Noclip(true)
+        end
+while _G.SettingToggle["Auto Tween Fruit"] do
+for i, v in pairs(game.Workspace:GetChildren()) do
+                if string.find(v.Name, "Fruit") then
+                    TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v.Handle.CFrame, true, (v.Handle.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+                end
+            end
+task.wait()
+end
+    end
+})
+
+Fruit1Group:AddToggle("Auto Stone Fruit", {
+    Text = "Auto Store Fruit",
+    Default = false,
+    Tooltip = "Tự Động Lưu Trái",
+    Callback = function(Value)
+_G.SettingToggle["Auto Store Fruit"] = Value
+while _G.SettingToggle["Auto Store Fruit"] do
+for i, v in pairs(game:GetService("Players").LocalPlayer.Character:GetChildren()) do
+    if string.find(v.Name, "Fruit") then
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", (v.Name:gsub(" Fruit", "").. "-" ..v.Name:gsub(" Fruit", "")), game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(v.Name))
+    end
+end
+for i, v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+    if string.find(v.Name, "Fruit") then
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", (v.Name:gsub(" Fruit", "").. "-" ..v.Name:gsub(" Fruit", "")), game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(v.Name))
+    end
+end
+task.wait()
+end
+    end
+})
+
+Fruit2Group = Tabs.Tab2:AddLeftGroupbox("Rain Fruit")
+if BloxFruitSea2 == true or BloxFruitSea3 == true then
+Fruit2Group:AddDropdown("Chip", {
+    Title = "Choose Chip",
+    Values = {"Flame", "Ice", "Quake", "Light", "Dark", "Spider", "Rumble", "Magma", "Buddha", "Sand", "Phoenix", "Dough"},
+    Default = 1,
+    Callback = function(Value)
+         _G.SettingToggle["Chip Fruit"]["ChipBuy"] = Value
+    end
+})
+
+Fruit2Group:AddToggle("Auto Buy Chip", {
+    Text = "Auto Buy Chip",
+    Default = false,
+    Tooltip = "Tự Động Mua Chip",
+    Callback = function(Value)
+_G.SettingToggle["Chip Fruit"]["Auto Buy Chip"]  = Value
+while _G.SettingToggle["Chip Fruit"]["Auto Buy Chip"] do
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("RaidsNpc", "Select", _G.SettingToggle["Chip Fruit"]["ChipBuy"])
+task.wait()
+end
+    end
+})
+
+Fruit2Group:AddToggle("Auto Started Chip", {
+    Text = "Auto Started Chip",
+    Default = false,
+    Tooltip = "Tự Động Bắt Đầu Chip",
+    Callback = function(Value)
+_G.SettingToggle["Chip Fruit"]["Started"]  = Value
+while _G.SettingToggle["Chip Fruit"]["Started"] do
+if game:GetService("Players").LocalPlayer.PlayerGui.Main.Timer.Visible == false then
+if not game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 1") and game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Special Microchip") or game:GetService("Players").LocalPlayer.Character:FindFirstChild("Special Microchip") then
+if BloxFruitSea2 then
+local New = CFrame.new(-6438, 250, -4501)
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, New, true, (New.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetSpawnPoint")
+fireclickdetector(game:GetService("Workspace").Map.CircleIsland.RaidSummon2.Button.Main.ClickDetector);
+elseif BloxFruitSea3 then
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-5075, 314, - 3150))
+local New = CFrame.new(- 5017.40869, 314.844055, - 2823.0127, - 0.925743818, 4.482175e-8, - 0.378151238, 4.5550315e-9, 1, 1.0737756e-7, 0.378151238, 9.768162e-8, - 0.925743818)
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, New, true, (New.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetSpawnPoint")
+fireclickdetector(game:GetService("Workspace").Map["Boat Castle"].RaidSummon2.Button.Main.ClickDetector);
+end
+end
+end
+task.wait()
+end
+    end
+})
+else
+Fruit2Group:AddLabel("You must go through sea 2 - 3 to raid fruit", true)
+end
 
 local Misc1Group = Tabs.Tab8:AddLeftGroupbox("Misc")
 
