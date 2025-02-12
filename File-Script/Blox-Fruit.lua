@@ -46,112 +46,6 @@ function EquipTool(Name)
     end
 end
 
-function EspGui(Esp)
-Esp.Name = Esp.Name or "EspGui"
-Esp.Adornee = Esp.Adornee
-Esp.Parnt = Esp.Parnt
-Esp.IfPart = Esp.IfPart
-Esp.Color = Esp.Color or Color3.new(0, 0, 0)
-Esp.TextSize = Esp.TextSize or 10
-Esp.Text = Esp.Text or "Chả có gì"
-Esp.Remove = Esp.Remove or false
-Esp.CheckUpdate = Esp.CheckUpdate or false
-Esp.UpdateGui = {
-	ColorText = ColorText or Esp.Color,
-	Text = Text or Esp.Text,
-	TextSize = TextSize or Esp.TextSize
-}
-
-if Esp.Remove == false then
-if (Esp.IfPart) and Esp.Parnt:FindFirstChild(Esp.Name) == nil then
-EspGui = Instance.new("BillboardGui", Esp.Parnt)
-EspGui.Adornee = Esp.Adornee
-EspGui.Name = Esp.Name
-EspGui.Size = UDim2.new(1, 200, 1, 30)
-EspGui.AlwaysOnTop = true
-EspGui.StudsOffset = Vector3.new(0, 3, 0)
-EspGuiText = Instance.new("TextLabel", EspGui)
-EspGuiText.BackgroundTransparency = 1
-EspGuiText.Font = Enum.Font.SourceSansBold
-EspGuiText.Size = UDim2.new(1, 0, 1, 0)
-EspGuiText.TextSize = Esp.TextSize
-EspGuiText.TextWrapped = true
-EspGuiText.TextYAlignment = "Top"
-EspGuiText.TextColor3 = Esp.Color
-EspGuiText.TextStrokeTransparency = 0.5
-EspGuiText.Text = Esp.Text
-end
-end
-if Esp.Remove == true then
-if (Esp.IfPart) and Esp.Parnt:FindFirstChild(Esp.Name)then
-Esp.Parnt[Esp.Name]:Destroy()
-end
-end
-if Esp.CheckUpdate == true then
-if (Esp.IfPart) and Esp.Parnt:FindFirstChild(Esp.Name) and Esp.Parnt[Esp.Name]:FindFirstChild("TextLabel") then
-Esp.Parnt[Esp.Name].TextLabel.Text = Esp.UpdateGui.Text
-end
-if (Esp.IfPart) and Esp.Parnt:FindFirstChild(Esp.Name) and Esp.Parnt[Esp.Name]:FindFirstChild("TextLabel") then
-Esp.Parnt[Esp.Name].TextLabel.TextColor3 = Esp.UpdateGui.ColorText
-end
-if (Esp.IfPart) and Esp.Parnt:FindFirstChild(Esp.Name) and Esp.Parnt[Esp.Name]:FindFirstChild("TextLabel") then
-Esp.Parnt[Esp.Name].TextLabel.TextSize = Esp.UpdateGui.TextSize
-end
-end
-end
-
-function EspFlower()
-for i, v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "Flower1" or v.Name == "Flower2" then
-if _G.SettingToggle["Esp Flower"] == true then
-EspGui({
-	Parnt = v,
-	Adornee = v,
-	IfPart = v,
-	Text = "Flower "..(v.Name == "Flower2" and "2" or v.Name == "Flower1" and "1"),
-	Name = "Esp"..v.Name,
-	CheckUpdate = true,
-	UpdateGui = {Text = "Flower "..(v.Name == "Flower2" and "2" or v.Name == "Flower1" and "1").."\n"..math.floor(tonumber((game:GetService("Players").LocalPlayer.Character.Head.Position - v.Position).Magnitude / 3) + 0.5).." Distance"},
-    Color = (v.Name == "Flower2" and Color3.fromRGB(0, 0, 255) or v.Name == "Flower1" and Color3.fromRGB(255, 0, 0))
-})
-elseif _G.SettingToggle["Esp Flower"] == false then
-EspGui({
-	Parnt = v,
-	Adornee = v,
-	IfPart = v,
-	Name = "Esp"..v.Name,
-    Remove = true
-})
-end
-end
-end
-end
-
-function EspIsland()
-for i, v in pairs(workspace["_WorldOrigin"].Locations:GetChildren()) do
-if _G.SettingToggle["Esp Island"] == true then
-EspGui({
-	Parnt = v,
-	Adornee = v,
-	IfPart = v,
-	Text = v.Name,
-	Name = "Esp"..v.Name,
-	CheckUpdate = true,
-	UpdateGui = {Text = v.Name.."\n"..math.floor(tonumber((game:GetService("Players").LocalPlayer.Character.Head.Position - v.Position).Magnitude / 3) + 0.5).." Distance"},
-    Color = Color3.fromRGB(0, 0, 255)
-})
-elseif _G.SettingToggle["Esp Island"] == false then
-EspGui({
-    Parnt = v,
-	Adornee = v,
-	IfPart = v,
-	Name = "Esp"..v.Name,
-    Remove = true
-})
-end
-end
-end
-
 function FindEnemiesInRange(GetTab, Mods, Distance)
     local HeadMods = nil
     for i, v in ipairs(Mods) do
@@ -408,6 +302,145 @@ _G.Quest = {
 	["Nhiệm vụ cần đến"] = CFrame.new(5310, 0, 474, 0, 0, 0, 0, 1, 0, -0, 0, 0),
 	["Chờ Mods Spawn"] = CFrame.new(5099, 0, 1055, 0, 0, -0, 0, 1, 0, 0, 0, 0)
 }
+elseif Level <= 249 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Dangerous Prisoner",
+	["Tên nhiệm vụ"] = "PrisonerQuest",
+	["Nhiệm vụ cấp"] = 2,
+	["Tên thật mobs"] = "Dangerous Prisoner",
+	["Nhiệm vụ cần đến"] = CFrame.new(5310, 0, 474, 0, 0, 0, 0, 1, 0, -0, 0, 0),
+	["Chờ Mods Spawn"] = CFrame.new(5099, 0, 1055, 0, 0, -0, 0, 1, 0, 0, 0, 0)
+}
+elseif Level <= 274 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Toga Warrior",
+	["Tên nhiệm vụ"] = "ColosseumQuest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "Toga Warrior",
+	["Nhiệm vụ cần đến"] = CFrame.new(-1577, 7, -2984),
+	["Chờ Mods Spawn"] = CFrame.new(-1872, 49, -2913)
+}
+elseif Level <= 299 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Gladiator",
+	["Tên nhiệm vụ"] = "ColosseumQuest",
+	["Nhiệm vụ cấp"] = 2,
+	["Tên thật mobs"] = "Gladiator",
+	["Nhiệm vụ cần đến"] = CFrame.new(-1577, 7, -2984),
+	["Chờ Mods Spawn"] = CFrame.new(-1521, 81, -3066)
+}
+elseif Level <= 324 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Military Soldier",
+	["Tên nhiệm vụ"] = "MagmaQuest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "Military Soldier",
+	["Nhiệm vụ cần đến"] = CFrame.new(-5316, 12, 8517),
+	["Chờ Mods Spawn"] = CFrame.new(-5369, 61, 8556)
+}
+elseif Level <= 374 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Military Spy",
+	["Tên nhiệm vụ"] = "MagmaQuest",
+	["Nhiệm vụ cấp"] = 2,
+	["Tên thật mobs"] = "Military Spy",
+	["Nhiệm vụ cần đến"] = CFrame.new(-5316, 12, 8517),
+	["Chờ Mods Spawn"] = CFrame.new(-5787, 75, 8651, 0, 0, -0, 0, 1, 0, 0, 0, 0);
+}
+elseif Level <= 399 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Fishman Warrior",
+	["Tên nhiệm vụ"] = "FishmanQuest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "Military Spy",
+	["Nhiệm vụ cần đến"] = CFrame.new(61122, 18, 1569),
+	["Chờ Mods Spawn"] = CFrame.new(60844, 98, 1298)
+}
+elseif Level <= 449 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Fishman Command",
+	["Tên nhiệm vụ"] = "FishmanQuest",
+	["Nhiệm vụ cấp"] = 2,
+	["Tên thật mobs"] = "Fishman Command",
+	["Nhiệm vụ cần đến"] = CFrame.new(61122, 18, 1569),
+	["Chờ Mods Spawn"] = CFrame.new(61738, 64, 1433)
+}
+if _G.SettingToggle["AutoFarm Level"] == true and (_G.Quest["Chờ Mods Spawn"].Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 3000 then
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(61163, 11, 1819))
+end
+elseif Level <= 474 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "God's Guard",
+	["Tên nhiệm vụ"] = "SkyExp1Quest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "God's Guard",
+	["Nhiệm vụ cần đến"] = CFrame.new(-4721, 845, -1953),
+	["Chờ Mods Spawn"] = CFrame.new(-4628, 866, -1931)
+}
+if _G.SettingToggle["AutoFarm Level"] == true and (_G.Quest["Chờ Mods Spawn"].Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 3000 then
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-4607, 872, -1667))
+end
+elseif Level <= 524 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Shanda",
+	["Tên nhiệm vụ"] = "SkyExp1Quest",
+	["Nhiệm vụ cấp"] = 2,
+	["Tên thật mobs"] = "Shanda",
+	["Nhiệm vụ cần đến"] = CFrame.new(-7863, 5545, -378),
+	["Chờ Mods Spawn"] = CFrame.new(-7685, 5601, -441)
+}
+if _G.SettingToggle["AutoFarm Level"] == true and (_G.Quest["Chờ Mods Spawn"].Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 3000 then
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-7894, 5547, -380))
+end
+elseif Level <= 549 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Royal Squad",
+	["Tên nhiệm vụ"] = "SkyExp2Quest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "Royal Squad",
+	["Nhiệm vụ cần đến"] = CFrame.new(-7903, 5635, -1410),
+	["Chờ Mods Spawn"] = CFrame.new(-7654, 5637, -1407)
+}
+elseif Level <= 624 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Royal Soldier",
+	["Tên nhiệm vụ"] = "SkyExp2Quest",
+	["Nhiệm vụ cấp"] = 2,
+	["Tên thật mobs"] = "Royal Soldier",
+	["Nhiệm vụ cần đến"] = CFrame.new(-7903, 5635, -1410),
+	["Chờ Mods Spawn"] = CFrame.new(-7760, 5679, -1884)
+}
+elseif Level <= 649 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Galley Pirate",
+	["Tên nhiệm vụ"] = "FountainQuest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "Galley Pirate",
+	["Nhiệm vụ cần đến"] = CFrame.new(5258, 38, 4050),
+	["Chờ Mods Spawn"] = CFrame.new(5557, 152, 3998)
+}
+elseif Level <= 649 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Galley Pirate",
+	["Tên nhiệm vụ"] = "FountainQuest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "Galley Pirate",
+	["Nhiệm vụ cần đến"] = CFrame.new(5258, 38, 4050),
+	["Chờ Mods Spawn"] = CFrame.new(5557, 152, 3998)
+}
+elseif Level <= 650 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Galley Captain",
+	["Tên nhiệm vụ"] = "FountainQuest",
+	["Nhiệm vụ cấp"] = 2,
+	["Tên thật mobs"] = "Galley Captain",
+	["Nhiệm vụ cần đến"] = CFrame.new(5258, 38, 4050),
+	["Chờ Mods Spawn"] = CFrame.new(5677, 92, 4966)
+}
+elseif Level >= 700 then
+Toggles["AutoFarm Level"]:SetValue(false)
+wait(3)
+Toggles["Auto Sea 2"]:SetValue(false)
 end
 elseif BloxFruitSea2 == true then
 
@@ -440,14 +473,13 @@ if _G.NotificationSound then
 _G.SettingToggle = {
 	["AutoFarm Level"] = false,
 	["AutoFarm Bone"] = false,
-	["Esp Flower"] = false,
-	["Esp Chest"] = false,
-	["Esp Island"] = false,
 	["Attack Aura"] = false,
 	["Tween Fruit"] = false,
+	["Auto Pvp"] = false,
 	["Auto Random Fruit"] = false,
 	["Auto Tween Fruit"] = false,
 	["Auto Store Fruit"] = false,
+	["Auto Sea 2"] = false,
 	----------------------------------------------
 	["Tool Attack"] = "Melee",
 	-----------------------------------------------
@@ -456,6 +488,27 @@ _G.SettingToggle = {
 	-----------------------------------------------
 	["Speed Tween"] = 300,
 	-----------------------------------------------
+	["Esp"] = {
+		["Player"] = false,
+		["Fruit"] = false,
+		["Island"] = false,
+		["Flower"] = false,
+		["Chest"] = false
+	},
+	["Auto Stats"] = {
+		["Start State"] = {
+			["Melee"] = false,
+	    	["Sword"] = false,
+	    	["Gun"] = false,
+	    	["Blox Fruit"] = false,
+    		["Defense"] = false
+        },
+		["Melee"] = 1,
+		["Sword"] = 1,
+		["Gun"] = 1,
+		["Blox Fruit"] = 1,
+		["Defense"] = 1,
+	},
 	["AutoFarm Boss"] = {
 		["Boss"] = "Nah",
 		["Auto"] = false
@@ -492,6 +545,8 @@ Tabs = {
 	Tab = Window:AddTab("Main", "rbxassetid://7734053426"),
 	Tab1 = Window:AddTab("Sea", "rbxassetid://10747376931"),
 	Tab2 = Window:AddTab("Fruit", "rbxassetid://10709790875"),
+	Tab3 = Window:AddTab("State", "rbxassetid://10709790875"),
+	Tab4 = Window:AddTab("Shop", "rbxassetid://7734056747"),
 	Tab8 = Window:AddTab("Misc", "rbxassetid://4370318685"),
 	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
 }
@@ -579,7 +634,7 @@ v.Humanoid.JumpPower = 0
 v.Humanoid.WalkSpeed = 0
 FarmPos = v.HumanoidRootPart.CFrame
 ModsFarm = v.Name
-until _G.SettingToggle["AutoFarm Level"] == false or v.Parent == nil or v.Humanoid.Health == 0 or not game:GetService("Workspace").Enemies:FindFirstChild(v.Name) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == false
+until _G.SettingToggle["AutoFarm Level"] == false or v.Parent == nil or v.Humanoid.Health <= 0 or not game:GetService("Workspace").Enemies:FindFirstChild(v.Name) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == false
 BringMobs = false
 FarmPos = nil
 ModsFarm = nil
@@ -638,7 +693,64 @@ v.HumanoidRootPart.CanCollide = false
 v.Humanoid.JumpPower = 0
 v.Humanoid.WalkSpeed = 0
 sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
-until _G.SettingToggle["AutoFarm Boss"]["Auto"] == false or v.Parent == nil or v.Humanoid.Health == 0
+until _G.SettingToggle["AutoFarm Boss"]["Auto"] == false or v.Parent == nil or v.Humanoid.Health <= 0
+end
+end
+end
+task.wait()
+end
+    end
+})
+
+local Main2Group = Tabs.Tab:AddRightGroupbox("Auto Sea / Join")
+
+Main2Group:AddToggle("Auto Sea 2", {
+    Text = "Auto Sea 2",
+    Default = false,
+    Tooltip = "Tự Động Làm Biển 2",
+    Callback = function(Value)
+_G.SettingToggle["Auto Sea 2"] = Value
+if Value == false then
+            CancelTween()
+            Noclip(true)
+        end
+while _G.SettingToggle["Auto Sea 2"] do
+Noclip(false)
+if game:GetService("Players").LocalPlayer.Data.Level.Value >= 700 then
+if game:GetService("Workspace").Map.Ice.Door.CanCollide == false and game:GetService("Workspace").Map.Ice.Door.Transparency == 1 then
+repeat wait()
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, CFrame.new(4849, 5, 719), true, (Vector3.new(4849, 5, 719) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+until (Vector3.new(4849, 5, 719) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 3 or _G.SettingToggle["Auto Sea 2"] == false
+wait(1.1)
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("DressrosaQuestProgress", "Detective")
+wait(0.5)
+EquipTool("Key")
+repeat wait()
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, CFrame.new(1347, 37, -1325), true, (Vector3.new(1347, 37, -1325) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+until (Vector3.new(1347, 37, -1325) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 3 or (_G.Auto_Sea2 == false)
+wait(0.5)
+elseif game:GetService("Workspace").Map.Ice.Door.CanCollide == false and game:GetService("Workspace").Map.Ice.Door.Transparency == 1 then
+if game:GetService("Workspace").Enemies:FindFirstChild("Ice Admiral") then
+for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+if v.Name == "Ice Admiral" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+local OldCFrameBoss = v.HumanoidRootPart.CFrame
+repeat task.wait()
+AutoHaki()
+EquipTool(_G.ToolAttack)
+if _G.SettingToggle["Attack Aura"] == false then
+AttackNoCoolDown()
+end
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+v.HumanoidRootPart.Transparency = 1
+v.HumanoidRootPart.CanCollide = false
+v.HumanoidRootPart.CFrame = OldCFrameBoss
+v.Humanoid.JumpPower = 0
+v.Humanoid.WalkSpeed = 0
+sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
+until _G.SettingToggle["Auto Sea 2"] == false or v.Parent == nil or v.Humanoid.Health <= 0
+end
+end
 end
 end
 end
@@ -673,9 +785,12 @@ _G.SettingToggle["Auto Tween Fruit"] = Value
             Noclip(true)
         end
 while _G.SettingToggle["Auto Tween Fruit"] do
+Noclip(false)
 for i, v in pairs(game.Workspace:GetChildren()) do
                 if string.find(v.Name, "Fruit") then
+                    _G.Tween = false
                     TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v.Handle.CFrame, true, (v.Handle.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+                    _G.Tween = true
                 end
             end
 task.wait()
@@ -705,7 +820,7 @@ end
     end
 })
 
-Fruit2Group = Tabs.Tab2:AddLeftGroupbox("Rain Fruit")
+Fruit2Group = Tabs.Tab2:AddRightGroupbox("Rain Fruit")
 if BloxFruitSea2 == true or BloxFruitSea3 == true then
 Fruit2Group:AddDropdown("Chip", {
     Title = "Choose Chip",
@@ -745,7 +860,7 @@ game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetSpawnPoint"
 fireclickdetector(game:GetService("Workspace").Map.CircleIsland.RaidSummon2.Button.Main.ClickDetector);
 elseif BloxFruitSea3 then
 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-5075, 314, - 3150))
-local New = CFrame.new(- 5017.40869, 314.844055, - 2823.0127, - 0.925743818, 4.482175e-8, - 0.378151238, 4.5550315e-9, 1, 1.0737756e-7, 0.378151238, 9.768162e-8, - 0.925743818)
+local New = CFrame.new(-5017.40869, 314.844055, -2823.0127, -0.925743818, 4.482175e-8, -0.378151238, 4.5550315e-9, 1, 1.0737756e-7, 0.378151238, 9.768162e-8, -0.925743818)
 TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, New, true, (New.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetSpawnPoint")
 fireclickdetector(game:GetService("Workspace").Map["Boat Castle"].RaidSummon2.Button.Main.ClickDetector);
@@ -759,6 +874,528 @@ end
 else
 Fruit2Group:AddLabel("You must go through sea 2 - 3 to raid fruit", true)
 end
+
+Fruit3Group = Tabs.Tab2:AddLeftGroupbox("Esp")
+
+Fruit3Group:AddToggle("Esp Player", {
+    Text = "Esp Player",
+    Value = false,
+    Tooltip = "Định Vị Người Chơi",
+    Callback = function(Value)
+_G.SettingToggle["Esp"]["Player"] = Value
+while _G.SettingToggle["Esp"]["Player"] do
+for i,v in ipairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if v.Character.Head:FindFirstChild("PlayerEsp") and v.Character.Head.PlayerEsp:FindFirstChild("TextLabel") then
+v.Character.Head.PlayerEsp.TextLabel.Text = 
+          (_G.NameEsp == true and "\nName [ "..v.Name.." ]" or "")..
+          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude).." ]" or "")..
+          (_G.LevelEsp == true and "\nLevel [ "..v.Data.Level.Value.." ]" or "")..
+          (_G.BeliEsp == true and "\nBeli [ "..v.Data.Beli.Value.." ]" or "")..
+          (_G.FruitEsp == true and "\nFruit [ "..(v.Data.DevilFruit.Value == "" and "Fruit [ Nah ]" or v.Data.DevilFruit.Value).." ]" or "")..
+          (_G.FragmentsEsp == true and "\nFragments [ "..v.Data.Fragments.Value.." ]" or "")..
+          (_G.HealthEsp == true and "\nHealth [ "..v.Character.Humanoid.Health.." / "..v.Character.Humanoid.MaxHealth.." ]" or "")
+end
+if v.Character.Head:FindFirstChild("PlayerEsp") and v.Character.Head.PlayerEsp:FindFirstChild("TextLabel") and v.Character.Head.PlayerEsp.TextLabel.TextColor3 ~= _G.ColorESP then
+v.Character.Head.PlayerEsp.TextLabel.TextColor3 = _G.ColorESP
+end
+if v.Character.Head:FindFirstChild("PlayerEsp") and v.Character.Head.PlayerEsp:FindFirstChild("TextLabel") and v.Character.Head.PlayerEsp.TextLabel.TextSize ~= _G.TextSize then
+v.Character.Head.PlayerEsp.TextLabel.TextSize = _G.TextSize
+end
+if v.Character.Head:FindFirstChild("PlayerEsp") == nil then
+PlayerEsp = Instance.new("BillboardGui", v.Character.Head)
+PlayerEsp.Adornee = v.Character.Head
+PlayerEsp.Name = "PlayerEsp"
+PlayerEsp.Size = UDim2.new(0, 100, 0, 150)
+PlayerEsp.AlwaysOnTop = true
+PlayerEsp.StudsOffset = Vector3.new(0, 3, 0)
+PlayerEspText = Instance.new("TextLabel", PlayerEsp)
+PlayerEspText.BackgroundTransparency = 1
+PlayerEspText.Font = Enum.Font.SourceSansBold
+PlayerEspText.Size = UDim2.new(0, 100, 0, 100)
+PlayerEspText.TextSize = 15
+PlayerEspText.TextColor3 = Color3.new(0, 0, 0)
+PlayerEspText.TextStrokeTransparency = 0.5
+PlayerEspText.Text = ""
+end
+end
+end
+task.wait()
+end
+for i,v in ipairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if v.Character.Head:FindFirstChild("PlayerEsp") then
+v.Character.Head:FindFirstChild("PlayerEsp"):Destroy()
+end
+end
+end
+    end
+})
+
+Fruit3Group:AddDivider()
+
+_G.LevelEsp = false
+Fruit3Group:AddToggle("Level Esp", {
+    Text = "Level Esp",
+    Tooltip = "Định vị có Cấp",
+    Default = false, 
+    Callback = function(Value) 
+_G.LevelEsp = Value
+    end
+})
+
+_G.FruitEsp = false
+Fruit3Group:AddToggle("Fruit Esp", {
+    Text = "Fruit Esp",
+    Tooltip = "Định vị có đang dùng Trái",
+    Default = false, 
+    Callback = function(Value) 
+_G.FruitEsp = Value
+    end
+})
+
+_G.HealthEsp = false
+Fruit3Group:AddToggle("Health Esp", {
+    Text = "Health Esp",
+    Tooltip = "Định vị có Máu",
+    Default = false, 
+    Callback = function(Value) 
+_G.HealthEsp = Value
+    end
+})
+
+if BloxFruitSea3 == true then
+_G.FragmentsEsp = false
+Fruit3Group:AddToggle("Fragments Esp", {
+    Text = "Fragments Esp",
+    Tooltip = "Định vị có Điểm F",
+    Default = false, 
+    Callback = function(Value) 
+_G.FragmentsEsp = Value
+    end
+})
+end
+
+_G.BeliEsp = false
+Fruit3Group:AddToggle("Beli Esp", {
+    Text = "Beli Esp",
+    Tooltip = "Định vị có Beli",
+    Default = false, 
+    Callback = function(Value) 
+_G.BeliEsp = Value
+    end
+})
+
+Fruit3Group:AddDivider()
+
+Fruit3Group:AddToggle("Esp Fruit", {
+    Text = "Esp Fruit",
+    Value = false,
+    Tooltip = "Định Vị Trái Cây",
+    Callback = function(Value)
+_G.SettingToggle["Esp"]["Fruit"] = Value
+while _G.SettingToggle["Esp"]["Fruit"] do
+for i, v in pairs(game.Workspace:GetChildren()) do
+if string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") then
+if v.Handle:FindFirstChild("FruitEsp") and v.Handle.FruitEsp:FindFirstChild("TextLabel") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+v.Handle.FruitEsp.TextLabel.Text = 
+          (_G.NameEsp == true and "\nName [ "..v.Name.." ]" or "")..
+          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Handle.Position).Magnitude).." ]" or "")
+end
+end
+if v.Handle:FindFirstChild("FruitEsp") and v.Handle.FruitEsp:FindFirstChild("TextLabel") and v.Handle.FruitEsp.TextLabel.TextColor3 ~= _G.ColorESP then
+v.Handle.FruitEsp.TextLabel.TextColor3 = _G.ColorESP
+end
+if v.Handle:FindFirstChild("FruitEsp") and v.Handle.FruitEsp:FindFirstChild("TextLabel") and v.Handle.FruitEsp.TextLabel.TextSize ~= _G.TextSize then
+v.Handle.FruitEsp.TextLabel.TextSize = _G.TextSize
+end
+if v.Handle:FindFirstChild("FruitEsp") == nil then
+FruitEsp = Instance.new("BillboardGui", v.Handle)
+FruitEsp.Adornee = v.Handle
+FruitEsp.Name = "FruitEsp"
+FruitEsp.Size = UDim2.new(0, 100, 0, 150)
+FruitEsp.AlwaysOnTop = true
+FruitEsp.StudsOffset = Vector3.new(0, 3, 0)
+FruitEspText = Instance.new("TextLabel", FruitEsp)
+FruitEspText.BackgroundTransparency = 1
+FruitEspText.Font = Enum.Font.SourceSansBold
+FruitEspText.Size = UDim2.new(0, 100, 0, 100)
+FruitEspText.TextSize = 15
+FruitEspText.TextColor3 = Color3.new(0, 0, 0)
+FruitEspText.TextStrokeTransparency = 0.5
+FruitEspText.Text = ""
+end
+end
+end
+for i, v in pairs(game:GetService("Players").LocalPlayer.Character:GetChildren()) do
+    if string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("FruitEsp") then
+        v.Handle.FruitEsp:Destroy()
+    end
+end
+for i, v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+    if string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("FruitEsp") then
+        v.Handle.FruitEsp:Destroy()
+    end
+end
+task.wait()
+end
+for i, v in pairs(game.Workspace:GetChildren()) do
+if string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") then
+if v.Handle:FindFirstChild("FruitEsp") then
+v.Handle:FindFirstChild("FruitEsp"):Destroy()
+end
+end
+end
+for i, v in pairs(game:GetService("Players").LocalPlayer.Character:GetChildren()) do
+    if string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("FruitEsp") then
+        v.Handle.FruitEsp:Destroy()
+    end
+end
+for i, v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+    if string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("FruitEsp") then
+        v.Handle.FruitEsp:Destroy()
+    end
+end
+    end
+})
+
+Fruit3Group:AddToggle("Esp Island", {
+    Text = "Esp Island",
+    Value = false,
+    Tooltip = "Định Vị Đảo",
+    Callback = function(Value)
+_G.SettingToggle["Esp"]["Island"] = Value
+while _G.SettingToggle["Esp"]["Island"] do
+for i, v in pairs(game:GetService("Workspace")["_WorldOrigin"].Locations:GetChildren()) do
+if v.Name ~= "Sea" and v:FindFirstChild("IslandEsp") and v.IslandEsp:FindFirstChild("TextLabel") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+v.IslandEsp.TextLabel.Text = 
+          (_G.NameEsp == true and "\nName [ "..v.Name.." ]" or "")..
+          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Handle.Position).Magnitude).." ]" or "")
+end
+if v.FindFirstChild("IslandEsp") and v.IslandEsp:FindFirstChild("TextLabel") and v.IslandEsp.TextLabel.TextColor3 ~= _G.ColorESP then
+v.IslandEsp.TextLabel.TextColor3 = _G.ColorESP
+end
+if v.FindFirstChild("IslandEsp") and v.IslandEsp:FindFirstChild("TextLabel") and v.IslandEsp.TextLabel.TextSize ~= _G.TextSize then
+v.IslandEsp.TextLabel.TextSize = _G.TextSize
+end
+if v:FindFirstChild("IslandEsp") == nil then
+IslandEsp = Instance.new("BillboardGui", v)
+IslandEsp.Adornee = v
+IslandEsp.Name = "IslandEsp"
+IslandEsp.Size = UDim2.new(0, 100, 0, 150)
+IslandEsp.AlwaysOnTop = true
+IslandEsp.StudsOffset = Vector3.new(0, 3, 0)
+IslandEspText = Instance.new("TextLabel", IslandEsp)
+IslandEspText.BackgroundTransparency = 1
+IslandEspText.Font = Enum.Font.SourceSansBold
+IslandEspText.Size = UDim2.new(0, 100, 0, 100)
+IslandEspText.TextSize = 15
+IslandEspText.TextColor3 = Color3.new(0, 0, 0)
+IslandEspText.TextStrokeTransparency = 0.5
+IslandEspText.Text = ""
+end
+end
+end
+task.wait()
+end
+for i, v in pairs(game:GetService("Workspace")["_WorldOrigin"].Locations:GetChildren()) do
+if v.Name ~= "Sea" and v:FindFirstChild("IslandEsp") then
+v.IslandEsp:Destroy()
+end
+end
+    end
+})
+
+if BloxFruitSea2 == true then
+Fruit3Group:AddToggle("Esp Flower", {
+    Text = "Esp Flower",
+    Value = false,
+    Tooltip = "Định Vị Hoa",
+    Callback = function(Value)
+_G.SettingToggle["Esp"]["Flower"] = Value
+while _G.SettingToggle["Esp"]["Flower"] do
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == "Flower1" or v.Name == "Flower2" and v:FindFirstChild("FlowerEsp") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+v.FlowerEsp.TextLabel.Text = 
+          (_G.NameEsp == true and "\nName [ "..v.Name.." ]" or "")..
+          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Handle.Position).Magnitude).." ]" or "")
+end
+if v.FindFirstChild("FlowerEsp") and v.FlowerEsp:FindFirstChild("TextLabel") then
+if v.Name == "Flower1" then
+v.FlowerEsp.TextLabel.TextColor3 = Color3.fromRGB(0, 0, 255)
+elseif v.Name == "Flower2" then
+v.FlowerEsp.TextLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+end
+end
+if v.FindFirstChild("FlowerEsp") and v.FlowerEsp:FindFirstChild("TextLabel") and v.FlowerEsp.TextLabel.TextSize ~= _G.TextSize then
+v.FlowerEsp.TextLabel.TextSize = _G.TextSize
+end
+if v:FindFirstChild("FlowerEsp") == nil then
+FlowerEsp = Instance.new("BillboardGui", v)
+FlowerEsp.Adornee = v
+FlowerEsp.Name = "FlowerEsp"
+FlowerEsp.Size = UDim2.new(0, 100, 0, 150)
+FlowerEsp.AlwaysOnTop = true
+FlowerEsp.StudsOffset = Vector3.new(0, 3, 0)
+FlowerEspText = Instance.new("TextLabel", FlowerEsp)
+FlowerEspText.BackgroundTransparency = 1
+FlowerEspText.Font = Enum.Font.SourceSansBold
+FlowerEspText.Size = UDim2.new(0, 100, 0, 100)
+FlowerEspText.TextSize = 15
+FlowerEspText.TextColor3 = Color3.new(0, 0, 0)
+FlowerEspText.TextStrokeTransparency = 0.5
+FlowerEspText.Text = ""
+end
+end
+end
+task.wait()
+end
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == "Flower1" or v.Name == "Flower2" and v:FindFirstChild("FlowerEsp") then
+v.FlowerEsp:Destroy()
+end
+end
+    end
+})
+end
+
+Fruit3Group:AddDivider()
+
+_G.DistanceEsp = false
+Fruit3Group:AddToggle("Distance Esp", {
+    Text = "Distance Esp",
+    Tooltip = "Định vị có khoảng cách",
+    Default = false, 
+    Callback = function(Value) 
+_G.DistanceEsp = Value
+    end
+})
+
+_G.NameEsp = false
+Fruit3Group:AddToggle("Name Esp", {
+    Text = "Name Esp",
+    Tooltip = "Định vị có Tên",
+    Default = false, 
+    Callback = function(Value) 
+_G.NameEsp = Value
+    end
+})
+
+Fruit3Group:AddLabel("Color"):AddColorPicker("ColorPickerEsp", {
+    Default = Color3.new(0, 1, 0),
+    Title = "Esp Color",
+    Transparency = 0,
+    Callback = function(Value)
+        _G.ColorESP = Value
+    end
+})
+
+_G.TextSize = 10
+Fruit3Group:AddSlider("Size Text Esp", {
+    Text = "Size Text Esp",
+    Default = 10,
+    Min = 10,
+    Max = 40,
+    Rounding = 0,
+    Compact = true,
+    Callback = function(Value)
+_G.TextSize = Value
+    end
+})
+
+local State1Group = Tabs.Tab3:AddLeftGroupbox("State")
+
+State1Group:AddSlider("Stats", {
+    Text = "Get Stats",
+    Default = 3,
+    Min = 1,
+    Max = 500,
+    Rounding = 0,
+    Compact = true,
+    Callback = function(Value)
+_G.SettingToggle["Auto Stats"]["Melee"] = Value
+_G.SettingToggle["Auto Stats"]["Sword"] = Value
+_G.SettingToggle["Auto Stats"]["Gun"] = Value
+_G.SettingToggle["Auto Stats"]["Defense"] = Value
+_G.SettingToggle["Auto Stats"]["Blox Fruit"] = Value
+    end
+})
+
+State1Group:AddToggle("Stats Melee", {
+    Text = "Stats Melee",
+    Value = false,
+    Tooltip = "Năng Cú Đấm",
+    Callback = function(Value)
+_G.SettingToggle["Auto Stats"]["Start State"]["Melee"] = Value
+while _G.SettingToggle["Auto Stats"]["Start State"]["Melee"] do
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AddPoint", "Melee", _G.SettingToggle["Auto Stats"]["Melee"])
+task.wait()
+end
+    end
+})
+
+State1Group:AddToggle("State Defense", {
+    Text = "Stats Defense",
+    Value = false,
+    Tooltip = "Năng Máu (Phòng Thủ)",
+    Callback = function(Value)
+_G.SettingToggle["Auto Stats"]["Start State"]["Defense"] = Value
+while _G.SettingToggle["Auto Stats"]["Start State"]["Defense"] do
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AddPoint", "Defense", _G.SettingToggle["Auto Stats"]["Defense"])
+task.wait()
+end
+    end
+})
+
+State1Group:AddToggle("State Sword", {
+    Text = "Stats Sword",
+    Value = false,
+    Tooltip = "Năng Kiếm",
+    Callback = function(Value)
+_G.SettingToggle["Auto Stats"]["Start State"]["Sword"] = Value
+while _G.SettingToggle["Auto Stats"]["Start State"]["Sword"] do
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AddPoint", "Sword", _G.SettingToggle["Auto Stats"]["Sword"])
+task.wait()
+end
+    end
+})
+
+State1Group:AddToggle("State Gun", {
+    Text = "Stats Gun",
+    Value = false,
+    Tooltip = "Năng Súng",
+    Callback = function(Value)
+_G.SettingToggle["Auto Stats"]["Start State"]["Gun"] = Value
+while _G.SettingToggle["Auto Stats"]["Start State"]["Gun"] do
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AddPoint", "Gun", _G.SettingToggle["Auto Stats"]["Gun"])
+task.wait()
+end
+    end
+})
+
+State1Group:AddToggle("State Blox fruit", {
+    Text = "Stats Blox Fruit",
+    Value = false,
+    Tooltip = "Năng Trái Cây",
+    Callback = function(Value)
+_G.SettingToggle["Auto Stats"]["Start State"]["Blox Fruit"] = Value
+while _G.SettingToggle["Auto Stats"]["Start State"]["Blox Fruit"] do
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AddPoint", "Demon Fruit", _G.SettingToggle["Auto Stats"]["Blox Fruit"])
+task.wait()
+end
+    end
+})
+
+local Shop1Group = Tabs.Tab4:AddLeftGroupbox("Ability")
+
+Shop1Group:AddButton({
+    Text = "Jump",
+    Tooltip = "Nhảy trên ko",
+    Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyHaki", "Geppo")
+    end
+})
+
+Shop1Group:AddButton({
+    Text = "Haki",
+    Tooltip = "Haki Đấm",
+    Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyHaki", "Buso")
+    end
+})
+
+Shop1Group:AddButton({
+    Text = "Teleport",
+    Tooltip = "Dịch Chuyển",
+    Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyHaki", "Soru")
+    end
+})
+
+Shop1Group:AddButton({
+    Text = "Observation Haki",
+    Tooltip = "Haki Quan Sát",
+    Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("KenTalk", "Buy")
+    end
+})
+
+local Shop2Group = Tabs.Tab4:AddRightGroupbox("Sword")
+
+local Sword = {
+    ["Cutlass"] = {Name = "Cutlass", Tooltip = "Một thanh kiếm cắt nhanh"},
+    ["Katana"] = {Name = "Katana", Tooltip = "Thanh kiếm Nhật sắc bén"},
+    ["Iron Mace"] = {Name = "Iron Mace", Tooltip = "Chùy sắt mạnh mẽ"},
+    ["Duel Katana"] = {Name = "Duel Katana", Tooltip = "Hai thanh kiếm Katana"},
+    ["Triple Katana"] = {Name = "Triple Katana", Tooltip = "Ba thanh kiếm Katana"},
+    ["Dual-Headed Blade"] = {Name = "Dual-Headed Blade", Tooltip = "Kiếm hai đầu mạnh mẽ"},
+    ["Bisento"] = {Name = "Bisento", Tooltip = "Vũ khí của Râu Trắng"},
+    ["Soul Cane"] = {Name = "Soul Cane", Tooltip = "Cây gậy linh hồn"},
+    ["Pipe"] = {Name = "Soul Cane", Tooltip = "Đường ống"},
+}
+
+for i, v in pairs(Sword) do
+Shop2Group:AddButton({
+   Text = i,
+   Tooltip = v.Tooltip,
+   Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyItem", v)
+   end
+})
+end
+
+Shop2Group:AddButton({
+   Text = "Pole V2",
+   Tooltip = "Cực V2",
+   Func = function()
+game.ReplicatedStorage.Remotes.CommF_:InvokeServer("ThunderGodTalk")
+   end
+})
+
+local Shop3Group = Tabs.Tab4:AddLeftGroupbox("Combat")
+
+local Combat = {
+	["Black Leg"] = {Name = "Black Leg", Tooltip = "Chân Đen", BuyScript = "BuyBlackLeg"},
+	["Electro"] = {Name = "Electro", Tooltip = "Bàn Tay Điện", BuyScript = "BuyElectro"},
+	["Fishman Karate"] = {Name = "Fishman Karate", Tooltip = "Bàn Tay Nước", BuyScript = "BuyFishmanKarate"},
+	["Superhuman"] = {Name = "Superhuman", Tooltip = "Bàn Tay Siêu Nhân", BuyScript = "BuySuperhuman"},
+	["Death Step"] = {Name = "Death Step", Tooltip = "Chân Đen V2", BuyScript = "BuyDeathStep"},
+	["Electric Claw"] = {Name = "Electric Claw", Tooltip = "Bàn Tay Điện V2", BuyScript = "BuyElectricClaw"},
+	["Dragon Talon"] = {Name = "Dragon Talon", Tooltip = "Móng Vuốt Rồng", BuyScript = "BuyDragonTalon"},
+	["Godhuman"] = {Name = "Godhuman", Tooltip = "Bàn Tay Thần Nhân", BuyScript = "BuyGodhuman"},
+	["Sanguine Art"] = {Name = "Sanguine Art", Tooltip = "Bàn Tay Máu Đỏ", BuyScript = "BuySanguineArt"},
+}
+
+for i, v in pairs(Combat) do
+Shop3Group:AddButton({
+   Text = i,
+   Tooltip = v.Tooltip,
+   Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(v.BuyScript)
+   end
+})
+end
+
+Shop3Group:AddButton({
+   Text = "Sharkman Karate",
+   Tooltip = "Bàn Tay Cá Mập",
+   Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuySharkmanKarate", true)
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuySharkmanKarate")
+   end
+})
+
+Shop3Group:AddButton({
+   Text = "Dragon Claw",
+   Tooltip = "Bàn Tay Rồng",
+   Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward", "DragonClaw", "1")
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward", "DragonClaw", "2")
+   end
+})
 
 local Misc1Group = Tabs.Tab8:AddLeftGroupbox("Misc")
 
@@ -953,6 +1590,21 @@ Misc2Group:AddButton({
     Func = function()
 for i, v in pairs(Experience) do
 game:GetService("ReplicatedStorage").Remotes.Redeem:InvokeServer(v)
+task.wait()
+end
+    end
+})
+
+Misc2Group:AddToggle("Auto On PVP", {
+    Text = "Auto On PVP",
+    Default = false,
+    Tooltip = "Tự Động Bặt Chiến Đấu",
+    Callback = function(Value)
+_G.SettingToggle["Auto Pvp"] = Value
+while _G.SettingToggle["Auto Pvp"] do
+if game:GetService("Players").LocalPlayer.PlayerGui.Main.PvpDisabled.Visible == true then
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EnablePvp")
+end
 task.wait()
 end
     end
