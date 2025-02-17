@@ -1121,6 +1121,70 @@ end
 SearchPlayer = InfoServer4Group:AddLabel("Player Owner [ Nah ]", true)
 OwnerPlayer = InfoServer4Group:AddLabel("Owner [ Nah ]", true)
 
+local InfoServer5Group = Tabs.Tab:AddRightGroupbox("Check")
+
+InfoServer5Group:AddInput("Players", {
+    Default = "",
+    Numeric = false,
+    Text = "",
+    Finished = true,
+    Placeholder = "Username",
+    Callback = function(Value)
+if Value ~= "" or Value ~= " " then
+local PlayerTarget = Value
+local PlayerTa
+for _, v in pairs(game.Players:GetPlayers()) do
+if string.sub(v.Name, 1, #PlayerTarget):lower() == PlayerTarget:lower() then
+PlayerTa = v
+break
+end
+end
+if PlayerTa then
+_G.CheckPlayer = PlayerTa.Name
+PlayersCheck1:SetText("Player Check [ ✅ ] [ ".._G.CheckPlayer.." ]", 5)
+else
+PlayersCheck1:SetText("Player Check [ ❌ ]", 5)
+end
+end
+    end
+})
+
+PlayersCheck1 = InfoServer5Group:AddLabel("Player Check [ Nah ]", true)
+
+InfoServer5Group:AddToggle("Toggle Set", {
+    Text = "Toggle Return",
+    Default = false,
+    Callback = function(Value)
+_G.AutosetCheckPlayer = Value
+while _G.AutosetCheckPlayer do
+if game.Players[_G.CheckPlayer].Character ~= nil and game.ReplicatedStorage.PlayerData:FindFirstChild(_G.CheckPlayer) ~= nil then
+CheckNullShardsPlayer:SetText("Check Null Shard [ "..game.ReplicatedStorage.PlayerData[_G.CheckPlayer].NullShards.Value.." ]")
+CheckTournamentWinsPlayer:SetText("Check Tournament Win [ "..game.ReplicatedStorage.PlayerData[_G.CheckPlayer].TournamentWins.Value.." ]")
+CheckSlapPlayer:SetText("Check Slap [ "..game.Players[_G.CheckPlayer].leaderstats.Slaps.Value.." ]")
+GloveCheckPlayer:SetText("Using Glove [ "..game.Players[_G.CheckPlayer].leaderstats.Glove.Value.." ]")
+if game.Players[_G.CheckPlayer].Character ~= nil and game.Players[_G.CheckPlayer].Character:FindFirstChild("HumanoidRootPart") ~= nil then
+PositionPlayer:SetText("Position [ "..tostring(math.round(game.Players[_G.CheckPlayer].Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players[_G.CheckPlayer].Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players[_G.CheckPlayer].Character.HumanoidRootPart.Position.Z)).." ]")
+else
+PositionPlayer:SetText("Position [ Nah ]")
+end
+else
+CheckNullShardsPlayer:SetText("Check Null Shard [ Nah ]")
+CheckTournamentWinsPlayer:SetText("Check Tournament Win [ Nah ]")
+CheckSlapPlayer:SetText("Check Slap [ Nah ]")
+GloveCheckPlayer:SetText("Using Glove [ Nah ]")
+PositionPlayer:SetText("Position [ Nah ]")
+end
+task.wait()
+end
+    end
+})
+
+CheckNullShardsPlayer = InfoServer5Group:AddLabel("Check Null Shard [ Nah ]", true)
+CheckTournamentWinsPlayer = InfoServer5Group:AddLabel("Check Tournament Win [ Nah ]", true)
+CheckSlapPlayer = InfoServer5Group:AddLabel("Check Slap [ Nah ]", true)
+GloveCheckPlayer = InfoServer5Group:AddLabel("Using Glove [ Nah ]", true)
+PositionPlayer = InfoServer5Group:AddLabel("Position [ Nah ]", true)
+
 local Script1Group = Tabs.Tab1:AddLeftGroupbox("Script Basic")
 
 Script1Group:AddButton({
@@ -2660,7 +2724,7 @@ if game.Players.LocalPlayer.leaderstats.Slaps.Value >= 5000 then
 for i, v in pairs(workspace.PocketDimension.Doors:GetChildren()) do
 if game.Players.LocalPlayer:FindFirstChild("_unlockedGloves") and game.Players.LocalPlayer._unlockedGloves:FindFirstChild("[REDACTED]").Value == false then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health == 100
 task.wait(0.3)
 end
 end
@@ -4452,6 +4516,10 @@ while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Agge
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 task.wait()
 end
+while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Medusa" do
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer(true)
+task.wait()
+end
     end
 }):AddKeyPicker("SpamAbility", {
    Default = "B",
@@ -4485,47 +4553,6 @@ elseif _G.SpamStunUntitledTag == true then
 Notification("You don't have Untitled Tag Glove equipped", 5)
 wait(0.05)
 Toggles["Spam Stun Untitled Tag"]:SetValue(false)
-end
-    end
-})
-
-Misc1Basic:AddToggle("Brick Player", {
-    Text = "Brick Player",
-    Default = false, 
-    Callback = function(Value) 
-_G.BrickTeleport = Value
-while _G.BrickTeleport do
-for i,v in pairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") and v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
-if game.Workspace:FindFirstChild("Union") then
-v.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(-10, 0, 0)
-for i, a in pairs(game.Workspace:GetChildren()) do
-        if a.Name == "Union" then
-           a.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(-10, 0, 0)
-        end
-    end
-end
-end
-end
-end
-task.wait(0.1)
-end
-    end
-})
-
-Misc1Basic:AddToggle("Brick Orbit", {
-    Text = "Brick Orbit",
-    Default = false, 
-    Callback = function(Value) 
-_G.BrickOrbit = Value
-while _G.BrickOrbit do
-for i, v in pairs(game.Workspace:GetChildren()) do
-        if v.Name == "Union" then
-           v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * 5 + (i - 1) * math.pi / 5) * 8, 0, math.sin(tick() * 5 + (i - 1) * math.pi / 5) * 8)
-        end
-    end
-task.wait()
 end
     end
 })
@@ -7420,15 +7447,14 @@ end
     end
 })
 
-Glove2Group:AddSlider("Speed Cloud", {
-    Text = "Speed Cloud",
-    Default = 0.5,
-    Min = 0.1,
-    Max = 1.2,
-    Rounding = 1,
-    Compact = true,
+_G.SetSpeedFlyCloud = 2
+Glove2Group:AddInput("FlySpeed", {
+    Default = "2",
+    Numeric = true,
+    Text = "Fly Speed Cloud",
+    Placeholder = "UserFlySpeed",
     Callback = function(Value)
-_G.SetSpeedCloud = Value
+_G.SetSpeedFlyCloud = Value
     end
 })
 
@@ -7440,11 +7466,26 @@ _G.CloudSpeed = Value
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Cloud" then
 while _G.CloudSpeed do
 for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("BodyVelocity") then
-                        v.BodyVelocity.Velocity = v.BodyVelocity.Velocity * _G.SetSpeedCloud
-                    end
-               end
-task.wait(0.10)
+                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("BodyVelocity") and v:FindFirstChild("VehicleSeat") then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if 3 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.VehicleSeat.Position).Magnitude then
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X > 0 then
+v.BodyVelocity.Velocity = v.BodyVelocity.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X * _G.SetSpeedFlyCloud)
+end
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X < 0 then
+v.BodyVelocity.Velocity = v.BodyVelocity.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X * _G.SetSpeedFlyCloud)
+end
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z > 0 then
+v.BodyVelocity.Velocity = v.BodyVelocity.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z * _G.SetSpeedFlyCloud)
+end
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z < 0 then
+v.BodyVelocity.Velocity = v.BodyVelocity.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z * _G.SetSpeedFlyCloud)
+end
+end
+end
+end
+end
+task.wait()
 end
 elseif _G.CloudSpeed == true then
 Notification("You don't have Cloud equipped.", 5)
@@ -10320,6 +10361,7 @@ gloveHits = {
     ["Draw4"] = game.ReplicatedStorage.GeneralHit,
     ["Aggro"] = game.ReplicatedStorage.GeneralHit,
     ["Mouse"] = game.ReplicatedStorage.GeneralHit,
+    ["Medusa"] = game.ReplicatedStorage.GeneralHit,
     ------------------------------------------------------------------------
     ["ZZZZZZZ"] = game.ReplicatedStorage.ZZZZZZZHit,
     ["Brick"] = game.ReplicatedStorage.BrickHit,
