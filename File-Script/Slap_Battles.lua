@@ -789,7 +789,7 @@ if _G.NotificationSound then
     
 if game.PlaceId == 6403373529 or game.PlaceId == 9015014224 or game.PlaceId == 11520107397 then
 local Window = Library:CreateWindow({
-    Title = "Article Hub - Slap Battles",
+    Title = "Omega X Hub - Slap Battles",
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -7847,7 +7847,7 @@ Toggles["Anti Admin"]:SetValue(game.Workspace.NoChanged.Value)
 end)
 elseif game.PlaceId == 11828384869 then
 local Window = Library:CreateWindow({
-    Title = "Article Hub - Maze 👁️",
+    Title = "Omega X Hub - Maze 👁️",
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -7912,7 +7912,7 @@ end
 end)
 elseif game.PlaceId == 13833961666 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - Boss Bob 💥",
+	Title = "Omega X Hub - Boss Bob 💥",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -8195,7 +8195,7 @@ end
 })
 elseif game.PlaceId == 9431156611 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - Slap Royale 👏",
+	Title = "Omega X Hub - Slap Royale 👏",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -9103,7 +9103,7 @@ task.wait()
 })
 elseif game.PlaceId == 14422118326 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - Maze Null",
+	Title = "Omega X Hub - Maze Null",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -9225,7 +9225,7 @@ end
 })
 elseif game.PlaceId == 16034567693 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - ADMIN ROOM",
+	Title = "Omega X Hub - ADMIN ROOM",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -9319,7 +9319,7 @@ Toggles["Anti Afk"]:SetValue(true)
 end)
 elseif game.PlaceId == 17290438723 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - Frostbite Map Obby",
+	Title = "Omega X Hub - Frostbite Map Obby",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -9349,7 +9349,7 @@ for i,v in ipairs(game:GetService("Workspace"):GetDescendants()) do
 end)
 elseif game.PlaceId == 18550498098 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - Boss Guide",
+	Title = "Omega X Hub - Boss Guide",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -9821,7 +9821,7 @@ task.wait()
 })
 elseif game.PlaceId == 7234087065 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - Lobby OGG",
+	Title = "Omega X Hub - Lobby OGG",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -9927,7 +9927,7 @@ end
 })
 elseif game.PlaceId == 74169485398268 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - Maze Bind",
+	Title = "Omega X Hub - Maze Bind",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -9959,7 +9959,7 @@ end
 end)
 elseif game.PlaceId == 102908326578005 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - OGG Home Jorgis",
+	Title = "Omega X Hub - OGG Home Jorgis",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -10008,7 +10008,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Furniture
 end)
 elseif game.PlaceId == 115782629143468 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - TOH",
+	Title = "Omega X Hub - TOH",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -10031,7 +10031,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-31, 187
 end)
 elseif game.PlaceId == 92516899071319 then
 local Window = Library:CreateWindow({
-	Title = "Article Hub - Sleep Map",
+	Title = "Omega X Hub - Sleep Map",
 	Center = true,
     AutoShow = true,
     Resizable = true,
@@ -10070,7 +10070,7 @@ workspace["Unstable Artifact"].Handle.CFrame = game.Players.LocalPlayer.Characte
 end)
 elseif game.PlaceId == 118650724506449 then
 local Window = Library:CreateWindow({
-    Title = "Article Hub - Bad Dreams",
+    Title = "Omega X Hub - Bad Dreams",
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -10093,7 +10093,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.rooms["ro
 end)
 elseif game.PlaceId == 97220865182663 then
 local Window = Library:CreateWindow({
-    Title = "Article Hub - Boss Mouse",
+    Title = "Omega X Hub - Boss Mouse",
     Center = true,
     AutoShow = true,
     Resizable = true,
