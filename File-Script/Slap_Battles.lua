@@ -3377,7 +3377,69 @@ end
 elseif _G.AutoGlovelMastery == true then
 Notification("You don't have Glovel equipped", 5)
 wait(0.05)
-Toggles["Auto Run Mastery"]:SetValue(false)
+Toggles["Auto Glovel Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddDropdown("Bomb Mastery", {
+    Text = "Bomb Mastery",
+    Values = {"Throw Bomb", "Snipe Bomb + Void"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.BombMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Bomb Mastery", {
+    Text = "Auto Bomb Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoBombMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Bomb" then
+while _G.AutoBombMastery do
+if _G.BombMastery == "Throw" then
+Toggles["Anti Kick"]:SetValue(true)
+wait(3)
+for i = 1, 700 do
+game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
+end
+elseif _G.BombMastery == "Snipe Bomb + Void" then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Backpack:FindFirstChild("Bomb") then
+game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack.Bomb)
+end
+task.wait()
+repeat task.wait() 
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+end
+until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."_bømb")
+wait(0.5)
+repeat task.wait() 
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."_bømb") then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."_bømb").CFrame)
+end
+until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."_bømb") == nil
+task.wait(0.75)
+repeat task.wait()
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
+until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+end
+task.wait()
+end
+elseif _G.AutoBombMastery == true then
+Notification("You don't have Bomb equipped", 5)
+wait(0.05)
+Toggles["Auto Bomb Mastery"]:SetValue(false)
 end
     end
 })
@@ -10415,6 +10477,7 @@ gloveHits = {
     ["Aggro"] = game.ReplicatedStorage.GeneralHit,
     ["Mouse"] = game.ReplicatedStorage.GeneralHit,
     ["Medusa"] = game.ReplicatedStorage.GeneralHit,
+    ["Hexa"] = game.ReplicatedStorage.GeneralHit,
     ------------------------------------------------------------------------
     ["ZZZZZZZ"] = game.ReplicatedStorage.ZZZZZZZHit,
     ["Brick"] = game.ReplicatedStorage.BrickHit,
