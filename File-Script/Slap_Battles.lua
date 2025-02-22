@@ -2791,10 +2791,10 @@ end
 })
 
 Badge2Group:AddButton({
-    Text = "Get Free Ice Skate",
+    Text = "Get Free GRRRRR",
     Func = function()
-if not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2906002612987222) then
-game:GetService("ReplicatedStorage").IceSkate:FireServer("Freeze")
+if not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2127861437) then
+game:GetService("ReplicatedStorage").GRRRRR:FireServer(true)
 else
 Notification("You have Owner badge", 5)
 end
@@ -5622,7 +5622,7 @@ wait(0.5)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.FinishDoor_Retro.Part.CFrame
 wait(1)
 game:GetService("ReplicatedStorage").Recall:InvokeServer(game:GetService("Players").LocalPlayer.Character.Recall)
-task.wait(2.4)
+task.wait(2.6)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerPut1].Character.HumanoidRootPart.CFrame
 wait(1)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.FinishDoor_Retro.Part.CFrame
@@ -5638,7 +5638,7 @@ wait(0.5)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-16976, 801, 4907)
 wait(1)
 game:GetService("ReplicatedStorage").Recall:InvokeServer(game:GetService("Players").LocalPlayer.Character.Recall)
-task.wait(2.4)
+task.wait(2.6)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerPut1].Character.HumanoidRootPart.CFrame
 wait(1)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-16976, 801, 4907)
@@ -5727,10 +5727,9 @@ elseif _G.GetTeleportHelp == "SafeSpotBox 2.0" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
 end
 game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
-for i = 1,200 do
-game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = 0,["Direction"] = Vector3.new(0,0.01,0)})
-task.wait()
-end
+repeat task.wait()
+game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = -99})
+until game.Players.LocalPlayer.Character:WaitForChild("KineticSlappedBadgeCounter").Value >= 100
 wait(2.8)
 if _G.GetTeleportHelp == "Up To You" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
@@ -10159,6 +10158,60 @@ task.wait()
 end
     end
 })
+elseif game.PlaceId == 98726100529621 then
+local Window = Library:CreateWindow({
+    Title = "Omega X Article Hub - Map Obby Hexa",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+    AutoLock = true,
+    ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local Misc1Group = Tabs.Tab:AddLeftGroupbox("Badge")
+
+Misc1Group:AddButton("Get Glove", function()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and workspace:FindFirstChild("Part I") then
+workspace["Part I"].Obby["end"].CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+wait(10.5)
+for i, v in pairs(workspace["Part 2"]:GetChildren()) do
+if v.Name == "SubtitleActivation" then
+repeat task.wait(1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+until workspace["Part 2"]:FindFirstChild("Portal")
+end
+end
+task.wait(2.5)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Part 2"].Portal.CFrame
+wait(9.5)
+workspace["Part 3"].TpToNext.HitBox.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+if fireclickdetector then
+fireclickdetector(workspace["Part 3"].TpToNext.HitBox:FindFirstChild("Click"))
+end
+repeat task.wait() until workspace:FindFirstChild("Part 4")
+wait(7)
+workspace["Part 4"].TPPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+wait(7)
+workspace["Part 5"].Glove.Hitbox.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+if fireclickdetector then
+fireclickdetector(workspace["Part 5"].Glove.Hitbox:FindFirstChild("Click"))
+end
+repeat task.wait() until workspace:FindFirstChild("Finale") and workspace.Finale:FindFirstChild("Reward")
+wait(7)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Finale.Reward.Hitbox.CFrame
+if fireclickdetector then
+fireclickdetector(workspace.Finale.Reward.Hitbox:FindFirstChild("Click"))
+end
+end
+end)
 end
 
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
