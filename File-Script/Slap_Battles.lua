@@ -3384,7 +3384,7 @@ end
 
 Badge3Group:AddDropdown("Bomb Mastery", {
     Text = "Bomb Mastery",
-    Values = {"Throw Bomb", "Snipe Bomb + Void"},
+    Values = {"Throw Bomb", "Snipe Bomb + Void", "Void Kill"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -3406,11 +3406,22 @@ for i = 1, 700 do
 game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
 end
 elseif _G.BombMastery == "Snipe Bomb + Void" then
+repeat task.wait() until game.Players.LocalPlayer.Character
+if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Backpack:FindFirstChild("Bomb") then
 game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack.Bomb)
 end
 task.wait()
 repeat task.wait() 
+if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+end
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
 game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
@@ -3427,12 +3438,32 @@ repeat task.wait()
 game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
 until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
 repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+elseif _G.BombMastery == "Void Kill" then
+repeat task.wait() until game.Players.LocalPlayer.Character
+if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 repeat task.wait()
 firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
 firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
 until game.Players.LocalPlayer.Character:FindFirstChild("entered")
 end
+repeat task.wait() 
+if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+end
+until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."_bømb")
+task.wait(0.2)
+game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
+task.wait(0.75)
+repeat task.wait() until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."_bømb") == nil
+repeat task.wait()
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
+until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 end
 task.wait()
 end
