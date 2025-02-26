@@ -9864,7 +9864,7 @@ end
 Misc2Group:AddButton("Fight Potato", function()
 if game.Workspace:FindFirstChild("PotatoLord") then
 for i,v in pairs(game.workspace:GetChildren()) do
-if v.Name == "PotatoLord" and v:FindFirstChild("cóHumanoidRootPart") then
+if v.Name == "PotatoLord" and v:FindFirstChild("HumanoidRootPart") then
 if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
 game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
 elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
