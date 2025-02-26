@@ -55,11 +55,60 @@ _G.GetPotion = {
 
 ---GetSome---
 
-if not game.ReplicatedStorage:FindFirstChild("robAnimation") then
-local robAnim = Instance.new("Animation")
-robAnim.AnimationId = "rbxassetid://13675136513"
-robAnim.Parent = game.ReplicatedStorage
-robAnim.Name = "robAnimation"
+spawn(function()
+while true do
+if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Hotbar") then
+game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position = UDim2.new(0.5, -100, 1, -80)
+end
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+if v:IsA("TextButton") then
+if v:FindFirstChild("Equipped") then
+v.Equipped.Visible = false
+end
+if v:FindFirstChild("Equipped") and v:FindFirstChild("SelectionObjectClipper") then
+v.SelectionObjectClipper.Visible = true
+else
+v.SelectionObjectClipper.Visible = false
+end
+if v:FindFirstChild("UICorner") == nil then
+local RobloxUi = Instance.new("UICorner", v)
+RobloxUi.CornerRadius = UDim.new(0, 10)
+end
+end
+end
+task.wait()
+end
+end)
+
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+if v:IsA("TextButton") then
+v.MouseEnter:Connect(function()
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://10066942189"
+sound.Volume = 2
+sound.PlaybackSpeed = 1.2
+sound.PlayOnRemove = true
+sound:Destroy()
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.1), {Size = UDim2.new(0, 70, 0, 70)}):Play()
+end)
+v.MouseLeave:Connect(function()
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://10066942189"
+sound.Volume = 2
+sound.PlaybackSpeed = 1.2
+sound.PlayOnRemove = true
+sound:Destroy()
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.1), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+end)
+v.MouseButton1Click:Connect(function()
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://10066936758"
+sound.Volume = 2
+sound.PlaybackSpeed = 1.2
+sound.PlayOnRemove = true
+sound:Destroy()
+end)
+end
 end
 
 if game.Workspace:FindFirstChild("NametagChanged") == nil then
@@ -1571,6 +1620,23 @@ end
     end
 })
 
+Anti2Group:AddToggle("Anti Trap", {
+    Text = "Anti Trap",
+    Default = false,
+    Callback = function(Value)
+_G.AntiTrap = Value
+while _G.AntiTrap do
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == "BearTrap" and v:FindFirstChild("HitBox") then
+v.HitBox.CanTouch = false
+v.HitBox.CanQuery = false
+end
+end
+task.wait()
+end
+    end
+})
+
 Anti2Group:AddToggle("Anti Lure", {
     Text = "Anti Lure",
     Default = false,
@@ -1713,18 +1779,14 @@ Anti2Group:AddToggle("Anti Lamp", {
     Callback = function(Value)
 _G.AntiLamp = Value
 while _G.AntiLamp do
-if game.Players.LocalPlayer.PlayerGui:FindFirstChild("whiteframe"..game.Players.LocalPlayer.Name) then
 for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
-if v.Name == ("whiteframe"..game.Players.LocalPlayer.Name) and v.Enabled == true then
+if v.Name:find("whiteframe") and v.Enabled == true then
 v.Enabled = false
 end
 end
-end
-if game.Lighting:FindFirstChild("lampcc"..game.Players.LocalPlayer.Name) then
-for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
-if v.Name == ("lampcc"..game.Players.LocalPlayer.Name) and v.Enabled == true then
+for i, v in pairs(game.Lighting:GetChildren()) do
+if v.Name:find("lampcc") and v.Enabled == true then
 v.Enabled = false
-end
 end
 end
 task.wait()
@@ -2723,8 +2785,8 @@ Badge2Group:AddButton({
 if game.Players.LocalPlayer.leaderstats.Slaps.Value >= 5000 then
 for i, v in pairs(workspace.PocketDimension.Doors:GetChildren()) do
 if game.Players.LocalPlayer:FindFirstChild("_unlockedGloves") and game.Players.LocalPlayer._unlockedGloves:FindFirstChild("[REDACTED]").Value == false then
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health == 100
 task.wait(0.3)
 end
 end
@@ -3255,7 +3317,7 @@ for i,v in pairs(game.Players:GetChildren()) do
 if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
 if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
 if v.Character.Head:FindFirstChild("UnoReverseCard") == nil or game.Players.LocalPlayer.leaderstats.Glove.Value == "Error" then
-if 30 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
+if 20 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
 game:GetService("ReplicatedStorage").WormholeTP:FireServer(CFrame.new(-57.48336410522461, -4.672852516174316, 67.94768524169922, 0.5769212245941162, 0.0005397791974246502, 0.8167997002601624, 1.468715993269143e-07, 0.9999997615814209, -0.0006609398988075554, -0.8167998790740967, 0.00038141835830174387, 0.5769210457801819))
 end
 end
@@ -3289,6 +3351,17 @@ Badge3Group:AddToggle("Auto Run Mastery", {
     Callback = function(Value) 
 _G.AutoRunMastery = Value
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Run" then
+if _G.AutoRunMastery == false then
+if _G.RunMastery == "Esp Player" then
+for i,v in ipairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("InLabyrinth") then
+if v.Character.HumanoidRootPart:FindFirstChild("RunEsp") then
+v.Character.HumanoidRootPart.RunEsp:Destroy()
+end
+end
+end
+end
+end
 while _G.AutoRunMastery do
 if _G.RunMastery == "Esp Player" then
 if game.Players.LocalPlayer.Character:FindFirstChild("InLabyrinth") then
@@ -3364,11 +3437,11 @@ local players = game.Players:GetChildren()
 local RandomPlayer = players[math.random(1, #players)]
 if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
 if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character.Ragdolled.Value == false and RandomPlayer.Character:FindFirstChild("Mirage") == nil then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = RandomPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -6, 0)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = RandomPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -15, 0)
 wait(0.3)
 gloveHits["Glovel"]:FireServer(RandomPlayer.Character.Head, true)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-wait(1.5)
+task.wait(3.5)
 end
 end
 end
@@ -3491,13 +3564,13 @@ if _G.AutoKillstreakMastery == false then
     break 
 end
 if RandomPlayer.Character.Ragdolled.Value == false then
-game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -5, 0))
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -10, 0))
 task.wait(0.25)
 game.ReplicatedStorage.KSHit:FireServer(RandomPlayer.Character:FindFirstChild("HumanoidRootPart"))
 game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
 task.wait(0.85)
 end
-until RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character.HumanoidRootPart.Position.Y < -10 or RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character.Humanoid.Health == 0
+until RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character.HumanoidRootPart.Position.Y < -10 or RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character.Humanoid.Health <= 0
 end
 end
 task.wait()
@@ -5707,36 +5780,46 @@ _G.HelpPlayerGetHehe = Value
 
 Misc3Group:AddButton("Help Player Retro", function()
 if _G.HelpPlayerGetHehe == "Get Retro" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Grab" then
 if game.Workspace:FindFirstChild("Retro") == nil then
 game.ReplicatedStorage.Assets.Retro.Parent = game.Workspace
 end
-wait(0.5)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.FinishDoor_Retro.Part.CFrame
 wait(1)
-game:GetService("ReplicatedStorage").Recall:InvokeServer(game:GetService("Players").LocalPlayer.Character.Recall)
-task.wait(2.6)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerPut1].Character.HumanoidRootPart.CFrame
-wait(1)
+wait(0.15)
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+wait(0.15)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.FinishDoor_Retro.Part.CFrame
+wait(1)
+if game.Players.LocalPlayer.Character:FindFirstChild("Grab") then
+game.Players.LocalPlayer.Character:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Backpack
+end
 else
-Notification("You don't have Recall equipped", 5)
+Notification("You don't have Grab equipped", 5)
 end
 elseif _G.HelpPlayerGetHehe == "Teleport Button" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Grab" then
 if game.Workspace:FindFirstChild("Retro") == nil then
 game.ReplicatedStorage.Assets.Retro.Parent = game.Workspace
 end
 wait(0.5)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-16976, 801, 4907)
-wait(1)
-game:GetService("ReplicatedStorage").Recall:InvokeServer(game:GetService("Players").LocalPlayer.Character.Recall)
-task.wait(2.6)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerPut1].Character.HumanoidRootPart.CFrame
+wait(0.15)
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+wait(0.15)
+if game.Workspace:FindFirstChild("Retro") and game.Workspace.Retro:FindFirstChild("Map") then
+for i, v in pairs(workspace.Retro.Map.RetroObbyMap:GetChildren()) do
+if v.Name == "Model" and v:FindFirstChild("StaffApp") and v.StaffApp:FindFirstChild("Button") and v.StaffApp.Button:FindFirstChild("ClickDetector") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.StaffApp.Button.CFrame
+end
+end
+end
 wait(1)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-16976, 801, 4907)
+if game.Players.LocalPlayer.Character:FindFirstChild("Grab") then
+game.Players.LocalPlayer.Character:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Backpack
+end
 else
-Notification("You don't have Recall equipped", 5)
+Notification("You don't have Grab equipped", 5)
 end
 elseif _G.HelpPlayerGetHehe == "Enter Retro" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Glitch" and game.Players.LocalPlayer.leaderstats.Slaps.Value >= 50000 and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players[_G.PlayerPut1].Character:FindFirstChild("entered") then
@@ -5745,9 +5828,13 @@ wait(0.35)
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 fireclickdetector(workspace.Lobby["Error"].ClickDetector)
 task.wait(8.5)
+repeat task.wait()
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerPut1].Character.HumanoidRootPart.CFrame
+until 5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game.Players[_G.PlayerPut1].Character.HumanoidRootPart.Position).Magnitude or game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health <= 0 or game.Players[_G.PlayerPut1].Character:FindFirstChild("Humanoid") and game.Players[_G.PlayerPut1].Character.Humanoid.Health <= 0
 wait(0.07)
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0 or game.Players[_G.PlayerPut1].Character:FindFirstChild("Humanoid") and game.Players[_G.PlayerPut1].Character.Humanoid.Health > 0 then
 game.ReplicatedStorage.Errorhit:FireServer(game.Players[_G.PlayerPut1].Character:WaitForChild("Head"))
+end
 else
 Notification("You have in Lobby | Player [ ".._G.PlayerPut1.." ] in arena, or You don't have Glitch equipped, or you have don't have 50K Slap", 5)
 end
@@ -5765,9 +5852,13 @@ game:GetService("ReplicatedStorage").VineThud:FireServer()
 task.wait(1)
 fireclickdetector(workspace.Lobby["Home Run"].ClickDetector)
 wait(0.4)
-game:GetService("ReplicatedStorage").HomeRun:FireServer({["finished"] = true})
-task.wait(0.12)
+spawn(function()
+repeat task.wait()
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerPut1].Character.HumanoidRootPart.CFrame
+until 5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game.Players[_G.PlayerPut1].Character.HumanoidRootPart.Position).Magnitude or game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health <= 0 or game.Players[_G.PlayerPut1].Character:FindFirstChild("Humanoid") and game.Players[_G.PlayerPut1].Character.Humanoid.Health <= 0
+end)
+wait(0.7)
+game:GetService("ReplicatedStorage").HomeRun:FireServer({["finished"] = true})
 else
 Notification("You don't have Home Run equipped, or you have to go lobby, or player don't have Berserk equipped.", 5)
 end
@@ -7807,6 +7898,10 @@ Toggles["Anti Ball Baller"]:SetValue(game.Workspace.NoChanged.Value)
 end)
 
 game.Workspace.NoChanged.Changed:Connect(function()
+Toggles["Anti Trap"]:SetValue(game.Workspace.NoChanged.Value)
+end)
+
+game.Workspace.NoChanged.Changed:Connect(function()
 Toggles["Anti Mail"]:SetValue(game.Workspace.NoChanged.Value)
 end)
 
@@ -9769,7 +9864,7 @@ end
 Misc2Group:AddButton("Fight Potato", function()
 if game.Workspace:FindFirstChild("PotatoLord") then
 for i,v in pairs(game.workspace:GetChildren()) do
-if v.Name == "PotatoLord" and v:FindFirstChild("HumanoidRootPart") then
+if v.Name == "PotatoLord" and v:FindFirstChild("cóHumanoidRootPart") then
 if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
 game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
 elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
@@ -10275,13 +10370,9 @@ Misc1Group:AddButton("Get Glove", function()
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and workspace:FindFirstChild("Part I") then
 workspace["Part I"].Obby["end"].CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 wait(10.5)
-for i, v in pairs(workspace["Part 2"]:GetChildren()) do
-if v.Name == "SubtitleActivation" then
 repeat task.wait(1)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(97, 14, 644)
 until workspace["Part 2"]:FindFirstChild("Portal")
-end
-end
 task.wait(2.5)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Part 2"].Portal.CFrame
 wait(9.5)
