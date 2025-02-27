@@ -489,7 +489,7 @@ NamePlayer.BorderSizePixel = 0
 NamePlayer.Text = "Name : "
 NamePlayer.BackgroundTransparency = 1
 NamePlayer.TextColor3 = Color3.new(255, 255, 255)
-NamePlayer.Font = Enum.Font.ArialBlod
+NamePlayer.Font = Enum.Font.Arial
 NamePlayer.Parent = SettingsFrame
 
 InfoPlayer.Size = UDim2.new(0.4, 0, 0.2, 0)
@@ -500,7 +500,7 @@ InfoPlayer.Text = "Active"
 InfoPlayer.TextXAlignment = Enum.TextXAlignment.Left
 InfoPlayer.BackgroundTransparency = 1
 InfoPlayer.TextColor3 = Color3.new(255, 255, 255)
-InfoPlayer.Font = Enum.Font.ArialBlod
+InfoPlayer.Font = Enum.Font.Arial
 InfoPlayer.Parent = SettingsFrame
 
 Discord.Size = UDim2.new(0.170999944, 0, 0.200000018, 0)
@@ -517,7 +517,6 @@ Icon.BackgroundTransparency = 1
 Icon.Active = false
 Icon.Parent = Discord
 
-local Corner = Instance.new("UICorner")
 Corner2.CornerRadius = UDim.new(0, 10)
 Corner2.Parent = Discord
 
