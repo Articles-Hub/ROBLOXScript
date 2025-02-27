@@ -238,7 +238,7 @@ function Kavo.CreateLib(params)
     local Pages = Instance.new("Folder")
     local infoContainer = Instance.new("Frame")
     local SettingsFrame = Instance.new("Frame")
-    local Avatar = Instance.new("Frame")
+    local Avatar1 = Instance.new("Frame")
     local Corner1 = Instance.new("UICorner")
     local Corner2 = Instance.new("UICorner")
     local NamePlayer = Instance.new("TextLabel")
@@ -448,7 +448,7 @@ function Kavo.CreateLib(params)
     Settings.Image = "rbxassetid://8997386997"
     Settings.BackgroundTransparency = 1
     Settings.Parent = InfoLabel
-    
+    hide = true
     Settings.MouseButton1Click:Connect(function()
     hide = not hide
     pages.Visible = hide
@@ -475,12 +475,12 @@ SettingsFrame.Visible = false
 Corner1.CornerRadius = UDim.new(0, 5)
 Corner1.Parent = SettingsFrame
 
-Avatar.Size = UDim2.new(0.140999943, 0, 0.300000012, 0)
-Avatar.Position = UDim2.new(0.00999999978, 0, 0.00999999978, 0)
-Avatar.BackgroundColor3 = themeList.Background
-Avatar.BorderSizePixel = 0
-Avatar.BackgroundTransparency = 1
-Avatar.Parent = SettingsFrame
+Avatar1.Size = UDim2.new(0.140999943, 0, 0.300000012, 0)
+Avatar1.Position = UDim2.new(0.00999999978, 0, 0.00999999978, 0)
+Avatar1.BackgroundColor3 = themeList.Background
+Avatar1.BorderSizePixel = 0
+Avatar1.BackgroundTransparency = 1
+Avatar1.Parent = SettingsFrame
 
 NamePlayer.Size = UDim2.new(0.4, 0, 0.1, 0)
 NamePlayer.Position = UDim2.new(0.160000011, 0, 0, 0)
@@ -489,7 +489,7 @@ NamePlayer.BorderSizePixel = 0
 NamePlayer.Text = "Name : "
 NamePlayer.BackgroundTransparency = 1
 NamePlayer.TextColor3 = Color3.new(255, 255, 255)
-NamePlayer.Font = Enum.Font.Arial
+NamePlayer.Font = Enum.Font.ArialBlod
 NamePlayer.Parent = SettingsFrame
 
 InfoPlayer.Size = UDim2.new(0.4, 0, 0.2, 0)
@@ -500,7 +500,7 @@ InfoPlayer.Text = "Active"
 InfoPlayer.TextXAlignment = Enum.TextXAlignment.Left
 InfoPlayer.BackgroundTransparency = 1
 InfoPlayer.TextColor3 = Color3.new(255, 255, 255)
-InfoPlayer.Font = Enum.Font.Arial
+InfoPlayer.Font = Enum.Font.ArialBlod
 InfoPlayer.Parent = SettingsFrame
 
 Discord.Size = UDim2.new(0.170999944, 0, 0.200000018, 0)
