@@ -208,6 +208,7 @@ function Kavo.CreateLib(params)
     local selectedTab 
     kavName = params.Name or "Library"
     kavIcon = params.Icon or "rbxassetid://"
+    params.Toggles = params.Toggles or nil
     table.insert(Kavo, kavName)
     for i,v in pairs(game.CoreGui:GetChildren()) do
         if v:IsA("ScreenGui") and v.Name == kavName then
@@ -255,6 +256,55 @@ function Kavo.CreateLib(params)
     ScreenGui.Name = LibName
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ScreenGui.ResetOnSpawn = false
+    
+    if params.Toggles then
+local Button = Instance.new("ImageButton")
+local Corner = Instance.new("UICorner")
+local ParticleEmitter = Instance.new("ParticleEmitter")
+
+Button.Parent = ScreenGui
+Button.BackgroundColor3 = params.Toggles.Color or Color3.fromRGB(0, 0, 0)
+Button.BorderSizePixel = 0
+Button.Position = UDim2.new(0.120833337 - 0.1, 0, 0.0952890813 + 0.01, 0)
+Button.Size = UDim2.new(0, 50, 0, 50)
+Button.Draggable = true
+Button.Image = params.Toggles.Image
+Corner.Parent = Button
+Corner.CornerRadius = params.Toggles.Corner or UDim.new(0, 12)
+ParticleEmitter.Parent = Button
+ParticleEmitter.LightEmission = 1
+ParticleEmitter.Size = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0.1),
+    NumberSequenceKeypoint.new(1, 0)
+})
+ParticleEmitter.Lifetime = NumberRange.new(0.5, 1)
+ParticleEmitter.Rate = 0
+ParticleEmitter.Speed = NumberRange.new(5, 10)
+ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255))
+local ParticleEmitterAmin = game:GetService("TweenService"):Create(Button, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 360})
+Button.MouseEnter:Connect(function()
+game:GetService("TweenService"):Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+end)
+Button.MouseLeave:Connect(function()
+game:GetService("TweenService"):Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)}):Play()
+end)
+Button.MouseButton1Down:Connect(function()
+    ParticleEmitterAmin.Rate = 100
+    task.delay(1, function()
+        ParticleEmitterAmin.Rate = 0
+    end)
+    ParticleEmitterAmin:Play()
+    Kavo:ToggleUI()
+    ParticleEmitterAmin.Completed:Connect(function()
+        Button.Rotation = 0
+    end)
+    local Button5 = game:GetService("TweenService"):Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {Size = UDim2.new(0, 70, 0, 70)})
+    Button5:Play()
+    Button5.Completed:Connect(function()
+        game:GetService("TweenService"):Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)}):Play()
+    end)
+end)
+    end
 
     Main.Name = "Main"
     Main.Parent = ScreenGui
