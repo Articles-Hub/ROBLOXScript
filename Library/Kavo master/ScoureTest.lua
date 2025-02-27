@@ -571,19 +571,7 @@ InfoDiscord.Parent = gui
             }):Play()
         end
         
-        Settings.MouseButton1Click:Connect(function()
-    tut = not tut
-    if tut then
-    infoContainer.Visible = false
-	pages.Visible = false
-    MainSide.tabFrames = false
-    else
-	infoContainer.Visible = true
-	pages.Visible = true
-	MainSide.tabFrames = true
-	end
-    end)
-
+        
         page.Name = "Page"
         page.Parent = Pages
         page.Active = true
