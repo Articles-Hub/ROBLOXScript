@@ -406,12 +406,12 @@ function Kavo.CreateLib(params)
     infoContainer.Position = UDim2.new(0.299047619, 0, 0.874213815, 0)
     infoContainer.Size = UDim2.new(0, 368, 0, 33)
     
-    InfoLabel.Size = UDim2.new(1, 0, 0, 30)
+    InfoLabel.Size = UDim2.new(0.280999988, 0, 0, 30)
     InfoLabel.Position = UDim2.new(0, 0, 0.897499979, 0)
     InfoLabel.BackgroundColor3 = themeList.Header
     InfoLabel.Active = true
     InfoLabel.BackgroundTransparency = 0
-    InfoLabel.Parent = MainSide
+    InfoLabel.Parent = Main
 
     
     corner.CornerRadius = UDim.new(0, 4)
@@ -437,7 +437,10 @@ function Kavo.CreateLib(params)
     Settings.BackgroundTransparency = 1
     Settings.Parent = InfoLabel
     
-    
+    Settings.MouseButton1Click:Connect(function()
+    hide = not hide
+    tabFrames.Visible = hide
+    end)
 
     
     coroutine.wrap(function()
@@ -483,6 +486,19 @@ function Kavo.CreateLib(params)
                 CanvasSize = UDim2.new(0,cS.X,0,cS.Y)
             }):Play()
         end
+        
+        Settings.MouseButton1Click:Connect(function()
+    tut = not tut
+    if tut then
+    infoContainer.Visible = false
+	pages.Visible = false
+    MainSide.tabFrames = false
+    else
+	infoContainer.Visible = true
+	pages.Visible = true
+	MainSide.tabFrames = true
+	end
+    end)
 
         page.Name = "Page"
         page.Parent = Pages
@@ -2735,20 +2751,6 @@ function Kavo.CreateLib(params)
 	            if themeList.SchemeColor == Color3.fromRGB(0,0,0) then
 	                Utility:TweenObject(label, {TextColor3 = Color3.fromRGB(255,255,255)}, 0.2)
 	            end 
-
-
-Settings.MouseButton1Click:Connect(function()
-    tut = not tut
-    if tut then
-    infoContainer.Visible = false
-	pages.Visible = false
-    MainSide.tabFrames = false
-    else
-	infoContainer.Visible = true
-	pages.Visible = true
-	MainSide.tabFrames = true
-	end
-    end)
 
 		        coroutine.wrap(function()
 		            while wait() do
