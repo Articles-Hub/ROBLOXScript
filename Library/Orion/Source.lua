@@ -237,10 +237,6 @@ local function SaveCfg(Name)
 			end
 		end	
 	end
-
-	if writefile then
-		writefile(OrionLib.Folder .. "/" .. Name .. ".txt", tostring(HttpService:JSONEncode(Data)))
-	end
 end
 
 local WhitelistedMouse = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,Enum.UserInputType.MouseButton3}
