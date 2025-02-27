@@ -439,7 +439,8 @@ function Kavo.CreateLib(params)
     
     Settings.MouseButton1Click:Connect(function()
     hide = not hide
-    tabFrames.Visible = hide
+    pages.Visible = hide
+    MainSide.Visible = hide
     end)
 
     
@@ -470,7 +471,7 @@ function Kavo.CreateLib(params)
 
     local first = true
 
-    function Tabs:NewTab(tabName)
+    function Tabs:NewTab(tabname)
         tabName = tabName or "Tab"
         local tabButton = Instance.new("TextButton")
         local Tabline = Instance.new("ImageLabel")
