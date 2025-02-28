@@ -55,62 +55,6 @@ _G.GetPotion = {
 
 ---GetSome---
 
-spawn(function()
-while true do
-if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Hotbar") then
-game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position = UDim2.new(0.5, -100, 1, -80)
-end
-for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
-if v:IsA("TextButton") then
-if v:FindFirstChild("Equipped") then
-v.Equipped.Visible = false
-end
-if v:FindFirstChild("Equipped") and v:FindFirstChild("SelectionObjectClipper") then
-v.SelectionObjectClipper.Visible = true
-else
-v.SelectionObjectClipper.Visible = false
-end
-if v:FindFirstChild("UICorner") == nil then
-local RobloxUi = Instance.new("UICorner", v)
-RobloxUi.CornerRadius = UDim.new(0, 10)
-end
-end
-end
-task.wait()
-end
-end)
-
-for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
-if v:IsA("TextButton") then
-v.MouseEnter:Connect(function()
-local sound = Instance.new("Sound", workspace)
-sound.SoundId = "rbxassetid://10066942189"
-sound.Volume = 2
-sound.PlaybackSpeed = 1.2
-sound.PlayOnRemove = true
-sound:Destroy()
-game:GetService("TweenService"):Create(v, TweenInfo.new(0.1), {Size = UDim2.new(0, 70, 0, 70)}):Play()
-end)
-v.MouseLeave:Connect(function()
-local sound = Instance.new("Sound", workspace)
-sound.SoundId = "rbxassetid://10066942189"
-sound.Volume = 2
-sound.PlaybackSpeed = 1.2
-sound.PlayOnRemove = true
-sound:Destroy()
-game:GetService("TweenService"):Create(v, TweenInfo.new(0.1), {Size = UDim2.new(0, 60, 0, 60)}):Play()
-end)
-v.MouseButton1Click:Connect(function()
-local sound = Instance.new("Sound", workspace)
-sound.SoundId = "rbxassetid://10066936758"
-sound.Volume = 2
-sound.PlaybackSpeed = 1.2
-sound.PlayOnRemove = true
-sound:Destroy()
-end)
-end
-end
-
 if game.Workspace:FindFirstChild("NametagChanged") == nil then
 local NametagChanged = Instance.new("StringValue", workspace)
 NametagChanged.Name = "NametagChanged"
@@ -1858,7 +1802,10 @@ _G.AntiNull = Value
 while _G.AntiNull do
 for i,v in pairs(game.Workspace:GetChildren()) do
                 if v.Name == "Imp" and v:FindFirstChild("Body") then
-                       gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Body,true)
+                if gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
+                    gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Body,true)
+                 else
+                    game:GetService("ReplicatedStorage").GeneralHit:FireServer(v.Body,true)
                  end
             end
 task.wait()
@@ -2701,20 +2648,20 @@ Badge2Group:AddButton({
     Text = "Get Glove Plank",
     Func = function()
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Fort" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 4031317971987872) then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(8, 97, 4)
-wait(0.2)
-game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+local OldCFrew = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,60,0)
 wait(0.3)
 game:GetService("ReplicatedStorage").Fortlol:FireServer()
-wait(3.5)
-game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
-wait(0.1)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(8, 106, -6)
-wait(0.5)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
+wait(0.3)
+for i, v in pairs(workspace:GetChildren()) do
+if v.Name == "Part" and v:FindFirstChild("brownsmoke") and v:FindFirstChild("Sound") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+end
+end
+wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldCFrew
 else
-Notification("You don't have Fort equipped, or you have owner badge [ Don't Turn On Shiftlock Please ]", 5)
+Notification("You don't have Fort equipped, or you have Owner Badge", 5)
 end
     end
 })
@@ -2930,9 +2877,7 @@ Badge2Group:AddButton({
     Func = function()
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "el gato" and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Arena.CannonIsland.Cannon.Base.CFrame * CFrame.new(0,2,35)
-wait(0.3)
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
-wait(1.2)
+wait(0.37)
 workspace.Cheese.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5)
 if fireclickdetector then
 fireclickdetector(workspace.Cheese.ClickDetector)
@@ -3059,6 +3004,27 @@ end
 }):AddKeyPicker("MATERIALIZEFarm", {
    Default = "F",
    Text = "MATERIALIZE Farm",
+   Mode = "Toggle",
+   SyncToggleState = true
+})
+
+Badge2Group:AddToggle("Siphon Farm", {
+    Text = "Siphon Farm",
+    Default = false, 
+    Callback = function(Value) 
+_G.Siphonfarm = Value
+while _G.Siphonfarm do
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == "SiphonOrb" then
+v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                    end
+                end
+task.wait()
+end
+    end
+}):AddKeyPicker("SiphonFarm", {
+   Default = "F",
+   Text = "Siphon Farm",
    Mode = "Toggle",
    SyncToggleState = true
 })
@@ -4136,8 +4102,10 @@ if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
 gloveHits["Boxer"]:FireServer(v, true)
 elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
 gloveHits["Mace"]:FireServer(v.Character.HumanoidRootPart, 100)
-else
+elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
 gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character.HumanoidRootPart)
+else
+game:GetService("ReplicatedStorage").GeneralHit:FireServer(v.Character.HumanoidRootPart)
 end
 end
 end
@@ -4686,6 +4654,10 @@ while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Medu
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer(true)
 task.wait()
 end
+while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Hexa" do
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer(true)
+task.wait()
+end
     end
 }):AddKeyPicker("SpamAbility", {
    Default = "B",
@@ -5033,8 +5005,10 @@ if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
 gloveHits["Boxer"]:FireServer(v, true)
 elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
 gloveHits["Mace"]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter), 100)
-else
+elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
 gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
+else
+game.ReplicatedStorage.GeneralHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
 end
 elseif _G.SlapAuraFriend == "Not Fight" then
 if not game.Players.LocalPlayer:IsFriendsWith(v.UserId) then
@@ -5042,8 +5016,10 @@ if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
 gloveHits["Boxer"]:FireServer(v, true)
 elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
 gloveHits["Mace"]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter), 200)
-else
+elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
 gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
+else
+game.ReplicatedStorage.GeneralHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
 end
 end
 end
@@ -5060,8 +5036,10 @@ if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
 gloveHits["Boxer"]:FireServer(v, true)
 elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
 gloveHits["Mace"]:FireServer(v:WaitForChild(_G.SlapAuraCharacter), 100)
+elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
+gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
 else
-gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v:WaitForChild(_G.SlapAuraCharacter))
+game.ReplicatedStorage.GeneralHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
 end
 end
 end
@@ -5074,8 +5052,10 @@ if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
 gloveHits["Boxer"]:FireServer(v, true)
 elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
 gloveHits["Mace"]:FireServer(v:WaitForChild(_G.SlapAuraCharacter), 100)
+elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
+gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
 else
-gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v:WaitForChild(_G.SlapAuraCharacter))
+game.ReplicatedStorage.GeneralHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
 end
 end
 end
@@ -5258,12 +5238,24 @@ GloveExtendOption = Value
     Default = false, 
     Callback = function(Value) 
 _G.GloveExtendGet = Value
-while _G.GloveExtendGet do
-if game.Players.LocalPlayer.Backpack:FindFirstChildOfClass("Tool") ~= nil then
+if _G.GloveExtendGet == false then
 for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-                    if v:IsA("Tool") and v.Name ~= "Radio" then
-                        if v:FindFirstChild("Glove") ~= nil then
-                          if GloveExtendOption == "Meat Stick" then
+                    if v.ClassName == "Tool" and v:FindFirstChild("Glove") then
+                            v:FindFirstChild("Glove").Size = Vector3.new(2.5, 2.5, 1.7)
+                            v:FindFirstChild("Glove").Transparency = 0
+                        end
+                    end
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                    if v.ClassName == "Tool" and v:FindFirstChild("Glove") then
+                            v:FindFirstChild("Glove").Size = Vector3.new(2.5, 2.5, 1.7)
+                            v:FindFirstChild("Glove").Transparency = 0
+                        end
+                    end
+end
+while _G.GloveExtendGet do
+for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                    if v.ClassName == "Tool" and v:FindFirstChild("Glove") then
+                        if GloveExtendOption == "Meat Stick" then
                             v:FindFirstChild("Glove").Size = Vector3.new(0, _G.GloveExtendReach, 2)
                             elseif GloveExtendOption == "Pancake" then
                             v:FindFirstChild("Glove").Size = Vector3.new(0, _G.GloveExtendReach, _G.GloveExtendReach)
@@ -5278,10 +5270,8 @@ for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                         end
                     end
                 end
-else
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                    if v:IsA("Tool") and v.Name ~= "Radio" then
-                        if v:FindFirstChild("Glove") ~= nil then
+                    if v.ClassName == "Tool" and v:FindFirstChild("Glove") then
                             if GloveExtendOption == "Meat Stick" then
                             v:FindFirstChild("Glove").Size = Vector3.new(0, _G.GloveExtendReach, 2)
                             elseif GloveExtendOption == "Pancake" then
@@ -5297,29 +5287,7 @@ for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
                         end
                     end
                 end
-end
 task.wait()
-end
-if _G.GloveExtendGet == false then
-if game.Players.LocalPlayer.Backpack:FindFirstChildOfClass("Tool") ~= nil then
-for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-                    if v:IsA("Tool") and v.Name ~= "Radio" then
-                        if v:FindFirstChild("Glove") ~= nil then
-                            v:FindFirstChild("Glove").Size = Vector3.new(2.5, 2.5, 1.7)
-                            v:FindFirstChild("Glove").Transparency = 0
-                        end
-                    end
-                end
-else
-for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                    if v:IsA("Tool") and v.Name ~= "Radio" then
-                        if v:FindFirstChild("Glove") ~= nil then
-                            v:FindFirstChild("Glove").Size = Vector3.new(2.5, 2.5, 1.7)
-                            v:FindFirstChild("Glove").Transparency = 0
-                        end
-                    end
-                end
-end
 end
     end
 }):AddKeyPicker("ExtendGlove", {
@@ -6059,29 +6027,6 @@ Glove1Group:AddDropdown("SlapStickAbility", {
     Multi = false,
     Callback = function(Value)
 SlapstickAbility = Value
-    end
-})
-
-Glove1Group:AddButton({
-    Text = "Spam Ability Slapstick",
-    Func = function()
-if SlapstickAbility == "runeffect" then
-OldSpeed = game.Players.LocalPlayer.Character.Humanoid.WalkSpeed
-game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
-game:GetService("ReplicatedStorage").slapstick:FireServer("runeffect")
-wait(5)
-game:GetService("ReplicatedStorage").slapstick:FireServer("fullcharged")
-wait(1)
-Notification("Started RUN Now.", 5)
-game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 70
-wait(25)
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = OldSpeed
-game:GetService("ReplicatedStorage").slapstick:FireServer("cancelrun")
-elseif SlapstickAbility == "dash" then
-game:GetService("ReplicatedStorage").slapstick:FireServer("addarm")
-game:GetService("ReplicatedStorage").slapstick:FireServer("dash")
-end
     end
 })
 
@@ -7524,7 +7469,11 @@ end
 while _G.AutoFarmSlap do 
 for i, v in pairs(workspace:GetChildren()) do 
                  if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
+if gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
 gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v:WaitForChild("HumanoidRootPart"))
+else
+game:GetService("ReplicatedStorage").GeneralHit:FireServer(v:WaitForChild("HumanoidRootPart"))
+end
                  end
 end
 task.wait()
@@ -10422,6 +10371,15 @@ _G.ChooseNotify = Value
     end
 })
 
+_G.BackpackV2 = true
+MenuGroup:AddToggle("Backpack v2", {
+    Text = "Backpack v2",
+    Default = true, 
+    Callback = function(Value) 
+_G.BackpackV2 = Value 
+    end
+})
+
 _G.NotificationSound = true
 MenuGroup:AddToggle("NotifySound", {
     Text = "Notification Sound",
@@ -10475,131 +10433,204 @@ SaveManager:BuildConfigSection(Tabs["UI Settings"])
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
 SaveManager:LoadAutoloadConfig()
 ------------------------------------------------------------------------
+_G.BackpackOld = game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position
+_G.BackpackNew = game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position + UDim2.new(0, 0, 0, -10)
+spawn(function()
+while true do
+if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Hotbar") then
+game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position = (_G.BackpackV2 == true and (_G.BackpackNew) or (_G.BackpackOld))
+end
+if _G.BackpackV2 == true then
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+if v:IsA("TextButton") then
+if v:FindFirstChild("Equipped") then
+v.Equipped.Visible = false
+end
+if v:FindFirstChild("Equipped") and v:FindFirstChild("SelectionObjectClipper") then
+v.SelectionObjectClipper.Visible = true
+else
+v.SelectionObjectClipper.Visible = false
+end
+if v:FindFirstChild("UICorner") == nil then
+local RobloxUi = Instance.new("UICorner", v)
+RobloxUi.CornerRadius = UDim.new(0, 10)
+end
+end
+end
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Inventory.ScrollingFrame.UIGridFrame:GetChildren()) do
+if v:IsA("TextButton") then
+if v:FindFirstChild("Equipped") then
+v.Equipped.Visible = false
+end
+if v:FindFirstChild("Equipped") and v:FindFirstChild("SelectionObjectClipper") then
+v.SelectionObjectClipper.Visible = true
+else
+v.SelectionObjectClipper.Visible = false
+end
+if v:FindFirstChild("UICorner") == nil then
+local RobloxUi = Instance.new("UICorner", v)
+RobloxUi.CornerRadius = UDim.new(0, 10)
+end
+end
+end
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Inventory:GetChildren()) do
+if v.Name == "Search" then
+if v:FindFirstChild("UICorner") == nil then
+local RobloxUi = Instance.new("UICorner", v)
+RobloxUi.CornerRadius = UDim.new(0, 10)
+end
+if v:FindFirstChild("X") and v["X"]:FindFirstChild("UICorner") == nil then
+local RobloxUi = Instance.new("UICorner", v["X"])
+RobloxUi.CornerRadius = UDim.new(0, 10)
+end
+end
+end
+if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Inventory") and game:GetService("CoreGui").RobloxGui.Backpack.Inventory:FindFirstChild("UICorner") == nil then
+local RobloxUi = Instance.new("UICorner", game:GetService("CoreGui").RobloxGui.Backpack.Inventory)
+RobloxUi.CornerRadius = UDim.new(0, 10)
+end
+elseif _G.BackpackV2 == false then
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+if v:IsA("TextButton") then
+if v:FindFirstChild("Equipped") then
+v.Equipped.Visible = true
+end
+if v:FindFirstChild("SelectionObjectClipper") then
+v.SelectionObjectClipper.Visible = false
+end
+if v:FindFirstChild("UICorner") then
+v:FindFirstChild("UICorner"):Destroy()
+end
+end
+end
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Inventory.ScrollingFrame.UIGridFrame:GetChildren()) do
+if v:IsA("TextButton") then
+if v:FindFirstChild("Equipped") then
+v.Equipped.Visible = true
+end
+if v:FindFirstChild("SelectionObjectClipper") then
+v.SelectionObjectClipper.Visible = false
+end
+if v:FindFirstChild("UICorner") then
+v:FindFirstChild("UICorner"):Destroy()
+end
+end
+end
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Inventory:GetChildren()) do
+if v.Name == "Search" then
+if v:FindFirstChild("UICorner") then
+v:FindFirstChild("UICorner"):Destroy()
+end
+if v:FindFirstChild("X") and v["X"]:FindFirstChild("UICorner") then
+v["X"]:FindFirstChild("UICorner"):Destroy()
+end
+end
+end
+if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Inventory") and game:GetService("CoreGui").RobloxGui.Backpack.Inventory:FindFirstChild("UICorner") then
+game:GetService("CoreGui").RobloxGui.Backpack.Inventory:FindFirstChild("UICorner"):Destroy()
+end
+end
+task.wait()
+end
+end)
+
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+if v:IsA("TextButton") then
+v.MouseEnter:Connect(function()
+if _G.BackpackV2 == true then
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://10066942189"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.PlayOnRemove = true
+sound:Destroy()
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 70, 0, 70)}):Play()
+end
+end)
+v.MouseLeave:Connect(function()
+if _G.BackpackV2 == true then
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://10066942189"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.PlayOnRemove = true
+sound:Destroy()
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+end
+end)
+v.MouseButton1Click:Connect(function()
+if _G.BackpackV2 == true then
+spawn(function()
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 70, 0, 70)}):Play()
+local TweenGui = game:GetService("TweenService"):Create(v, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 360})
+TweenGui:Play()
+TweenGui.Completed:Connect(function()
+v.Rotation = 0
+end)
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+end)
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://10066936758"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.PlayOnRemove = true
+sound:Destroy()
+end
+end)
+end
+end
+
+spawn(function()
+game:GetService("CoreGui").RobloxGui.Backpack.Inventory.ScrollingFrame.UIGridFrame.ChildAdded:Connect(function(v)
+if v:IsA("TextButton") then
+v.MouseEnter:Connect(function()
+if _G.BackpackV2 == true then
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://10066942189"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.PlayOnRemove = true
+sound:Destroy()
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 70, 0, 70)}):Play()
+end
+end)
+v.MouseLeave:Connect(function()
+if _G.BackpackV2 == true then
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://10066942189"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.PlayOnRemove = true
+sound:Destroy()
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+end
+end)
+v.MouseButton1Click:Connect(function()
+if _G.BackpackV2 == true then
+spawn(function()
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 70, 0, 70)}):Play()
+local TweenGui = game:GetService("TweenService"):Create(v, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 360})
+TweenGui:Play()
+TweenGui.Completed:Connect(function()
+v.Rotation = 0
+end)
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+end)
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://10066936758"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.PlayOnRemove = true
+sound:Destroy()
+end
+end)
+end
+end)
+end)
+------------------------------------------------------------------------
 gloveHits = {
     ["Default"] = game.ReplicatedStorage.b,
     ["Extended"] = game.ReplicatedStorage.b,
-    ------------------------------------------------------------------------
-	["T H I C K"] = game.ReplicatedStorage.GeneralHit,
-    ["Squid"] = game.ReplicatedStorage.GeneralHit,
-    ["Gummy"] = game.ReplicatedStorage.GeneralHit,
-    ["RNG"] = game.ReplicatedStorage.GeneralHit,
-    ["Tycoon"] = game.ReplicatedStorage.GeneralHit,
-    ["Charge"] = game.ReplicatedStorage.GeneralHit,
-    ["Baller"] = game.ReplicatedStorage.GeneralHit,
-    ["Tableflip"] = game.ReplicatedStorage.GeneralHit,
-    ["Booster"] = game.ReplicatedStorage.GeneralHit,
-    ["Shield"] = game.ReplicatedStorage.GeneralHit,
-    ["Track"] = game.ReplicatedStorage.GeneralHit,
-    ["Goofy"] = game.ReplicatedStorage.GeneralHit,
-    ["Confusion"] = game.ReplicatedStorage.GeneralHit,
-    ["Elude"] = game.ReplicatedStorage.GeneralHit,
-    ["Glitch"] = game.ReplicatedStorage.GeneralHit,
-    ["Snowball"] = game.ReplicatedStorage.GeneralHit,
-    ["fish"] = game.ReplicatedStorage.GeneralHit,
-    ["Killerfish"] = game.ReplicatedStorage.GeneralHit,
-    ["🗿"] = game.ReplicatedStorage.GeneralHit,
-    ["Obby"] = game.ReplicatedStorage.GeneralHit,
-    ["Voodoo"] = game.ReplicatedStorage.GeneralHit,
-    ["Leash"] = game.ReplicatedStorage.GeneralHit,
-    ["Flamarang"] = game.ReplicatedStorage.GeneralHit,
-    ["Berserk"] = game.ReplicatedStorage.GeneralHit,
-    ["Quake"] = game.ReplicatedStorage.GeneralHit,
-    ["Rattlebones"] = game.ReplicatedStorage.GeneralHit,
-    ["Chain"] = game.ReplicatedStorage.GeneralHit,
-    ["Ping Pong"] = game.ReplicatedStorage.GeneralHit,
-    ["Whirlwind"] = game.ReplicatedStorage.GeneralHit,
-    ["Slicer"] = game.ReplicatedStorage.GeneralHit,
-    ["Counter"] = game.ReplicatedStorage.GeneralHit,
-    ["Hammer"] = game.ReplicatedStorage.GeneralHit,
-    ["Excavator"] = game.ReplicatedStorage.GeneralHit,
-    ["Home Run"] = game.ReplicatedStorage.GeneralHit,
-    ["Psycho"] = game.ReplicatedStorage.GeneralHit,
-    ["Kraken"] = game.ReplicatedStorage.GeneralHit,
-    ["Gravity"] = game.ReplicatedStorage.GeneralHit,
-    ["Lure"] = game.ReplicatedStorage.GeneralHit,
-    ["Jebaited"] = game.ReplicatedStorage.GeneralHit,
-    ["Meteor"] = game.ReplicatedStorage.GeneralHit,
-    ["Tinkerer"] = game.ReplicatedStorage.GeneralHit,    
-    ["Guardian Angel"] = game.ReplicatedStorage.GeneralHit,
-    ["Sun"] = game.ReplicatedStorage.GeneralHit,
-    ["Necromancer"] = game.ReplicatedStorage.GeneralHit,
-    ["Zombie"] = game.ReplicatedStorage.GeneralHit,
-    ["Dual"] = game.ReplicatedStorage.GeneralHit,
-    ["Alchemist"] = game.ReplicatedStorage.GeneralHit,
-    ["Parry"] = game.ReplicatedStorage.GeneralHit,
-    ["Druid"] = game.ReplicatedStorage.GeneralHit,
-    ["Oven"] = game.ReplicatedStorage.GeneralHit,
-    ["Jester"] = game.ReplicatedStorage.GeneralHit,
-    ["Ferryman"] = game.ReplicatedStorage.GeneralHit,
-    ["Scythe"] = game.ReplicatedStorage.GeneralHit,
-    ["Blackhole"] = game.ReplicatedStorage.GeneralHit,
-    ["Santa"] = game.ReplicatedStorage.GeneralHit,
-    ["Grapple"] = game.ReplicatedStorage.GeneralHit,
-    ["Iceskate"] = game.ReplicatedStorage.GeneralHit,
-    ["Pan"] = game.ReplicatedStorage.GeneralHit,
-    ["Blasphemy"] = game.ReplicatedStorage.GeneralHit,
-    ["Blink"] = game.ReplicatedStorage.GeneralHit,
-    ["Ultra Instinct"] = game.ReplicatedStorage.GeneralHit,
-    ["Admin"] = game.ReplicatedStorage.GeneralHit,
-    ["Prop"] = game.ReplicatedStorage.GeneralHit,
-    ["Joust"] = game.ReplicatedStorage.GeneralHit,
-    ["Slapstick"] = game.ReplicatedStorage.GeneralHit,
-    ["Firework"] = game.ReplicatedStorage.GeneralHit,
-    ["Run"] = game.ReplicatedStorage.GeneralHit,
-    ["Beatdown"] = game.ReplicatedStorage.GeneralHit,
-    ["L.O.L.B.O.M.B"] = game.ReplicatedStorage.GeneralHit,
-    ["Glovel"] = game.ReplicatedStorage.GeneralHit,
-    ["Chicken"] = game.ReplicatedStorage.GeneralHit,
-    ["Divebomb"] = game.ReplicatedStorage.GeneralHit,
-    ["Lamp"] = game.ReplicatedStorage.GeneralHit,
-    ["Pocket"] = game.ReplicatedStorage.GeneralHit,
-    ["BONK"] = game.ReplicatedStorage.GeneralHit,
-    ["Knockoff"] = game.ReplicatedStorage.GeneralHit,
-    ["Divert"] = game.ReplicatedStorage.GeneralHit,
-    ["Frostbite"] = game.ReplicatedStorage.GeneralHit,
-    ["Sbeve"] = game.ReplicatedStorage.GeneralHit,
-    ["Plank"] = game.ReplicatedStorage.GeneralHit,
-    ["Golem"] = game.ReplicatedStorage.GeneralHit,
-    ["Spoonful"] = game.ReplicatedStorage.GeneralHit,
-    ["Grab"] = game.ReplicatedStorage.GeneralHit,
-    ["the schlop"] = game.ReplicatedStorage.GeneralHit,
-    ["UFO"] = game.ReplicatedStorage.GeneralHit,
-    ["el gato"] = game.ReplicatedStorage.GeneralHit,
-    ["Siphon"] = game.ReplicatedStorage.GeneralHit,
-    ["Hive"] = game.ReplicatedStorage.GeneralHit,
-    ["Wrench"] = game.ReplicatedStorage.GeneralHit,
-    ["Hunter"] = game.ReplicatedStorage.GeneralHit,
-    ["Relude"] = game.ReplicatedStorage.GeneralHit,
-    ["Avatar"] = game.ReplicatedStorage.GeneralHit,
-    ["Demolition"] = game.ReplicatedStorage.GeneralHit,
-    ["Shotgun"] = game.ReplicatedStorage.GeneralHit,
-    ["Beachball"] = game.ReplicatedStorage.GeneralHit,
-    ["Water"] = game.ReplicatedStorage.GeneralHit,
-    ["64"] = game.ReplicatedStorage.GeneralHit,
-    ["Fan"] = game.ReplicatedStorage.GeneralHit,
-    ["Shackle"] = game.ReplicatedStorage.GeneralHit,
-    ["Titan"] = game.ReplicatedStorage.GeneralHit,
-    ["Thanos"] = game.ReplicatedStorage.GeneralHit,
-    ["Barrel"] = game.ReplicatedStorage.GeneralHit,
-    ["Bind"] = game.ReplicatedStorage.GeneralHit,
-    ["MATERIALIZE"] = game.ReplicatedStorage.GeneralHit,
-    ["Rougelike"] = game.ReplicatedStorage.GeneralHit,
-    ["Lawnmower"] = game.ReplicatedStorage.GeneralHit,
-    ["Equalizer"] = game.ReplicatedStorage.GeneralHit,
-    ["Virus"] = game.ReplicatedStorage.GeneralHit,
-    ["Pillow"] = game.ReplicatedStorage.GeneralHit,
-    ["Baby"] = game.ReplicatedStorage.GeneralHit,
-    ["Stalker"] = game.ReplicatedStorage.GeneralHit,
-    ["Angler"] = game.ReplicatedStorage.GeneralHit,
-    ["Jerry"] = game.ReplicatedStorage.GeneralHit,
-    ["Snowroller"] = game.ReplicatedStorage.GeneralHit,
-    ["Cherry"] = game.ReplicatedStorage.GeneralHit,
-    ["Infinity"] = game.ReplicatedStorage.GeneralHit,
-    ["Draw4"] = game.ReplicatedStorage.GeneralHit,
-    ["Aggro"] = game.ReplicatedStorage.GeneralHit,
-    ["Mouse"] = game.ReplicatedStorage.GeneralHit,
-    ["Medusa"] = game.ReplicatedStorage.GeneralHit,
-    ["Hexa"] = game.ReplicatedStorage.GeneralHit,
     ------------------------------------------------------------------------
     ["ZZZZZZZ"] = game.ReplicatedStorage.ZZZZZZZHit,
     ["Brick"] = game.ReplicatedStorage.BrickHit,
