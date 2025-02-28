@@ -1,3 +1,4 @@
+```
 local Kavo = {}
 
 local tween = game:GetService("TweenService")
@@ -239,6 +240,7 @@ function Kavo.CreateLib(params)
     local infoContainer = Instance.new("Frame")
     local SettingsFrame = Instance.new("Frame")
     local Avatar1 = Instance.new("Frame")
+    local Corner3 = Instance.new("UICorner")
     local Corner1 = Instance.new("UICorner")
     local Corner2 = Instance.new("UICorner")
     local NamePlayer = Instance.new("TextLabel")
@@ -438,28 +440,30 @@ function Kavo.CreateLib(params)
     Avatar2.BackgroundTransparency = 0
     Avatar2.Parent = InfoLabel
 
-    Corner.CornerRadius = UDim.new(1, 0)
-    Corner.Parent = Avatar
+    Corner3.CornerRadius = UDim.new(1, 0)
+    Corner3.Parent = Avatar
 
     Settings.Size = UDim2.new(0, 30, 0, 30)
     Settings.Position = UDim2.new(0.8, 0, 0, 1)
-    Settings.ImageColor3 = themeList.Header
-    Objects[MainHeader] = "BackgroundColor3"
+    Settings.ImageColor3 = Color3.fromRGB(255, 255, 255)
     Settings.Image = "rbxassetid://8997386997"
     Settings.BackgroundTransparency = 1
     Settings.Parent = InfoLabel
-    hide = true
-    Settings.MouseButton1Click:Connect(function()
+    local hide = true
+
+Settings.MouseButton1Click:Connect(function()
     hide = not hide
-    pages.Visible = hide
-    MainSide.Visible = hide
+    pages.Visible = not hide
+    MainSide.Visible = not hide
+
     if hide then
-    SettingsFrame = false
+        SettingsFrame = false
+        InfoLabel.Size = UDim2.new(0.280999988, 0, 0, 30)
     else
-    SettingsFrame = true
-    InfoLabel.Size = UDim2.new(1, 0, 0, 30)
+        SettingsFrame = true
+        InfoLabel.Size = UDim2.new(1, 0, 0, 30)
     end
-    end)
+end)
     
 SettingsFrame.Size = UDim2.new(0.980000019, 0, 0.769999981, 0)
 SettingsFrame.Position = UDim2.new(0.0100000026, 0, 0.109999999, 0)
@@ -2846,3 +2850,4 @@ InfoDiscord.Parent = gui
     return Tabs
 end
 return Kavo
+``` Rút Gọn Nó Đi
