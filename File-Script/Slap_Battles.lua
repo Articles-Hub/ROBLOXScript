@@ -1808,6 +1808,7 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                     game:GetService("ReplicatedStorage").GeneralHit:FireServer(v.Body,true)
                  end
             end
+            end
 task.wait()
 end
     end
@@ -5269,7 +5270,6 @@ for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                             v:FindFirstChild("Glove").Transparency = 0.5
                         end
                     end
-                end
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
                     if v.ClassName == "Tool" and v:FindFirstChild("Glove") then
                             if GloveExtendOption == "Meat Stick" then
@@ -5286,7 +5286,6 @@ for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
                             v:FindFirstChild("Glove").Transparency = 0.5
                         end
                     end
-                end
 task.wait()
 end
     end
