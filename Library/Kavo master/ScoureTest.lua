@@ -1,4 +1,3 @@
-
 local Kavo = {}
 
 local tween = game:GetService("TweenService")
@@ -441,7 +440,7 @@ function Kavo.CreateLib(params)
     Avatar2.Parent = InfoLabel
 
     Corner3.CornerRadius = UDim.new(1, 0)
-    Corner3.Parent = Avatar
+    Corner3.Parent = Avatar2
 
     Settings.Size = UDim2.new(0, 30, 0, 30)
     Settings.Position = UDim2.new(0.8, 0, 0, 1)
@@ -449,23 +448,8 @@ function Kavo.CreateLib(params)
     Settings.Image = "rbxassetid://8997386997"
     Settings.BackgroundTransparency = 1
     Settings.Parent = InfoLabel
-    local hide = true
-
-Settings.MouseButton1Click:Connect(function()
-    hide = not hide
-    pages.Visible = not hide
-    MainSide.Visible = not hide
-
-    if hide then
-        SettingsFrame = false
-        InfoLabel.Size = UDim2.new(0.280999988, 0, 0, 30)
-    else
-        SettingsFrame = true
-        InfoLabel.Size = UDim2.new(1, 0, 0, 30)
-    end
-end)
     
-SettingsFrame.Size = UDim2.new(0.980000019, 0, 0.769999981, 0)
+    SettingsFrame.Size = UDim2.new(0.980000019, 0, 0.769999981, 0)
 SettingsFrame.Position = UDim2.new(0.0100000026, 0, 0.109999999, 0)
 SettingsFrame.BackgroundColor3 = themeList.Header
 SettingsFrame.BorderColor3 = Color3.new(0, 0, 0)
@@ -529,6 +513,24 @@ InfoDiscord.Position = UDim2.new(0.0100000026, 0, 0.469999999, 0)
 InfoDiscord.BackgroundColor3 = themeList.Background
 InfoDiscord.BackgroundTransparency = 0 
 InfoDiscord.Parent = gui
+    
+    local hide = true
+
+Settings.MouseButton1Click:Connect(function()
+    hide = not hide
+    pages.Visible = not hide
+    MainSide.Visible = not hide
+
+    if hide then
+        SettingsFrame = false
+        InfoLabel.Size = UDim2.new(0.280999988, 0, 0, 30)
+    else
+        SettingsFrame = true
+        InfoLabel.Size = UDim2.new(1, 0, 0, 30)
+    end
+end)
+    
+
 
     
     coroutine.wrap(function()
@@ -2850,4 +2852,3 @@ InfoDiscord.Parent = gui
     return Tabs
 end
 return Kavo
-
