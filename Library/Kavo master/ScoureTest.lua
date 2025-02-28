@@ -1,4 +1,4 @@
-```
+
 local Kavo = {}
 
 local tween = game:GetService("TweenService")
@@ -2850,4 +2850,4 @@ InfoDiscord.Parent = gui
     return Tabs
 end
 return Kavo
-``` Rút Gọn Nó Đi
+
