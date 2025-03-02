@@ -3131,6 +3131,16 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
+Badge3Group:AddDropdown("Rob Mastery", {
+    Text = "Rob Mastery",
+    Values = {"Studs", "Kill Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.RobMastery = Value
+    end
+})
+
 local TweenRob = 1
 Badge3Group:AddToggle("Auto Rob Mastery", {
     Text = "Auto Rob Mastery",
@@ -3139,6 +3149,7 @@ Badge3Group:AddToggle("Auto Rob Mastery", {
 _G.AutoRobMastery = Value
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "rob" then
 while _G.AutoRobMastery do
+if _G.RobMastery == "Studs" then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
 local TweenPlayRob = {
 	CFrame.new(9762, 38, 10237),
@@ -3169,6 +3180,36 @@ game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(TweenRobTag)
 end
          end
      end
+end
+end
+elseif _G.RobMastery == "Kill Player" then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+end
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+game:GetService("ReplicatedStorage").rob:FireServer()
+for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
+if v.Name == "whiteframe" then
+v:Destroy()
+end
+end
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and game.Workspace:FindFirstChild("rob_"..v.Name) == nil and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+v.Character:FindFirstChild("HumanoidRootPart").CFrame = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0, 15, 0)
+end
+end
+end
+spawn(function()
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+end
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+until _G.AutoRobMastery == false and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+end)
 end
 end
 task.wait()
