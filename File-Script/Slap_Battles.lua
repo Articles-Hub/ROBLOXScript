@@ -3131,6 +3131,56 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
+local TweenRob = 1
+Badge3Group:AddToggle("Auto Rob Mastery", {
+    Text = "Auto Rob Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoRobMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "rob" then
+while _G.AutoRobMastery do
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+local TweenPlayRob = {
+	CFrame.new(9762, 38, 10237),
+	CFrame.new(9763, 38, 9761),
+	CFrame.new(10241, 38, 9758),
+	CFrame.new(10236, 38, 10236)
+}
+function NextTweenRob()
+    local RobFarm = TweenPlayRob[TweenRob]
+    TweenRob = TweenRob + 1
+    if TweenRob > #TweenPlayRob then
+        TweenRob = 1
+    end
+    return RobFarm
+end
+game:GetService("ReplicatedStorage").rob:FireServer()
+for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
+if v.Name == "whiteframe" then
+v:Destroy()
+end
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+for i,v in pairs(game.Workspace:GetChildren()) do
+         if v.Name == "Field" and 0 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude then
+              local TweenRobTag = NextTweenRob()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(TweenRobTag)
+end
+         end
+     end
+end
+end
+task.wait()
+end
+elseif _G.AutoRobMastery == true then
+Notification("You don't have Rob equipped", 5)
+wait(0.05)
+Toggles["Auto Rob Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Cloud Mastery", {
     Text = "Cloud Mastery",
     Values = {"Studs (200k Fly)", "Afk (200 Min)", "Pickup Player (100 Player)"},
@@ -3164,9 +3214,9 @@ local TweenPlay = {
     CFrame.new(-63, -88, -112),
     CFrame.new(-123, -77, 97),
     CFrame.new(110, -78, 81),
-   CFrame.new(-367, -72, -11),
-   CFrame.new(-497, -73, -18),
-   CFrame.new(-437, 106, -27)
+    CFrame.new(-367, -72, -11),
+    CFrame.new(-497, -73, -18),
+    CFrame.new(-437, 106, -27)
 }
 function NextTween()
     local TweenNextGo = TweenPlay[TweenGet]
@@ -3180,7 +3230,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players
     for i, v in pairs(game.Workspace:GetChildren()) do
         if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
             local TweenTag = NextTween()
-            TweenTp(v.VehicleSeat, TweenTag, false, 0.3)
+            v.VehicleSeat.CFrame = TweenTag
         end
     end
 elseif game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == false then
@@ -3546,6 +3596,38 @@ elseif _G.AutoKillstreakMastery == true then
 Notification("You don't have Killstreak equipped", 5)
 wait(0.05)
 Toggles["Auto Killstreak Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddToggle("Auto Spin Mastery", {
+    Text = "Auto Spin Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoSpinMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "spin" then
+while _G.AutoSpinMastery do
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+end
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+end
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+end
+task.wait()
+end
+elseif _G.AutoSpinMastery == true then
+Notification("You don't have Spin equipped", 5)
+wait(0.05)
+Toggles["Auto Spin Mastery"]:SetValue(false)
 end
     end
 })
@@ -8098,8 +8180,6 @@ end)
 
 local Misc1Group = Tabs.Tab:AddLeftGroupbox("Info")
 
-Misc1Group:AddLabel("Country [ "..ApiPlayer.country.." / "..ApiPlayer.country_code.." ] [ "..ApiPlayer.flag.emoji.." ]", true)
-Misc1Group:AddLabel("City [ "..ApiPlayer.city.." ]", true)
 CanYouFps = Misc1Group:AddLabel("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]", true)
 CanYouPing = Misc1Group:AddLabel("Your Ping [ "..game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString().." ]", true)
 TimeServer = Misc1Group:AddLabel("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]", true)
@@ -8160,7 +8240,9 @@ Misc2Group:AddToggle("Damage Boss", {
     Callback = function(Value)
 _G.DameBossBob = Value
 while _G.DameBossBob do
+if game.Workspace:FindFirstChild("bobBoss") then
 game.Workspace.bobBoss.DamageEvent:FireServer()
+end
 task.wait()
 end
     end
@@ -8234,6 +8316,60 @@ game:GetService("ReplicatedStorage").GeneralHit:FireServer(v:FindFirstChild("Hum
 end
 end
 end
+end
+end)
+
+Misc2Group:AddButton("Button Fight Rock", function()
+if game.CoreGui:FindFirstChild("SlapRock") == nil then
+local ScreenGui = Instance.new("ScreenGui")
+local Button = Instance.new("ImageButton")
+local Corner = Instance.new("UICorner")
+local ParticleEmitter = Instance.new("ParticleEmitter")
+
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "SlapRock"
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Button.Parent = ScreenGui
+Button.Image = "http://www.roblox.com/asset/?id=85284641800085"
+Button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Button.BorderSizePixel = 0
+Button.Position = UDim2.new(0.120833337 - 0.1, 0, 0.0952890813 + 0.01, 0)
+Button.Size = UDim2.new(0, 50, 0, 50)
+Button.Draggable = true
+Corner.Parent = Button
+Corner.CornerRadius = UDim.new(0, 12)
+ParticleEmitter.Parent = Button
+ParticleEmitter.LightEmission = 1
+ParticleEmitter.Size = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0.1),
+    NumberSequenceKeypoint.new(1, 0)
+})
+ParticleEmitter.Lifetime = NumberRange.new(0.5, 1)
+ParticleEmitter.Rate = 0
+ParticleEmitter.Speed = NumberRange.new(5, 10)
+ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255))
+local ParticleEmitterAmin = game:GetService("TweenService"):Create(Button, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 360})
+Button.MouseEnter:Connect(function()
+game:GetService("TweenService"):Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 65, 0, 65)}):Play()
+end)
+Button.MouseLeave:Connect(function()
+game:GetService("TweenService"):Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)}):Play()
+end)
+Button.MouseButton1Down:Connect(function()
+    ParticleEmitter.Rate = 100
+    task.delay(1, function()
+        ParticleEmitter.Rate = 0
+    end)
+    ParticleEmitterAmin:Play()
+    ParticleEmitterAmin.Completed:Connect(function()
+        Button.Rotation = 0
+    end)
+for i,v in pairs(workspace:GetChildren()) do
+if v.Name == "SpiritRock" then
+v.DamageEvent:FireServer()
+end
+end
+end)
 end
 end)
 
