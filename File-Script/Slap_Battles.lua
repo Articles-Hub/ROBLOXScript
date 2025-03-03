@@ -3133,7 +3133,7 @@ local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
 Badge3Group:AddDropdown("Rob Mastery", {
     Text = "Rob Mastery",
-    Values = {"Studs", "Kill Player"},
+    Values = {"Studs", "Get Kill"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -3182,34 +3182,25 @@ end
      end
 end
 end
-elseif _G.RobMastery == "Kill Player" then
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
-firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
-firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+elseif _G.RobMastery == "Get Kill" then
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+repeat task.wait() 
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
 end
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+end
 game:GetService("ReplicatedStorage").rob:FireServer()
 for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
 if v.Name == "whiteframe" then
 v:Destroy()
 end
 end
-for i,v in pairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and game.Workspace:FindFirstChild("rob_"..v.Name) == nil and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
-v.Character:FindFirstChild("HumanoidRootPart").CFrame = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0, 15, 0)
-end
-end
-end
-spawn(function()
-repeat task.wait()
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
-firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
-end
-game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
-until _G.AutoRobMastery == false and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
-end)
+until _G.AutoRobMastery == false or game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health > 0 and game.Players.LocalPlayer.Character:FindFirstChild("Head").Transparency == 1
+game:GetService("ReplicatedStorage").Events.rob_r:FireServer("throw", {["victim"] = game:GetService("Players").LocalPlayer, ["cf"] = workspace["SafeBox"].CFrame})
 end
 end
 task.wait()
@@ -3530,9 +3521,7 @@ Badge3Group:AddToggle("Auto Bomb Mastery", {
 _G.AutoBombMastery = Value
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Bomb" then
 while _G.AutoBombMastery do
-if _G.BombMastery == "Throw" then
-Toggles["Anti Kick"]:SetValue(true)
-wait(3)
+if _G.BombMastery == "Throw Bomb" then
 for i = 1, 700 do
 game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
 end
@@ -10609,12 +10598,39 @@ SaveManager:BuildConfigSection(Tabs["UI Settings"])
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
 SaveManager:LoadAutoloadConfig()
 ------------------------------------------------------------------------
-_G.BackpackOld = game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position
-_G.BackpackNew = game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position + UDim2.new(0, 0, 0, -10)
+if _G.Backpack == nil then
+_G.Backpack = {
+	["Old"] = {
+		["Hotbar"] = game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position,
+		["Inventory"] = game:GetService("CoreGui").RobloxGui.Backpack.Inventory.Position,
+		["Backpack Number"] = {}
+	},
+	["New"] = {
+		["Hotbar"] = (game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position + UDim2.new(0, 0, 0, -10)),
+		["Inventory"] = UDim2.new(0.5, -100, 1, -260),
+		["Backpack Number"] = {}
+	}
+}
+wait()
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+if v:IsA("TextButton") then
+_G.Backpack["Old"]["Backpack Number"][v.Name] = v.Position
+_G.Backpack["New"]["Backpack Number"][v.Name] = UDim2.new(0, 3, 0, 3)
+end
+end
+end
 spawn(function()
 while true do
 if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Hotbar") then
-game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position = (_G.BackpackV2 == true and (_G.BackpackNew) or (_G.BackpackOld))
+game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position = (_G.BackpackV2 == true and (_G.Backpack["New"]["Hotbar"]) or (_G.Backpack["Old"]["Hotbar"]))
+end
+if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Inventory") then
+game:GetService("CoreGui").RobloxGui.Backpack.Inventory.Position = (_G.BackpackV2 == true and (_G.Backpack["New"]["Inventory"]) or (_G.Backpack["Old"]["Inventory"]))
+end
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+if v:IsA("TextButton") and v:FindFirstChild("Number") then
+v.Number.Position = (_G.BackpackV2 == true and (_G.Backpack["New"]["Backpack Number"][v.Name]) or (_G.Backpack["Old"]["Backpack Number"][v.Name]))
+end
 end
 if _G.BackpackV2 == true then
 for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
