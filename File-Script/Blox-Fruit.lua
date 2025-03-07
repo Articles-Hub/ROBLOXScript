@@ -15,7 +15,6 @@ end
 end
 local Tween = game:GetService("TweenService"):Create(Part, TweenInfo.new(Speed, Enum.EasingStyle.Linear), {CFrame = CFnew})
 Tween:Play()
-Tween.Completed:Wait()
 if _G.Tween == false then
 Tween:Cancel()
 if BodyEnter == true then
@@ -39,6 +38,39 @@ elseif game.PlaceId== 4442272183 then
 elseif game.PlaceId == 7449423635 then
     BloxFruitSea3 = true
 end
+
+TweenGet = 1
+spawn(function()
+while true do
+TweenGet = TweenGet + 1
+    if TweenGet >= 5 then
+        TweenGet = 1
+    end
+wait(0.2)
+end
+end)
+spawn(function()
+    while task.wait() do
+        if TweenGet == 1 then
+            PositionOrbit = CFrame.new(0, 40, 0)
+        elseif TweenGet == 2 then
+            PositionOrbit = CFrame.new(-40, 40, 0)
+        elseif TweenGet == 3 then
+            PositionOrbit = CFrame.new(40, 40, 0)
+        elseif TweenGet == 4 then
+            PositionOrbit = CFrame.new(0, 40, 40)
+        elseif TweenGet == 5 then
+            PositionOrbit = CFrame.new(0, 40, -40)
+        end
+    end
+end)
+spawn(function()
+while task.wait() do
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Stun") then
+game.Players.LocalPlayer.Character.Stun.Value = 0
+end
+end
+end)
 
 function EquipTool(Name)
     if game.Players.LocalPlayer.Backpack:FindFirstChild(Name) then
@@ -68,6 +100,14 @@ function FindEnemiesInRange(GetTab, Mods, Distance)
     end
     return HeadMods
 end
+
+local bypass;
+    bypass = hookmetamethod(game, "__index", newcclosure(function(method, Key) 
+        if tostring(method) == "Humanoid" and tostring(Key) == "WalkSpeed" and tostring(Key) == "JumpPower" then
+            return Key
+        end
+        return bypass(method, Key)
+   end))
 
 function GetEquippedTool()
     if not game.Players.LocalPlayer.Character then
@@ -147,6 +187,7 @@ if BloxFruitSea1 == true then
         "Warden",
         "Chief Warden",
         "Swan",
+        "The Saw",
         "Magma Admiral",
         "Fishman Lord",
         "Wysper",
@@ -191,7 +232,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Bandit",
 	["Nhiệm vụ cần đến"] = CFrame.new(1060, 16, 1547),
-	["Chờ Mods Spawn"] = CFrame.new(1038, 41, 1576)
+	["Chờ Mods Spawn"] = {CFrame.new(1038, 41, 1576)}
 }
 else
 _G.Quest = {
@@ -200,7 +241,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Trainee",
 	["Nhiệm vụ cần đến"] = CFrame.new(-2708, 25, 2103),
-	["Chờ Mods Spawn"] = CFrame.new(-2754, 50, 2063)
+	["Chờ Mods Spawn"] = {CFrame.new(-2754, 50, 2063)}
 }
 end
 elseif Level <= 14 then
@@ -210,7 +251,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Monkey",
 	["Nhiệm vụ cần đến"] = CFrame.new(-1601, 36, 153),
-	["Chờ Mods Spawn"] = CFrame.new(-1448, 50, 63)
+	["Chờ Mods Spawn"] = {CFrame.new(-1448, 50, 63)}
 }
 elseif Level <= 29 then
 _G.Quest = {
@@ -219,7 +260,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Gorilla",
 	["Nhiệm vụ cần đến"] = CFrame.new(-1601, 36, 153),
-	["Chờ Mods Spawn"] = CFrame.new(-1142, 40, -515)
+	["Chờ Mods Spawn"] = {CFrame.new(-1142, 40, -515)}
 }
 elseif Level <= 39 then
 _G.Quest = {
@@ -228,7 +269,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Pirate",
 	["Nhiệm vụ cần đến"] = CFrame.new(-1140, 4, 3827),
-	["Chờ Mods Spawn"] = CFrame.new(-1201, 40, 3857)
+	["Chờ Mods Spawn"] = {CFrame.new(-1201, 40, 3857)}
 }
 elseif Level <= 59 then
 _G.Quest = {
@@ -237,7 +278,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Brute",
 	["Nhiệm vụ cần đến"] = CFrame.new(-1140, 4, 3827),
-	["Chờ Mods Spawn"] = CFrame.new(-1387, 24, 4100)
+	["Chờ Mods Spawn"] = {CFrame.new(-1387, 24, 4100)}
 }
 elseif Level <= 74 then
 _G.Quest = {
@@ -246,7 +287,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Desert Bandit",
 	["Nhiệm vụ cần đến"] = CFrame.new(896, 6, 4390),
-	["Chờ Mods Spawn"] = CFrame.new(984, 16, 4417)
+	["Chờ Mods Spawn"] = {CFrame.new(984, 16, 4417)}
 }
 elseif Level <= 89 then
 _G.Quest = {
@@ -255,7 +296,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Desert Officer",
 	["Nhiệm vụ cần đến"] = CFrame.new(896, 6, 4390),
-	["Chờ Mods Spawn"] = CFrame.new(1547, 14, 4381)
+	["Chờ Mods Spawn"] = {CFrame.new(1547, 14, 4381)}
 }
 elseif Level <= 99 then
 _G.Quest = {
@@ -264,7 +305,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Snow Bandit",
 	["Nhiệm vụ cần đến"] = CFrame.new(1384, 87, -1295),
-	["Chờ Mods Spawn"] = CFrame.new(1356, 105, -1328)
+	["Chờ Mods Spawn"] = {CFrame.new(1356, 105, -1328)}
 }
 elseif Level <= 119 then
 _G.Quest = {
@@ -273,7 +314,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Snowman",
 	["Nhiệm vụ cần đến"] = CFrame.new(1384, 87, -1295),
-	["Chờ Mods Spawn"] = CFrame.new(1356, 105, - 1328)
+	["Chờ Mods Spawn"] = {CFrame.new(1356, 105, - 1328)}
 }
 elseif Level <= 149 then
 _G.Quest = {
@@ -282,7 +323,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Chief Petty Officer",
 	["Nhiệm vụ cần đến"] = CFrame.new(-5035, 28, 4324),
-	["Chờ Mods Spawn"] = CFrame.new(-4931, 65, 4121)
+	["Chờ Mods Spawn"] = {CFrame.new(-4931, 65, 4121)}
 }
 elseif Level <= 174 then
 _G.Quest = {
@@ -291,7 +332,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Sky Bandit",
 	["Nhiệm vụ cần đến"] = CFrame.new(-4842, 717, -2623),
-	["Chờ Mods Spawn"] = CFrame.new(-4955, 365, -2908)
+	["Chờ Mods Spawn"] = {CFrame.new(-4955, 365, -2908)}
 }
 elseif Level <= 189 then
 _G.Quest = {
@@ -300,7 +341,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Dark Master",
 	["Nhiệm vụ cần đến"] = CFrame.new(-4842, 717, -2623),
-	["Chờ Mods Spawn"] = CFrame.new(-5148, 439, -2332);
+	["Chờ Mods Spawn"] = {CFrame.new(-5148, 439, -2332)}
 }
 elseif Level <= 209 then
 _G.Quest = {
@@ -309,7 +350,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Prisoner",
 	["Nhiệm vụ cần đến"] = CFrame.new(5310, 0, 474, 0, 0, 0, 0, 1, 0, -0, 0, 0),
-	["Chờ Mods Spawn"] = CFrame.new(4937, 0, 649, 0, 0, -0, 0, 1, 0, 0, 0, 0)
+	["Chờ Mods Spawn"] = {CFrame.new(4937, 0, 649, 0, 0, -0, 0, 1, 0, 0, 0, 0)}
 }
 elseif Level <= 249 then
 _G.Quest = {
@@ -318,16 +359,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Dangerous Prisoner",
 	["Nhiệm vụ cần đến"] = CFrame.new(5310, 0, 474, 0, 0, 0, 0, 1, 0, -0, 0, 0),
-	["Chờ Mods Spawn"] = CFrame.new(5099, 0, 1055, 0, 0, -0, 0, 1, 0, 0, 0, 0)
-}
-elseif Level <= 249 then
-_G.Quest = {
-	["Nhiệm vụ con mobs"] = "Dangerous Prisoner",
-	["Tên nhiệm vụ"] = "PrisonerQuest",
-	["Nhiệm vụ cấp"] = 2,
-	["Tên thật mobs"] = "Dangerous Prisoner",
-	["Nhiệm vụ cần đến"] = CFrame.new(5310, 0, 474, 0, 0, 0, 0, 1, 0, -0, 0, 0),
-	["Chờ Mods Spawn"] = CFrame.new(5099, 0, 1055, 0, 0, -0, 0, 1, 0, 0, 0, 0)
+	["Chờ Mods Spawn"] = {CFrame.new(-1537, 30, -3178), CFrame.new(-1366, 30, -3468), CFrame.new(-1126, 30, -3296)}
 }
 elseif Level <= 274 then
 _G.Quest = {
@@ -336,7 +368,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Toga Warrior",
 	["Nhiệm vụ cần đến"] = CFrame.new(-1577, 7, -2984),
-	["Chờ Mods Spawn"] = CFrame.new(-1872, 49, -2913)
+	["Chờ Mods Spawn"] = {CFrame.new(-1872, 49, -2913)}
 }
 elseif Level <= 299 then
 _G.Quest = {
@@ -345,7 +377,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Gladiator",
 	["Nhiệm vụ cần đến"] = CFrame.new(-1577, 7, -2984),
-	["Chờ Mods Spawn"] = CFrame.new(-1521, 81, -3066)
+	["Chờ Mods Spawn"] = {CFrame.new(-1537, 30, -3178), CFrame.new(-1366, 30, -3468), CFrame.new(-1126, 30, -3296)}
 }
 elseif Level <= 324 then
 _G.Quest = {
@@ -354,7 +386,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Military Soldier",
 	["Nhiệm vụ cần đến"] = CFrame.new(-5316, 12, 8517),
-	["Chờ Mods Spawn"] = CFrame.new(-5369, 61, 8556)
+	["Chờ Mods Spawn"] = {CFrame.new(-5369, 61, 8556)}
 }
 elseif Level <= 374 then
 _G.Quest = {
@@ -363,7 +395,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Military Spy",
 	["Nhiệm vụ cần đến"] = CFrame.new(-5316, 12, 8517),
-	["Chờ Mods Spawn"] = CFrame.new(-5787, 75, 8651, 0, 0, -0, 0, 1, 0, 0, 0, 0);
+	["Chờ Mods Spawn"] = {CFrame.new(-5787, 75, 8651, 0, 0, -0, 0, 1, 0, 0, 0, 0)}
 }
 elseif Level <= 399 then
 _G.Quest = {
@@ -372,7 +404,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Military Spy",
 	["Nhiệm vụ cần đến"] = CFrame.new(61122, 18, 1569),
-	["Chờ Mods Spawn"] = CFrame.new(60844, 98, 1298)
+	["Chờ Mods Spawn"] = {CFrame.new(60844, 98, 1298)}
 }
 elseif Level <= 449 then
 _G.Quest = {
@@ -381,7 +413,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Fishman Command",
 	["Nhiệm vụ cần đến"] = CFrame.new(61122, 18, 1569),
-	["Chờ Mods Spawn"] = CFrame.new(61738, 64, 1433)
+	["Chờ Mods Spawn"] = {CFrame.new(61738, 64, 1433)}
 }
 if _G.SettingToggle["AutoFarm Level"] == true and (_G.Quest["Chờ Mods Spawn"].Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 3000 then
 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(61163, 11, 1819))
@@ -393,7 +425,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "God's Guard",
 	["Nhiệm vụ cần đến"] = CFrame.new(-4721, 845, -1953),
-	["Chờ Mods Spawn"] = CFrame.new(-4628, 866, -1931)
+	["Chờ Mods Spawn"] = {CFrame.new(-4628, 866, -1931)}
 }
 if _G.SettingToggle["AutoFarm Level"] == true and (_G.Quest["Chờ Mods Spawn"].Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 3000 then
 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-4607, 872, -1667))
@@ -405,7 +437,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Shanda",
 	["Nhiệm vụ cần đến"] = CFrame.new(-7863, 5545, -378),
-	["Chờ Mods Spawn"] = CFrame.new(-7685, 5601, -441)
+	["Chờ Mods Spawn"] = {CFrame.new(-7685, 5601, -441)}
 }
 if _G.SettingToggle["AutoFarm Level"] == true and (_G.Quest["Chờ Mods Spawn"].Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 3000 then
 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-7894, 5547, -380))
@@ -417,7 +449,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Royal Squad",
 	["Nhiệm vụ cần đến"] = CFrame.new(-7903, 5635, -1410),
-	["Chờ Mods Spawn"] = CFrame.new(-7654, 5637, -1407)
+	["Chờ Mods Spawn"] = {CFrame.new(-7654, 5637, -1407)}
 }
 elseif Level <= 624 then
 _G.Quest = {
@@ -426,7 +458,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Royal Soldier",
 	["Nhiệm vụ cần đến"] = CFrame.new(-7903, 5635, -1410),
-	["Chờ Mods Spawn"] = CFrame.new(-7760, 5679, -1884)
+	["Chờ Mods Spawn"] = {CFrame.new(-7760, 5679, -1884)}
 }
 elseif Level <= 649 then
 _G.Quest = {
@@ -435,7 +467,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Galley Pirate",
 	["Nhiệm vụ cần đến"] = CFrame.new(5258, 38, 4050),
-	["Chờ Mods Spawn"] = CFrame.new(5557, 152, 3998)
+	["Chờ Mods Spawn"] = {CFrame.new(5557, 152, 3998)}
 }
 elseif Level <= 649 then
 _G.Quest = {
@@ -444,7 +476,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Galley Pirate",
 	["Nhiệm vụ cần đến"] = CFrame.new(5258, 38, 4050),
-	["Chờ Mods Spawn"] = CFrame.new(5557, 152, 3998)
+	["Chờ Mods Spawn"] = {CFrame.new(5557, 152, 3998)}
 }
 elseif Level <= 650 then
 _G.Quest = {
@@ -453,7 +485,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Galley Captain",
 	["Nhiệm vụ cần đến"] = CFrame.new(5258, 38, 4050),
-	["Chờ Mods Spawn"] = CFrame.new(5677, 92, 4966)
+	["Chờ Mods Spawn"] = {CFrame.new(5677, 92, 4966)}
 }
 elseif Level >= 700 then
 Toggles["AutoFarm Level"]:SetValue(false)
@@ -468,7 +500,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Raider",
 	["Nhiệm vụ cần đến"] = CFrame.new(-427, 72, 1835),
-	["Chờ Mods Spawn"] = CFrame.new(68, 93, 2429)
+	["Chờ Mods Spawn"] = {CFrame.new(68, 93, 2429)}
 }
 elseif Level <= 774 then
 _G.Quest = {
@@ -477,7 +509,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Mercenary",
 	["Nhiệm vụ cần đến"] = CFrame.new(-427, 72, 1835),
-	["Chờ Mods Spawn"] = CFrame.new(-864, 122, 1453)
+	["Chờ Mods Spawn"] = {CFrame.new(-864, 122, 1453)}
 }
 elseif Level <= 799 then
 _G.Quest = {
@@ -486,7 +518,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Swan Pirate",
 	["Nhiệm vụ cần đến"] = CFrame.new(635, 73, 917),
-	["Chờ Mods Spawn"] = CFrame.new(1065, 137, 1324)
+	["Chờ Mods Spawn"] = {CFrame.new(1065, 137, 1324)}
 }
 elseif Level <= 874 then
 _G.Quest = {
@@ -495,7 +527,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Factory Staff",
 	["Nhiệm vụ cần đến"] = CFrame.new(635, 73, 917),
-	["Chờ Mods Spawn"] = CFrame.new(533, 128, 355)
+	["Chờ Mods Spawn"] = {CFrame.new(533, 128, 355)}
 }
 elseif Level <= 899 then
 _G.Quest = {
@@ -504,7 +536,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Marine Lieutenant",
 	["Nhiệm vụ cần đến"] = CFrame.new(-2440, 73, -3217),
-	["Chờ Mods Spawn"] = CFrame.new(-2489, 84, -3151)
+	["Chờ Mods Spawn"] = {CFrame.new(-2489, 84, -3151)}
 }
 elseif Level <= 949 then
 _G.Quest = {
@@ -513,7 +545,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 2,
 	["Tên thật mobs"] = "Marine Captain",
 	["Nhiệm vụ cần đến"] = CFrame.new(-2440, 73, -3217),
-	["Chờ Mods Spawn"] = CFrame.new(-2335, 79, -3245)
+	["Chờ Mods Spawn"] = {CFrame.new(-2335, 79, -3245)}
 }
 elseif Level <= 974 then
 _G.Quest = {
@@ -522,7 +554,7 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Zombie",
 	["Nhiệm vụ cần đến"] = CFrame.new(-5494, 48, -794),
-	["Chờ Mods Spawn"] = CFrame.new(-5536, 101, -835)
+	["Chờ Mods Spawn"] = {CFrame.new(-5536, 101, -835)}
 }
 elseif Level <= 999 then
 _G.Quest = {
@@ -531,16 +563,61 @@ _G.Quest = {
 	["Nhiệm vụ cấp"] = 1,
 	["Tên thật mobs"] = "Zombie",
 	["Nhiệm vụ cần đến"] = CFrame.new(-5494, 48, -794),
-	["Chờ Mods Spawn"] = CFrame.new(-5536, 101, -835)
+	["Chờ Mods Spawn"] = {CFrame.new(-5536, 101, -835)}
 }
 elseif Level <= 1049 then
 _G.Quest = {
-	["Nhiệm vụ con mobs"] = "Vampire",
-	["Tên nhiệm vụ"] = "ZombieQuest",
+	["Nhiệm vụ con mobs"] = "Snow Trooper",
+	["Tên nhiệm vụ"] = "SnowMountainQuest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "Snow Trooper",
+	["Nhiệm vụ cần đến"] = CFrame.new(607, 401, -5370),
+	["Chờ Mods Spawn"] = {CFrame.new(535, 432, -5484)}
+}
+elseif Level <= 1099 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Winter Warrior",
+	["Tên nhiệm vụ"] = "SnowMountainQuest",
 	["Nhiệm vụ cấp"] = 2,
-	["Tên thật mobs"] = "Vampire",
-	["Nhiệm vụ cần đến"] = CFrame.new(-5494, 48, -794),
-	["Chờ Mods Spawn"] = CFrame.new(-5806, 16, -1164)
+	["Tên thật mobs"] = "Winter Warrior",
+	["Nhiệm vụ cần đến"] = CFrame.new(607, 401, -5370),
+	["Chờ Mods Spawn"] = {CFrame.new(1234, 456, -5174)}
+}
+elseif Level <= 1124 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Lab Subordinate",
+	["Tên nhiệm vụ"] = "IceSideQuest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "Lab Subordinate",
+	["Nhiệm vụ cần đến"] = CFrame.new(-6061, 15, -4902),
+	["Chờ Mods Spawn"] = {CFrame.new(-5720, 63, -4784)}
+}
+elseif Level <= 1174 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Horned Warrior",
+	["Tên nhiệm vụ"] = "IceSideQuest",
+	["Nhiệm vụ cấp"] = 2,
+	["Tên thật mobs"] = "Horned Warrior",
+	["Nhiệm vụ cần đến"] = CFrame.new(-6061, 15, -4902),
+	["Chờ Mods Spawn"] = {CFrame.new(-6292, 91, -5502)}
+}
+elseif Level <= 1199 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Magma Ninja",
+	["Tên nhiệm vụ"] = "FireSideQuest",
+	["Nhiệm vụ cấp"] = 1,
+	["Tên thật mobs"] = "Magma Ninja",
+	["Nhiệm vụ cần đến"] = CFrame.new(-5429, 15, -5297),
+	["Chờ Mods Spawn"] = {CFrame.new(-5461, 130, -5836)}
+}
+elseif Level <= 1249 then
+_G.Quest = {
+	["Nhiệm vụ con mobs"] = "Lava Pirate",
+	["Tên nhiệm vụ"] = "FireSideQuest",
+	["Nhiệm vụ cấp"] = 2,
+	["Tên thật mobs"] = "Lava Pirate",
+	["Nhiệm vụ cần đến"] = CFrame.new(-5429, 15, -5297),
+	["Chờ Mods Spawn"] = {CFrame.new(-5251, 55, -4774)}
 }
 end
 elseif BloxFruitSea3 == true then
@@ -582,21 +659,33 @@ _G.SettingToggle = {
 	["Auto Tween Fruit"] = false,
 	["Auto Store Fruit"] = false,
 	["Auto Sea 2"] = false,
+	["Random Bone"] = false,
+	["Kill Core"] = false,
 	----------------------------------------------
 	["Tool Attack"] = "Melee",
+	["Tween Choose"] = "Normal",
 	-----------------------------------------------
 	["Walk Water"] = true,
 	["Auto Haki"] = true,
 	-----------------------------------------------
 	["Speed Tween"] = 300,
 	-----------------------------------------------
+	["Event"] = {
+		["Saber"] = false,
+		["PoleV1"] = false,
+		["Yama"] = false,
+		["HakiColor"] = false
+	},
 	["Sea"] = {
 		["SpeedBoat"] = false,
 		["Speed"] = 200,
 		["Auto Farm Sea"] = false,
 		["BoatNoclip"] = false,
 		["SeaLevel"] = false,
-		["Level"] = 2
+		["Level"] = 2,
+		---------------------------
+		["Terrorshark"] = false,
+		["Shark"] = false,
 	},
 	["Esp"] = {
 		["Player"] = false,
@@ -641,7 +730,7 @@ _G.SettingToggle = {
 }
 
 local Window = Library:CreateWindow({
-    Title = "Article Hub - Blox Fruit",
+    Title = "Omega X Article Hub - Blox Fruit",
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -673,6 +762,7 @@ Tabs = {
 	Tab2 = Window:AddTab("Fruit", "rbxassetid://10709790875"),
 	Tab3 = Window:AddTab("State", "rbxassetid://10709790875"),
 	Tab4 = Window:AddTab("Shop", "rbxassetid://7734056747"),
+	Tab5 = Window:AddTab("Event", "rbxassetid://7734056747"),
 	Tab8 = Window:AddTab("Misc", "rbxassetid://4370318685"),
 	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
 }
@@ -739,9 +829,14 @@ if (_G.Quest["Nhiệm vụ cần đến"].Position - game:GetService("Players").
     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", _G.Quest["Tên nhiệm vụ"], _G.Quest["Nhiệm vụ cấp"])
 end
 elseif string.find(game.Players.LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, _G.Quest["Nhiệm vụ con mobs"]) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == true then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+task.spawn(function()
 if game:GetService("Workspace").Enemies:FindFirstChild(_G.Quest["Nhiệm vụ con mobs"]) == nil then
-TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, _G.Quest["Chờ Mods Spawn"], true, (_G.Quest["Chờ Mods Spawn"].Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+for i, v in pairs(_G.Quest["Chờ Mods Spawn"]) do
+TweenTp(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, v, true, (v.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
 end
+end
+end)
 for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
 if _G.SettingToggle["AutoFarm Level"] == true and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
 if v.Name == (_G.Quest["Nhiệm vụ con mobs"]) then
@@ -752,9 +847,14 @@ BringMobs = true
 if _G.SettingToggle["Attack Aura"] == false then
 AttackNoCoolDown()
 end
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if _G.SettingToggle["Tween Choose"] == "Normal" then
 TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+elseif _G.SettingToggle["Tween Choose"] == "Orbit" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * PositionOrbit), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+end
 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-v.HumanoidRootPart.Transparency = 1
 v.HumanoidRootPart.CanCollide = false
 v.Humanoid.JumpPower = 0
 v.Humanoid.WalkSpeed = 0
@@ -767,6 +867,8 @@ ModsFarm = nil
 end
 end
 end
+end
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i, v in pairs(game:GetService("Workspace")["_WorldOrigin"].EnemySpawns:GetChildren()) do
 if string.find(v.Name, _G.Quest["Tên thật mobs"]) and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
 if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude >= 10 then
@@ -776,10 +878,83 @@ end
 end
 end
 end
+end
 task.wait()
 end
     end
 })
+if BloxFruitSea3 == true then
+Main1Group:AddToggle("AutoFarmBone", {
+    Text = "AutoFarm Bone",
+    Default = false,
+    Tooltip = "Tự Động Farm Xương",
+    Callback = function(Value)
+        _G.SettingToggle["AutoFarm Bone"] = Value
+        if Value == false then
+            CancelTween()
+            Noclip(true)
+        end
+while _G.SettingToggle["AutoFarm Bone"] do
+Noclip(false)
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, CFrame.new(-9515, 174, 6079), true, (Vector3.new(-9515, 174, 6079) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+if (Vector3.new(-9515, 174, 6079) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 3 then
+end
+for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+if _G.SettingToggle["AutoFarm Bone"] == true and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+if v.Name == "Reborn Skeleton" or v.Name == "Living Zombie" or v.Name == "Demonic Soul" or v.Name == "Posessed Mummy" then
+repeat task.wait()
+AutoHaki()
+EquipTool(_G.ToolAttack)
+BringMobs = true
+if _G.SettingToggle["Attack Aura"] == false then
+AttackNoCoolDown()
+end
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+v.HumanoidRootPart.CanCollide = false
+v.Humanoid.JumpPower = 0
+v.Humanoid.WalkSpeed = 0
+FarmPos = v.HumanoidRootPart.CFrame
+ModsFarm = v.Name
+until _G.SettingToggle["AutoFarm Bone"] == false or v.Parent == nil or v.Humanoid.Health <= 0
+BringMobs = false
+FarmPos = nil
+ModsFarm = nil
+end
+end
+end
+task.wait()
+end
+    end
+})
+
+Main1Group:AddButton({
+    Text = "Pray",
+    Tooltip = "Cầu Nguyện",
+    Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("gravestoneEvent", 1)
+    end
+}):AddButton({
+    Text = "Try Your Luck",
+    Tooltip = "Thử Vận May",
+    Func = function()
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("gravestoneEvent", 2)
+    end
+})
+
+Main1Group:AddToggle("Auto Random Bone", {
+    Text = "Auto Random Bone",
+    Default = false,
+    Tooltip = "Tự Động Mua Ngẫu Nhiên Xương",
+    Callback = function(Value)
+        _G.SettingToggle["Random Bone"] = Value
+while _G.SettingToggle["Random Bone"] do
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Bones", "Buy", 1, 1)
+task.wait()
+end
+    end
+})
+end
 
 Main1Group:AddDropdown("Boss", {
     Title = "Boss",
@@ -814,7 +989,6 @@ AttackNoCoolDown()
 end
 TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-v.HumanoidRootPart.Transparency = 1
 v.HumanoidRootPart.CanCollide = false
 v.Humanoid.JumpPower = 0
 v.Humanoid.WalkSpeed = 0
@@ -851,7 +1025,9 @@ Nah, Win = ChestReal, ChestTp
 end
 end
 if Win then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, CFrame.new(Win:GetPivot().Position), true, (Win:GetPivot().Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
 end
 task.wait()
 end
@@ -898,7 +1074,6 @@ AttackNoCoolDown()
 end
 TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-v.HumanoidRootPart.Transparency = 1
 v.HumanoidRootPart.CanCollide = false
 v.HumanoidRootPart.CFrame = OldCFrameBoss
 v.Humanoid.JumpPower = 0
@@ -929,7 +1104,6 @@ _G.SettingToggle["Sea"]["Speed"] = Value
     end
 })
 
-_G.Boat = {}
 Sea1Group:AddToggle("Speed", {
     Text = "Speed Boat",
     Default = false,
@@ -939,16 +1113,11 @@ _G.SettingToggle["Sea"]["SpeedBoat"] = Value
 while _G.SettingToggle["Sea"]["SpeedBoat"] do
 for i, v in pairs(game:GetService("Workspace").Boats:GetChildren()) do
 if v:FindFirstChild("VehicleSeat") and v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid then
-Boat1 = true
 Boat = v:FindFirstChild("VehicleSeat")
-_G.Boat[v.Name] = v:FindFirstChild("VehicleSeat")
-end
-end
-if not Boat1 then
-return
-end
 Boat.MaxSpeed = _G.SettingToggle["Sea"]["Speed"]
 Boat.CFrame = CFrame.new(Vector3.new(Boat.Position.X, Boat.Position.Y, Boat.Position.Z)) * Boat.CFrame.Rotation
+end
+end
 task.wait()
 end
     end
@@ -983,7 +1152,7 @@ if BloxFruitSea3 == true then
 Sea1Group:AddDropdown("Level", {
     Title = "Level Sea",
     Values = {"1", "2", "3", "4", "5", "6", "inf"},
-    Default = 4,
+    Default = "inf",
     Callback = function(Value)
          _G.SettingToggle["Sea"]["Level"] = Value
 if _G.SettingToggle["Sea"]["Level"] == "1" then
@@ -1001,6 +1170,114 @@ _G.Level = -42700
 elseif _G.SettingToggle["Sea"]["Level"] == "inf" then
 _G.Level = -100000000
 end
+if _G.SettingToggle["Sea"]["SeaLevel"] == true then
+Toggles["Tween Boat"]:SetValue(false)
+wait(1)
+Toggles["Tween Boat"]:SetValue(true)
+end
+    end
+})
+
+Sea1Group:AddToggle("TerrorsharkKill", {
+    Text = "Auto Kill Terrorshark",
+    Default = false,
+    Tooltip = "Giết Cá Mập",
+    Callback = function(Value)
+_G.SettingToggle["Sea"]["Terrorshark"] = Value
+if Value == false then
+Noclip(true)
+CancelTween()
+end
+while _G.SettingToggle["Sea"]["Terrorshark"] do
+Noclip(false)
+if game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+for i, v in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+if v:FindFirstChild("VehicleSeat") and v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid then
+game.Players.LocalPlayer.Character.Humanoid.Sit = false
+end
+end
+end
+for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+if v.Name == "Terrorshark" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+AutoHaki()
+EquipTool(_G.ToolAttack)
+if _G.SettingToggle["Attack Aura"] == false then
+AttackNoCoolDown()
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 6000 then
+if _G.SettingToggle["Tween Choose"] == "Normal" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+elseif _G.SettingToggle["Tween Choose"] == "Orbit" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * PositionOrbit), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+elseif game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health < 6000 then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 100, 0)), false, (v.HumanoidRootPart.CFrame - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+v.HumanoidRootPart.WalkSpeed = 0
+v.HumanoidRootPart.CanCollide = false
+until _G.SettingToggle["Sea"]["Terrorshark"] == false or v.Humanoid.Health <= 0 or v.Parent == nil
+end
+end
+elseif game:GetService("ReplicatedStorage"):FindFirstChild("Terrorshark") then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (game:GetService("ReplicatedStorage"):FindFirstChild("Terrorshark").HumanoidRootPart.CFrame * CFrame.new(2, 20, 2)), true, (game:GetService("ReplicatedStorage"):FindFirstChild("Terrorshark").HumanoidRootPart.CFrame - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+task.wait()
+end
+    end
+})
+
+Sea1Group:AddToggle("SharkKill", {
+    Text = "Auto Kill Shark",
+    Default = false,
+    Tooltip = "Giết Cá Con",
+    Callback = function(Value)
+_G.SettingToggle["Sea"]["Shark"] = Value
+if Value == false then
+Noclip(true)
+CancelTween()
+end
+while _G.SettingToggle["Sea"]["Shark"] do
+Noclip(false)
+if _G.SettingToggle["Sea"]["Terrorshark"] == true and game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") then
+return
+end
+if game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+for i, v in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+if v:FindFirstChild("VehicleSeat") and v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid then
+game.Players.LocalPlayer.Character.Humanoid.Sit = false
+end
+end
+end
+for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+if v.Name == "Shark" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+AutoHaki()
+EquipTool(_G.ToolAttack)
+if _G.SettingToggle["Attack Aura"] == false then
+AttackNoCoolDown()
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 6000 then
+if _G.SettingToggle["Tween Choose"] == "Normal" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+elseif _G.SettingToggle["Tween Choose"] == "Orbit" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * PositionOrbit), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+elseif game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health < 6000 then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 100, 0)), false, (v.HumanoidRootPart.CFrame - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+v.HumanoidRootPart.WalkSpeed = 0
+v.HumanoidRootPart.CanCollide = false
+until _G.SettingToggle["Sea"]["Shark"] == false or v.Humanoid.Health <= 0 or v.Parent == nil
+end
+end
+end
+task.wait()
+end
     end
 })
 
@@ -1011,34 +1288,67 @@ Sea1Group:AddToggle("Tween Boat", {
     Callback = function(Value)
 _G.SettingToggle["Sea"]["SeaLevel"] = Value
 if Value == false then
-            Noclip(true)
-            CancelTween()
-            TweenTp(v:FindFirstChild("VehicleSeat"), v:FindFirstChild("VehicleSeat").CFrame, false, 0)
+Noclip(true)
+for i, v in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+if v:FindFirstChild("VehicleSeat") then
+TweenTp(v:FindFirstChild("VehicleSeat"), v:FindFirstChild("VehicleSeat").CFrame, false, 0)
+end
+end
             for i, v in pairs(game:GetService("Workspace").Boats:GetDescendants()) do
             if v:IsA("BasePart") then
                 v.CanCollide = true
             end
         end
-        end
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+for i, v in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+if v:FindFirstChild("VehicleSeat") and v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid then
+game.Players.LocalPlayer.Character.Humanoid.Sit = false
+end
+end
+end
+task.wait(0.1)
+CancelTween()
+end
 while _G.SettingToggle["Sea"]["SeaLevel"] do
 Noclip(false)
+if _G.SettingToggle["Sea"]["Terrorshark"] == true and game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") then
+return
+end
+if _G.SettingToggle["Sea"]["Shark"] == true and game:GetService("Workspace").Enemies:FindFirstChild("Shark") then
+return
+end
 for i, v in pairs(game:GetService("Workspace").Boats:GetDescendants()) do
             if v:IsA("BasePart") then
                 v.CanCollide = false
             end
         end
 for i, v in pairs(game:GetService("Workspace").Boats:GetChildren()) do
-if v:FindFirstChild("VehicleSeat") and v:FindFirstChild("Owner") and v.Owner.Value.Name == game.Players.LocalPlayer.Name then
-repeat task.wait()
-TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v:FindFirstChild("VehicleSeat").CFrame, true, (v:FindFirstChild("VehicleSeat").Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
-until _G.SettingToggle["Sea"]["SeaLevel"] == false or v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid
-spawn(function()
-if _G.SettingToggle["Sea"]["SeaLevel"] == true then
-TweenTp(v:FindFirstChild("VehicleSeat"), CFrame.new(_G.Level, 21, 2000), false, (Vector3.new(_G.Level, 21, 2000) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+if v:FindFirstChild("VehicleSeat") then
+if v:FindFirstChild("Owner") and v.Owner.Value.Name == game.Players.LocalPlayer.Name or v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid then
+repeat task.wait() 
+if _G.SettingToggle["Sea"]["SeaLevel"] == true and v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid then
+TweenTp(v:FindFirstChild("VehicleSeat"), CFrame.new(_G.Level, 21, 500), false, (Vector3.new(_G.Level, 21, 500) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
 end
-end)
-repeat task.wait() until _G.SettingToggle["Sea"]["SeaLevel"] == false or v:FindFirstChild("VehicleSeat").Occupant ~= game.Players.LocalPlayer.Character.Humanoid
+wait(0.2)
+if _G.SettingToggle["Sea"]["SeaLevel"] == true and v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid then
+TweenTp(v:FindFirstChild("VehicleSeat"), CFrame.new(_G.Level - 3000, 21, 500), false, (Vector3.new(_G.Level - 3000, 21, 500) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+wait(0.2)
+if _G.SettingToggle["Sea"]["SeaLevel"] == true and v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid then
+TweenTp(v:FindFirstChild("VehicleSeat"), CFrame.new(_G.Level - 3000, 21, 2000), false, (Vector3.new(_G.Level - 3000, 21, 2000) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+wait(0.2)
+if _G.SettingToggle["Sea"]["SeaLevel"] == true and v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid then
+TweenTp(v:FindFirstChild("VehicleSeat"), CFrame.new(_G.Level, 21, -1000), false, (Vector3.new(_G.Level, 21, -1000) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+until _G.SettingToggle["Sea"]["SeaLevel"] == false or v:FindFirstChild("VehicleSeat").Occupant ~= game.Players.LocalPlayer.Character.Humanoid
 TweenTp(v:FindFirstChild("VehicleSeat"), v:FindFirstChild("VehicleSeat").CFrame, false, 0)
+repeat task.wait()
+if v:FindFirstChild("Humanoid") and v.Humanoid.Value > 0 then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v:FindFirstChild("VehicleSeat").CFrame, true, (v:FindFirstChild("VehicleSeat").Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+until _G.SettingToggle["Sea"]["SeaLevel"] == false or v:FindFirstChild("VehicleSeat").Occupant == game.Players.LocalPlayer.Character.Humanoid or v:FindFirstChild("Humanoid") and v.Humanoid.Value <= 0
+end
 end
 end
 task.wait()
@@ -1302,62 +1612,6 @@ end
     end
 })
 
-Fruit3Group:AddDivider()
-
-_G.LevelEsp = false
-Fruit3Group:AddToggle("Level Esp", {
-    Text = "Level Esp",
-    Tooltip = "Định vị có Cấp",
-    Default = false, 
-    Callback = function(Value) 
-_G.LevelEsp = Value
-    end
-})
-
-_G.FruitEsp = false
-Fruit3Group:AddToggle("Fruit Esp", {
-    Text = "Fruit Esp",
-    Tooltip = "Định vị có đang dùng Trái",
-    Default = false, 
-    Callback = function(Value) 
-_G.FruitEsp = Value
-    end
-})
-
-_G.HealthEsp = false
-Fruit3Group:AddToggle("Health Esp", {
-    Text = "Health Esp",
-    Tooltip = "Định vị có Máu",
-    Default = false, 
-    Callback = function(Value) 
-_G.HealthEsp = Value
-    end
-})
-
-if BloxFruitSea3 == true then
-_G.FragmentsEsp = false
-Fruit3Group:AddToggle("Fragments Esp", {
-    Text = "Fragments Esp",
-    Tooltip = "Định vị có Điểm F",
-    Default = false, 
-    Callback = function(Value) 
-_G.FragmentsEsp = Value
-    end
-})
-end
-
-_G.BeliEsp = false
-Fruit3Group:AddToggle("Beli Esp", {
-    Text = "Beli Esp",
-    Tooltip = "Định vị có Beli",
-    Default = false, 
-    Callback = function(Value) 
-_G.BeliEsp = Value
-    end
-})
-
-Fruit3Group:AddDivider()
-
 Fruit3Group:AddToggle("Esp Fruit", {
     Text = "Esp Fruit",
     Value = false,
@@ -1486,11 +1740,14 @@ Fruit3Group:AddToggle("Esp Boat", {
 _G.SettingToggle["Esp"]["Boat"] = Value
 while _G.SettingToggle["Esp"]["Boat"] do
 for i, v in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+if v:IsA("Model") then
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 if v:FindFirstChild("BoatEsp") and v.BoatEsp:FindFirstChild("TextLabel") then
 v.BoatEsp.TextLabel.Text = 
           (_G.NameEsp == true and "\nName [ "..v.Name.." ]" or "")..
-          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.VehicleSeat.Position).Magnitude).." ]" or "")
+          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.VehicleSeat.Position).Magnitude).." ]" or "")..
+          (_G.HealthEsp == true and "\nHealth [ "..v.Humanoid.Value.." ]" or "")..
+          (_G.OwnerEsp == true and "\nOwner [ "..v.Owner.Value.Name.." ]" or "")
 end
 end
 if v:FindFirstChild("BoatEsp") and v.BoatEsp:FindFirstChild("TextLabel") and v.BoatEsp.TextLabel.TextColor3 ~= _G.ColorESP then
@@ -1503,7 +1760,7 @@ if v:FindFirstChild("BoatEsp") == nil then
 BoatEsp = Instance.new("BillboardGui", v)
 BoatEsp.Adornee = v
 BoatEsp.Name = "BoatEsp"
-IslandEsp.Size = UDim2.new(0, 100, 0, 150)
+BoatEsp.Size = UDim2.new(0, 100, 0, 150)
 BoatEsp.AlwaysOnTop = true
 BoatEsp.StudsOffset = Vector3.new(0, 3, 0)
 BoatEspText = Instance.new("TextLabel", BoatEsp)
@@ -1516,11 +1773,63 @@ BoatEspText.TextStrokeTransparency = 0.5
 BoatEspText.Text = ""
 end
 end
+end
 task.wait()
 end
 for i, v in pairs(game:GetService("Workspace").Boats:GetChildren()) do
-if v:FindFirstChild("BoatEsp") then
+if v:IsA("Model") and v:FindFirstChild("BoatEsp") then
 v.BoatEsp:Destroy()
+end
+end
+    end
+})
+
+Fruit3Group:AddToggle("Esp Mods", {
+    Text = "Esp Mods",
+    Value = false,
+    Tooltip = "Định Vị Quáy Vật",
+    Callback = function(Value)
+_G.SettingToggle["Esp"]["Mods"] = Value
+while _G.SettingToggle["Esp"]["Mods"] do
+for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if v.Head:FindFirstChild("ModsEsp") and v.Head.ModsEsp:FindFirstChild("TextLabel") then
+v.Head.ModsEsp.TextLabel.Text = 
+          (_G.NameEsp == true and "\nName [ "..v.Name.." ]" or "")..
+          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Head.Position).Magnitude).." ]" or "")..
+          (_G.HealthEsp == true and "\nHealth [ "..v.Humanoid.Health.." / "..v.Humanoid.MaxHealth.." ]" or "")
+end
+end
+if v.Head:FindFirstChild("ModsEsp") and v.Head.ModsEsp:FindFirstChild("TextLabel") and v.Head.ModsEsp.TextLabel.TextColor3 ~= _G.ColorESP then
+v.Head.ModsEsp.TextLabel.TextColor3 = _G.ColorESP
+end
+if v.Head:FindFirstChild("ModsEsp") and v.Head.ModsEsp:FindFirstChild("TextLabel") and v.Head.ModsEsp.TextLabel.TextSize ~= _G.TextSize then
+v.Head.ModsEsp.TextLabel.TextSize = _G.TextSize
+end
+if v:FindFirstChild("Head") and v.Head:FindFirstChild("ModsEsp") == nil then
+ModsEsp = Instance.new("BillboardGui", v.Head)
+ModsEsp.Adornee = v.Head
+ModsEsp.Name = "ModsEsp"
+ModsEsp.Size = UDim2.new(0, 100, 0, 150)
+ModsEsp.AlwaysOnTop = true
+ModsEsp.StudsOffset = Vector3.new(0, 3, 0)
+ModsEspText = Instance.new("TextLabel", ModsEsp)
+ModsEspText.BackgroundTransparency = 1
+ModsEspText.Font = Enum.Font.SourceSansBold
+ModsEspText.Size = UDim2.new(0, 100, 0, 100)
+ModsEspText.TextSize = 15
+ModsEspText.TextColor3 = Color3.new(0, 0, 0)
+ModsEspText.TextStrokeTransparency = 0.5
+ModsEspText.Text = ""
+end
+end
+end
+task.wait()
+end
+for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+if v:FindFirstChild("Head") and v.Head:FindFirstChild("ModsEsp") then
+v.Head.ModsEsp:Destroy()
 end
 end
     end
@@ -1581,6 +1890,68 @@ end
 end
 
 Fruit3Group:AddDivider()
+
+_G.LevelEsp = false
+Fruit3Group:AddToggle("Level Esp", {
+    Text = "Level Esp",
+    Tooltip = "Định vị có Cấp",
+    Default = false, 
+    Callback = function(Value) 
+_G.LevelEsp = Value
+    end
+})
+
+_G.FruitEsp = false
+Fruit3Group:AddToggle("Fruit Esp", {
+    Text = "Fruit Esp",
+    Tooltip = "Định vị có đang dùng Trái",
+    Default = false, 
+    Callback = function(Value) 
+_G.FruitEsp = Value
+    end
+})
+
+_G.HealthEsp = false
+Fruit3Group:AddToggle("Health Esp", {
+    Text = "Health Esp",
+    Tooltip = "Định vị có Máu",
+    Default = false, 
+    Callback = function(Value) 
+_G.HealthEsp = Value
+    end
+})
+
+if BloxFruitSea3 == true then
+_G.FragmentsEsp = false
+Fruit3Group:AddToggle("Fragments Esp", {
+    Text = "Fragments Esp",
+    Tooltip = "Định vị có Điểm F",
+    Default = false, 
+    Callback = function(Value) 
+_G.FragmentsEsp = Value
+    end
+})
+end
+
+_G.BeliEsp = false
+Fruit3Group:AddToggle("Beli Esp", {
+    Text = "Beli Esp",
+    Tooltip = "Định vị có Beli",
+    Default = false, 
+    Callback = function(Value) 
+_G.BeliEsp = Value
+    end
+})
+
+_G.OwnerEsp = false
+Fruit3Group:AddToggle("Owner Esp", {
+    Text = "Owner Esp",
+    Tooltip = "Định vị có Chủ",
+    Default = false, 
+    Callback = function(Value) 
+_G.OwnerEsp = Value
+    end
+})
 
 _G.DistanceEsp = false
 Fruit3Group:AddToggle("Distance Esp", {
@@ -1815,12 +2186,142 @@ game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardRewa
    end
 })
 
+local Event1Group = Tabs.Tab5:AddLeftGroupbox("Sea 1")
+local Event2Group = Tabs.Tab5:AddRightGroupbox("Sea 2")
+local Event3Group = Tabs.Tab5:AddLeftGroupbox("Sea 3")
+
+if BloxFruitSea1 == true then
+Event1Group:AddToggle("PoleV1", {
+    Text = "Auto Get Pole V1",
+    Value = false,
+    Tooltip = "Tự Động Lấy Gậy Thần V1",
+    Callback = function(Value)
+_G.SettingToggle["Event"]["PoleV1"] = Value
+while _G.SettingToggle["Event"]["PoleV1"] do
+if game:GetService("Workspace").Enemies:FindFirstChild("Thunder God") then
+for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+if v.Name == "Thunder God" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+repeat task.wait()
+AutoHaki()
+EquipTool(_G.ToolAttack)
+if _G.SettingToggle["Attack Aura"] == false then
+AttackNoCoolDown()
+end
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if _G.SettingToggle["Tween Choose"] == "Normal" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+elseif _G.SettingToggle["Tween Choose"] == "Orbit" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * PositionOrbit), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+end
+v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+v.HumanoidRootPart.CanCollide = false
+v.Humanoid.JumpPower = 0
+v.Humanoid.WalkSpeed = 0
+until _G.SettingToggle["Event"]["PoleV1"] == false or v.Parent == nil or v.Humanoid.Health <= 0
+end
+end
+elseif (Vector3.new(-7748, 5606, -2305) - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 1500 then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, CFrame.new(-7748, 5606, -2305), true, (Vector3.new(-7748, 5606, -2305) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, CFrame.new(-7748, 5606, -2305), true, (Vector3.new(-7748, 5606, -2305) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+if game:GetService("ReplicatedStorage"):FindFirstChild("Thunder God") then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (game:GetService("ReplicatedStorage"):FindFirstChild("Thunder God").HumanoidRootPart.CFrame * CFrame.new(2, 20, 2)), true, (game:GetService("ReplicatedStorage"):FindFirstChild("Thunder God").HumanoidRootPart.CFrame - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+task.wait()
+end
+    end
+})
+
+Event1Group:AddToggle("Saw", {
+    Text = "Auto Get Saw",
+    Value = false,
+    Tooltip = "Tự Động Lấy Cưa",
+    Callback = function(Value)
+_G.SettingToggle["Event"]["Saw"] = Value
+while _G.SettingToggle["Event"]["Saw"] do
+if game:GetService("Workspace").Enemies:FindFirstChild("The Saw") then
+for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+if v.Name == "The Saw" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+repeat task.wait()
+AutoHaki()
+EquipTool(_G.ToolAttack)
+if _G.SettingToggle["Attack Aura"] == false then
+AttackNoCoolDown()
+end
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if _G.SettingToggle["Tween Choose"] == "Normal" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * CFrame.new(0, 40, 0)), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+elseif _G.SettingToggle["Tween Choose"] == "Orbit" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (v.HumanoidRootPart.CFrame * PositionOrbit), true, (v.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+end
+v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+v.HumanoidRootPart.CanCollide = false
+v.Humanoid.JumpPower = 0
+v.Humanoid.WalkSpeed = 0
+until _G.SettingToggle["Event"]["Saw"] == false or v.Parent == nil or v.Humanoid.Health <= 0
+end
+end
+elseif (Vector3.new(-690, 15, 1582) - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 1500 then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, CFrame.new(-690, 15, 1582), true, (Vector3.new(-690, 15, 1582) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, CFrame.new(-690, 15, 1582), true, (Vector3.new(-690, 15, 1582) - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+if game:GetService("ReplicatedStorage"):FindFirstChild("The Saw") then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, (game:GetService("ReplicatedStorage"):FindFirstChild("The Saw").HumanoidRootPart.CFrame * CFrame.new(2, 20, 2)), true, (game:GetService("ReplicatedStorage"):FindFirstChild("The Saw").HumanoidRootPart.CFrame - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / _G.SettingToggle["Speed Tween"])
+end
+task.wait()
+end
+    end
+})
+elseif BloxFruitSea2 == true then
+
+elseif BloxFruitSea3 == true then
+Event3Group:AddToggle("Yama", {
+    Text = "Auto Click Yama",
+    Value = false,
+    Tooltip = "Tự Động Ấn Kiếm Yama",
+    Callback = function(Value)
+_G.SettingToggle["Event"]["Yama"] = Value
+if game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter", "Progress") >= 30 then
+while _G.SettingToggle["Event"]["Yama"] do
+if game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter", "Progress") >= 30 then
+repeat task.wait()
+fireclickdetector(game:GetService("Workspace").Map.Waterfall.SealedKatana.Handle.ClickDetector);
+until game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Yama") or _G.SettingToggle["Event"]["Yama"] == false
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You must be an Elite hunter +30 / Bạn phải săn Elite +30", 5)
+wait(0.5)
+Toggles["Yama"]:SetValue(false)
+end
+    end
+})
+end
+
+if BloxFruitSea2 == true or BloxFruitSea3 == true then
+(BloxFruitSea3 == true and Event3Group or BloxFruitSea2 == true and Event2Group):AddToggle("Yama", {
+    Text = "Auto Learn Haki Color",
+    Value = false,
+    Tooltip = "Tự Động Học Màu Haki",
+    Callback = function(Value)
+_G.SettingToggle["Event"]["HakiColor"] = Value
+while _G.SettingToggle["Event"]["HakiColor"] do
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ColorsDealer", "2")
+task.wait()
+end
+    end
+})
+end
+
 local Misc1Group = Tabs.Tab8:AddLeftGroupbox("Misc")
 
 Misc1Group:AddSlider("DistanceMods", {
     Text = "Bring Mods Distance",
     Default = 250,
-    Min = 200,
+    Min = 100,
     Max = 500,
     Rounding = 0,
     Compact = true,
@@ -1881,8 +2382,13 @@ if v.Name == ModsFarm and v:FindFirstChild("HumanoidRootPart") and v:FindFirstCh
 if v.Name == "Factory Staff" then
 if (v.HumanoidRootPart.Position - FarmPos.Position).Magnitude <= _G.SettingToggle["BringMods"]["Distance"] then
 v.Head.CanCollide = false
+v.HumanoidRootPart.CanCollide = false
+v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
 v.HumanoidRootPart.CFrame = FarmPos
-sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+if v.Humanoid:FindFirstChild("Animator") then
+v.Humanoid.Animator:Destroy()
+end
+sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge);
 end
 elseif v.Name == ModsFarm then
 if (v.HumanoidRootPart.Position - FarmPos.Position).Magnitude <= _G.SettingToggle["BringMods"]["Distance"] then
@@ -1890,13 +2396,16 @@ v.Head.CanCollide = false
 v.HumanoidRootPart.CFrame = FarmPos
 v.Humanoid:ChangeState(11)
 v.Humanoid:ChangeState(14)
+if v.Humanoid:FindFirstChild("Animator") then
+v.Humanoid.Animator:Destroy()
+end
 sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
 end
 end
 end
 end
 end
-task.wait()
+wait()
 end
     end
 })
@@ -1914,6 +2423,16 @@ end
     end
 })
 
+Misc1Group:AddDropdown("TweenChoose", {
+    Title = "Tween Choose",
+    Values = {"Normal", "Orbit"},
+    Default = 1,
+    Multi = false,
+    Callback = function(Value)
+_G.SettingToggle["Tween Choose"] = Value
+    end
+})
+
 Misc1Group:AddSlider("Fly Speed", {
     Text = "Speed Fly",
     Default = 100,
@@ -1926,7 +2445,7 @@ _G.SetSpeedFly = Value
     end
 })
 
-_G.SetSpeedFly = 50
+_G.SetSpeedFly = 100
 Misc1Group:AddToggle("Start Fly", {
     Text = "Start Fly",
     Default = false, 
@@ -1981,6 +2500,70 @@ end
    Text = "Fly",
    Mode = "Toggle",
    SyncToggleState = true
+})
+
+_G.SetWalkSpeed = 100
+Misc1Group:AddSlider("Speed", {
+    Text = "Speed",
+    Default = 100,
+    Min = 10,
+    Max = 300,
+    Rounding = 0,
+    Compact = true,
+    Callback = function(Value)
+_G.SetWalkSpeed = Value
+    end
+})
+
+Misc1Group:AddToggle("Set Speed", {
+    Text = "Set Speed",
+    Default = false, 
+    Callback = function(Value) 
+_G.SetWalk = Value
+if _G.SetWalk == false then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 59
+end
+end
+while _G.SetWalk do
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.SetWalkSpeed
+end
+wait()
+end
+    end
+})
+
+_G.SetJump= 100
+Misc1Group:AddSlider("Jump", {
+    Text = "Jump",
+    Default = 100,
+    Min = 10,
+    Max = 500,
+    Rounding = 0,
+    Compact = true,
+    Callback = function(Value)
+_G.SetJump = Value
+    end
+})
+
+Misc1Group:AddToggle("Set Jump Power", {
+    Text = "Set Jump Power",
+    Default = false, 
+    Callback = function(Value) 
+_G.SetJumpPo = Value
+if _G.SetJumpPo == false then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+game.Players.LocalPlayer.Character.Humanoid.JumpPower = 70
+end
+end
+while _G.SetJumpPo do
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+game.Players.LocalPlayer.Character.Humanoid.JumpPower = _G.SetJump
+end
+wait()
+end
+    end
 })
 
 local Misc2Group = Tabs.Tab8:AddRightGroupbox("Misc 2")
@@ -2115,7 +2698,7 @@ end
 end
 if PlayerTa then
 _G.TweenPlayer = PlayerTa.Name
-Notification("Player Found / Tìm Thấy Rồi [ ".._G.TweenPlayer" ]", 5)
+Notification("Player Found / Tìm Thấy Rồi [ ".._G.TweenPlayer.." ]", 5)
 else
 Notification("Player Not Found / Ko Thấy", 5)
 end
@@ -2239,4 +2822,4 @@ SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
 SaveManager:BuildConfigSection(Tabs["UI Settings"])
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
-SaveManager:LoadAutoloadConfig()
+SaveManager:LoadAutoloadConfig()  
