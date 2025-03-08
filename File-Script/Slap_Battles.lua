@@ -1059,6 +1059,15 @@ end
     end
 })
 
+InfoServer2Group:AddButton("Copy Position", function()
+    if setclipboard then
+        setclipboard(tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)))
+        Notification("Copied Success", 5)
+    else
+        Notification(tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)), 5)
+    end
+end)
+
 local InfoServer4Group = Tabs.Tab:AddRightGroupbox("Search Glove Player")
 
 InfoServer4Group:AddInput("GlovePlayers", {
@@ -2570,7 +2579,7 @@ until game.Players.LocalPlayer.Character:WaitForChild("KineticSlappedBadgeCounte
 wait(1.5)
 repeat
 if game.Players.LocalPlayer.Backpack:FindFirstChild("Stun") then
-game.Players.LocalPlayer.Humanoid:EquipTool(User.Backpack.Stun)
+game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack.Stun)
 end
 wait(0.1)
 local players = game.Players:GetChildren()
@@ -3132,6 +3141,82 @@ end
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
 Badge3Group:AddDropdown("Rob Mastery", {
+    Text = "Fort Mastery",
+    Values = {"Build", "Build + Break"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.FortMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Fort Mastery", {
+    Text = "Auto Fort Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoFortMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Fort" then
+while _G.AutoFortMastery do
+if _G.FortMastery == "Build + Break" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+end
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+end
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Fort") then
+game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack.Fort)
+end
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == "Part" and v:FindFirstChild("brownsmoke") and v:FindFirstChild("Sound") and 200 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude then
+if v.CanCollide == true then
+v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = 6})
+end
+end
+end
+until _G.AutoFortMastery == false or game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+end
+elseif _G.FortMastery == "Build" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+end
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
+firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+end
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Fort") then
+game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack.Fort)
+end
+game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+until _G.AutoFortMastery == false or game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+end
+end
+task.wait()
+end
+elseif _G.AutoFortMastery == true then
+Notification("You don't have Fort equipped", 5)
+wait(0.05)
+Toggles["Auto Fort Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddDropdown("Rob Mastery", {
     Text = "Rob Mastery",
     Values = {"Studs", "Get Kill"},
     Default = "",
@@ -3522,7 +3607,8 @@ _G.AutoBombMastery = Value
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Bomb" then
 while _G.AutoBombMastery do
 if _G.BombMastery == "Throw Bomb" then
-for i = 1, 700 do
+for i = 1, 200 do
+game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
 game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
 end
 elseif _G.BombMastery == "Snipe Bomb + Void" then
@@ -3798,15 +3884,11 @@ firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), works
 end
 repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Tool") or game.Players.LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool")
 for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                    if v.Name ~= "Radio" then
                         v.Parent = game.LogService
                     end
-                end
 for i,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-                    if v.Name ~= "Radio" then
                         v.Parent = game.LogService
                     end
-                end
 game:GetService("Players").LocalPlayer.Reset:FireServer()
 wait(3.82)
 for i,v in pairs(game.LogService:GetChildren()) do
@@ -3824,10 +3906,8 @@ firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), works
 end
 repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Tool") or game.Players.LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool")
 for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                    if v:IsA("Tool") and v.Name ~= "Radio" then
                         v.Parent = game.LogService
                     end
-                end
 for i,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                         v.Parent = game.LogService
                 end
@@ -6418,64 +6498,6 @@ end
     end
 })
 
-Glove1Group:AddInput("Players", {
-    Default = "",
-    Numeric = false,
-    Text = "",
-    Finished = true,
-    Placeholder = "Username",
-    Callback = function(Value)
-_G.PlayerTarget = Value
-for _, v in pairs(game.Players:GetPlayers()) do
-if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
-PlayerTa = v
-end
-end
-if PlayerTa then
-_G.PunishPlayer = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
-else
-Notification("Can't find player", 5)
-end
-    end
-})
-
-Cancel = false
-Glove1Group:AddButton("Punish Player", function()
-if game.Players.LocalPlayer.Character:FindFirstChild("Swapper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Swapper") then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-game.Workspace.VoidPart.VoidPart1.CanCollide = true
-Timer = 0
-repeat
-if Cancel == true then
-break
-end
-if game.Players[_G.PunishPlayer].Character:FindFirstChild("HumanoidRootPart") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(workspace[_G.PunishPlayer].HumanoidRootPart.Position.X,-49999,workspace[_G.PunishPlayer].HumanoidRootPart.Position.Z)
-end
-task.wait(0.01)
-if Timer < 1 then
-Timer = Timer + 0.01
-end
-until game.Players[_G.PunishPlayer].Character and workspace[_G.PunishPlayer]:FindFirstChild("HumanoidRootPart") and workspace[_G.PunishPlayer]:FindFirstChild("entered") and workspace[_G.PunishPlayer].Ragdolled.Value == false and Timer >= 1
-if Cancel == false then
-game:GetService("ReplicatedStorage").SLOC:FireServer()
-end
-wait(.25)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-game.Workspace.VoidPart.VoidPart1.CanCollide = false
-if game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Part",true) == nil then
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-end
-else
-Notification("You don't have Swapper equipped, or you aren't in the arena.", 5)
-end
-end):AddButton("Cancel", function()
-Cancel = true
-wait(0.1)
-Cancel = false
-end)
-
 _G.PlayerChoose = "Username"
 Glove1Group:AddDropdown("PlayerChoose", {
     Text = "Player Choose",
@@ -6798,52 +6820,6 @@ Toggles["Auto Siphon Player"]:SetValue(false)
 end
     end
 })
-
-Glove1Group:AddButton("Kick Player Recall", function()
-if _G.PlayerChoose == "Username" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" and game.Players.LocalPlayer.Character:FindFirstChild("Recall") and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players[PlayerKickRecall].Character:FindFirstChild("entered") and game.Players[PlayerKickRecall].Character:FindFirstChild("HumanoidRootPart") then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = false
-end
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-725,310,-2)
-task.wait(0.25)
-game:GetService("ReplicatedStorage").Recall:InvokeServer(game:GetService("Players").LocalPlayer.Character.Recall)
-wait(2.2)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[PlayerKickRecall].Character.HumanoidRootPart.CFrame
-task.wait(1)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = true
-end
-else
-Notification("You don't have Recall equipped, or you have Backpack Recall equipped, or player not enter arena", 5)
-end
-elseif _G.PlayerChoose == "Random" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" and game.Players.LocalPlayer.Character:FindFirstChild("Recall") and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = false
-end
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-725,310,-2)
-task.wait(0.25)
-game:GetService("ReplicatedStorage").Recall:InvokeServer(game:GetService("Players").LocalPlayer.Character.Recall)
-wait(2.2)
-local players = game.Players:GetChildren()
-local randomPlayer = players[math.random(1, #players)]
-repeat randomPlayer = players[math.random(1, #players)] until randomPlayer ~= game.Players.LocalPlayer and randomPlayer.Character:FindFirstChild("entered") and randomPlayer.Character:FindFirstChild("ded") == nil and randomPlayer.Character:FindFirstChild("InLabyrinth") == nil and randomPlayer.Character:FindFirstChild("rock") == nil
-Target = randomPlayer
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Target.Character.HumanoidRootPart.CFrame
-task.wait(1)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = true
-end
-else
-Notification("You don't have Recall equipped, or you have Backpack Recall equipped, or player not enter arena", 5)
-end
-end
-end)
 
 Glove1Group:AddToggle("Auto Sbeve All Player", {
     Text = "Auto Sbeve All Player",
@@ -7630,13 +7606,10 @@ for i,v in pairs(game.Workspace:GetChildren()) do
 elseif _G.RobHitbox == "You" then
 for i,v in pairs(game.Workspace:GetChildren()) do
          if v.Name == "Field" and 0 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude then
-              FieldRob = v
+              v.Size = Vector3.new(_G.ExtendHitboxRob,_G.ExtendHitboxRob,_G.ExtendHitboxRob)
+              v.BrickColor = BrickColor.new(_G.ColorHitboxRob)
          end
      end
-if FieldRob then
-   FieldRob.Size = Vector3.new(_G.ExtendHitboxRob,_G.ExtendHitboxRob,_G.ExtendHitboxRob)
-   FieldRob.BrickColor = BrickColor.new(_G.ColorHitboxRob)
-end
 end
 task.wait()
 end
@@ -7654,40 +7627,6 @@ end
      Callback = function(Value)
 _G.ColorHitboxRob = Value
      end
-})
-
-Glove2Group:AddDropdown("Godmode Glove", {
-    Text = "Godmode Glove",
-    Values = {"Reverse","Golden"},
-    Default = "Golden",
-    Multi = false,
-    Callback = function(Value)
-SetGodmode = Value
-    end
-})
-
-Glove2Group:AddToggle("Auto Godmode", {
-    Text = "Auto Godmode",
-    Default = false, 
-    Callback = function(Value)
-AutoGodmode = Value
-if SetGodmode == "Reverse" and game.Players.LocalPlayer.leaderstats.Glove.Value == "Reverse" then
-while AutoGodmode and SetGodmode == "Reverse" do
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("SelectionBox", 1) == nil and game.Players.LocalPlayer.Character.Head:FindFirstChild("UnoReverseCard") == nil then
-game:GetService("ReplicatedStorage"):WaitForChild("ReverseAbility"):FireServer()
-end
-task.wait(0.85)
-end
-end
-if SetGodmode == "Golden" and game.Players.LocalPlayer.leaderstats.Glove.Value == "Golden" then
-while AutoGodmode and SetGodmode == "Golden" do
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") then
-game:GetService("ReplicatedStorage").Goldify:FireServer(true)
-end
-task.wait()
-end
-end
-    end
 })
 
 _G.SetSpeedFlyCloud = 2
@@ -10211,6 +10150,18 @@ end
 end
 end)
 
+Misc1Group:AddButton("Teleport Designer Roblox", function()
+repeat task.wait()
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(249, 94, -62841)
+until workspace.Buildings:FindFirstChild("wizard twoer 2")
+wait(0.8)
+for i, v in pairs(workspace.Buildings["wizard twoer 2"]:GetChildren()) do
+if v.Name == "Model" and v:FindFirstChild("Trigger") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChild("Trigger").CFrame
+end
+end
+end)
+
 Misc1Group:AddToggle("Auto Tp Clock", {
     Text = "Auto Teleport Clock",
     Default = false, 
@@ -10510,10 +10461,115 @@ fireclickdetector(workspace.Finale.Reward.Hitbox:FindFirstChild("Click"))
 end
 end
 end)
+elseif game.PlaceId == 136005148166028 then
+local Window = Library:CreateWindow({
+    Title = "Omega X Article Hub - Map Designer Roblox",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+    AutoLock = true,
+    ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local Misc1Group = Tabs.Tab:AddLeftGroupbox("Badge")
+
+Misc1Group:AddButton("Get Badge", function()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if fireclickdetector then
+fireclickdetector(workspace.Kitchen.Fridge.HitBox:FindFirstChild("ClickDetector"))
+end
+repeat task.wait() until workspace.Kitchen.Fridge:FindFirstChild("GrantAward") or workspace.Kitchen.Fridge:FindFirstChild("GrantAward") == nil
+wait(0.25)
+if fireclickdetector then
+if workspace.Kitchen.Fridge:FindFirstChild("GrantAward") then
+fireclickdetector(workspace.Kitchen.Fridge.GrantAward:FindFirstChild("ClickDetector"))
+end
+end
+repeat task.wait() until game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Brewzucki") or game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki")
+if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki") then
+game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki").Parent = game:GetService("Players").LocalPlayer.Backpack
+end
+wait(0.5)
+if fireclickdetector then
+if workspace.Microwave:FindFirstChild("HitBox") then
+fireclickdetector(workspace.Microwave.HitBox:FindFirstChild("ClickDetector"))
+end
+end
+wait(0.8)
+repeat task.wait()
+if fireclickdetector then
+if workspace.Microwave:FindFirstChild("HitBox") then
+fireclickdetector(workspace.Microwave.HitBox:FindFirstChild("ClickDetector"))
+end
+end
+until game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Brewzucki") or game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki")
+wait(0.2)
+if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Brewzucki") then
+game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Brewzucki").Parent = game:GetService("Players").LocalPlayer.Character
+end
+wait(0.3)
+if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki") then
+game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki"):Activate()
+end
+wait(3.5)
+if fireclickdetector then
+fireclickdetector(workspace.BasementTable.HitBox:FindFirstChild("ClickDetector"))
+end
+wait(1)
+if fireproximityprompt then
+fireproximityprompt(workspace.BasementDoor.Door.Base:FindFirstChild("ProximityPrompt"))
+end
+wait(0.5)
+if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("RealComputerScreenGui") ~= nil then
+if workspace.ComputerChair:FindFirstChild("Seat") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.ComputerChair.Seat.CFrame
+end
+repeat task.wait() until game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("RealComputerScreenGui") and game:GetService("Players").LocalPlayer.PlayerGui.RealComputerScreenGui.Enabled == true
+wait(0.5)
+if game:GetService("Players").LocalPlayer.PlayerGui.RealComputerScreenGui.ComputerScreen:FindFirstChild("SuggestionsQTE").Visible == true then
+repeat task.wait()
+for i, v in pairs(game.Players.LocalPlayer.PlayerGui.RealComputerScreenGui.ComputerScreen.SuggestionsQTE:GetChildren()) do
+if v.Name:find("Popup_") then
+v.Position = game:GetService("Players").LocalPlayer.PlayerGui.RealComputerScreenGui.ComputerScreen.SuggestionsQTE:FindFirstChild("RecyclingBin").Position
+end
+end
+until game:GetService("Players").LocalPlayer.PlayerGui.RealComputerScreenGui.ComputerScreen:FindFirstChild("UpdateGameQTE").Visible == true
+game:GetService("Players").LocalPlayer.PlayerGui.RealComputerScreenGui.ComputerScreen.UpdateGameQTE.MainFrame.PatchNotesTextBox.Text = "Articles - Hub, how do you feel, or are things in your life okay, you must be struggling, do you see you are tired or not?, Skibidi Toilet Dop Dop Yes Yes"
+repeat task.wait() until game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("RealComputerScreenGui") == nil
+wait(0.5)
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Sit == true then
+game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Sit = false
+end
+end
+wait(0.5)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Stages.Stage4:FindFirstChild("CloseDavidsDoor").CFrame
+wait(0.7)
+GuiClick = game:GetService("Players").LocalPlayer.PlayerGui.DavidShrineQTE:FindFirstChild("DavidShrineQTE")
+repeat task.wait()
+if GuiClick.Mobile.SpawnArea:FindFirstChild("TapLabel") then
+GuiClick.Mobile.SpawnArea:FindFirstChild("TapLabel").Size = UDim2.new(1001, 0, 1001, 0)
+game:GetService("VirtualUser"):Button1Down(Vector2.new(1, 1))
+game:GetService("VirtualUser"):Button1Up(Vector2.new(1, 1))
+elseif GuiClick:FindFirstChild("PC").Visible == true and GuiClick.PC:FindFirstChild("QuickTimeLabel").Visible == true then
+game:GetService("VirtualInputManager"):SendKeyEvent(true, GuiClick.PC.QuickTimeLabel.Text, false, x)
+end
+until game:GetService("Players").LocalPlayer.PlayerGui.DavidShrineQTE.DavidShrineQTE:FindFirstChild("ScoreLabel").Visible == true and game:GetService("Players").LocalPlayer.PlayerGui.DavidShrineQTE.DavidShrineQTE:FindFirstChild("ScoreLabel").Text == "Score: 150"
+end
+end
+end)
 end
 
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
 local CreditsGroup = Tabs["UI Settings"]:AddRightGroupbox("Credits")
+local Info = Tabs["UI Settings"]:AddRightGroupbox("Info")
 
 MenuGroup:AddDropdown("NotifySide", {
     Text = "Notification Side",
@@ -10588,6 +10644,33 @@ end)
 MenuGroup:AddButton("Unload", function() Library:Unload() end)
 CreditsGroup:AddLabel("AmongUs - Python / Dex / Script / Python", true)
 CreditsGroup:AddLabel("Giang Hub - Script / Dex", true)
+
+Info:AddLabel("Counter [ "..game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(game.Players.LocalPlayer).." ]", true)
+Info:AddLabel("Executor [ "..identifyexecutor().." ]", true)
+Info:AddLabel("Job Id [ "..game.JobId.." ]", true)
+Info:AddDivider()
+Info:AddButton("Copy JobId", function()
+    if setclipboard then
+        setclipboard(tostring(game.JobId))
+        Library:Notify("Copied Success")
+    else
+        Library:Notify(tostring(game.JobId), 10)
+    end
+end)
+
+Info:AddInput("Join Job", {
+    Default = "Nah",
+    Numeric = false,
+    Text = "Join Job",
+    Placeholder = "UserJobId",
+    Callback = function(Value)
+_G.JobIdJoin = Value
+    end
+})
+
+Info:AddButton("Join JobId", function()
+game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, _G.JobIdJoin, game.Players.LocalPlayer)
+end)
 
 Library.ToggleKeybind = Options.MenuKeybind
 
