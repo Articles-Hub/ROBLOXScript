@@ -3178,8 +3178,11 @@ game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
 for i, v in pairs(game.Workspace:GetChildren()) do
 if v.Name == "Part" and v:FindFirstChild("brownsmoke") and v:FindFirstChild("Sound") and 200 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude then
 if v.CanCollide == true then
-v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = 6})
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(v.CFrame)
+task.wait(0.05)
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Ragdolled") and game.Players.LocalPlayer.Character:WaitForChild("Ragdolled").Value == false then
+game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = -99})
+end
 end
 end
 end
