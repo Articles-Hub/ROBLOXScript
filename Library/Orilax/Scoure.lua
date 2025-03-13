@@ -84,12 +84,14 @@ function Orilax.CreateLib(params)
     })
 
     local M_TabHolder = Create("ScrollingFrame", {
-        Size = UDim2.new(0.96, 0, 0, 50),
-        Position = UDim2.new(0, 10, 0, 60),
-        BackgroundColor3 = Color3.fromRGB(19, 19, 19),
-        ScrollBarThickness = 0,
-        CanvasSize = UDim2.new(0, 0, 0, 50
-    }, { Create("UICorner", { CornerRadius = UDim.new(0, 5) }) })
+    Size = UDim2.new(0.96, 0, 0, 50),
+    Position = UDim2.new(0, 10, 0, 60),
+    BackgroundColor3 = Color3.fromRGB(19, 19, 19),
+    ScrollBarThickness = 0,
+    CanvasSize = UDim2.new(0, 0, 0, 50)
+}, {
+    Create("UICorner", { CornerRadius = UDim.new(0, 5) })
+})
 
     local Tabs = {}
     local x = 10
