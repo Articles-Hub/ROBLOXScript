@@ -1,7 +1,7 @@
 local Orilax = {}
 
 local tween = game:GetService("TweenService")
-local input = game:GetService("User InputService")
+local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 
 local gui = Instance.new("ScreenGui", game.CoreGui)
