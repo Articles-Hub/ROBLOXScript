@@ -177,6 +177,8 @@ local Tabs = {}
 
         table.insert(Tabs, b)
         table.insert(Pages, M_PageLeft)
+        
+        M_PageLeft.Visible = true
 
         b.MouseButton1Click:Connect(function()
             for _, page in pairs(Pages) do
@@ -247,7 +249,7 @@ T_Name.Font = Enum.Font.GothamBold
                 ToggleState = not ToggleState
                 if ToggleState then
                     M_BToggle.BackgroundColor3 = Color3.fromRGB(0, 155, 51)
-                    M_BToggle.Position = UDim2.new(0, 50, 0, 0)  
+                    M_BToggle.Position = UDim2.new(0.5, 0, 0, 0)  
                 else
                     M_BToggle.BackgroundColor3 = Color3.fromRGB(155, 0, 51)
                     M_BToggle.Position = UDim2.new(0, 0, 0, 0)  
@@ -257,7 +259,41 @@ T_Name.Font = Enum.Font.GothamBold
                     Params.Call(ToggleState)
                 end
             end)
-        end
+            end
+            
+            function TabFunctions:NewButton(Params)
+            local M_ButtonOuter = Instance.new("Frame", M_PageLeft)
+M_ButtonOuter.Size = UDim2.new(0, 200, 0, 40)
+M_ButtonOuter.Position = UDim2.new(0, 10, 0, 60)
+M_ButtonOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+M_ButtonOuter.Active = true
+
+local M_Corner = Instance.new("UICorner", M_ButtonOuter)
+M_Corner.CornerRadius = UDim.new(0, 7)
+
+local M_Stroke = Instance.new("UIStroke", M_ButtonOuter)
+M_Stroke.Color = Color3.fromRGB(60, 60, 60)
+M_Stroke.Thickness = 0.5
+
+local B_Name = Instance.new("TextLabel", M_ButtonOuter)
+B_Name.Size = UDim2.new(0, 0, 1, 0)
+B_Name.Position = UDim2.new(0, 60, 0, 0)
+B_Name.Text = Params.Name
+B_Name.TextSize = 14
+B_Name.BackgroundTransparency = 1
+B_Name.TextColor3 = Color3.new(255, 255, 255)
+B_Name.Font = Enum.Font.GothamBold
+
+local M_BImg = Instance.new("ImageButton", M_ButtonOuter)
+M_BImg.Size = UDim2.new(0, 35, 0, 30)
+M_BImg.Position = UDim2.new(0.775, 0, 0, 5)
+M_BImg.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
+M_BImg.Image = "rbxassetid://3944703587"
+M_BImg.BackgroundColor3 = Color3.fromRGB(155, 0, 51)
+M_BImg.ImageTransparency = 0
+M_BImg.BackgroundTransparency = 1
+            M_BImg.MouseButton1Click:Connect(Params.CallBack)
+            end
 
         return TabFunctions
     end
