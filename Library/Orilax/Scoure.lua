@@ -8,13 +8,13 @@ local run = game:GetService("RunService")
 local Utility = {}
 local Objects = {}
 
-local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.Name = "Orilax"
-
 function Orilax:CreateLib(params)
 local GUI = {}
 Orilax.Name = params.Name or "Example Hub"
 Orilax.SubName = params.SubName or "Version 1.1.1.1"
+
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "Orilax"
 
 local M_Gui = Instance.new("Frame", gui)
 M_Gui.Size = UDim2.new(0, 520, 0, 330)
@@ -114,9 +114,6 @@ M_TabHolder.CanvasSize = UDim2.new(0, 0, 0, 50)
 
 local M_Corner = Instance.new("UICorner", M_TabHolder)
 M_Corner.CornerRadius = UDim.new(0, 5)
-
-end
-
 
 local M_TabHolders = Instance.new("Frame", M_Gui)
 M_TabHolders.Size = UDim2.new(0.96, 0, 0.575, 0)
@@ -233,7 +230,7 @@ local Tabs = {}
                 end
             end)
         end
-        
+
         return TabFunctions
     end
 
