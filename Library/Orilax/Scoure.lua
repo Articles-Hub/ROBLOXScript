@@ -1,7 +1,7 @@
 local Orilax = {}
 
 local tween = game:GetService("TweenService")
-local tweeninfo = TweenInfo.new
+local tweeninfo = game:GetService("TweenService")
 local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 
@@ -294,6 +294,77 @@ M_BImg.ImageTransparency = 0
 M_BImg.BackgroundTransparency = 1
             M_BImg.MouseButton1Click:Connect(Params.CallBack)
             end
+            
+            function TabFunctions:NewDropdown(Params)
+    local M_DropDownOuter = Instance.new("Frame", M_PageLeft)
+    M_DropDownOuter.Size = UDim2.new(0, 200, 0, 150)
+    M_DropDownOuter.Position = UDim2.new(0.5, 0, 0.5, 0)
+    M_DropDownOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+    M_DropDownOuter.ClipsDescendants = true
+
+    local M_Corner = Instance.new("UICorner", M_DropDownOuter)
+    M_Corner.CornerRadius = UDim.new(0, 7)
+
+    local M_Stroke = Instance.new("UIStroke", M_DropDownOuter)
+    M_Stroke.Color = Color3.fromRGB(60, 60, 60)
+    M_Stroke.Thickness = 0.5
+
+    local M_DName = Instance.new("TextLabel", M_DropDownOuter)
+    M_DName.Size = UDim2.new(0.9, 0, 0, 20)
+    M_DName.Position = UDim2.new(0.05, 0, 0, 10)
+    M_DName.Text = Params.Name or "Dropdown"
+    M_DName.TextSize = 14
+    M_DName.BackgroundTransparency = 1
+    M_DName.TextColor3 = Color3.new(255, 255, 255)
+    M_DName.Font = Enum.Font.GothamBold
+
+    local M_DropDownBox = Instance.new("TextButton", M_DropDownOuter)
+    M_DropDownBox.Size = UDim2.new(0.9, 0, 0, 30)
+    M_DropDownBox.Position = UDim2.new(0.05, 0, 0, 35)
+    M_DropDownBox.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
+    M_DropDownBox.Text = "Select Item"
+    M_DropDownBox.TextSize = 14
+    M_DropDownBox.TextColor3 = Color3.new(255, 255, 255)
+    M_DropDownBox.Font = Enum.Font.GothamBold
+
+    local M_Corner = Instance.new("UICorner", M_DropDownBox)
+    M_Corner.CornerRadius = UDim.new(0, 7)
+
+    local M_ItemList = Instance.new("ScrollingFrame", M_DropDownOuter)
+    M_ItemList.Size = UDim2.new(0.9, 0, 0.6, 0)
+    M_ItemList.Position = UDim2.new(0.05, 0, 0, 70)
+    M_ItemList.BackgroundColor3 = Color3.fromRGB(19, 19, 19)
+    M_ItemList.BorderSizePixel = 0
+    M_ItemList.ScrollBarThickness = 0
+    M_ItemList.CanvasSize = UDim2.new(0, 0, 0, 100)
+    M_ItemList.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    M_ItemList.Visible = false
+
+    local M_Layout = Instance.new("UIListLayout", M_ItemList)
+    M_Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    M_Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    M_Layout.Padding = UDim.new(0, 10)
+
+    for _, item in ipairs(Params.List or {}) do
+        local I_Item = Instance.new("TextButton", M_ItemList)
+        I_Item.Size = UDim2.new(1, 0, 0, 30)
+        I_Item.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+        I_Item.Text = item
+        I_Item.TextSize = 14
+        I_Item.TextColor3 = Color3.new(255, 255, 255)
+        I_Item.Font = Enum.Font.GothamBold
+
+        local M_Corner = Instance.new("UICorner", I_Item)
+        M_Corner.CornerRadius = UDim.new(0, 7)
+
+        I_Item.MouseButton1Click:Connect(function()
+            M_DropDownBox.Text = item
+            M_ItemList.Visible = false
+            if Params.Call then
+                Params.Call(item)
+            end
+        end)
+    end
 
         return TabFunctions
     end
@@ -302,115 +373,3 @@ M_BImg.BackgroundTransparency = 1
 end
 
 return Orilax
-
--- Button
---[[
-local M_ButtonOuter = Instance.new("Frame", M_PageLeft)
-M_ButtonOuter.Size = UDim2.new(0, 200, 0, 40)
-M_ButtonOuter.Position = UDim2.new(0, 10, 0, 60)
-M_ButtonOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-M_ButtonOuter.Active = true
-
-local M_Corner = Instance.new("UICorner", M_ButtonOuter)
-M_Corner.CornerRadius = UDim.new(0, 7)
-
-local M_Stroke = Instance.new("UIStroke", M_ButtonOuter)
-M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-M_Stroke.Thickness = 0.5
-
-local B_Name = Instance.new("TextLabel", M_ButtonOuter)
-B_Name.Size = UDim2.new(0, 0, 1, 0)
-B_Name.Position = UDim2.new(0, 60, 0, 0)
-B_Name.Text = "Auto Store All"
-B_Name.TextSize = 14
-B_Name.BackgroundTransparency = 1
-B_Name.TextColor3 = Color3.new(255, 255, 255)
-B_Name.Font = Enum.Font.GothamBold
-
-local M_BImg = Instance.new("ImageButton", M_ButtonOuter)
-M_BImg.Size = UDim2.new(0, 35, 0, 30)
-M_BImg.Position = UDim2.new(0.775, 0, 0, 5)
-M_BImg.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
-M_BImg.Image = "rbxassetid://3944703587"
-M_BImg.BackgroundColor3 = Color3.fromRGB(155, 0, 51)
-M_BImg.ImageTransparency = 0
-M_BImg.BackgroundTransparency = 1
-]]--
--- Dropdown
---[[
-local M_DropDownOuter = Instance.new("Frame", M_PageLeft)
-M_DropDownOuter.Size = UDim2.new(0, 200, 0, 150)
-M_DropDownOuter.Position = UDim2.new(0.5, 0, 0.5, 0)
-M_DropDownOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-
-local M_Corner = Instance.new("UICorner", M_DropDownOuter)
-M_Corner.CornerRadius = UDim.new(0, 7)
-
-local M_Stroke = Instance.new("UIStroke", M_DropDownOuter)
-M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-M_Stroke.Thickness = 0.5
-
-local M_DName = Instance.new("TextLabel", M_DropDownOuter)
-M_DName.Size = UDim2.new(0, 0, 0, 0)
-M_DName.Position = UDim2.new(0, 60, 0, 20)
-M_DName.Text = "Select Item"
-M_DName.TextSize = 14
-M_DName.BackgroundTransparency = 1
-M_DName.TextColor3 = Color3.new(255, 255, 255)
-M_DName.Font = Enum.Font.GothamBold
-
-local M_DropDownBox = Instance.new("TextButton", M_DropDownOuter)
-M_DropDownBox.Size = UDim2.new(0, 60, 0, 30)
-M_DropDownBox.Position = UDim2.new(0.65, 0, 0, 5)
-M_DropDownBox.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
-M_DropDownBox.BorderColor3 = Color3.new(0, 0, 0)
-M_DropDownBox.BorderSizePixel = 1
-M_DropDownBox.Text = "Skibidi"
-M_DropDownBox.TextSize = 14
-M_DropDownBox.TextScaled = false
-M_DropDownBox.BackgroundTransparency = 0 
-M_DropDownBox.TextColor3 = Color3.new(255, 255, 255)
-M_DropDownBox.Font = Enum.Font.GothamBold
-local M_Corner = Instance.new("UICorner", M_DropDownBox)
-M_Corner.CornerRadius = UDim.new(0, 7)
-
-local M_Stroke = Instance.new("UIStroke", M_DropDownBox)
-M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-M_Stroke.Thickness = 0.5
-
-local M_ItemList = Instance.new("ScrollingFrame", M_DropDownOuter)
-M_ItemList.Size = UDim2.new(0.9, 0, 0.7, 0)
-M_ItemList.Position = UDim2.new(0, 10, 0, 40)
-M_ItemList.BackgroundColor3 = Color3.fromRGB(19, 19, 19)
-M_ItemList.BorderSizePixel = 0
-M_ItemList.BackgroundTransparency = 0 
-M_ItemList.ScrollBarThickness = 0
-M_ItemList.CanvasSize = UDim2.new(0, 0, 0, 100)
-M_ItemList.AutomaticCanvasSize = Enum.AutomaticSize.Y
-
-local M_Stroke = Instance.new("UIStroke", M_ItemList)
-M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-M_Stroke.Thickness = 0.5
-
-local M_Layout = Instance.new("UIListLayout", M_ItemList)
-M_Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-M_Layout.SortOrder = Enum.SortOrder.LayoutOrder
-M_Layout.Padding = UDim.new(0, 10)
-
-local I_Item = Instance.new("TextButton", M_ItemList)
-I_Item.Size = UDim2.new(0, 170, 0, 40)
-I_Item.Position = UDim2.new(0.5, 0, 0.5, 0)
-I_Item.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-I_Item.Text = "Skibidi"
-I_Item.TextSize = 14
-I_Item.TextColor3 = Color3.new(255, 255, 255)
-I_Item.Font = Enum.Font.GothamBold
-
-local M_Corner = Instance.new("UICorner", I_Item)
-M_Corner.CornerRadius = UDim.new(0, 7)
-
-local M_Stroke = Instance.new("UIStroke", I_Item)
-M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-M_Stroke.Thickness = 0.5
-M_Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-]]--
