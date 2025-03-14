@@ -90,20 +90,6 @@ M_Line1.Rotation = 15
 M_Line1.BackgroundTransparency = 0 
 M_Line1.Draggable = false
 
-local M_Close = Instance.new("ImageButton", M_MizeFrame)
-M_Close.Size = UDim2.new(0, 30, 0, 30)
-M_Close.Position = UDim2.new(0.5, 10, 0, 5)
-M_Close.Image = "rbxassetid://7072725342"
-M_Close.ImageTransparency = 0
-M_Close.BackgroundTransparency = 1
-
-local M_Mimize = Instance.new("ImageButton", M_MizeFrame)
-M_Mimize.Size = UDim2.new(0, 30, 0, 30)
-M_Mimize.Position = UDim2.new(0, 10, 0, 5)
-M_Mimize.Image = "rbxassetid://7072719338"
-M_Mimize.ImageTransparency = 0
-M_Mimize.BackgroundTransparency = 1
-
 local M_TabHolder = Instance.new("ScrollingFrame", M_Gui)
 M_TabHolder.Size = UDim2.new(0.96, 0, 0, 50)
 M_TabHolder.Position = UDim2.new(0, 10, 0, 60)
@@ -133,6 +119,33 @@ M_Line.Position = UDim2.new(0.5, -30, 0, 0)
 M_Line.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 M_Line.BorderSizePixel = 0
 M_Line.BackgroundTransparency = 0
+
+local M_Close = Instance.new("ImageButton", M_MizeFrame)
+M_Close.Size = UDim2.new(0, 30, 0, 30)
+M_Close.Position = UDim2.new(0.5, 10, 0, 5)
+M_Close.Image = "rbxassetid://7072725342"
+M_Close.ImageTransparency = 0
+M_Close.BackgroundTransparency = 1
+
+Hide = false
+local M_Mimize = Instance.new("ImageButton", M_MizeFrame)
+M_Mimize.Size = UDim2.new(0, 30, 0, 30)
+M_Mimize.Position = UDim2.new(0, 10, 0, 5)
+M_Mimize.Image = "rbxassetid://7072719338"
+M_Mimize.ImageTransparency = 0
+M_Mimize.BackgroundTransparency = 1
+M_Mimize.MouseButton1Click:Connect(function()
+if Hide then
+game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
+                Position = UDim2.new(0, 520, 0, 50)
+            }):Play()
+            M_TabHolder.Visible = false
+else
+game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
+                Position = UDim2.new(0, 520, 0, 330)
+            }):Play()
+            M_TabHolder.Visible = true
+end)
 
 local Tabs = {}
     local Pages = {}
@@ -249,10 +262,15 @@ T_Name.Font = Enum.Font.GothamBold
                 ToggleState = not ToggleState
                 if ToggleState then
                     M_BToggle.BackgroundColor3 = Color3.fromRGB(0, 155, 51)
-                    M_BToggle.Position = UDim2.new(0.5, 0, 0, 0)  
+                    game.TweenService:Create(M_BToggle, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
+                Position = UDim2.new(0.5,0,0,0)
+            }):Play()
                 else
                     M_BToggle.BackgroundColor3 = Color3.fromRGB(155, 0, 51)
-                    M_BToggle.Position = UDim2.new(0, 0, 0, 0)  
+                    
+                    game.TweenService:Create(M_BToggle, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
+                Position = UDim2.new(0,0,0,0)
+            }):Play()
                 end
 
                 if Params.Call then
