@@ -145,6 +145,7 @@ game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enu
                 Position = UDim2.new(0, 520, 0, 330)
             }):Play()
             M_TabHolder.Visible = true
+end
 end)
 
 local Tabs = {}
