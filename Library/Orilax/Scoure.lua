@@ -188,32 +188,58 @@ local Tabs = {}
         local TabFunctions = {}
 
         function TabFunctions:NewToggle(Params)
-            local M_ToggleOuter = Instance.new("Frame", M_PageLeft)
-            M_ToggleOuter.Size = UDim2.new(0, 200, 0, 40)
-            M_ToggleOuter.Position = UDim2.new(0, 10, 0, 10)
-            M_ToggleOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-            M_ToggleOuter.Active = true
-            M_ToggleOuter.BackgroundTransparency = 0 
-            M_ToggleOuter.Draggable = false
-
-            local M_Corner = Instance.new("UICorner", M_ToggleOuter)
-            M_Corner.CornerRadius = UDim.new(0, 7)
-
-            local M_Stroke = Instance.new("UIStroke", M_ToggleOuter)
-            M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-            M_Stroke.Thickness = 0.5
-
-            local M_BToggle = Instance.new("ImageButton", M_ToggleOuter)
-            M_BToggle.Size = UDim2.new(0.5, 0, 1, 0)
-            M_BToggle.Position = UDim2.new(0, 0, 0, 0)
-            M_BToggle.BackgroundTransparency = 0
-            M_BToggle.BackgroundColor3 = Color3.fromRGB(155, 0, 51)
-            local M_Corner = Instance.new("UICorner", M_BToggle)
-        M_Corner.CornerRadius = UDim.new(0, 7)
-
-        local M_Stroke = Instance.new("UIStroke", M_BToggle)
-        M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-        M_Stroke.Thickness = 1
+            local M_ToggleOuter = Instance.new("Frame", M_PageLeft)  
+M_ToggleOuter.Size = UDim2.new(0, 200, 0, 40)  
+M_ToggleOuter.Position = UDim2.new(0, 10, 0, 10)  
+M_ToggleOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)  
+M_ToggleOuter.Active = true  
+M_ToggleOuter.BackgroundTransparency = 0   
+M_ToggleOuter.Draggable = false  
+  
+local M_Corner = Instance.new("UICorner", M_ToggleOuter)  
+M_Corner.CornerRadius = UDim.new(0, 7)  
+  
+local M_Stroke = Instance.new("UIStroke", M_ToggleOuter)  
+M_Stroke.Color = Color3.fromRGB(60, 60, 60)  
+M_Stroke.Thickness = 0.5  
+  
+local M_TBox = Instance.new("Frame", M_ToggleOuter)  
+M_TBox.Size = UDim2.new(0, 70, 0, 30)  
+M_TBox.Position = UDim2.new(0.6, 0, 0, 5)  
+M_TBox.BackgroundColor3 = Color3.fromRGB(24, 24, 24)  
+M_TBox.Active = true  
+M_TBox.BackgroundTransparency = 0   
+  
+local M_Corner = Instance.new("UICorner", M_TBox)  
+M_Corner.CornerRadius = UDim.new(0, 7)  
+  
+local M_Stroke = Instance.new("UIStroke", M_TBox)  
+M_Stroke.Color = Color3.fromRGB(60, 60, 60)  
+M_Stroke.Thickness = 0.5  
+  
+local M_BToggle = Instance.new("ImageButton", M_TBox)  
+M_BToggle.Size = UDim2.new(0.5, 0, 1, 0)  
+M_BToggle.Position = UDim2.new(0, 0, 0, 0)  
+M_BToggle.Image = "rbxassetid://3944680095"  
+M_BToggle.BackgroundTransparency = 0  
+M_BToggle.BackgroundColor3 = Color3.fromRGB(155, 0, 51)  
+M_BToggle.ImageTransparency = 1  
+  
+local M_Corner = Instance.new("UICorner", M_BToggle)  
+M_Corner.CornerRadius = UDim.new(0, 7)  
+  
+local M_Stroke = Instance.new("UIStroke", M_BToggle)  
+M_Stroke.Color = Color3.fromRGB(60, 60, 60)  
+M_Stroke.Thickness = 1  
+  
+local T_Name = Instance.new("TextLabel", M_ToggleOuter)  
+T_Name.Size = UDim2.new(0, 0, 1, 0)  
+T_Name.Position = UDim2.new(0, 60, 0, 0)  
+T_Name.Text = Params.Name
+T_Name.TextSize = 14  
+T_Name.BackgroundTransparency = 1  
+T_Name.TextColor3 = Color3.new(255, 255, 255)  
+T_Name.Font = Enum.Font.GothamBold  
 
             local ToggleState = false
 
@@ -221,8 +247,10 @@ local Tabs = {}
                 ToggleState = not ToggleState
                 if ToggleState then
                     M_BToggle.BackgroundColor3 = Color3.fromRGB(0, 155, 51)
+                    M_BToggle.Position = UDim2.new(0, 50, 0, 0)  
                 else
                     M_BToggle.BackgroundColor3 = Color3.fromRGB(155, 0, 51)
+                    M_BToggle.Position = UDim2.new(0, 0, 0, 0)  
                 end
 
                 if Params.Call then
