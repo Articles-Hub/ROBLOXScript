@@ -77,26 +77,16 @@ end
     end
 })
 
-Misc1Group:AddDropdown("Fuel", {
-    Text = "Fuel Item",
-    Values = _G.FuelTrainItem,
-    Default = "Right",
-    Multi = false,
-    Callback = function(Value)
-_G.FuelItem = Value
-    end
-})
-
-Misc1Group:AddToggle("Auto Fuel", {
+Main1Group:AddToggle("Auto Fuel", {
     Text = "Auto Fuel Train",
     Default = false, 
     Callback = function(Value) 
 _G.FuelTrain = Value
 while _G.FuelTrain do
-for i, v in pairs(workspace:GetChildren()) do
-if v.Name == "RuntimeItems" and v:FindFirstChild(_G.FuelItem) and v.PrimaryPart ~= nil then
-firetouchinterest(v:FindFirstChild(_G.FuelItem), , 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
+if v.ClassName == "Model" and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 5 then
+firetouchinterest(v, workspace.Train.TrainControls:FindFirstChild("FuelDetect").TouchInterest.Parent, 0)
+firetouchinterest(v, workspace.Train.TrainControls:FindFirstChild("FuelDetect").TouchInterest.Parent, 1)
 end
 end
 task.wait()
@@ -519,6 +509,22 @@ end
     end
 })
 
+Misc1Group:AddToggle("Auto Collect Snake Oil", {
+    Text = "Auto Collect Snake Oil",
+    Default = false, 
+    Callback = function(Value) 
+_G.CollectSnakeOil = Value
+while _G.CollectMoney do
+for i, v in pairs(workspace:FindFirstChild("RuntimeItems"):GetChildren()) do
+if v.Name == "Snake Oil" then
+game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
+end
+end
+task.wait()
+end
+    end
+})
+
 local Misc2Group = Tabs.Tab1:AddLeftGroupbox("Combat")
 
 Misc2Group:AddToggle("Kill Aura", {
@@ -530,19 +536,17 @@ while _G.KillAura do
 for i, v in pairs(workspace:GetDescendants()) do
     if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
         if v.Parent ~= workspace.RuntimeItems then
-           local Dist = (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
-            if Dist < 30 then
-                Mods = v
+            if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 25 then
+                game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(v)
+				wait(0.3)
+				v.Humanoid.Health = 0
             end
         end
     end
 end
-if Mods:FindFirstChild("Humanoid") then
-Mods.Humanoid.Health = 0
-game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(Mods)
+wait(0.25)
 game:GetService("ReplicatedStorage").Remotes.DropItem:FireServer()
-end
-task.wait()
+task.wait(0.07)
 end
     end
 })
@@ -569,18 +573,19 @@ for i, v in pairs(workspace:GetDescendants()) do
     if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
         if v.Parent ~= workspace.RuntimeItems then
            if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < _G.DistanceGun then
-            for j, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                if h.ClassName == "Tool" and h:FindFirstChild("CurrentAmmo") then
-					if h.CurrentAmmo.Value ~= 0 then
-						game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), h, game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame, {["1"] = v})
-					elseif h.CurrentAmmo.Value == 0 then
-						game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), h)
-						repeat task.wait() until h.CurrentAmmo.Value ~= 0
-					end
-                end
-            end
-        end
-    end
+	           for j, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+	                if h.ClassName == "Tool" and h:FindFirstChild("CurrentAmmo") then
+						if h.CurrentAmmo.Value ~= 0 then
+							game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), h, game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame, {["1"] = v})
+						elseif h.CurrentAmmo.Value == 0 then
+							game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), h)
+							repeat task.wait() until h.CurrentAmmo.Value ~= 0
+						end
+	                end
+	            end
+	        end
+	    end
+	end
 end
 task.wait()
 end
@@ -637,20 +642,18 @@ FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
 end
 if FOVring then
 FOVring.Radius = (_G.FOVringSize == nil and 50 or _G.FOVringSize)
-    for i, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
-            if v.Parent ~= workspace.RuntimeItems then
-               if v.Humanoid.Health > 0 then
-                    if v:FindFirstChild("Head") then
-					    local TargetScreenPos = workspace.CurrentCamera:WorldToScreenPoint(v.Head.Position)
-					    if (Vector2.new(TargetScreenPos.X, TargetScreenPos.Y) - (workspace.CurrentCamera.ViewportSize / 2)).Magnitude < (_G.FOVringSize == nil and 50 or _G.FOVringSize) then
-					        workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(CFrame.new(workspace.CurrentCamera.CFrame.Position, v.Head.Position), 0.5)
-					    end
-					end
-                end
-            end
+for i, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+        if v.Parent ~= workspace.RuntimeItems then
+           if v.Humanoid.Health > 0 and v:FindFirstChild("Head") then
+			    local TargetScreenPos = workspace.CurrentCamera:WorldToScreenPoint(v.Head.Position)
+			    if (Vector2.new(TargetScreenPos.X, TargetScreenPos.Y) - (workspace.CurrentCamera.ViewportSize / 2)).Magnitude <= (_G.FOVringSize == nil and 50 or _G.FOVringSize) then
+			        workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(CFrame.new(workspace.CurrentCamera.CFrame.Position, v.Head.Position), 0.3)
+			    end
+			end
         end
     end
+end
 end
 task.wait()
 end
