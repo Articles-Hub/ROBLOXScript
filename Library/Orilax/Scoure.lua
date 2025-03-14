@@ -312,7 +312,7 @@ M_BImg.BackgroundTransparency = 1
     local M_DName = Instance.new("TextLabel", M_DropDownOuter)
     M_DName.Size = UDim2.new(0.9, 0, 0, 20)
     M_DName.Position = UDim2.new(0.05, 0, 0, 10)
-    M_DName.Text = Params.Name or "Dropdown"
+    M_DName.Text = Params.Title or "Dropdown"
     M_DName.TextSize = 14
     M_DName.BackgroundTransparency = 1
     M_DName.TextColor3 = Color3.new(255, 255, 255)
@@ -364,7 +364,8 @@ M_BImg.BackgroundTransparency = 1
                 Params.Call(item)
             end
         end)
-    end
+        end
+        end
 
         return TabFunctions
     end
