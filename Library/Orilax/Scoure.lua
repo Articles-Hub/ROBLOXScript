@@ -49,7 +49,7 @@ M_Cover.BackgroundTransparency = 0
 local M_Title = Instance.new("TextLabel", M_Tomain)
 M_Title.Size = UDim2.new(0, 150, 0, 50)
 M_Title.Position = UDim2.new(0, 10, 0, 5)
-M_Title.Text = "Example Hub"
+M_Title.Text = Orilax.Name
 M_Title.TextSize = 25
 M_Title.BackgroundTransparency = 1
 M_Title.TextColor3 = Color3.fromRGB(240, 240, 240)
@@ -58,7 +58,7 @@ M_Title.Font = Enum.Font.GothamBold
 local M_SubTitle = Instance.new("TextLabel", M_Tomain)
 M_SubTitle.Size = UDim2.new(0, 100, 0, 30)
 M_SubTitle.Position = UDim2.new(0, 150, 0, 17)
-M_SubTitle.Text = "Version 1.1.1"
+M_SubTitle.Text = Orilax.SubName
 M_SubTitle.TextSize = 15
 M_SubTitle.BackgroundTransparency = 1
 M_SubTitle.TextColor3 = Color3.fromRGB(150, 150, 150)
@@ -287,25 +287,23 @@ T_Name.Font = Enum.Font.GothamBold
 
             local ToggleState = false
 
-            M_BToggle.MouseButton1Click:Connect(function()
-                ToggleState = not ToggleState
-                if ToggleState then
-                    M_BToggle.BackgroundColor3 = Color3.fromRGB(0, 155, 51)
-                    game.TweenService:Create(M_BToggle, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
-                Position = UDim2.new(0.5,0,0,0)
-            }):Play()
-                else
-                    M_BToggle.BackgroundColor3 = Color3.fromRGB(155, 0, 51)
-                    
-                    game.TweenService:Create(M_BToggle, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
-                Position = UDim2.new(0,0,0,0)
-            }):Play()
-                end
+M_BToggle.MouseButton1Click:Connect(function()
+    ToggleState = not ToggleState
+    
+    M_BToggle.BackgroundColor3 = ToggleState and Color3.fromRGB(0, 155, 51) or Color3.fromRGB(155, 0, 51)
 
-                if Params.Call then
-                    Params.Call(ToggleState)
-                end
-            end)
+    local targetPosition = ToggleState and UDim2.new(0.5, 0, 0, 0) or UDim2.new(0, 0, 0, 0)
+    
+    game.TweenService:Create(M_BToggle, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
+        Position = targetPosition
+    }):Play()
+
+    if Params and Params.Call then
+        pcall(function()
+            Params.Call(ToggleState)
+        end)
+    end
+end)
             end
             
             function TabFunctions:NewButton(Params)
