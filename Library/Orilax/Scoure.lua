@@ -119,6 +119,7 @@ M_Line.Position = UDim2.new(0.5, -30, 0, 0)
 M_Line.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 M_Line.BorderSizePixel = 0
 M_Line.BackgroundTransparency = 0
+M_Line.Visible = true
 
 local M_Close = Instance.new("ImageButton", M_MizeFrame)
 M_Close.Size = UDim2.new(0, 30, 0, 30)
@@ -141,11 +142,13 @@ game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enu
                 Size = UDim2.new(0, 520, 0, 50)
             }):Play()
             M_TabHolder.Visible = false
+            M_Line.Visible = false
 else
 game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
                 Size = UDim2.new(0, 520, 0, 330)
             }):Play()
             M_TabHolder.Visible = true
+            M_Line.Visible = true
             end
 end)
 
@@ -154,6 +157,8 @@ local Tabs = {}
     local x = 10
 
     function GUI:NewTab(p)
+    Icon = p.Icon or "rbxassetid://0"
+    Side = p.Type or "Left"
         local b = Instance.new("TextButton", M_TabHolder)
         b.Size = UDim2.new(0, 40, 0, 40)
         b.Position = UDim2.new(0, x, 0, 5)
@@ -166,11 +171,12 @@ local Tabs = {}
         local i = Instance.new("ImageLabel", b)
         i.Size = UDim2.new(0.8, 0, 0.8, 0)
         i.Position = UDim2.new(0, 4, 0, 4)
-        i.Image = p.Icon or "rbxassetid://0"
+        i.Image = Icon
         i.BackgroundTransparency = 1
 
         x = x + 50
-
+        
+if Side == "Left" then
         local M_PageLeft = Instance.new("ScrollingFrame", M_TabHolders)
         M_PageLeft.Size = UDim2.new(0.435, 0, 1, 0)
         M_PageLeft.Position = UDim2.new(0, 0, 0, 0)
@@ -180,7 +186,7 @@ local Tabs = {}
         M_PageLeft.CanvasSize = UDim2.new(0, 0, 0, 100)
         M_PageLeft.AutomaticCanvasSize = Enum.AutomaticSize.Y
         M_PageLeft.Visible = false
-        
+         
         local M_Stroke = Instance.new("UIStroke", M_PageLeft)
             M_Stroke.Color = Color3.fromRGB(60, 60, 60)
             M_Stroke.Thickness = 0.5
@@ -189,6 +195,28 @@ local Tabs = {}
         M_Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
         M_Layout.SortOrder = Enum.SortOrder.LayoutOrder
         M_Layout.Padding = UDim.new(0, 10)
+        
+        end
+        if Side == "Right" then
+        local M_PageRight = Instance.new("ScrollingFrame", M_TabHolders)
+        M_PageRight.Size = UDim2.new(0.435, 0, 1, 0)
+        M_PageRight.Position = UDim2.new(0.565999985, 0, 0, 0)
+        M_PageRight.BorderSizePixel = 0
+        M_PageRight.BackgroundTransparency = 1
+        M_PageRight.ScrollBarThickness = 0
+        M_PageRight.CanvasSize = UDim2.new(0, 0, 0, 100)
+        M_PageRight.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        M_PageRight.Visible = false
+        
+        local M_Stroke = Instance.new("UIStroke", M_PageRight)
+            M_Stroke.Color = Color3.fromRGB(60, 60, 60)
+            M_Stroke.Thickness = 0.5
+
+        local M_Layout = Instance.new("UIListLayout", M_PageRight)
+        M_Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        M_Layout.SortOrder = Enum.SortOrder.LayoutOrder
+        M_Layout.Padding = UDim.new(0, 10)
+        end
 
         table.insert(Tabs, b)
         table.insert(Pages, M_PageLeft)
