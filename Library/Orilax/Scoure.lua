@@ -138,15 +138,15 @@ M_Mimize.MouseButton1Click:Connect(function()
 Hide = not Hide
 if Hide then
 game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
-                Position = UDim2.new(0, 520, 0, 50)
+                Size = UDim2.new(0, 520, 0, 50)
             }):Play()
             M_TabHolder.Visible = false
 else
 game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
-                Position = UDim2.new(0, 520, 0, 330)
+                Size = UDim2.new(0, 520, 0, 330)
             }):Play()
             M_TabHolder.Visible = true
-end
+            end
 end)
 
 local Tabs = {}
