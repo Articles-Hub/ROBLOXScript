@@ -135,17 +135,17 @@ M_Mimize.Image = "rbxassetid://7072719338"
 M_Mimize.ImageTransparency = 0
 M_Mimize.BackgroundTransparency = 1
 M_Mimize.MouseButton1Click:Connect(function()
+Hide = not Hide
 if Hide then
 game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
-                Size = UDim2.new(0, 520, 0, 50)
+                Position = UDim2.new(0, 520, 0, 50)
             }):Play()
             M_TabHolder.Visible = false
 else
 game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
-                Size = UDim2.new(0, 520, 0, 330)
+                Position = UDim2.new(0, 520, 0, 330)
             }):Play()
             M_TabHolder.Visible = true
-end
 end)
 
 local Tabs = {}
