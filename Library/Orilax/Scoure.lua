@@ -176,7 +176,6 @@ local Tabs = {}
 
         x = x + 50
         
-if Side == "Left" then
         local M_PageLeft = Instance.new("ScrollingFrame", M_TabHolders)
         M_PageLeft.Size = UDim2.new(0.435, 0, 1, 0)
         M_PageLeft.Position = UDim2.new(0, 0, 0, 0)
@@ -196,8 +195,8 @@ if Side == "Left" then
         M_Layout.SortOrder = Enum.SortOrder.LayoutOrder
         M_Layout.Padding = UDim.new(0, 10)
         
-        end
-        if Side == "Right" then
+        
+
         local M_PageRight = Instance.new("ScrollingFrame", M_TabHolders)
         M_PageRight.Size = UDim2.new(0.435, 0, 1, 0)
         M_PageRight.Position = UDim2.new(0.565999985, 0, 0, 0)
@@ -216,7 +215,7 @@ if Side == "Left" then
         M_Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
         M_Layout.SortOrder = Enum.SortOrder.LayoutOrder
         M_Layout.Padding = UDim.new(0, 10)
-        end
+        
 
         table.insert(Tabs, b)
         table.insert(Pages, M_PageLeft)
