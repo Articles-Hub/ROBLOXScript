@@ -655,7 +655,7 @@ end
     end
 })
 
-MenuGroup:AddSlider("Distance Aimbot", {
+Misc2Group:AddSlider("Distance Aimbot", {
     Text = "Distance Aimbot",
     Default = 50,
     Min = 30,
