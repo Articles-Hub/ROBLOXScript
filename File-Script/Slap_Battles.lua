@@ -28,7 +28,7 @@ end
 if game.StarterPlayer.StarterPlayerScripts:FindFirstChild("ClientAnticheat") and game.StarterPlayer.StarterPlayerScripts.ClientAnticheat:FindFirstChild("AntiMobileExploits") then
    game.StarterPlayer.StarterPlayerScripts.ClientAnticheat.AntiMobileExploits:Destroy()
 end
-
+_G.TimeNotify = 5
 ---Potion---
 
 _G.GetPotion = {
@@ -63,6 +63,10 @@ NametagChanged.Value = ""
 local SlapChanged = Instance.new("StringValue", NametagChanged)
 SlapChanged.Name = "SlapChanged"
 SlapChanged.Value = ""
+
+local GloveChanged = Instance.new("StringValue", NametagChanged)
+GloveChanged.Name = "GloveChanged"
+GloveChanged.Value = ""
 end
 
 function TweenTp(Part, CFnew, Body, Speed)
@@ -735,9 +739,9 @@ local bypass;
        end
           return bypass(method, ...)
      end)
-game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Bypass Success ",Icon = "rbxassetid://7733658504",Duration = 5})
+game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Bypass Success ",Icon = "rbxassetid://7733658504",Duration = _G.TimeNotify})
 elseif not hookmetamethod and not getnamecallmethod then
-game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "You cannot bypass, you must be careful",Icon = "rbxassetid://7733658504",Duration = 5})
+game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "You cannot bypass, you must be careful",Icon = "rbxassetid://7733658504",Duration = _G.TimeNotify})
 end
 
 if workspace:FindFirstChild("AntiLava") == nil then
@@ -921,9 +925,9 @@ end
 end
 if PlayerTa then
 _G.CheckGlovePlayer = PlayerTa.Name
-PlayersCheck:SetText("Player Check [ ✅ ] [ ".._G.CheckGlovePlayer.." ]", 5)
+PlayersCheck:SetText("Player Check [ ✅ ] [ ".._G.CheckGlovePlayer.." ]", _G.TimeNotify)
 else
-PlayersCheck:SetText("Player Check [ ❌ ]", 5)
+PlayersCheck:SetText("Player Check [ ❌ ]", _G.TimeNotify)
 end
 end
     end
@@ -1062,9 +1066,9 @@ end
 InfoServer2Group:AddButton("Copy Position", function()
     if setclipboard then
         setclipboard(tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)))
-        Notification("Copied Success", 5)
+        Notification("Copied Success", _G.TimeNotify)
     else
-        Notification(tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)), 5)
+        Notification(tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)), _G.TimeNotify)
     end
 end)
 
@@ -1087,9 +1091,9 @@ end
 end
 if Glove then
 _G.GlovePlayer = Glove.Name
-TagGlove:SetText("Glove Check [ ✅ ] [ "..Glove.Name.." ]", 5)
+TagGlove:SetText("Glove Check [ ✅ ] [ "..Glove.Name.." ]", _G.TimeNotify)
 else
-TagGlove:SetText("Glove Check [ ❌ ]", 5)
+TagGlove:SetText("Glove Check [ ❌ ]", _G.TimeNotify)
 end
     end
 })
@@ -1143,9 +1147,9 @@ end
 end
 if PlayerTa then
 _G.CheckPlayer = PlayerTa.Name
-PlayersCheck1:SetText("Player Check [ ✅ ] [ ".._G.CheckPlayer.." ]", 5)
+PlayersCheck1:SetText("Player Check [ ✅ ] [ ".._G.CheckPlayer.." ]", _G.TimeNotify)
 else
-PlayersCheck1:SetText("Player Check [ ❌ ]", 5)
+PlayersCheck1:SetText("Player Check [ ❌ ]", _G.TimeNotify)
 end
 end
     end
@@ -1936,8 +1940,9 @@ _G.AntiBob = Value
 while _G.AntiBob do
 for i, v in pairs(game.Workspace:GetChildren()) do
 if string.find(v.Name, "ÅBOB_") and v:FindFirstChild("Target") and v.Target.Value == game.Players.LocalPlayer.Name then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].Part.CFrame * CFrame.new(0,30,0)
-Toggles["Anti COD"]:SetValue(true)
+if v:FindFirstChild("HumanoidRootPart") then
+v:FindFirstChild("HumanoidRootPart").CFrame = game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].Part.CFrame
+end
 end
 end
 task.wait()
@@ -2277,7 +2282,7 @@ end
 end
 ]])
 elseif not teleportFunc then
-Notification("Bruh, Not only executor you autoexe", 5)
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Lobby.brazil.portal.CFrame
     end
@@ -2305,7 +2310,7 @@ end
 end
 ]])
 elseif not teleportFunc then
-Notification("Bruh, Not only executor you autoexe", 5)
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 game:GetService("TeleportService"):Teleport(74169485398268)
     end
@@ -2331,7 +2336,7 @@ for i,v in ipairs(game:GetService("Workspace"):GetDescendants()) do
         end
 ]])
 elseif not teleportFunc then
-Notification("Bruh, Not only executor you autoexe", 5)
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 game:GetService("TeleportService"):Teleport(17290438723)
   	end    
@@ -2357,7 +2362,7 @@ end
 end
 ]])
 elseif not teleportFunc then
-Notification("Bruh, Not only executor you autoexe", 5)
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 if game.ReplicatedStorage:FindFirstChild("Assets") and game.ReplicatedStorage.Assets:FindFirstChild("Retro") then
 game.ReplicatedStorage.Assets.Retro.Parent = game.Workspace
@@ -2450,11 +2455,11 @@ wait(0.5)
 game:GetService("TeleportService"):Teleport(6403373529)
     ]])
 elseif not teleportFunc then
-Notification("Bruh, Not only executor you autoexe", 5)
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 game:GetService("TeleportService"):Teleport(9431156611)
 else
-Notification("You don't have 1000 slap.", 5)
+Notification("You don't have 1000 slap.", _G.TimeNotify)
 end
     end
 })
@@ -2505,7 +2510,7 @@ end
 end
     ]])
 elseif not teleportFunc then
-Notification("Bruh, Not only executor you autoexe", 5)
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 game:GetService("TeleportService"):Teleport(11828384869)
     end
@@ -2556,7 +2561,7 @@ task.wait()
 end
 ]])
 elseif not teleportFunc then
-Notification("Bruh, Not only executor you autoexe", 5)
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 for i, v in pairs(workspace.BountyHunterRoom:GetChildren()) do
 if v.Name == "Model" and v:FindFirstChild("Meshes/boxshadow_Cube.005") and v["Meshes/boxshadow_Cube.005"]:FindFirstChild("Hitbox") then
@@ -2592,12 +2597,12 @@ game.ReplicatedStorage.StunR:FireServer(game.Players.LocalPlayer.Character.Stun)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 wait(0.5)
 if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("EMPStunBadgeCounter") then
-Notification("Counter Stun [ "..game.Players.LocalPlayer.Character.EMPStunBadgeCounter.Value.." ]", 5)
+Notification("Counter Stun [ "..game.Players.LocalPlayer.Character.EMPStunBadgeCounter.Value.." ]", _G.TimeNotify)
 end
 wait(12.3)
 until game.Players.LocalPlayer.Character:FindFirstChild("EMPStunBadgeCounter") and game.Players.LocalPlayer.Character.EMPStunBadgeCounter.Value >= 50
 else
-Notification("You don't have Stun equipped, or you aren't in the arena", 5)
+Notification("You don't have Stun equipped, or you aren't in the arena", _G.TimeNotify)
 end
     end
 })
@@ -2606,12 +2611,11 @@ Badge2Group:AddButton({
     Text = "Auto Win Kraken",
     Func = function()
 if game.Workspace:FindFirstChild("Abyss") ~= nil then
-Notification("When the kraken stops attack, click to hit.", 5)
+Notification("When the kraken stops attack, click to hit.", _G.TimeNotify)
 repeat task.wait()
 if game.Workspace:FindFirstChild("Abyss") and game.Workspace.Abyss:FindFirstChild("Ship") and game.Workspace.Abyss.Ship:FindFirstChild("Ghost_Ship") and game.Workspace.Abyss.Ship.Ghost_Ship:FindFirstChild("Wall") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Abyss.Ship.Ghost_Ship.Wall.CFrame * CFrame.new(0,10,0)
-else
-break
+else break
 end
 for i,v in pairs(game.Workspace:GetChildren()) do
 if v.Name == "kraken_hurtbox" then
@@ -2620,7 +2624,7 @@ end
 end
 until game.Workspace:FindFirstChild("Abyss") == nil
 else
-Notification("You have enter Map Abyss [ don't show all, not work ]", 5)
+Notification("You have enter Map Abyss [ don't show all, not work ]", _G.TimeNotify)
 end
     end
 })
@@ -2649,7 +2653,7 @@ game:GetService("ReplicatedStorage").WLOC:FireServer()
 wait(0.2)
 workspace.DEATHBARRIER.CanTouch = OldTouch
 else
-Notification("You don't have Warp equipped, or you have owner badge", 5)
+Notification("You don't have Warp equipped, or you have owner badge", _G.TimeNotify)
 end
     end
 })
@@ -2671,7 +2675,7 @@ end
 wait(0.2)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldCFrew
 else
-Notification("You don't have Fort equipped, or you have Owner Badge", 5)
+Notification("You don't have Fort equipped, or you have Owner Badge", _G.TimeNotify)
 end
     end
 })
@@ -2712,7 +2716,7 @@ end
 wait(5.5)
 until game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 3335299217032061)
 else
-Notification("You don't have bus equipped, or you have owner badge", 5)
+Notification("You don't have bus equipped, or you have owner badge", _G.TimeNotify)
 end
     end
 })
@@ -2748,7 +2752,7 @@ task.wait(0.3)
 end
 end
 else
-Notification("You don't have 5000 slap", 5)
+Notification("You don't have 5000 slap", _G.TimeNotify)
 end
     end
 })
@@ -2780,7 +2784,7 @@ game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
 end
 until game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2127567042)
 else
-Notification("You don't have Ghost equipped, or You have go to lobby", 5)
+Notification("You don't have Ghost equipped, or You have go to lobby", _G.TimeNotify)
 end
     end
 })
@@ -2793,7 +2797,7 @@ fireclickdetector(game.Workspace.Lobby.Scene.knofe.ClickDetector)
 fireclickdetector(game.Workspace.Arena.island5.Orange.ClickDetector) 
 fireclickdetector(game.Workspace.Arena["default island"]["Rubber Ducky"].ClickDetector)
 else
-Notification("You have Owner badge", 5)
+Notification("You have Owner badge", _G.TimeNotify)
 end
     end
 })
@@ -2804,7 +2808,7 @@ Badge2Group:AddButton({
 if not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2906002612987222) then
 game:GetService("ReplicatedStorage").IceSkate:FireServer("Freeze")
 else
-Notification("You have Owner badge", 5)
+Notification("You have Owner badge", _G.TimeNotify)
 end
     end
 })
@@ -2815,7 +2819,7 @@ Badge2Group:AddButton({
 if not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2127861437) then
 game:GetService("ReplicatedStorage").GRRRRR:FireServer(true)
 else
-Notification("You have Owner badge", 5)
+Notification("You have Owner badge", _G.TimeNotify)
 end
     end
 })
@@ -2828,7 +2832,7 @@ for i = 1, 5 do
 game:GetService("ReplicatedStorage").nightmare:FireServer("LightBroken")
 end
 else
-Notification("You don't have ZZZZZZZ equipped, or Owner badge", 5)
+Notification("You don't have ZZZZZZZ equipped, or Owner badge", _G.TimeNotify)
 end
     end
 })
@@ -2877,7 +2881,7 @@ end
 end
 until game.Players.LocalPlayer.Character:WaitForChild("Ragdolled").Value == false
 else
-Notification("You don't have equiped Cloud | Badge Fish | You are in the lobby.", 5)
+Notification("You don't have equiped Cloud | Badge Fish | You are in the lobby.", _G.TimeNotify)
 end
     end
 })
@@ -2893,7 +2897,7 @@ if fireclickdetector then
 fireclickdetector(workspace.Cheese.ClickDetector)
 end
 else
-Notification("You don't have el gato equipped, or you aren't in the arena", 5)
+Notification("You don't have el gato equipped, or you aren't in the arena", _G.TimeNotify)
 end
     end
 })
@@ -3111,7 +3115,7 @@ end
 task.wait(1.2)
 end
 elseif Brickfarm == true then
-Notification("You don't have Brick equipped", 5)
+Notification("You don't have Brick equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["AutoFram Brick"]:SetValue(false)
 end
@@ -3131,7 +3135,7 @@ end
 task.wait()
 end
 elseif _G.AutoTpPlate == true then
-Notification("You need enter erane, or 7 people the server", 5)
+Notification("You need enter erane, or 7 people the server", _G.TimeNotify)
 wait(0.05)
 Toggles["Get Tycoon"]:SetValue(false)
 end
@@ -3140,7 +3144,7 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
-Badge3Group:AddDropdown("Rob Mastery", {
+Badge3Group:AddDropdown("Fort Mastery", {
     Text = "Fort Mastery",
     Values = {"Build", "Build + Break"},
     Default = "",
@@ -3158,7 +3162,7 @@ _G.AutoFortMastery = Value
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Fort" then
 while _G.AutoFortMastery do
 if _G.FortMastery == "Build + Break" then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 repeat task.wait()
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
@@ -3189,7 +3193,7 @@ end
 until _G.AutoFortMastery == false or game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
 end
 elseif _G.FortMastery == "Build" then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 repeat task.wait()
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
@@ -3212,7 +3216,7 @@ end
 task.wait()
 end
 elseif _G.AutoFortMastery == true then
-Notification("You don't have Fort equipped", 5)
+Notification("You don't have Fort equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Fort Mastery"]:SetValue(false)
 end
@@ -3294,7 +3298,7 @@ end
 task.wait()
 end
 elseif _G.AutoRobMastery == true then
-Notification("You don't have Rob equipped", 5)
+Notification("You don't have Rob equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Rob Mastery"]:SetValue(false)
 end
@@ -3421,7 +3425,7 @@ end
 task.wait()
 end
 elseif _G.AutoCloudMastery == true then
-Notification("You don't have Cloud equipped", 5)
+Notification("You don't have Cloud equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Cloud Mastery"]:SetValue(false)
 end
@@ -3465,7 +3469,7 @@ end
 task.wait()
 end
 elseif _G.AutoWormholeMastery == true then
-Notification("You don't have Wormhole equipped", 5)
+Notification("You don't have Wormhole equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Wormhole Mastery"]:SetValue(false)
 end
@@ -3537,7 +3541,7 @@ end
 task.wait()
 end
 elseif _G.AutoRunMastery == true then
-Notification("You don't have Run equipped", 5)
+Notification("You don't have Run equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Run Mastery"]:SetValue(false)
 end
@@ -3585,7 +3589,7 @@ end
 task.wait()
 end
 elseif _G.AutoGlovelMastery == true then
-Notification("You don't have Glovel equipped", 5)
+Notification("You don't have Glovel equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Glovel Mastery"]:SetValue(false)
 end
@@ -3677,7 +3681,7 @@ end
 task.wait()
 end
 elseif _G.AutoBombMastery == true then
-Notification("You don't have Bomb equipped", 5)
+Notification("You don't have Bomb equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Bomb Mastery"]:SetValue(false)
 end
@@ -3712,7 +3716,7 @@ end
 task.wait()
 end
 elseif _G.AutoKillstreakMastery == true then
-Notification("You don't have Killstreak equipped", 5)
+Notification("You don't have Killstreak equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Killstreak Mastery"]:SetValue(false)
 end
@@ -3744,9 +3748,31 @@ end
 task.wait()
 end
 elseif _G.AutoSpinMastery == true then
-Notification("You don't have Spin equipped", 5)
+Notification("You don't have Spin equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Spin Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddToggle("Auto Brick Mastery", {
+    Text = "Auto Big Brick",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoBrickMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Brick" then
+while _G.AutoBrickMastery do
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == "Union" then
+v.Size = Vector3.new(20, 1, 20)
+                    end
+                end
+task.wait()
+end
+elseif _G.AutoBrickMastery == true then
+Notification("You don't have Brick equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Brick Mastery"]:SetValue(false)
 end
     end
 })
@@ -3934,7 +3960,7 @@ v.Transparency = 0
 end
 end
 else
-Notification("You need 666+ slaps", 5)
+Notification("You need 666+ slaps", _G.TimeNotify)
 end
 end
     end
@@ -3962,13 +3988,13 @@ elseif Value == "Tournament" then
 if workspace:FindFirstChild("TournamentIsland") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.TournamentIsland.Spawns.Part.CFrame * CFrame.new(0,2,0)
 else
-Notification("Tournament Island don't not spawn.", 5)
+Notification("Tournament Island don't not spawn.", _G.TimeNotify)
 end
 elseif Value == "Cannon Island" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Arena.CannonIsland.Cannon.Base.CFrame * CFrame.new(0,0,35)
 elseif Value == "Keypad" then
 if not workspace:FindFirstChild("Keypad") then
-Notification("Server in don't have keypad.", 5)
+Notification("Server in don't have keypad.", _G.TimeNotify)
 else
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Keypad.Buttons.Enter.CFrame
 end
@@ -4005,9 +4031,9 @@ end
 end
 if PlayerTa then
 _G.PlayerPut = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
     end
 })
@@ -4170,7 +4196,7 @@ Misc1Basic:AddButton({
     DoubleClick = true,
     Func = function()
 if not workspace:FindFirstChild("Keypad") then
-Notification("Server in don't have keypad, can have started serverhop", 5)
+Notification("Server in don't have keypad, can have started serverhop", _G.TimeNotify)
 task.wait(1.5)
 for _, v in ipairs(game.HttpService:JSONDecode(game:HttpGetAsync("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")).data) do
 if v.playing < v.maxPlayers and v.JobId ~= game.JobId then
@@ -4240,7 +4266,7 @@ _G.EnterKeypad = Value
 
  Misc1Basic:AddButton("Write Keypad", function()
 if not workspace:FindFirstChild("Keypad") then
-Notification("Server in don't have keypad.", 5)
+Notification("Server in don't have keypad.", _G.TimeNotify)
 else
 game.Workspace.CurrentCamera.CameraSubject = workspace.Keypad.Buttons.Enter
 fireclickdetector(workspace:WaitForChild("Keypad").Buttons:FindFirstChild("Reset").ClickDetector)
@@ -4267,7 +4293,7 @@ _G.EggCodes = Value
 
  Misc1Basic:AddButton("Easter Egg Keypad", function()
 if not workspace:FindFirstChild("Keypad") then
-Notification("Server in don't have keypad.", 5)
+Notification("Server in don't have keypad.", _G.TimeNotify)
 else
 game.Workspace.CurrentCamera.CameraSubject = workspace.Keypad.Buttons.Enter
 fireclickdetector(workspace:WaitForChild("Keypad").Buttons:FindFirstChild("Reset").ClickDetector)
@@ -4884,7 +4910,7 @@ end
 task.wait()
 end
 elseif _G.SpamStunUntitledTag == true then
-Notification("You don't have Untitled Tag Glove equipped", 5)
+Notification("You don't have Untitled Tag Glove equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Spam Stun Untitled Tag"]:SetValue(false)
 end
@@ -4923,7 +4949,7 @@ game.Players.LocalPlayer.Character.Rhythm:Activate()
 task.wait()
 end
 elseif _G.RhythmNoteSpam == true then
-Notification("You don't have Rhythm equipped", 5)
+Notification("You don't have Rhythm equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Infinite Rhythm"]:SetValue(false)
 end
@@ -4955,17 +4981,19 @@ end
 task.wait()
 end
 elseif _G.AutoSlapCherry == true then
-Notification("You don't have Cherry equipped", 5)
+Notification("You don't have Cherry equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Slap Cherry"]:SetValue(false)
 end
     end
 })
 
-Misc1Basic:AddButton("Free Emotes", function()
-if LoadingScr then return end
-LoadingScr = true
-game.Players.LocalPlayer.Chatted:Connect(function(msg)
+Misc1Basic:AddToggle("Free Emote", {
+    Text = "Free Emote",
+    Default = false, 
+    Callback = function(Value) 
+_G.LoadingEmote = Value
+if not Anims then
 Anims = {
     ["L"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["L"]),
     ["Groove"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Groove"]),
@@ -4978,6 +5006,46 @@ Anims = {
     ["Thriller"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Thriller"]),
     ["Spasm"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Spasm"])
 }
+end
+local GuiEmote = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes")
+if GuiEmote:FindFirstChild("Emotes") and GuiEmote.Emotes:FindFirstChild("Frame") and GuiEmote.Emotes.Frame:FindFirstChild("Buttons") then
+for i, v in pairs(GuiEmote.Emotes.Frame:FindFirstChild("Buttons"):GetChildren()) do
+	if v:IsA("TextButton") then
+		v.Name = v.Text
+	end
+end
+for i, v in pairs(GuiEmote.Emotes.Frame:FindFirstChild("Buttons"):GetChildren()) do
+	if v:IsA("TextButton") then
+		v.MouseButton1Click:Connect(function()
+			if _G.LoadingEmote == true then
+				game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes").Enabled = false
+				for i, v in pairs(Anims) do
+				        if v.IsPlaying then
+				            v:Stop()
+				        end
+				    end
+				task.wait()
+				Anims[v.Name]:Play()
+				game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
+				    if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
+				        for i, v in pairs(Anims) do
+				            if v.IsPlaying then
+				                v:Stop()
+				            end
+				        end
+				    end
+				end)
+			end
+		end)
+	end
+end
+game.Players.LocalPlayer.Chatted:Connect(function(msg)
+if _G.LoadingEmote == true then
+if string.lower(msg) == "/e opengui" then
+   game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes").Enabled = true
+elseif string.lower(msg) == "/e closegui" then
+   game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes").Enabled = false
+end
 for i, v in pairs(Anims) do
         if v.IsPlaying then
             v:Stop()
@@ -5015,19 +5083,26 @@ game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirect
         end
     end
 end)
+end
 end)
-end)
+end
+if loadingNotify then return else
+loadingNotify = true
+Notification("You have Command /e Name Emote | /e opengui | /e cancelgui", _G.TimeNotify)
+end
+    end
+})
 
 Misc1Basic:AddButton("Destroy All Tycoon", function()
 for i, v in pairs(game.Workspace:GetChildren()) do
-if string.find(v.Name, "ÅTycoon") and v:FindFirstChild("Destruct") then
-for a = 1, 200 do
-if v:FindFirstChild("Destruct") then
-fireclickdetector(v.Destruct.ClickDetector, 0)
-fireclickdetector(v.Destruct.ClickDetector, 1)
-end
-end
-end
+	if string.find(v.Name, "ÅTycoon") and v:FindFirstChild("Destruct") then
+		for a = 1, 200 do
+			if v:FindFirstChild("Destruct") then
+				fireclickdetector(v.Destruct.ClickDetector, 0)
+				fireclickdetector(v.Destruct.ClickDetector, 1)
+			end
+		end
+	end
 end
 end)
 
@@ -5048,9 +5123,9 @@ end
 end
 if Glove then
 _G.EquipGlove = Glove.Name
-Notification("Found Glove [ ".._G.EquipGlove.." ]", 5)
+Notification("Found Glove [ ".._G.EquipGlove.." ]", _G.TimeNotify)
 else
-Notification("Can't find Glove", 5)
+Notification("Can't find Glove", _G.TimeNotify)
 end
     end
 })
@@ -5070,7 +5145,7 @@ if _G.GloveEquipHehe == "Normal" then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
 fireclickdetector(workspace.Lobby[_G.EquipGlove].ClickDetector)
 else
-Notification("You aren't in the lobby.", 5)
+Notification("You aren't in the lobby.", _G.TimeNotify)
 end
 elseif _G.GloveEquipHehe == "Tournament" or _G.GloveEquipHehe == "Old Glove + Tournament" then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
@@ -5089,10 +5164,10 @@ wait(0.3)
 if workspace:FindFirstChild("TournamentIsland") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.TournamentIsland.Spawns.Part.CFrame * CFrame.new(0,2,0)
 else
-Notification("Tournament Island don't not spawn.", 5)
+Notification("Tournament Island don't not spawn.", _G.TimeNotify)
 end
 else
-Notification("you are in Tournament not equip, 1 you use it.", 5)
+Notification("you are in Tournament not equip, 1 you use it.", _G.TimeNotify)
 end
 end
 end)
@@ -5197,9 +5272,7 @@ if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("Humanoi
 if v.Character.Head:FindFirstChild("UnoReverseCard") == nil or game.Players.LocalPlayer.leaderstats.Glove.Value == "Error" then
 if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
 if _G.SlapAuraFriend == "Fight" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
-gloveHits["Boxer"]:FireServer(v, true)
-elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
 gloveHits["Mace"]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter), 100)
 elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
 gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
@@ -5208,9 +5281,7 @@ game.ReplicatedStorage.GeneralHit:FireServer(v.Character:WaitForChild(_G.SlapAur
 end
 elseif _G.SlapAuraFriend == "Not Fight" then
 if not game.Players.LocalPlayer:IsFriendsWith(v.UserId) then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
-gloveHits["Boxer"]:FireServer(v, true)
-elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
 gloveHits["Mace"]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter), 200)
 elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
 gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
@@ -5228,14 +5299,12 @@ if workspace:FindFirstChild("cherry_storage") then
 for i, v in pairs(workspace.cherry_storage:GetChildren()) do
 if string.find(v.Name, "Cherry") and v:FindFirstChild("HumanoidRootPart") then
 if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
-gloveHits["Boxer"]:FireServer(v, true)
-elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
 gloveHits["Mace"]:FireServer(v:WaitForChild(_G.SlapAuraCharacter), 100)
 elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
-gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
+gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v:WaitForChild(_G.SlapAuraCharacter))
 else
-game.ReplicatedStorage.GeneralHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
+game.ReplicatedStorage.GeneralHit:FireServer(v:WaitForChild(_G.SlapAuraCharacter))
 end
 end
 end
@@ -5244,14 +5313,12 @@ end
 for i, c in pairs(workspace:GetChildren()) do
 if string.find(c.Name, "Å") and c:FindFirstChild("HumanoidRootPart") then
 if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - c.HumanoidRootPart.Position).Magnitude then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Boxer" then
-gloveHits["Boxer"]:FireServer(v, true)
-elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
-gloveHits["Mace"]:FireServer(v:WaitForChild(_G.SlapAuraCharacter), 100)
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
+gloveHits["Mace"]:FireServer(c:WaitForChild(_G.SlapAuraCharacter), 100)
 elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
-gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
+gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(c:WaitForChild(_G.SlapAuraCharacter))
 else
-game.ReplicatedStorage.GeneralHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
+game.ReplicatedStorage.GeneralHit:FireServer(c:WaitForChild(_G.SlapAuraCharacter))
 end
 end
 end
@@ -5344,7 +5411,7 @@ end
 task.wait()
 end
 elseif _G.AutoShukuchi == true then
-Notification("You don't have Shukuchi equipped.", 5)
+Notification("You don't have Shukuchi equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Shukuchi Player"]:SetValue(false)
 end
@@ -5377,11 +5444,11 @@ for i,v in pairs(game.Players:GetChildren()) do
                     end
                 end
 for i, c in pairs(workspace:GetChildren()) do
-if string.find(c.Name, "Å") and c:FindFirstChild("HumanoidRootPart") then
-c.HumanoidRootPart.Size = Vector3.new(_G.ReachHitbox,_G.ReachHitbox,_G.ReachHitbox)
-c.HumanoidRootPart.Transparency = 0.75
-end
-end
+				if string.find(c.Name, "Å") and c:FindFirstChild("HumanoidRootPart") then
+					c.HumanoidRootPart.Size = Vector3.new(_G.ReachHitbox,_G.ReachHitbox,_G.ReachHitbox)
+					c.HumanoidRootPart.Transparency = 0.75
+				end
+			end
 task.wait()
 end
 if _G.HitboxPlayer == false then
@@ -5392,11 +5459,11 @@ for i,v in pairs(game.Players:GetChildren()) do
                     end
                 end
 for i, c in pairs(workspace:GetChildren()) do
-if string.find(c.Name, "Å") and c:FindFirstChild("HumanoidRootPart") then
-c.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
-c.HumanoidRootPart.Transparency = 1
-end
-end
+				if string.find(c.Name, "Å") and c:FindFirstChild("HumanoidRootPart") then
+					c.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+					c.HumanoidRootPart.Transparency = 1
+				end
+			end
 end
     end
 }):AddKeyPicker("Hitbox", {
@@ -5535,6 +5602,30 @@ _G.AutoChangeSlapFake = Value
 while _G.AutoChangeSlapFake do
 if game.Players.LocalPlayer.leaderstats.Slaps.Value ~= game.Workspace.NametagChanged.SlapChanged.Value then
 game.Players.LocalPlayer.leaderstats.Slaps.Value = game.Workspace.NametagChanged.SlapChanged.Value
+end
+task.wait()
+end
+    end
+})
+
+Misc1Basic:AddInput("Auto Change Glove", {
+    Default = "Auto Change Glove",
+    Numeric = false,
+    Text = "",
+    Placeholder = "Change",
+    Callback = function(Value)
+game.Workspace.NametagChanged.GloveChanged.Value = Value
+    end
+})
+
+ Misc1Basic:AddToggle("GloveFake", {
+    Text = "Auto Set Glove",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoChangeSlapFake = Value
+while _G.AutoChangeSlapFake do
+if game.Players.LocalPlayer.leaderstats.Glove.Value ~= game.Workspace.NametagChanged.GloveChanged.Value then
+game.Players.LocalPlayer.leaderstats.Slaps.Value = game.Workspace.NametagChanged.GloveChanged.Value
 end
 task.wait()
 end
@@ -5691,6 +5782,8 @@ if v.Character and v.Character:FindFirstChild(v.Name) == nil then
 local HighlightEsp = Instance.new("Highlight", v.Character)
 HighlightEsp.Adornee = v.Character
 HighlightEsp.Name = v.Name
+HighlightEsp.OutlineTransparency = 0
+HighlightEsp.FillTransparency = 0.5
 HighlightEsp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 end
 elseif _G.HighlightEsp == false then
@@ -5923,9 +6016,9 @@ end
 end
 if PlayerTa then
 _G.PlayerPut1 = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
     end
 })
@@ -5957,7 +6050,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("Grab") then
 game.Players.LocalPlayer.Character:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Backpack
 end
 else
-Notification("You don't have Grab equipped", 5)
+Notification("You don't have Grab equipped", _G.TimeNotify)
 end
 elseif _G.HelpPlayerGetHehe == "Teleport Button" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Grab" then
@@ -5981,7 +6074,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("Grab") then
 game.Players.LocalPlayer.Character:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Backpack
 end
 else
-Notification("You don't have Grab equipped", 5)
+Notification("You don't have Grab equipped", _G.TimeNotify)
 end
 elseif _G.HelpPlayerGetHehe == "Enter Retro" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Glitch" and game.Players.LocalPlayer.leaderstats.Slaps.Value >= 50000 and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players[_G.PlayerPut1].Character:FindFirstChild("entered") then
@@ -5998,7 +6091,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Player
 game.ReplicatedStorage.Errorhit:FireServer(game.Players[_G.PlayerPut1].Character:WaitForChild("Head"))
 end
 else
-Notification("You have in Lobby | Player [ ".._G.PlayerPut1.." ] in arena, or You don't have Glitch equipped, or you have don't have 50K Slap", 5)
+Notification("You have in Lobby | Player [ ".._G.PlayerPut1.." ] in arena, or You don't have Glitch equipped, or you have don't have 50K Slap", _G.TimeNotify)
 end
 end
 end)
@@ -6022,7 +6115,7 @@ end)
 wait(0.7)
 game:GetService("ReplicatedStorage").HomeRun:FireServer({["finished"] = true})
 else
-Notification("You don't have Home Run equipped, or you have to go lobby, or player don't have Berserk equipped.", 5)
+Notification("You don't have Home Run equipped, or you have to go lobby, or player don't have Berserk equipped.", _G.TimeNotify)
 end
 end)
 
@@ -6037,7 +6130,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.Pla
 wait(0.2)
 game:GetService("ReplicatedStorage").GeneralHit:FireServer(game.Players[_G.PlayerPut1].Character:WaitForChild("HumanoidRootPart"))
 else
-Notification("You don't have Confusion equipped, or you have to go lobby.", 5)
+Notification("You don't have Confusion equipped, or you have to go lobby.", _G.TimeNotify)
 end
 end)
 
@@ -6100,7 +6193,7 @@ end
 wait(3.8)
 end
 else
-Notification("You don't have Kinetic equipped, or you have to go Arena, or player have go to arena.", 5)
+Notification("You don't have Kinetic equipped, or you have to go Arena, or player have go to arena.", _G.TimeNotify)
 end
 end)
 
@@ -6129,7 +6222,7 @@ end
 task.wait()
 end
 elseif _G.PropSpam == true then
-Notification("You don't have Prop equipped", 5)
+Notification("You don't have Prop equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Spam Prop"]:SetValue(false)
 end
@@ -6163,7 +6256,7 @@ end
 task.wait()
 end
 elseif SantaSpam == true then
-Notification("You don't have Santa equipped", 5)
+Notification("You don't have Santa equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Spam Santa"]:SetValue(false)
 end
@@ -6257,9 +6350,9 @@ end
 end
 if PlayerTa then
 SaveThePlayer = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
 end
     end
@@ -6279,7 +6372,7 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer(game.Players[Save
 task.wait()
 end
 elseif GuardianAngelSpam == true then
-Notification("You don't have Guardian Angel equipped.", 5)
+Notification("You don't have Guardian Angel equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Godmobe Player"]:SetValue(false)
 end
@@ -6304,9 +6397,9 @@ end
 end
 if PlayerTa then
 Person = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
 end
     end
@@ -6340,7 +6433,7 @@ end
 task.wait()
 end
 elseif _G.RojoSpam == true then
-Notification("You don't have Rojo equipped.", 5)
+Notification("You don't have Rojo equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles.RojoAbility:SetValue(false)
 end
@@ -6365,9 +6458,9 @@ end
 end
 if PlayerTa then
 DivebombExplosion = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
 end
     end
@@ -6400,7 +6493,7 @@ game:GetService("ReplicatedStorage").RocketJump:InvokeServer({["position"] = gam
 task.wait()
 end
 elseif _G.DivebombSpam == true then
-Notification("You don't have Divebomb equipped.", 5)
+Notification("You don't have Divebomb equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Ability Divebomb"]:SetValue(false)
 end
@@ -6422,9 +6515,9 @@ end
 end
 if PlayerTa then
 _G.BarrelPlayer = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
     end
 })
@@ -6440,7 +6533,7 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer({["cf"] = game.Pl
 task.wait()
 end
 elseif _G.BarrelSpamPlayer == true then
-Notification("You don't have Barrel equipped.", 5)
+Notification("You don't have Barrel equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles.AbilityBarrelPlayer:SetValue(false)
 end
@@ -6462,9 +6555,9 @@ end
 end
 if PlayerTa then
 _G.BarrelPlayer = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
     end
 })
@@ -6494,7 +6587,7 @@ end
 task.wait()
 end
 elseif _G.BindSpamPlayer == true then
-Notification("You don't have Bind equipped.", 5)
+Notification("You don't have Bind equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles.AbilityBindPlayer:SetValue(false)
 end
@@ -6527,9 +6620,9 @@ end
 end
 if PlayerTa then
 _G.PlayerButton = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
     end
 })
@@ -6553,7 +6646,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
 task.wait(0.05)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 else
-Notification("You don't have Swapper equipped, or you aren't in the arena.", 5)
+Notification("You don't have Swapper equipped, or you aren't in the arena.", _G.TimeNotify)
 end
 elseif _G.PlayerChoose == "Random" then
 if game.Players.LocalPlayer.Character:FindFirstChild("Swapper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Swapper") then
@@ -6576,7 +6669,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
 task.wait(0.05)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 else
-Notification("You don't have Swapper equipped, or you aren't in the arena.", 5)
+Notification("You don't have Swapper equipped, or you aren't in the arena.", _G.TimeNotify)
 end
 end
 end)
@@ -6596,7 +6689,7 @@ task.wait(0.25)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 game.Players[_G.PlayerButton].Character.HumanoidRootPart.Size = OGLZ
 else
-Notification("You don't have Home Run equipped", 5)
+Notification("You don't have Home Run equipped", _G.TimeNotify)
 end
 elseif _G.PlayerChoose == "Random" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Home Run" then
@@ -6617,7 +6710,7 @@ task.wait(0.25)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 Target.Character.HumanoidRootPart.Size = OGLZ
 else
-Notification("You don't have Home Run equipped", 5)
+Notification("You don't have Home Run equipped", _G.TimeNotify)
 end
 end
 end)
@@ -6637,7 +6730,7 @@ wait(0.25)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 game.Players[_G.PlayerButton].Character.HumanoidRootPart.Size = OGLZ
 else
-Notification("You don't have Hive equipped", 5)
+Notification("You don't have Hive equipped", _G.TimeNotify)
 end
 elseif _G.PlayerChoose == "Random" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Hive" then
@@ -6657,7 +6750,7 @@ wait(0.22)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 Target.Character.HumanoidRootPart.Size = OGLZ
 else
-Notification("You don't have Hive equipped", 5)
+Notification("You don't have Hive equipped", _G.TimeNotify)
 end
 end
 end)
@@ -6677,7 +6770,7 @@ task.wait(0.17)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
 else
-Notification("You don't have Quake equipped.", 5)
+Notification("You don't have Quake equipped.", _G.TimeNotify)
 end
 elseif _G.PlayerChoose == "Random" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Quake" and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
@@ -6697,7 +6790,7 @@ task.wait(0.17)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
 else
-Notification("You don't have Quake equipped.", 5)
+Notification("You don't have Quake equipped.", _G.TimeNotify)
 end
 end
 end)
@@ -6714,7 +6807,7 @@ Target = RandomPlayer
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer("Ability3",Target)
 end
 else
-Notification("You don't have Jester glove equipped", 5)
+Notification("You don't have Jester glove equipped", _G.TimeNotify)
 end
 end)
 
@@ -6729,7 +6822,11 @@ _G.TeleportOldPlace = Value
 })
 
 Glove1Group:AddButton("Player Teleport Recall", function()
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" and game.Players.LocalPlayer.Backpack:FindFirstChild("Recall") == nil then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" then
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Recall") then
+	game.Players.LocalPlayer.Backpack:FindFirstChild("Recall") Parent = game.Players.LocalPlayer.Character
+end
+wait(0.3)
 if _G.TeleportOldPlace == "Yes" then
 OLG = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 end
@@ -6743,12 +6840,16 @@ elseif _G.TeleportOldPlace == "Player" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton].Character.HumanoidRootPart.CFrame
 end
 else
-Notification("You don't have Recall equipped or you haven't in arena or you have equip Backpack Recall.", 5)
+Notification("You don't have Recall equipped or you haven't in arena.", _G.TimeNotify)
 end
 end)
 
 Glove1Group:AddButton("Grab Player Teleport", function()
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Grab" and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players[_G.PlayerButton].Character:FindFirstChild("entered") then
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Grab") then
+	game.Players.LocalPlayer.Backpack:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Character
+end
+wait(0.36)
 if _G.TeleportOldPlace == "Yes" then
 OLG = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 end
@@ -6759,8 +6860,12 @@ wait(0.15)
 if _G.TeleportOldPlace == "Yes" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OLG
 end
+wait(0.37)
+if game.Players.LocalPlayer.Character:FindFirstChild("Grab") then
+	game.Players.LocalPlayer.Character:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Backpack
+end
 else
-Notification("You don't have Grab equipped, or you have to go Arena, or player go to Arena", 5)
+Notification("You don't have Grab equipped, or you have to go Arena, or player go to Arena", _G.TimeNotify)
 end
 end)
 
@@ -6787,7 +6892,7 @@ end
 task.wait()
 end
 elseif _G.OvenPlayerAuto == true then
-Notification("You don't have Oven equipped.", 5)
+Notification("You don't have Oven equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Oven Player"]:SetValue(false)
 end
@@ -6817,7 +6922,7 @@ end
 task.wait()
 end
 elseif _G.AutoSiphonPlayer == true then
-Notification("You don't have Siphon equipped.", 5)
+Notification("You don't have Siphon equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Siphon Player"]:SetValue(false)
 end
@@ -6876,7 +6981,7 @@ for i,v in pairs(game.Players:GetChildren()) do
           end
      end
 else
-Notification("You don't have Lawnmower equipped.", 5)
+Notification("You don't have Lawnmower equipped.", _G.TimeNotify)
 end
 end)
 
@@ -6954,13 +7059,13 @@ for i,v in ipairs(game.Workspace.Arena.CannonIsland:GetDescendants()) do
         end
 end
 else
-Notification("You have in lobby, or You don't have badge bob, or badge rob.", 5)
+Notification("You have in lobby, or You don't have badge bob, or badge rob.", _G.TimeNotify)
 end
 end)
 
 Glove1Group:AddButton("Auto Enter Map Null", function()
 if game.Workspace:FindFirstChild("Blackhole_Particles") == nil then
-Notification("When will someone create a black hole [ BOB + ROB ].", 5)
+Notification("When will someone create a black hole [ BOB + ROB ].", _G.TimeNotify)
 elseif game.Players.LocalPlayer.Character:FindFirstChild("entered") ~= nil and game.Players.LocalPlayer.leaderstats.Glove.Value ~= "Default" then
 game:GetService("Players").LocalPlayer.Reset:FireServer()
 wait(3.75)
@@ -7059,7 +7164,7 @@ game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].CFra
 end
 until game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"]:FindFirstChild("siphon_charge") == nil
 else
-Notification("You don't have Siphon equipped or you haven't in arena.", 5)
+Notification("You don't have Siphon equipped or you haven't in arena.", _G.TimeNotify)
 end
 end)
 
@@ -7072,7 +7177,7 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 task.wait(0.15)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldTP
 else
-Notification("You don't have Lure equipped or you haven't in arena.", 5)
+Notification("You don't have Lure equipped or you haven't in arena.", _G.TimeNotify)
 end
 end)
 
@@ -7123,7 +7228,7 @@ game:GetService("ReplicatedStorage").Events.PillowEvent:FireServer("AddPillow")
 task.wait()
 end
 elseif _G.InfinityPillow == true then
-Notification("You don't have Pillow equipped", 5)
+Notification("You don't have Pillow equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Infinity Pillow"]:SetValue(false)
 end
@@ -7161,7 +7266,7 @@ end
 elseif _G.InfiniteIngredients == true then
 Toggles["Infinite Ingredients"]:SetValue(false)
 wait(0.05)
-Notification("You don't have Alchemist equipped", 5)
+Notification("You don't have Alchemist equipped", _G.TimeNotify)
 end
     end
 })
@@ -7220,7 +7325,7 @@ game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("BrewPotion")
 end
 end
 else
-Notification("You don't have Alchemist equipped", 5)
+Notification("You don't have Alchemist equipped", _G.TimeNotify)
 end
 end)
 
@@ -7246,7 +7351,7 @@ end
 elseif _G.AutoMakePotion == true then
 Toggles["Auto Get Potion"]:SetValue(false)
 wait(0.05)
-Notification("You don't have Alchemist equipped", 5)
+Notification("You don't have Alchemist equipped", _G.TimeNotify)
 end
     end
 })
@@ -7266,9 +7371,9 @@ end
 end
 if PlayerTa then
 _G.PlayerButton2 = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
     end
 })
@@ -7343,7 +7448,7 @@ end
 task.wait()
 end
 elseif _G.CloneAuto == true then
-Notification("You don't have Cherry or Replica equipped", 5)
+Notification("You don't have Cherry or Replica equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Clone"]:SetValue(false)
 end
@@ -7440,7 +7545,7 @@ end
 task.wait(0.01)
 end
 elseif Value == true then
-Notification("You don't have Ping Pong equipped.", 5)
+Notification("You don't have Ping Pong equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["PingPong"]:SetValue(false)
 end
@@ -7460,7 +7565,7 @@ end
 task.wait()
 end
 elseif Value == true then
-Notification("You don't have Ping Pong equipped.", 5)
+Notification("You don't have Ping Pong equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["PingPong"]:SetValue(false)
 end
@@ -7482,7 +7587,7 @@ elseif Value == "Blink" then
 fireclickdetector(workspace.Lobby["Blink"].ClickDetector)
 end
 else
-Notification("You aren't in the lobby.", 5)
+Notification("You aren't in the lobby.", _G.TimeNotify)
 end
     end
 })
@@ -7518,7 +7623,7 @@ if _G.FarmSlap == "Replica + Baller" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Baller" then
 coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
 elseif _G.AutoFarmSlap == true then
-Notification("You don't have Baller equipped.", 5) 
+Notification("You don't have Baller equipped.", _G.TimeNotify) 
 wait(0.05)
 Toggles["SlapFarm"]:SetValue(false) 
 end
@@ -7526,7 +7631,7 @@ elseif _G.FarmSlap == "Replica + Baller + Blink" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Blink" then
 coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
 elseif _G.AutoFarmSlap == true then
-Notification("You don't have Blink equipped.", 5) 
+Notification("You don't have Blink equipped.", _G.TimeNotify) 
 wait(0.05)
 Toggles["SlapFarm"]:SetValue(false) 
 end
@@ -7534,7 +7639,7 @@ elseif _G.FarmSlap == "Replica" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
 coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
 elseif _G.AutoFarmSlap == true then
-Notification("You don't have Replica equipped.", 5) 
+Notification("You don't have Replica equipped.", _G.TimeNotify) 
 wait(0.05)
 Toggles["SlapFarm"]:SetValue(false) 
 end
@@ -7542,7 +7647,7 @@ elseif _G.FarmSlap == "Baller" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Baller" then
 coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
 elseif _G.AutoFarmSlap == true then
-Notification("You don't have Baller equipped.", 5) 
+Notification("You don't have Baller equipped.", _G.TimeNotify) 
 wait(0.05)
 Toggles["SlapFarm"]:SetValue(false) 
 end
@@ -7550,7 +7655,7 @@ elseif _G.FarmSlap == "Blink" then
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Blink" then
 coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
 elseif _G.AutoFarmSlap == true then
-Notification("You don't have Blink equipped.", 5) 
+Notification("You don't have Blink equipped.", _G.TimeNotify) 
 wait(0.05)
 Toggles["SlapFarm"]:SetValue(false) 
 end
@@ -7673,7 +7778,7 @@ end
 task.wait()
 end
 elseif _G.CloudSpeed == true then
-Notification("You don't have Cloud equipped.", 5)
+Notification("You don't have Cloud equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Cloud Speed"]:SetValue(false)
 end
@@ -7695,9 +7800,9 @@ end
 end
 if PlayerTa then
 _G.PlayerButton3 = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", 5)
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
 else
-Notification("Can't find player", 5)
+Notification("Can't find player", _G.TimeNotify)
 end
     end
 })
@@ -7739,7 +7844,7 @@ end
 task.wait()
 end
 elseif _G.BringCloud == true then
-Notification("You don't have Cloud equipped.", 5)
+Notification("You don't have Cloud equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Bring Cloud"]:SetValue(false)
 end
@@ -7783,7 +7888,7 @@ end
 task.wait()
 end
 elseif _G.BringFirework == true then
-Notification("You don't have Firework equipped.", 5)
+Notification("You don't have Firework equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Bring Firework"]:SetValue(false)
 end
@@ -7801,7 +7906,7 @@ game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = 0,["Direction"] = V
 task.wait()
 end
 elseif _G.FullKineticSpam == true then
-Notification("You don't have Kinetic equipped.", 5)
+Notification("You don't have Kinetic equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Full Kinetic"]:SetValue(false)
 end
@@ -7821,7 +7926,7 @@ v.Transparency = 0
 end
 end
 else
-Notification("You need to be in lobby and have 666+ slaps.", 5)
+Notification("You need to be in lobby and have 666+ slaps.", _G.TimeNotify)
 end
 end)
 
@@ -7836,7 +7941,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("Goldify"):FireServer(false, B
 task.wait()
 end
 elseif _G.GoldColor == true then
-Notification("You don't have Golden equipped.", 5)
+Notification("You don't have Golden equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Color Skin"]:SetValue(false)
 end
@@ -7860,7 +7965,7 @@ game:GetService("ReplicatedStorage").Goldify:FireServer(false, BrickColor.new(ra
 task.wait(0.075)
 end
 elseif _G.Rainbow == true then
-Notification("You don't have Golden equipped.", 5)
+Notification("You don't have Golden equipped.", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Rainbow"]:SetValue(false)
 end
@@ -8273,6 +8378,36 @@ end
     end
 })
 
+Misc2Group:AddSlider("Hitbox Bobs", {
+    Text = "Hitbox Bob",
+    Default = 10,
+    Min = 50,
+    Max = 80,
+    Rounding = 0,
+    Compact = false,
+    Callback = function(Value)
+_G.HitboxBob = Value
+    end
+})
+
+Misc2Group:AddToggle("Hitbox Bob Mini", {
+    Text = "Hitbox Bob Mini",
+    Default = false, 
+    Callback = function(Value)
+_G.HitboxClone = Value
+while _G.HitboxClone do
+if game.Workspace:FindFirstChild("BobClone") then
+for _, v in pairs(workspace:GetChildren()) do
+if v.Name == "BobClone" and v:FindFirstChild("HumanoidRootPart") then
+v.HumanoidRootPart.Size = Vector3.new(_G.HitboxBob, _G.HitboxBob, _G.HitboxBob)
+end
+end
+end
+task.wait()
+end
+    end
+})
+
 Misc2Group:AddButton("Slap Aura Bob Mini", function()
 if game.Workspace:FindFirstChild("BobClone") then
 for _, v in pairs(workspace:GetChildren()) do
@@ -8328,6 +8463,11 @@ Button.MouseLeave:Connect(function()
 game:GetService("TweenService"):Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)}):Play()
 end)
 Button.MouseButton1Down:Connect(function()
+for i,v in pairs(workspace:GetChildren()) do
+if v.Name == "SpiritRock" and v:FindFirstChild("DamageEvent") then
+v.DamageEvent:FireServer()
+end
+end
     ParticleEmitter.Rate = 100
     task.delay(1, function()
         ParticleEmitter.Rate = 0
@@ -8336,11 +8476,6 @@ Button.MouseButton1Down:Connect(function()
     ParticleEmitterAmin.Completed:Connect(function()
         Button.Rotation = 0
     end)
-for i,v in pairs(workspace:GetChildren()) do
-if v.Name == "SpiritRock" then
-v.DamageEvent:FireServer()
-end
-end
 end)
 end
 end)
@@ -10625,16 +10760,28 @@ _G.VolumeTime = Value
     end
 })
 
+MenuGroup:AddSlider("Time Notification", {
+    Text = "Time Notification",
+    Default = 5,
+    Min = 1,
+    Max = 25,
+    Rounding = 0,
+    Compact = false,
+    Callback = function(Value)
+_G.TimeNotify = Value
+    end
+})
+
 MenuGroup:AddToggle("KeybindMenuOpen", {Default = false, Text = "Open Keybind Menu", Callback = function(Value) Library.KeybindFrame.Visible = Value end})
 MenuGroup:AddToggle("ShowCustomCursor", {Text = "Custom Cursor", Default = true, Callback = function(Value) Library.ShowCustomCursor = Value end})
 MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
 MenuGroup:AddButton("Copy Link discord", function()
     if setclipboard then
-        setclipboard("https://discord.gg/56BDhEaz32")
+        setclipboard("https://discord.gg/ZC63JwSg8T")
         Library:Notify("Copied discord link to clipboard!")
     else
-        Library:Notify("Discord link: https://discord.gg/56BDhEaz32", 10)
+        Library:Notify("Discord link: https://discord.gg/ZC63JwSg8T", 10)
     end
 end):AddButton("Copy Link Zalo", function()
     if setclipboard then
@@ -10983,7 +11130,6 @@ gloveHits = {
     ["Cloud"] = game.ReplicatedStorage.CloudHit,
     ["Null"] = game.ReplicatedStorage.NullHit,
     ["spin"] = game.ReplicatedStorage.spinhit,
-    ["Boxer"] = game.ReplicatedStorage.Events.Boxing,
     ------------------------------------------------------------------------
     ["Poltergeist"] = game.ReplicatedStorage.UTGHit,
     ["Clock"] = game.ReplicatedStorage.UTGHit,
