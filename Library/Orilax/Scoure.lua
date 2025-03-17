@@ -50,19 +50,23 @@ local M_Title = Instance.new("TextLabel", M_Tomain)
 M_Title.Size = UDim2.new(0, 150, 0, 50)
 M_Title.Position = UDim2.new(0, 10, 0, 5)
 M_Title.Text = Orilax.Name
-M_Title.TextSize = 25
 M_Title.BackgroundTransparency = 1
 M_Title.TextColor3 = Color3.fromRGB(240, 240, 240)
 M_Title.Font = Enum.Font.GothamBold
+M_Title.TextScaled = true
+M_Title.TextWrapped = true
+M_Title.AutomaticSize = Enum.AutomaticSize.XY
 
 local M_SubTitle = Instance.new("TextLabel", M_Tomain)
 M_SubTitle.Size = UDim2.new(0, 100, 0, 30)
-M_SubTitle.Position = UDim2.new(0, 150, 0, 17)
+M_SubTitle.Position = UDim2.new(0, M_Title.Size.X.Offset + 15, 0, 17)
 M_SubTitle.Text = Orilax.SubName
-M_SubTitle.TextSize = 15
 M_SubTitle.BackgroundTransparency = 1
 M_SubTitle.TextColor3 = Color3.fromRGB(150, 150, 150)
 M_SubTitle.Font = Enum.Font.GothamBold
+M_SubTitle.TextScaled = true
+M_SubTitle.TextWrapped = true
+M_SubTitle.AutomaticSize = Enum.AutomaticSize.XY
 
 local M_MizeFrame = Instance.new("Frame", M_Tomain)
 M_MizeFrame.Size = UDim2.new(0, 100, 0, 40)
@@ -153,85 +157,83 @@ game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enu
 end)
 
 local Tabs = {}
-    local Pages = {}
-    local x = 10
+local Pages = {}
+local x = 10
 
-    function GUI:NewTab(p)
-    Icon = p.Icon or "rbxassetid://0"
-    Side = p.Type or "Left"
-        local b = Instance.new("TextButton", M_TabHolder)
-        b.Size = UDim2.new(0, 40, 0, 40)
-        b.Position = UDim2.new(0, x, 0, 5)
-        b.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
-        b.Text = ""
+function GUI:NewTab(p)
+    local Icon = p.Icon or "rbxassetid://0"
 
-        local c = Instance.new("UICorner", b)
-        c.CornerRadius = UDim.new(0, 7)
+    local b = Instance.new("TextButton", M_TabHolder)
+    b.Size = UDim2.new(0, 40, 0, 40)
+    b.Position = UDim2.new(0, x, 0, 5)
+    b.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+    b.Text = ""
 
-        local i = Instance.new("ImageLabel", b)
-        i.Size = UDim2.new(0.8, 0, 0.8, 0)
-        i.Position = UDim2.new(0, 4, 0, 4)
-        i.Image = Icon
-        i.BackgroundTransparency = 1
+    local c = Instance.new("UICorner", b)
+    c.CornerRadius = UDim.new(0, 7)
 
-        x = x + 50
-        
-        local M_PageLeft = Instance.new("ScrollingFrame", M_TabHolders)
-        M_PageLeft.Size = UDim2.new(0.435, 0, 1, 0)
-        M_PageLeft.Position = UDim2.new(0, 0, 0, 0)
-        M_PageLeft.BorderSizePixel = 0
-        M_PageLeft.BackgroundTransparency = 1
-        M_PageLeft.ScrollBarThickness = 0
-        M_PageLeft.CanvasSize = UDim2.new(0, 0, 0, 100)
-        M_PageLeft.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        M_PageLeft.Visible = false
-         
-        local M_Stroke = Instance.new("UIStroke", M_PageLeft)
-            M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-            M_Stroke.Thickness = 0.5
+    local i = Instance.new("ImageLabel", b)
+    i.Size = UDim2.new(0.8, 0, 0.8, 0)
+    i.Position = UDim2.new(0, 4, 0, 4)
+    i.Image = Icon
+    i.BackgroundTransparency = 1
 
-        local M_Layout = Instance.new("UIListLayout", M_PageLeft)
-        M_Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-        M_Layout.SortOrder = Enum.SortOrder.LayoutOrder
-        M_Layout.Padding = UDim.new(0, 10)
-        
-        
+    x = x + 50
 
-        local M_PageRight = Instance.new("ScrollingFrame", M_TabHolders)
-        M_PageRight.Size = UDim2.new(0.435, 0, 1, 0)
-        M_PageRight.Position = UDim2.new(0.565999985, 0, 0, 0)
-        M_PageRight.BorderSizePixel = 0
-        M_PageRight.BackgroundTransparency = 1
-        M_PageRight.ScrollBarThickness = 0
-        M_PageRight.CanvasSize = UDim2.new(0, 0, 0, 100)
-        M_PageRight.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        M_PageRight.Visible = false
-        
-        local M_Stroke = Instance.new("UIStroke", M_PageRight)
-            M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-            M_Stroke.Thickness = 0.5
+    local PageLeft = Instance.new("ScrollingFrame", M_TabHolders)
+    PageLeft.Size = UDim2.new(0.435, 0, 1, 0)
+    PageLeft.Position = UDim2.new(0, 0, 0, 0)
+    PageLeft.BorderSizePixel = 0
+    PageLeft.BackgroundTransparency = 1
+    PageLeft.ScrollBarThickness = 0
+    PageLeft.CanvasSize = UDim2.new(0, 0, 0, 100)
+    PageLeft.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    PageLeft.Visible = false
+    
+    local M_Stroke1 = Instance.new("UIStroke", PageLeft)
+    M_Stroke1.Color = Color3.fromRGB(60, 60, 60)
+    M_Stroke1.Thickness = 0.5
 
-        local M_Layout = Instance.new("UIListLayout", M_PageRight)
-        M_Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-        M_Layout.SortOrder = Enum.SortOrder.LayoutOrder
-        M_Layout.Padding = UDim.new(0, 10)
-        
+    local M_Layout1 = Instance.new("UIListLayout", PageLeft)
+    M_Layout1.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    M_Layout1.SortOrder = Enum.SortOrder.LayoutOrder
+    M_Layout1.Padding = UDim.new(0, 10)
 
-        table.insert(Tabs, b)
-        table.insert(Pages, M_PageLeft)
-        
-        M_PageLeft.Visible = true
+    local PageRight = Instance.new("ScrollingFrame", M_TabHolders)
+    PageRight.Size = UDim2.new(0.435, 0, 1, 0)
+    PageRight.Position = UDim2.new(0.565999985, 0, 0, 0)
+    PageRight.BorderSizePixel = 0
+    PageRight.BackgroundTransparency = 1
+    PageRight.ScrollBarThickness = 0
+    PageRight.CanvasSize = UDim2.new(0, 0, 0, 100)
+    PageRight.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    PageRight.Visible = false
 
-        b.MouseButton1Click:Connect(function()
-            for _, page in pairs(Pages) do
+    local M_Stroke2 = Instance.new("UIStroke", PageRight)
+    M_Stroke2.Color = Color3.fromRGB(60, 60, 60)
+    M_Stroke2.Thickness = 0.5
+
+    local M_Layout2 = Instance.new("UIListLayout", PageRight)
+    M_Layout2.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    M_Layout2.SortOrder = Enum.SortOrder.LayoutOrder
+    M_Layout2.Padding = UDim.new(0, 10)
+
+    table.insert(Tabs, b)
+    table.insert(Pages, {PageLeft, PageRight})
+
+    b.MouseButton1Click:Connect(function()
+        for _, pages in pairs(Pages) do
+            for _, page in pairs(pages) do
                 page.Visible = false
             end
-            M_PageLeft.Visible = true
-        end)
+        end
+        PageLeft.Visible = true
+        PageRight.Visible = true
+    end)
 
-        local TabFunctions = {}
-
-        function TabFunctions:NewToggle(Params)
+    local PageFunctions = {}
+    
+        function PageFunctions:NewToggle(Params)
             local M_ToggleOuter = Instance.new("Frame", M_PageLeft)  
 M_ToggleOuter.Size = UDim2.new(0, 200, 0, 40)  
 M_ToggleOuter.Position = UDim2.new(0, 10, 0, 10)  
@@ -306,41 +308,45 @@ M_BToggle.MouseButton1Click:Connect(function()
 end)
             end
             
-            function TabFunctions:NewButton(Params)
-            local M_ButtonOuter = Instance.new("Frame", M_PageLeft)
-M_ButtonOuter.Size = UDim2.new(0, 200, 0, 40)
-M_ButtonOuter.Position = UDim2.new(0, 10, 0, 60)
-M_ButtonOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-M_ButtonOuter.Active = true
+            function PageFunctions:NewButton(Params)
+    local M_ButtonOuter = Instance.new("Frame", M_PageLeft)
+    M_ButtonOuter.Size = UDim2.new(0, 200, 0, 40)
+    M_ButtonOuter.Position = UDim2.new(0, 10, 0, 60)
+    M_ButtonOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+    M_ButtonOuter.Active = true
 
-local M_Corner = Instance.new("UICorner", M_ButtonOuter)
-M_Corner.CornerRadius = UDim.new(0, 7)
+    local M_Corner = Instance.new("UICorner", M_ButtonOuter)
+    M_Corner.CornerRadius = UDim.new(0, 7)
 
-local M_Stroke = Instance.new("UIStroke", M_ButtonOuter)
-M_Stroke.Color = Color3.fromRGB(60, 60, 60)
-M_Stroke.Thickness = 0.5
+    local M_Stroke = Instance.new("UIStroke", M_ButtonOuter)
+    M_Stroke.Color = Color3.fromRGB(60, 60, 60)
+    M_Stroke.Thickness = 0.5
 
-local B_Name = Instance.new("TextLabel", M_ButtonOuter)
-B_Name.Size = UDim2.new(0, 0, 1, 0)
-B_Name.Position = UDim2.new(0, 60, 0, 0)
-B_Name.Text = Params.Name
-B_Name.TextSize = 14
-B_Name.BackgroundTransparency = 1
-B_Name.TextColor3 = Color3.new(255, 255, 255)
-B_Name.Font = Enum.Font.GothamBold
+    local B_Name = Instance.new("TextLabel", M_ButtonOuter)
+    B_Name.Size = UDim2.new(0, 0, 1, 0)
+    B_Name.Position = UDim2.new(0, 60, 0, 0)
+    B_Name.Text = Params.Name or "Button"
+    B_Name.TextSize = 14
+    B_Name.BackgroundTransparency = 1
+    B_Name.TextColor3 = Color3.new(255, 255, 255)
+    B_Name.Font = Enum.Font.GothamBold
 
-local M_BImg = Instance.new("ImageButton", M_ButtonOuter)
-M_BImg.Size = UDim2.new(0, 35, 0, 30)
-M_BImg.Position = UDim2.new(0.775, 0, 0, 5)
-M_BImg.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
-M_BImg.Image = "rbxassetid://3944703587"
-M_BImg.BackgroundColor3 = Color3.fromRGB(155, 0, 51)
-M_BImg.ImageTransparency = 0
-M_BImg.BackgroundTransparency = 1
-            M_BImg.MouseButton1Click:Connect(Params.CallBack)
-            end
+    local M_BImg = Instance.new("ImageButton", M_ButtonOuter)
+    M_BImg.Size = UDim2.new(0, 35, 0, 30)
+    M_BImg.Position = UDim2.new(0.775, 0, 0, 5)
+    M_BImg.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
+    M_BImg.Image = "rbxassetid://3944703587"
+    M_BImg.ImageTransparency = 0
+    M_BImg.BackgroundTransparency = 1
+
+    if Params and type(Params.Callback) == "function" then
+        M_BImg.MouseButton1Click:Connect(function()
+            Params.Callback()
+        end)
+    end
+end
             
-            function TabFunctions:NewDropdown(Params)
+            function PageFunctions:NewDropdown(Params)
     local M_DropDownOuter = Instance.new("Frame", M_PageLeft)
  M_DropDownOuter.Size = UDim2.new(0, 200, 0, 150)
  M_DropDownOuter.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -426,10 +432,42 @@ M_BImg.BackgroundTransparency = 1
             end
         end)
         end
+        
+        
+        function PageFunctions:NewLabel(Params)
+    local M_LabelOuter = Instance.new("Frame", M_PageLeft)
+    M_LabelOuter.Size = UDim2.new(0, 200, 0, 40)
+    M_LabelOuter.Position = UDim2.new(0, 10, 0, 60)
+    M_LabelOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+    M_LabelOuter.Active = true
+
+    local M_Corner = Instance.new("UICorner", M_LabelOuter)
+    M_Corner.CornerRadius = UDim.new(0, 7)
+
+    local M_Stroke = Instance.new("UIStroke", M_LabelOuter)
+    M_Stroke.Color = Color3.fromRGB(60, 60, 60)
+    M_Stroke.Thickness = 0.5
+
+    local B_Name = Instance.new("TextLabel", M_LabelOuter)
+    B_Name.Size = UDim2.new(1, -20, 1, 0)
+    B_Name.Position = UDim2.new(0, 10, 0, 0)
+    B_Name.Text = Params.Name or "Label"
+    B_Name.TextSize = 14
+    B_Name.BackgroundTransparency = 1
+    B_Name.TextColor3 = Color3.new(255, 255, 255)
+    B_Name.Font = Enum.Font.GothamBold
+    B_Name.TextScaled = true
+    B_Name.TextWrapped = true
+    B_Name.AutomaticSize = Enum.AutomaticSize.Y
+
+end
         end
 
-        return TabFunctions
-    end
+        return {
+        LeftPage = PageFunctions,
+        RightPage = PageFunctions
+    }
+end
 
     return GUI
 end
