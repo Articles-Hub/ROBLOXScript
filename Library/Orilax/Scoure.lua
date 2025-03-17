@@ -53,18 +53,18 @@ M_Title.Text = Orilax.Name
 M_Title.BackgroundTransparency = 1
 M_Title.TextColor3 = Color3.fromRGB(240, 240, 240)
 M_Title.Font = Enum.Font.GothamBold
-M_Title.TextScaled = true
+M_Title.TextSize = 17
 M_Title.TextWrapped = true
 M_Title.AutomaticSize = Enum.AutomaticSize.XY
 
 local M_SubTitle = Instance.new("TextLabel", M_Tomain)
 M_SubTitle.Size = UDim2.new(0, 100, 0, 30)
-M_SubTitle.Position = UDim2.new(0, M_Title.Size.X.Offset + 15, 0, 17)
+M_SubTitle.Position = UDim2.new(0, M_Title.AbsoluteSize.X + 15, 0, 17)
 M_SubTitle.Text = Orilax.SubName
 M_SubTitle.BackgroundTransparency = 1
 M_SubTitle.TextColor3 = Color3.fromRGB(150, 150, 150)
 M_SubTitle.Font = Enum.Font.GothamBold
-M_SubTitle.TextScaled = true
+M_SubTitle.TextSize = 14
 M_SubTitle.TextWrapped = true
 M_SubTitle.AutomaticSize = Enum.AutomaticSize.XY
 
@@ -234,7 +234,7 @@ function GUI:NewTab(p)
     local PageFunctions = {}
     
         function PageFunctions:NewToggle(Params)
-            local M_ToggleOuter = Instance.new("Frame", M_PageLeft)  
+            local M_ToggleOuter = Instance.new("Frame", Params.Side == "Right" and PageRight or PageLeft) 
 M_ToggleOuter.Size = UDim2.new(0, 200, 0, 40)  
 M_ToggleOuter.Position = UDim2.new(0, 10, 0, 10)  
 M_ToggleOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)  
@@ -309,7 +309,7 @@ end)
             end
             
             function PageFunctions:NewButton(Params)
-    local M_ButtonOuter = Instance.new("Frame", M_PageLeft)
+    local M_ButtonOuter = Instance.new("Frame", Params.Side == "Right" and PageRight or PageLeft)
     M_ButtonOuter.Size = UDim2.new(0, 200, 0, 40)
     M_ButtonOuter.Position = UDim2.new(0, 10, 0, 60)
     M_ButtonOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
@@ -347,7 +347,7 @@ end)
 end
             
             function PageFunctions:NewDropdown(Params)
-    local M_DropDownOuter = Instance.new("Frame", M_PageLeft)
+    local M_DropDownOuter = Instance.new("Frame", Params.Side == "Right" and PageRight or PageLeft)
  M_DropDownOuter.Size = UDim2.new(0, 200, 0, 150)
  M_DropDownOuter.Position = UDim2.new(0.5, 0, 0.5, 0)
  M_DropDownOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
@@ -435,7 +435,7 @@ end
         
         
         function PageFunctions:NewLabel(Params)
-    local M_LabelOuter = Instance.new("Frame", M_PageLeft)
+    local M_LabelOuter = Instance.new("Frame", Params.Side == "Right" and PageRight or PageLeft)
     M_LabelOuter.Size = UDim2.new(0, 200, 0, 40)
     M_LabelOuter.Position = UDim2.new(0, 10, 0, 60)
     M_LabelOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
