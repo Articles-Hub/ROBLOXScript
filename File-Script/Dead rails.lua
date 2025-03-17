@@ -84,9 +84,16 @@ Main1Group:AddToggle("Auto Fuel", {
 _G.FuelTrain = Value
 while _G.FuelTrain do
 for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
-if v.ClassName == "Model" and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 5 then
-firetouchinterest(v, workspace.Train.TrainControls:FindFirstChild("FuelDetect").TouchInterest.Parent, 0)
-firetouchinterest(v, workspace.Train.TrainControls:FindFirstChild("FuelDetect").TouchInterest.Parent, 1)
+if v.ClassName == "Model" and v:FindFirstChild("ObjectInfo") and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 5 then
+for h, m in pairs(v.ObjectInfo:GetChildren()) do
+if m.Name == "TextLabel" and m.Text == "Fuel" and m.Text ~= "Valuable" then
+game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(v)
+wait(0.5)
+v:SetPrimaryPartCFrame(workspace.Train.TrainControls:FindFirstChild("FuelDetect").CFrame)
+wait(0.8)
+game:GetService("ReplicatedStorage").Shared.Remotes.RequestStopDrag:FireServer()
+end
+end
 end
 end
 task.wait()
@@ -369,9 +376,9 @@ for i, v in pairs(workspace:GetDescendants()) do
                if v:FindFirstChild("Esp_Highlight") then
 	              v:FindFirstChild("Esp_Highlight"):Destroy()
                end
-				if v:FindFirstChild("Head") then
-					if v.Head:FindFirstChild("Esp_Gui") then
-						v.Head:FindFirstChild("Esp_Gui"):Destroy()
+				if v:FindFirstChild("HumanoidRootPart") then
+					if v.HumanoidRootPart:FindFirstChild("Esp_Gui") then
+						v.HumanoidRootPart:FindFirstChild("Esp_Gui"):Destroy()
 					end
 				end
             end
@@ -380,12 +387,12 @@ for i, v in pairs(workspace:GetDescendants()) do
 end
 while _G.EspMods do
 for i, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
-            if v.Parent ~= workspace.RuntimeItems then
-               EspMods(v)
-            end
-        end
-    end
+	        if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+	            if v.Parent ~= workspace.RuntimeItems then
+	               EspMods(v)
+	            end
+	        end
+	    end
 task.wait()
 end
     end
@@ -514,7 +521,7 @@ Misc1Group:AddToggle("Auto Collect Snake Oil", {
     Default = false, 
     Callback = function(Value) 
 _G.CollectSnakeOil = Value
-while _G.CollectMoney do
+while _G.CollectSnakeOil do
 for i, v in pairs(workspace:FindFirstChild("RuntimeItems"):GetChildren()) do
 if v.Name == "Snake Oil" then
 game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
@@ -525,28 +532,84 @@ end
     end
 })
 
-local Misc2Group = Tabs.Tab1:AddLeftGroupbox("Combat")
-
-Misc2Group:AddToggle("Kill Aura", {
-    Text = "Kill Aura",
+Misc1Group:AddToggle("Auto Collect Bandage", {
+    Text = "Auto Collect Bandage",
     Default = false, 
     Callback = function(Value) 
-_G.KillAura = Value
-while _G.KillAura do
+_G.CollectBandage = Value
+while _G.CollectBandage do
+for i, v in pairs(workspace:FindFirstChild("RuntimeItems"):GetChildren()) do
+if v.Name == "Bandage" then
+game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
+end
+end
+task.wait()
+end
+    end
+})
+
+Misc1Group:AddToggle("Auto Collect All", {
+    Text = "Auto Collect All",
+    Default = false, 
+    Callback = function(Value) 
+_G.CollectAll = Value
+while _G.CollectAll do
+for i, v in pairs(workspace:FindFirstChild("RuntimeItems"):GetChildren()) do
+if v.Name == "Snake Oil" or v.Name == "Bandage" then
+game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
+end
+if v.Name == "Moneybag" and v:FindFirstChild("MoneyBag") and v.MoneyBag:FindFirstChild("CollectPrompt") then
+v.MoneyBag:FindFirstChild("CollectPrompt").HoldDuration = 0
+if fireproximityprompt then
+fireproximityprompt(v.MoneyBag:FindFirstChild("CollectPrompt"))
+end
+end
+if v.Name:find("Ammo") or v.Name:find("Shells") or v.Name == "Bond" then
+game:GetService("ReplicatedStorage").Packages.RemotePromise.Remotes.C_ActivateObject:FireServer(v)
+end
+end
+task.wait()
+end
+    end
+})
+
+local Misc2Group = Tabs.Tab1:AddLeftGroupbox("Combat")
+
+Misc2Group:AddSlider("Hitbox", {
+    Text = "Hitbox Mods",
+    Default = 50,
+    Min = 20,
+    Max = 55,
+    Rounding = 0,
+    Compact = false,
+    Callback = function(Value)
+_G.SizeMods = Value
+    end
+})
+
+Main2Group:AddToggle("Hitbox", {
+    Text = "Hitbox Mods",
+    Default = false, 
+    Callback = function(Value) 
+_G.HitboxStMods = Value
+if _G.HitboxStMods == false then
 for i, v in pairs(workspace:GetDescendants()) do
-    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
-        if v.Parent ~= workspace.RuntimeItems then
-            if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 25 then
-                game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(v)
-				wait(0.3)
-				v.Humanoid.Health = 0
+        if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+               v.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+               v.HumanoidRootPart.Transparency = 1
             end
         end
     end
+while _G.HitboxStMods do
+for i, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+        if v.Parent ~= workspace.RuntimeItems then
+           v.HumanoidRootPart.Size = Vector3.new(_G.SizeMods, _G.SizeMods, _G.SizeMods)
+           v.HumanoidRootPart.Transparency = 0.5
+		end
+    end
 end
-wait(0.25)
-game:GetService("ReplicatedStorage").Remotes.DropItem:FireServer()
-task.wait(0.07)
+task.wait()
 end
     end
 })
@@ -574,7 +637,7 @@ for i, v in pairs(workspace:GetDescendants()) do
         if v.Parent ~= workspace.RuntimeItems then
            if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < _G.DistanceGun then
 	           for j, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-	                if h.ClassName == "Tool" and h:FindFirstChild("CurrentAmmo") then
+	                if h:IsA("Tool") and h:FindFirstChild("CurrentAmmo") then
 						if h.CurrentAmmo.Value ~= 0 then
 							game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), h, game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame, {["1"] = v})
 						elseif h.CurrentAmmo.Value == 0 then
@@ -592,74 +655,64 @@ end
     end
 })
 
+MenuGroup:AddSlider("Distance Aimbot", {
+    Text = "Distance Aimbot",
+    Default = 50,
+    Min = 30,
+    Max = 1000,
+    Rounding = 1,
+    Compact = true,
+    Callback = function(Value)
+_G.DistanceAim = Value
+    end
+})
+
+_G.DistanceAim = 50
+Misc2Group:AddToggle("Aimbot Mods", {
+    Text = "Aimbot Mods",
+    Default = false, 
+    Callback = function(Value) 
+_G.AimbotMods = Value
+while _G.AimbotMods do
+for i, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Model") and (_G.NoHorse and v.Name ~= "Horse") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
+        if v.Parent ~= workspace.RuntimeItems then
+           if _G.DistanceAim >= (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude then
+	           game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (v.Head.Position + Vector3.new(0, v.Head.Size.Y / 1.8, 0) - game.Workspace.CurrentCamera.CFrame.Position).unit)
+	        end
+	    end
+	end
+end
+task.wait()
+end
+    end
+})
+
+Misc2Group:AddToggle("NoHorse", {
+    Text = "No Aimbot Horse",
+    Default = false, 
+    Callback = function(Value) 
+_G.NoHorse = Value
+    end
+})
+
 Misc2Group:AddToggle("Auto Heal", {
     Text = "Auto Heal",
     Default = false, 
     Callback = function(Value) 
 _G.AutoHeal = Value
 while _G.AutoHeal do
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health < 40 then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health < 68 then
 	if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Bandage") then
 	    game:GetService("Players").LocalPlayer.Backpack.Bandage.Use:FireServer()
 	end
 end
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health < 40 then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health < 68 then
 	if game.Players.LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChild("Bandage") then
 	    game:GetService("Players").LocalPlayer.Character.Bandage.Use:FireServer()
 	end
 end
 task.wait()
-end
-    end
-})
-
-Misc2Group:AddSlider("Size Aimbot", {
-    Text = "Size Aimbot",
-    Default = 10,
-    Min = 50,
-    Max = 100,
-    Rounding = 0,
-    Compact = false,
-    Callback = function(Value)
-_G.FOVringSize = Value
-    end
-})
-
-Misc2Group:AddToggle("Aimbot", {
-    Text = "Aimbot Mods",
-    Default = false, 
-    Callback = function(Value) 
-_G.Aimbot = Value
-while _G.Aimbot do
-if not FOVring then
-FOVring = Drawing.new("Circle")
-FOVring.Visible = true
-FOVring.Thickness = 2
-FOVring.Filled = false
-FOVring.Radius = (_G.FOVringSize == nil and 50 or _G.FOVringSize)
-FOVring.Color = Color3.fromRGB(255, 128, 128)
-FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
-end
-if FOVring then
-FOVring.Radius = (_G.FOVringSize == nil and 50 or _G.FOVringSize)
-for i, v in pairs(workspace:GetDescendants()) do
-    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
-        if v.Parent ~= workspace.RuntimeItems then
-           if v.Humanoid.Health > 0 and v:FindFirstChild("Head") then
-			    local TargetScreenPos = workspace.CurrentCamera:WorldToScreenPoint(v.Head.Position)
-			    if (Vector2.new(TargetScreenPos.X, TargetScreenPos.Y) - (workspace.CurrentCamera.ViewportSize / 2)).Magnitude <= (_G.FOVringSize == nil and 50 or _G.FOVringSize) then
-			        workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(CFrame.new(workspace.CurrentCamera.CFrame.Position, v.Head.Position), 0.3)
-			    end
-			end
-        end
-    end
-end
-end
-task.wait()
-end
-if FOVring then
-FOVring:Remove()
-FOVring = nil
 end
     end
 })
