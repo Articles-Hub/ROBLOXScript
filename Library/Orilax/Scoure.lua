@@ -59,7 +59,7 @@ M_Title.AutomaticSize = Enum.AutomaticSize.XY
 
 local M_SubTitle = Instance.new("TextLabel", M_Tomain)
 M_SubTitle.Size = UDim2.new(0, 100, 0, 30)
-M_SubTitle.Position = UDim2.new(0, M_Title.AbsoluteSize.X + 15, 0, 17)
+M_SubTitle.Position = UDim2.new(0, M_Title.AbsoluteSize.X + 25, 0, 17)
 M_SubTitle.Text = Orilax.SubName
 M_SubTitle.BackgroundTransparency = 1
 M_SubTitle.TextColor3 = Color3.fromRGB(150, 150, 150)
@@ -456,10 +456,9 @@ end
     B_Name.BackgroundTransparency = 1
     B_Name.TextColor3 = Color3.new(255, 255, 255)
     B_Name.Font = Enum.Font.GothamBold
-    B_Name.TextScaled = true
     B_Name.TextWrapped = true
-    B_Name.AutomaticSize = Enum.AutomaticSize.Y
-
+    B_Name.AutomaticSize = Enum.AutomaticSize.Y    
+    
 end
         end
 
