@@ -45,6 +45,7 @@ M_Cover.Position = UDim2.new(0, 0, 1, -2)
 M_Cover.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
 M_Cover.BorderSizePixel = 0
 M_Cover.BackgroundTransparency = 0
+M_Cover.Visible = true
 
 local M_Title = Instance.new("TextLabel", M_Tomain)
 M_Title.Size = UDim2.new(0, 150, 0, 50)
@@ -59,7 +60,7 @@ M_Title.AutomaticSize = Enum.AutomaticSize.XY
 
 local M_SubTitle = Instance.new("TextLabel", M_Tomain)
 M_SubTitle.Size = UDim2.new(0, 100, 0, 30)
-M_SubTitle.Position = UDim2.new(0, M_Title.AbsoluteSize.X + 25, 0, 17)
+M_SubTitle.Position = UDim2.new(0, M_Title.AbsoluteSize.X + 35, 0, 17)
 M_SubTitle.Text = Orilax.SubName
 M_SubTitle.BackgroundTransparency = 1
 M_SubTitle.TextColor3 = Color3.fromRGB(150, 150, 150)
@@ -118,7 +119,7 @@ local M_Corner = Instance.new("UICorner", M_TabHolders)
 M_Corner.CornerRadius = UDim.new(0, 6)
 
 local M_Line = Instance.new("Frame", M_TabHolders)
-M_Line.Size = UDim2.new(0, 50, 1, 0)
+M_Line.Size = UDim2.new(0, 60, 1, 0)
 M_Line.Position = UDim2.new(0.5, -30, 0, 0)
 M_Line.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 M_Line.BorderSizePixel = 0
@@ -147,12 +148,14 @@ game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enu
             }):Play()
             M_TabHolder.Visible = false
             M_Line.Visible = false
+            M_Cover.Visible = false
 else
 game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
                 Size = UDim2.new(0, 520, 0, 330)
             }):Play()
             M_TabHolder.Visible = true
             M_Line.Visible = true
+            M_Cover.Visible = true
             end
 end)
 
@@ -234,7 +237,8 @@ function GUI:NewTab(p)
     local PageFunctions = {}
     
         function PageFunctions:NewToggle(Params)
-            local M_ToggleOuter = Instance.new("Frame", Params.Side == "Right" and PageRight or PageLeft) 
+	        local ToggleSet = {}
+            local M_ToggleOuter = Instance.new("Frame", self.Page) 
 M_ToggleOuter.Size = UDim2.new(0, 200, 0, 40)  
 M_ToggleOuter.Position = UDim2.new(0, 10, 0, 10)  
 M_ToggleOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)  
@@ -306,10 +310,30 @@ M_BToggle.MouseButton1Click:Connect(function()
         end)
     end
 end)
+
+function ToggleSet:SetValue(Bool)
+    ToggleState = Bool
+    
+    M_BToggle.BackgroundColor3 = ToggleState and Color3.fromRGB(0, 155, 51) or Color3.fromRGB(155, 0, 51)
+
+    local targetPosition = ToggleState and UDim2.new(0.5, 0, 0, 0) or UDim2.new(0, 0, 0, 0)
+    
+    game.TweenService:Create(M_BToggle, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
+        Position = targetPosition
+    }):Play()
+
+    if Params and Params.Call then
+        pcall(function()
+            Params.Call(ToggleState)
+        end)
+    end
+end
+
+return ToggleSet
             end
             
             function PageFunctions:NewButton(Params)
-    local M_ButtonOuter = Instance.new("Frame", Params.Side == "Right" and PageRight or PageLeft)
+    local M_ButtonOuter = Instance.new("Frame", self.Page)
     M_ButtonOuter.Size = UDim2.new(0, 200, 0, 40)
     M_ButtonOuter.Position = UDim2.new(0, 10, 0, 60)
     M_ButtonOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
@@ -347,7 +371,7 @@ end)
 end
             
             function PageFunctions:NewDropdown(Params)
-    local M_DropDownOuter = Instance.new("Frame", Params.Side == "Right" and PageRight or PageLeft)
+    local M_DropDownOuter = Instance.new("Frame", self.Page)
  M_DropDownOuter.Size = UDim2.new(0, 200, 0, 150)
  M_DropDownOuter.Position = UDim2.new(0.5, 0, 0.5, 0)
  M_DropDownOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
@@ -435,7 +459,8 @@ end
         
         
         function PageFunctions:NewLabel(Params)
-    local M_LabelOuter = Instance.new("Frame", Params.Side == "Right" and PageRight or PageLeft)
+    local LabelSet = {}
+    local M_LabelOuter = Instance.new("Frame", self.Page)
     M_LabelOuter.Size = UDim2.new(0, 200, 0, 40)
     M_LabelOuter.Position = UDim2.new(0, 10, 0, 60)
     M_LabelOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
@@ -457,15 +482,22 @@ end
     B_Name.TextColor3 = Color3.new(255, 255, 255)
     B_Name.Font = Enum.Font.GothamBold
     B_Name.TextWrapped = true
-    B_Name.AutomaticSize = Enum.AutomaticSize.Y    
+    B_Name.AutomaticSize = Enum.AutomaticSize.Y
     
+    function LabelSet:SetText(Text)
+	    if B_Name.Text ~= Text then
+			B_Name.Text = Text
+		end
+	end
+    
+    return LabelSet
 end
         end
 
-        return {
-        LeftPage = PageFunctions,
-        RightPage = PageFunctions
-    }
+        local LeftPage = setmetatable({Page = PageLeft}, {__index = PageFunctions})
+    local RightPage = setmetatable({Page = PageRight}, {__index = PageFunctions})
+
+    return {LeftPage = LeftPage, RightPage = RightPage}
 end
 
     return GUI
