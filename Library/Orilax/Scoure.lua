@@ -60,7 +60,7 @@ M_Title.AutomaticSize = Enum.AutomaticSize.XY
 
 local M_SubTitle = Instance.new("TextLabel", M_Tomain)
 M_SubTitle.Size = UDim2.new(0, 100, 0, 30)
-M_SubTitle.Position = UDim2.new(0, M_Title.AbsoluteSize.X + 35, 0, 17)
+M_SubTitle.Position = UDim2.new(0, M_Title.AbsoluteSize.X + 25, 0, 17)
 M_SubTitle.Text = Orilax.SubName
 M_SubTitle.BackgroundTransparency = 1
 M_SubTitle.TextColor3 = Color3.fromRGB(150, 150, 150)
@@ -144,7 +144,7 @@ M_Mimize.MouseButton1Click:Connect(function()
 Hide = not Hide
 if Hide then
 game.TweenService:Create(M_Gui, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
-                Size = UDim2.new(0, 520, 0, 50)
+                Size = UDim2.new(0, 520, 0, 60)
             }):Play()
             M_TabHolder.Visible = false
             M_Line.Visible = false
