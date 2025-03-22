@@ -2902,6 +2902,27 @@ end
     end
 })
 
+Badge2Group:AddButton({
+    Text = "Get Join Retro",
+    Func = function()
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if workspace.Arena:FindFirstChild("CannonIsland") and workspace.Arena.CannonIsland:FindFirstChild("Cannon Island [OLD]") then
+for i, v in pairs(workspace.Arena.CannonIsland:FindFirstChild("Cannon Island [OLD]"):GetChildren()) do
+if v.Name == "Model" and v:FindFirstChild("Towers") and v.Towers:FindFirstChild("RevealHitbox") and v.Towers:FindFirstChild("TeleportSFHitbox") then
+repeat task.wait()
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Towers.RevealHitbox.CFrame * CFrame.new(3, 0, 0) * CFrame.Angles(math.rad(0), math.rad(50), math.rad(0))
+wait(0.2)
+game:GetService("ReplicatedStorage").RetroAbility:FireServer("Ban Hammer")
+until v.Towers:FindFirstChild("Ring of Fire") ~= nil
+wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Towers:FindFirstChild("Ring of Fire").CFrame
+end
+end
+end
+end
+    end
+})
+
 Badge2Group:AddToggle("Bus Stab", {
     Text = "Bus Stab",
     Default = false, 
@@ -5625,7 +5646,7 @@ game.Workspace.NametagChanged.GloveChanged.Value = Value
 _G.AutoChangeSlapFake = Value
 while _G.AutoChangeSlapFake do
 if game.Players.LocalPlayer.leaderstats.Glove.Value ~= game.Workspace.NametagChanged.GloveChanged.Value then
-game.Players.LocalPlayer.leaderstats.Slaps.Value = game.Workspace.NametagChanged.GloveChanged.Value
+game.Players.LocalPlayer.leaderstats.Glove.Value = game.Workspace.NametagChanged.GloveChanged.Value
 end
 task.wait()
 end
@@ -10700,6 +10721,64 @@ elseif GuiClick:FindFirstChild("PC").Visible == true and GuiClick.PC:FindFirstCh
 game:GetService("VirtualInputManager"):SendKeyEvent(true, GuiClick.PC.QuickTimeLabel.Text, false, x)
 end
 until game:GetService("Players").LocalPlayer.PlayerGui.DavidShrineQTE.DavidShrineQTE:FindFirstChild("ScoreLabel").Visible == true and game:GetService("Players").LocalPlayer.PlayerGui.DavidShrineQTE.DavidShrineQTE:FindFirstChild("ScoreLabel").Text == "Score: 150"
+end
+end
+end)
+elseif game.PlaceId == 117232463555132 then
+local Window = Library:CreateWindow({
+    Title = "Omega X Article Hub - Map Retro Boss",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+    AutoLock = true,
+    ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local Misc1Group = Tabs.Tab:AddLeftGroupbox("Badge")
+
+Misc1Group:AddButton("Get Badge", function()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if workspace.Map.Components.NPCs.FinalBoss:FindFirstChild("FinalBoss") and workspace.Map.Components.NPCs.FinalBoss.FinalBoss:FindFirstChild("HumanoidRootPart") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.Components.NPCs.FinalBoss.FinalBoss.HumanoidRootPart.CFrame
+end
+wait(0.36)
+if workspace.Map.Components.NPCs.FinalBoss:FindFirstChild("FinalBoss") and workspace.Map.Components.NPCs.FinalBoss.FinalBoss:FindFirstChild("Head") then
+if fireproximityprompt then
+fireproximityprompt(workspace.Map.Components.NPCs.FinalBoss.FinalBoss.Head:FindFirstChild("ProximityPrompt"))
+end
+end
+repeat task.wait() until game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("FinalBossHealthBar") and game:GetService("Players").LocalPlayer.PlayerGui.FinalBossHealthBar:FindFirstChild("FinalBossHealthBar").Visible == true
+wait(0.5)
+repeat task.wait()
+if workspace.Map.Components.NPCs.FinalBoss:FindFirstChild("FinalBoss") and workspace.Map.Components.NPCs.FinalBoss.FinalBoss:FindFirstChild("HumanoidRootPart") then
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Default") then
+game.Players.LocalPlayer.Backpack:FindFirstChild("Default").Parent = game.Players.LocalPlayer.Character
+end
+workspace.Map.Components.NPCs.FinalBoss.FinalBoss.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
+workspace.Map.Components.NPCs.FinalBoss.FinalBoss.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5)
+game:GetService("ReplicatedStorage").Remotes.ToolSwingEvent:FireServer()
+end
+until game:GetService("Players").LocalPlayer.PlayerGui.SkipButton:FindFirstChild("SkipDialogueButton").Visible == true or game:GetService("Players").LocalPlayer.PlayerGui.FinalBossHealthBar:FindFirstChild("FinalBossHealthBar").Visible == false or workspace.Map.Components.NPCs.FinalBoss:FindFirstChild("BridgeToGlove").Transparency == 0
+workspace.Map.Components.NPCs.FinalBoss.FinalBoss.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+repeat task.wait() until workspace.Map.Components.NPCs.FinalBoss:FindFirstChild("BridgeToGlove").Transparency == 0
+wait(1)
+if workspace.Map.Components:FindFirstChild("GloveIsland") and workspace.Map.Components.GloveIsland:FindFirstChild("ClaimGlove") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.Components.GloveIsland.ClaimGlove.CFrame
+wait(1)
+while true do
+wait(0.3)
+if fireproximityprompt then
+fireproximityprompt(workspace.Map.Components.GloveIsland.ClaimGlove:FindFirstChild("ProximityPrompt"))
+end
+end
 end
 end
 end)
