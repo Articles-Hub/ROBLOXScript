@@ -489,9 +489,109 @@ end
 			B_Name.Text = Text
 		end
 	end
+	return LabelSet
+	end
+	
+	function PageFunctions:NewSlider(Params)
+    local Min, Max = Params.Min or 0, Params.Max or 100
+    local Value = Params.Default or Min
+    local Dragging = false
+
+    local M_SliderOuter = Instance.new("Frame", self.Page)
+    M_SliderOuter.Size = UDim2.new(0, 200, 0, 60)
+    M_SliderOuter.Position = UDim2.new(0, 10, 0, 60)
+    M_SliderOuter.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+    M_SliderOuter.Active = true
+
+    local M_Corner = Instance.new("UICorner", M_SliderOuter)
+    M_Corner.CornerRadius = UDim.new(0, 7)
+
+    local M_Stroke = Instance.new("UIStroke", M_SliderOuter)
+    M_Stroke.Color = Color3.fromRGB(60, 60, 60)
+    M_Stroke.Thickness = 0.5
+
+    local B_Name = Instance.new("TextLabel", M_SliderOuter)
+    B_Name.Size = UDim2.new(1, -20, 1, 0)
+    B_Name.Position = UDim2.new(0, 10, 0, -20)
+    B_Name.Text = Params.Name
+    B_Name.TextSize = 14
+    B_Name.BackgroundTransparency = 1
+    B_Name.TextColor3 = Color3.new(255, 255, 255)
+    B_Name.Font = Enum.Font.GothamBold
+    B_Name.TextWrapped = true
+
+    local M_SliderFrame = Instance.new("Frame", M_SliderOuter)
+    M_SliderFrame.Size = UDim2.new(0.9, 0, 0, 35)
+    M_SliderFrame.Position = UDim2.new(0.05, 0, 0, 20)
+    M_SliderFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    M_SliderFrame.Active = true
+    M_SliderFrame.BackgroundTransparency = 0.7
+
+    local M_Corner = Instance.new("UICorner", M_SliderFrame)
+    M_Corner.CornerRadius = UDim.new(0, 5)
+
+    local M_Stroke = Instance.new("UIStroke", M_SliderFrame)
+    M_Stroke.Color = Color3.fromRGB(60, 60, 60)
+    M_Stroke.Thickness = 1
+
+    local M_NumSlider = Instance.new("TextLabel", M_SliderFrame)
+    M_NumSlider.Size = UDim2.new(1, 0, 1, 0)
+    M_NumSlider.Position = UDim2.new(0, 0, 0, 0)
+    M_NumSlider.Text = tostring(Value)
+    M_NumSlider.TextSize = 17
+    M_NumSlider.BackgroundTransparency = 1
+    M_NumSlider.TextColor3 = Color3.fromRGB(200, 200, 200)
+    M_NumSlider.Font = Enum.Font.GothamBold
+
+    local M_SliderBar = Instance.new("Frame", M_SliderFrame)
+    M_SliderBar.Size = UDim2.new((Value - Min) / (Max - Min), 0, 1, 0)
+    M_SliderBar.Position = UDim2.new(0, 0, 0, 0)
+    M_SliderBar.BackgroundColor3 = Color3.fromRGB(205, 205, 205)
+    M_SliderBar.Active = true
+    M_SliderBar.BackgroundTransparency = 0.3
+
+    local M_Corner = Instance.new("UICorner", M_SliderBar)
+    M_Corner.CornerRadius = UDim.new(0, 5)
+
+    local function UpdateSlider(Input)
+        local SizeScale = math.clamp((Input.Position.X - M_SliderFrame.AbsolutePosition.X) / M_SliderFrame.AbsoluteSize.X, 0, 1)
+        Value = math.floor(Min + ((Max - Min) * SizeScale))
+        M_SliderBar.Size = UDim2.new(SizeScale, 0, 1, 0)
+        M_NumSlider.Text = tostring(Value)
+        if Params.Callback then Params.Callback(Value) end
+    end
+
+    M_SliderFrame.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+            Dragging = true
+            UpdateSlider(Input)
+        end
+    end)
+
+    M_SliderFrame.InputEnded:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+            Dragging = false
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(Input)
+        if Dragging and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
+            UpdateSlider(Input)
+        end
+    end)
     
-    return LabelSet
+    function SliderSet:SetValue(NewValue)
+    Value = math.clamp(NewValue, Min, Max)
+    local SizeScale = (Value - Min) / (Max - Min)
+    M_SliderBar.Size = UDim2.new(SizeScale, 0, 1, 0)
+    M_NumSlider.Text = tostring(Value)
+    if Params.Callback then Params.Callback(Value) end
 end
+return SliderSet
+end
+
+end
+    
         end
 
         local LeftPage = setmetatable({Page = PageLeft}, {__index = PageFunctions})
