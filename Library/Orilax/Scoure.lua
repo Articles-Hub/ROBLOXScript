@@ -371,6 +371,8 @@ return ToggleSet
 end
             
             function PageFunctions:NewDropdown(Params)
+            Text = Params.Name or "select item"
+            PlaceHolders = Params.PlaceHolder or "Nothing"
     local M_DropDownOuter = Instance.new("Frame", self.Page)
  M_DropDownOuter.Size = UDim2.new(0, 200, 0, 150)
  M_DropDownOuter.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -386,7 +388,7 @@ end
  local M_DName = Instance.new("TextLabel", M_DropDownOuter)
  M_DName.Size = UDim2.new(0, 0, 0, 0)
  M_DName.Position = UDim2.new(0, 60, 0, 20)
- M_DName.Text = "Select Item"
+ M_DName.Text = Text
  M_DName.TextSize = 14
  M_DName.BackgroundTransparency = 1
  M_DName.TextColor3 = Color3.new(255, 255, 255)
@@ -398,7 +400,7 @@ end
  M_DropDownBox.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
  M_DropDownBox.BorderColor3 = Color3.new(0, 0, 0)
  M_DropDownBox.BorderSizePixel = 1
- M_DropDownBox.Text = "Skibidi"
+ M_DropDownBox.Text = PlaceHolders
  M_DropDownBox.TextSize = 14
  M_DropDownBox.TextScaled = false
  M_DropDownBox.BackgroundTransparency = 0 
@@ -496,6 +498,7 @@ end
     local Min, Max = Params.Min or 0, Params.Max or 100
     local Value = Params.Default or Min
     local Dragging = false
+    local SliderSet = {}
 
     local M_SliderOuter = Instance.new("Frame", self.Page)
     M_SliderOuter.Size = UDim2.new(0, 200, 0, 60)
@@ -526,6 +529,7 @@ end
     M_SliderFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     M_SliderFrame.Active = true
     M_SliderFrame.BackgroundTransparency = 0.7
+    M_SliderFrame.ClipsDescendants = true  -- Giữ input trong khu vực slider
 
     local M_Corner = Instance.new("UICorner", M_SliderFrame)
     M_Corner.CornerRadius = UDim.new(0, 5)
@@ -554,6 +558,11 @@ end
     M_Corner.CornerRadius = UDim.new(0, 5)
 
     local function UpdateSlider(Input)
+        if not Dragging then return end
+        if Input.Position.X < M_SliderFrame.AbsolutePosition.X or Input.Position.X > (M_SliderFrame.AbsolutePosition.X + M_SliderFrame.AbsoluteSize.X) then
+            return 
+        end
+
         local SizeScale = math.clamp((Input.Position.X - M_SliderFrame.AbsolutePosition.X) / M_SliderFrame.AbsoluteSize.X, 0, 1)
         Value = math.floor(Min + ((Max - Min) * SizeScale))
         M_SliderBar.Size = UDim2.new(SizeScale, 0, 1, 0)
@@ -579,15 +588,16 @@ end
             UpdateSlider(Input)
         end
     end)
-    
+
     function SliderSet:SetValue(NewValue)
-    Value = math.clamp(NewValue, Min, Max)
-    local SizeScale = (Value - Min) / (Max - Min)
-    M_SliderBar.Size = UDim2.new(SizeScale, 0, 1, 0)
-    M_NumSlider.Text = tostring(Value)
-    if Params.Callback then Params.Callback(Value) end
-end
-return SliderSet
+        Value = math.clamp(NewValue, Min, Max)
+        local SizeScale = (Value - Min) / (Max - Min)
+        M_SliderBar.Size = UDim2.new(SizeScale, 0, 1, 0)
+        M_NumSlider.Text = tostring(Value)
+        if Params.Callback then Params.Callback(Value) end
+    end
+
+    return SliderSet
 end
 
 end
