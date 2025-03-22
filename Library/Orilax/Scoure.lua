@@ -591,8 +591,6 @@ return SliderSet
 end
 
 end
-    
-        end
 
         local LeftPage = setmetatable({Page = PageLeft}, {__index = PageFunctions})
     local RightPage = setmetatable({Page = PageRight}, {__index = PageFunctions})
