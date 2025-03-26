@@ -59,7 +59,7 @@ local Library = {
     ActiveTab = nil;
     Toggled = false;
     
-    MinSize = Vector2.new(550, 300);
+    MinSize = Vector2.new(550, 200);
     IsMobile = false;
     DevicePlatform = Enum.Platform.None;
 
@@ -82,7 +82,7 @@ pcall(function() Library.DevicePlatform = InputService:GetPlatform(); end); -- F
 Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS);
 
 if Library.IsMobile then
-    Library.MinSize = Vector2.new(550, 100); -- Make UI little bit smaller.
+    Library.MinSize = Vector2.new(550, 150); -- Make UI little bit smaller.
 end
 
 local RainbowStep = 0
@@ -1556,12 +1556,7 @@ do
                     end
                 end;
 
-                --[[if Frame:IsA('TextLabel') and Frame.Visible then
-                    YSize = YSize + 18;
-                    if (Frame.TextBounds.X > XSize) then
-                        XSize = Frame.TextBounds.X;
-                    end
-                end;--]]
+                
             end;
 
             Library.KeybindFrame.Size = UDim2.new(0, math.max(XSize + 10, 210), 0, YSize + 23 + 6)
@@ -3642,7 +3637,7 @@ function Library:CreateWindow(...)
             if ViewportSizeYOffset >= 200 and ViewportSizeYOffset <= 600 then
                 Config.Size = UDim2.fromOffset(550, ViewportSizeYOffset)
             else
-                Config.Size = UDim2.fromOffset(550, 350)
+                Config.Size = UDim2.fromOffset(550, 150)
             end
         end
     end
