@@ -1002,7 +1002,7 @@ end
 
 local Misc2Group = Tabs.Tab1:AddRightGroupbox("Combat")
 
-Misc2Group:AddDropdown("No Mods", {
+Misc2Group:AddDropdown("NoMods", {
     Text = "No Mods",
     Values = {"Horse", "Wolf", "Werewolf"},
     Default = "",
@@ -1037,8 +1037,7 @@ end
 while _G.HitboxStMods do
 for i, v in pairs(workspace:GetDescendants()) do
 if v ~= workspace:FindFirstChild("RuntimeItems") and v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
-local ModsNoTag1 = (Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf"))
-if not ModsNoTag1 then
+if not (OptionsNoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or not (Options["No Mods"].Value["Wolf"] or v.Name ~= "Wolf") or not (Options["No Mods"].Value["Werewolf"] or v.Name ~= "Werewolf") then
 if v.Humanoid.Health > 0 then
 v.HumanoidRootPart.Size = Vector3.new(_G.SizeMods, _G.SizeMods, _G.SizeMods)
 v.HumanoidRootPart.Transparency = 0.5
@@ -1157,7 +1156,7 @@ while _G.KillAuraGun do
 for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
 if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < _G.DistanceGun then
-if (not Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (not Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (not Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf")) then
+if not (OptionsNoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or not (Options["No Mods"].Value["Wolf"] or v.Name ~= "Wolf") or not (Options["No Mods"].Value["Werewolf"] or v.Name ~= "Werewolf") then
 if v.Humanoid.Health > 0 then
 GunAuraSt(v.Humanoid)
 end
@@ -1181,7 +1180,7 @@ for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance < DistanceMath then
-if (not Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (not Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (not Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf")) then
+if not (OptionsNoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or not (Options["No Mods"].Value["Wolf"] or v.Name ~= "Wolf") or not (Options["No Mods"].Value["Werewolf"] or v.Name ~= "Werewolf") then
 if v:FindFirstChild("Humanoid") and v:FindFirstChild("Humanoid").Health > 0 then
 ModsTarget, DistanceMath = v:FindFirstChild("Head"), Distance
 end
@@ -1214,7 +1213,7 @@ for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance2 = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance2 < DistanceMathMods then
-if (not Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (not Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (not Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf")) then
+if not (OptionsNoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or not (Options["No Mods"].Value["Wolf"] or v.Name ~= "Wolf") or not (Options["No Mods"].Value["Werewolf"] or v.Name ~= "Werewolf") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTargetHead, DistanceMathMods = v:FindFirstChild("Head"), Distance2
 end
@@ -1259,8 +1258,8 @@ Misc2Group:AddSlider("Health Heal", {
     Default = 68,
     Min = 1,
     Max = 100,
-    Rounding = 1,
-    Compact = true,
+    Rounding = 0,
+    Compact = false,
     Callback = function(Value)
 _G.HealthyHeal = Value
     end
