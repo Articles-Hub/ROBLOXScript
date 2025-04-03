@@ -1157,8 +1157,7 @@ while _G.KillAuraGun do
 for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
 if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < _G.DistanceGun then
-local ModsNoTag2 = (Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf"))
-if not ModsNoTag2 then
+if (not Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (not Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (not Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf")) then
 if v.Humanoid.Health > 0 then
 GunAuraSt(v.Humanoid)
 end
@@ -1182,8 +1181,7 @@ for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance < DistanceMath then
-local ModsNoTag3 = (Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf"))
-if not ModsNoTag3 then
+if (not Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (not Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (not Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf")) then
 if v:FindFirstChild("Humanoid") and v:FindFirstChild("Humanoid").Health > 0 then
 ModsTarget, DistanceMath = v:FindFirstChild("Head"), Distance
 end
@@ -1216,8 +1214,7 @@ for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance2 = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance2 < DistanceMathMods then
-local ModsNoTag4 = (Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf"))
-if not ModsNoTag4 then
+if (not Options["No Mods"].Value["Horse"] and (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or (not Options["No Mods"].Value["Wolf"] and (v.Name ~= "Wolf")) or (not Options["No Mods"].Value["Werewolf"] or (v.Name ~= "Werewolf")) then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTargetHead, DistanceMathMods = v:FindFirstChild("Head"), Distance2
 end
