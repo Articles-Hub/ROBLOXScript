@@ -988,7 +988,7 @@ if v:FindFirstChild("Esp_Unicorn") == nil then
 	Highlight.Adornee = v
 	Highlight.Parent = v
 end
-until _G.Notification == false or v:FindFirstChild("HumanoidRootPart") == nil
+until _G.NotificationUnicorn == false or v:FindFirstChild("HumanoidRootPart") == nil
 if v:FindFirstChild("Esp_Unicorn") then
 v:FindFirstChild("Esp_Unicorn"):Destroy()
 end
