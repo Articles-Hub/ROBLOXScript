@@ -180,27 +180,27 @@ for h, m in pairs(v.ObjectInfo:GetChildren()) do
 if m.Name == "TextLabel" then
 if m.Text == "Valuable" or m.Text == "Junk" or m.Text == "Gun" then
 if workspace:FindFirstChild("SafeZones") and workspace.SafeZones:FindFirstChild("SafeZone") and workspace.SafeZones.SafeZone:FindFirstChild("Buildings") then
+for z, w in pairs(workspace.SafeZones.SafeZone.Buildings.TradingPost:FindFirstChild("BountySquare"):GetChildren()) do
+if w.Name == "Part" and w:FindFirstChild("SurfaceGui") and w.SurfaceGui:FindFirstChild("TextLabel") then
 game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(v)
 wait(0.3)
-for z, w in pairs(workspace.SafeZones.SafeZone.Buildings.TradingPost:FindFirstChild("SellZones"):GetChildren()) do
-if w.Name == "SellZone" then
 v:SetPrimaryPartCFrame(w.CFrame)
-end
-end
-task.wait(0.2)
+task.wait(0.3)
 game:GetService("ReplicatedStorage").Shared.Remotes.RequestStopDrag:FireServer()
+end
+end
 end
 elseif m.Text == "Bounty" then
 if workspace:FindFirstChild("SafeZones") and workspace.SafeZones:FindFirstChild("SafeZone") and workspace.SafeZones.SafeZone:FindFirstChild("Buildings") then
+for z, w in pairs(workspace.SafeZones.SafeZone.Buildings.SheriffsOffice:FindFirstChild("BountySquare"):GetChildren()) do
+if w.Name == "Part" and w:FindFirstChild("SurfaceGui") and w.SurfaceGui:FindFirstChild("TextLabel") then
 game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(v)
 wait(0.3)
-for z, w in pairs(workspace.SafeZones.SafeZone.Buildings:FindFirstChild("SheriffsOffice"):GetChildren()) do
-if w.Name == "SellZone" then
 v:SetPrimaryPartCFrame(w.CFrame)
-end
-end
-task.wait(0.2)
+task.wait(0.3)
 game:GetService("ReplicatedStorage").Shared.Remotes.RequestStopDrag:FireServer()
+end
+end
 end
 end
 end
@@ -954,7 +954,7 @@ end
     end
 })
 
-Misc1Group:AddToggle("Notification Unicorn", {
+Misc1Group:AddToggle("NotificationUnicorn", {
     Text = "Notification Unicorn",
     Default = false, 
     Callback = function(Value) 
@@ -988,7 +988,7 @@ if v:FindFirstChild("Esp_Unicorn") == nil then
 	Highlight.Adornee = v
 	Highlight.Parent = v
 end
-until _G.NotificationUnicorn == false or v:FindFirstChild("HumanoidRootPart") == nil
+until _G.Notification == false or v:FindFirstChild("HumanoidRootPart") == nil
 if v:FindFirstChild("Esp_Unicorn") then
 v:FindFirstChild("Esp_Unicorn"):Destroy()
 end
@@ -1037,13 +1037,17 @@ end
 while _G.HitboxStMods do
 for i, v in pairs(workspace:GetDescendants()) do
 if v ~= workspace:FindFirstChild("RuntimeItems") and v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
-if not (Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or not (Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf") or not (Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf") then
-if v.Humanoid.Health > 0 then
+if not Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn") then
+if not Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf" then
+if not Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf" then
+if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
 v.HumanoidRootPart.Size = Vector3.new(_G.SizeMods, _G.SizeMods, _G.SizeMods)
 v.HumanoidRootPart.Transparency = 0.5
 else
 v.HumanoidRootPart.Size = Vector3.new(5, 5, 5)
 v.HumanoidRootPart.Transparency = 1
+end
+end
 end
 end
 end
@@ -1156,9 +1160,13 @@ while _G.KillAuraGun do
 for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
 if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < _G.DistanceGun then
-if not (Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or not (Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf") or not (Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf") then
-if v.Humanoid.Health > 0 then
+if not Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn") then
+if not Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf" then
+if not Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf" then
+if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 GunAuraSt(v.Humanoid)
+end
+end
 end
 end
 end
@@ -1180,9 +1188,13 @@ for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance < DistanceMath then
-if not (Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or not (Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf") or not (Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf") then
-if v:FindFirstChild("Humanoid") and v:FindFirstChild("Humanoid").Health > 0 then
+if not Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn") then
+if not Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf" then
+if not Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf" then
+if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTarget, DistanceMath = v:FindFirstChild("Head"), Distance
+end
+end
 end
 end
 end
@@ -1213,9 +1225,13 @@ for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance2 = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance2 < DistanceMathMods then
-if not (Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn")) or not (Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf") or not (Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf") then
+if not Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn") then
+if not Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf" then
+if not Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf" then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTargetHead, DistanceMathMods = v:FindFirstChild("Head"), Distance2
+end
+end
 end
 end
 end
