@@ -2830,6 +2830,49 @@ end
 })
 
 Badge2Group:AddButton({
+    Text = "Get Glove Tank",
+    Func = function()
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Pillow" and game.Players.LocalPlayer:FindFirstChild("_unlockedGloves") and game.Players.LocalPlayer._unlockedGloves:FindFirstChild("Shotgun").Value == true and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer(CFrame.new(260, 36, 191))
+wait(1)
+local Pillow = workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s PillowFort")
+repeat task.wait()
+if workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s PillowFort") then
+game:GetService("ReplicatedStorage").Events.PillowEvent:FireServer("AddPillow")
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Pillow.Level0:FindFirstChild("plate").CFrame
+else
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer(CFrame.new(260, 36, 191))
+task.wait(0.2)
+end
+until workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s PillowFort") and Pillow:FindFirstChild("Level0") and Pillow.Level0:FindFirstChild("plate") and Pillow.Level0.plate:FindFirstChild("BillboardGui").level.Text == "Level: 4"
+wait(0.5)
+fireclickdetector(workspace.Lobby.Shotgun.ClickDetector)
+wait(0.5)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.5)
+repeat task.wait()
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == (game.Players.LocalPlayer.Name.."'s PillowFort") and v:FindFirstChild("Level2") and v.Level2:FindFirstChild("door") then
+if v.Level2.door:FindFirstChild("Outer").Transparency <= 0 then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Level2.door:FindFirstChild("Outer").CFrame * CFrame.new(0, 0, 7)
+end
+end
+end
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer("explosive")
+until workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s PillowFort") == nil
+else
+Notification("You don't have Pillow equipped, or you don't have owner Shotgun or, you have lobby", _G.TimeNotify)
+end
+    end
+})
+
+Badge2Group:AddButton({
     Text = "Voodoo + Fish + Trap Farm",
     Func = function()
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Ghost" and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
@@ -3259,7 +3302,6 @@ for i = 1, 9000 do
 game:GetService("ReplicatedStorage").FlashTeleport:FireServer()
 end
 elseif _G.FlashMastery == "Ambush" then
-if game.Players.LocalPlayer.leaderstats.Slap.Value >= 4000 then
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 fireclickdetector(workspace.Lobby.Replica.ClickDetector)
 wait(0.5)
@@ -3289,21 +3331,20 @@ end
 wait(0.2)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
 for i, v in pairs(game.Workspace:GetChildren()) do
-    if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
-        task.spawn(function()
-            repeat
-                game:GetService("ReplicatedStorage").FlashTeleport:FireServer()
-                task.wait(5.7)
-            until v:FindFirstChild("HumanoidRootPart") == nil or _G.AutoFlashMastery == false
-        end)
-        wait(0.2)
-        repeat
-            task.wait()
-            if gloveHits["Flash"] and v:FindFirstChild("HumanoidRootPart") then
-                gloveHits["Flash"]:FireServer(v:FindFirstChild("HumanoidRootPart"))
-            end
-        until v:FindFirstChild("HumanoidRootPart") == nil or _G.AutoFlashMastery == false
-    end
+if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
+task.spawn(function()
+repeat
+game:GetService("ReplicatedStorage").FlashTeleport:FireServer()
+task.wait(5.7)
+until v:FindFirstChild("HumanoidRootPart") == nil or _G.AutoFlashMastery == false
+end)
+wait(0.2)
+repeat task.wait()
+if gloveHits["Flash"] and v:FindFirstChild("HumanoidRootPart") then
+gloveHits["Flash"]:FireServer(v:FindFirstChild("HumanoidRootPart"))
+end
+until v:FindFirstChild("HumanoidRootPart") == nil or _G.AutoFlashMastery == false
+end
 end
 wait(0.2)
 game:GetService("Players").LocalPlayer.Reset:FireServer()
@@ -3313,8 +3354,6 @@ fireclickdetector(workspace.Lobby.Replica.ClickDetector)
 else
 fireclickdetector(workspace.Lobby.Flash.ClickDetector)
 end
-end
-elseif game.Players.LocalPlayer.leaderstats.Slap.Value >=
 end
 end
 task.wait()
@@ -3867,6 +3906,46 @@ elseif _G.AutoBombMastery == true then
 Notification("You don't have Bomb equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Bomb Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddToggle("Auto Booster Mastery", {
+    Text = "Auto Booster Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoBoosterMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Booster" then
+while _G.AutoBoosterMastery do
+local players = game.Players:GetChildren()
+local RandomPlayer = players[math.random(1, #players)]
+if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
+if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character:FindFirstChild("Mirage") == nil and RandomPlayer.Character.Humanoid.Health ~= 0 then
+repeat task.wait()
+if _G.AutoBoosterMastery == false then 
+    break 
+end
+if RandomPlayer.Character.Ragdolled.Value == false then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -10, 0))
+task.wait(0.25)
+for i = 1, 2 do
+if RandomPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game:GetService("ReplicatedStorage").GeneralHit:FireServer(RandomPlayer.Character:FindFirstChild("HumanoidRootPart"))
+end
+end
+task.wait()
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+task.wait(2.57)
+end
+until RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character.HumanoidRootPart.Position.Y < -10 or RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character.Humanoid.Health <= 0
+end
+end
+task.wait()
+end
+elseif _G.AutoBoosterMastery == true then
+Notification("You don't have Booster equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Booster Mastery"]:SetValue(false)
 end
     end
 })
