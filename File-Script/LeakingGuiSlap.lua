@@ -746,9 +746,22 @@ game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text =
 end
 end
 
-local ApiPlayer = game.HttpService:JSONDecode(game:HttpGet("https://ipwho.is/"))
-local PARENT = (gethui and gethui()) or game:GetService('CoreGui')
+local PARENT = (gethui and gethui()) or game:GetService("CoreGui")
 local OrionLib = loadstring(game:HttpGet(("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/Orion/Source.lua")))()
+function Notification(Message, TimeNotify, IconId)
+if _G.ChooseNotify == "Orion" then
+OrionLib:MakeNotification({Name = "Notification", Content = Message, Image = IconId or "rbxassetid://7733658504", Time = TimeNotify or 5})
+elseif _G.ChooseNotify == "Roblox" then
+game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Notification", Text = Message, Icon = IconId or "rbxassetid://7733658504", Duration = TimeNotify or 5})
+end
+if _G.NotificationSound then
+        local sound = Instance.new("Sound", workspace)
+            sound.SoundId = "rbxassetid://4590662766"
+            sound.Volume = _G.VolumeTime or 2
+            sound.PlayOnRemove = true
+            sound:Destroy()
+        end
+    end
 if game.PlaceId == 6403373529 or game.PlaceId == 9015014224 or game.PlaceId == 11520107397 then
 local Window = OrionLib:MakeWindow({
      IntroText = "Article Hub - Slap Battles",
@@ -764,21 +777,6 @@ local Window = OrionLib:MakeWindow({
      IntroEnabled = true,
      ConfigFolder = "slap battles"
 })
-
-function Notification(Message, TimeNotify, IconId)
-if _G.ChooseNotify == "Orion" then
-OrionLib:MakeNotification({Name = "Notification", Content = Message, Image = IconId or "rbxassetid://7733658504", Time = TimeNotify or 5})
-elseif _G.ChooseNotify == "Roblox" then
-game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Notification", Text = Message, Icon = IconId or "rbxassetid://7733658504", Duration = TimeNotify or 5})
-end
-if _G.NotificationSound then
-        local sound = Instance.new("Sound", workspace)
-            sound.SoundId = "rbxassetid://4590662766"
-            sound.Volume = _G.VolumeTime or 2
-            sound.PlayOnRemove = true
-            sound:Destroy()
-        end
-    end
 
 Tabs = {
 	Tab = Window:MakeTab({Name = "Info", Icon = "rbxassetid://7734053426", PremiumOnly = false}),
@@ -3001,7 +2999,7 @@ end
 elseif Brickfarm == true then
 Notification("You don't have Brick equipped", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["AutoFarm Brick"]:Set(false)
+OrionLib.Flags["AutoFarm Brick"]:Set(false)
 end
     end
 })
@@ -3022,7 +3020,7 @@ end
 elseif _G.AutoTpPlate == true then
 Notification("You need enter erane, or 7 people the server", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Get Tycoon"]:Set(false)
+OrionLib.Flags["Get Tycoon"]:Set(false)
 end
     end
 })
@@ -5055,7 +5053,7 @@ end
 elseif _G.RhythmNoteSpam == true then
 Notification("You don't have Rhythm equipped", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Inf Rhythm"]:Set(false)
+OrionLib.Flags["Inf Rhythm"]:Set(false)
 end
     end
 })
@@ -5516,7 +5514,7 @@ end
 elseif _G.AutoShukuchi == true then
 Notification("You don't have Shukuchi equipped.", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Shukuchi"]:Set(false)
+OrionLib.Flags["Auto Shukuchi"]:Set(false)
 end
     end
 })
@@ -6047,6 +6045,15 @@ _G.GhostEsp = Value
 })
 
 TabMisc:AddToggle({
+    Name = "Name Esp",
+    Default = false, 
+    Flag = "Name",
+    Callback = function(Value) 
+_G.NameEsp = Value
+    end
+})
+
+TabMisc:AddToggle({
     Name = "Highlight Esp",
     Default = false, 
     Flag = "Highlight",
@@ -6056,7 +6063,7 @@ _G.HighlightEsp = Value
 })
 
 TabMisc:AddColorpicker({
-	Name = "Colorpicker",
+	Name = "Color Esp",
 	Default = Color3.fromRGB(255, 0, 0),
 	Callback = function(Value)
 _G.ColorESP = Value
@@ -6337,7 +6344,7 @@ end
 elseif _G.PropSpam == true then
 Notification("You don't have Prop equipped", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Ability Prop"]:Set(false)
+OrionLib.Flags["Auto Ability Prop"]:Set(false)
 end
     end
 })
@@ -6371,7 +6378,7 @@ end
 elseif SantaSpam == true then
 Notification("You don't have Santa equipped", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Ability Santa"]:Set(false)
+OrionLib.Flags["Auto Ability Santa"]:Set(false)
 end
     end
 })
@@ -6508,7 +6515,7 @@ end
 elseif GuardianAngelSpam == true then
 Notification("You don't have Guardian Angel equipped.", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Godmobe Player"]:Set(false)
+OrionLib.Flags["Auto Godmobe Player"]:Set(false)
 end
     end
 })
@@ -6566,7 +6573,7 @@ end
 elseif _G.RojoSpam == true then
 Notification("You don't have Rojo equipped.", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Ability Rojo"]:Set(false)
+OrionLib.Flags["Auto Ability Rojo"]:Set(false)
 end
     end
 })
@@ -6625,7 +6632,7 @@ end
 elseif _G.DivebombSpam == true then
 Notification("You don't have Divebomb equipped.", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Ability Divebomb"]:Set(false)
+OrionLib.Flags["Auto Ability Divebomb"]:Set(false)
 end
     end
 })
@@ -6663,7 +6670,7 @@ end
 elseif _G.BarrelSpamPlayer == true then
 Notification("You don't have Barrel equipped.", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Barrel"]:Set(false)
+OrionLib.Flags["Auto Barrel"]:Set(false)
 end
     end
 })
@@ -6714,71 +6721,8 @@ end
 elseif _G.BindSpamPlayer == true then
 Notification("You don't have Bind equipped.", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Bind"]:Set(false)
+OrionLib.Flags["Auto Bind"]:Set(false)
 end
-    end
-})
-
-TabGlove:AddTextbox({
-	Name = "Player",
-    Default = "",
-    Callback = function(Value)
-_G.PlayerTarget = Value
-for _, v in pairs(game.Players:GetPlayers()) do
-if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
-PlayerTa = v
-end
-end
-if PlayerTa then
-_G.PunishPlayer = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
-else
-Notification("Can't find player", _G.TimeNotify)
-end
-    end
-})
-
-Cancel = false
-TabGlove:AddButton({
-     Name = "Punish Player",
-     Callback = function()
-if game.Players.LocalPlayer.Character:FindFirstChild("Swapper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Swapper") then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-game.Workspace.VoidPart.VoidPart1.CanCollide = true
-Timer = 0
-repeat
-if Cancel == true then
-break
-end
-if game.Players[_G.PunishPlayer].Character:FindFirstChild("HumanoidRootPart") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(workspace[_G.PunishPlayer].HumanoidRootPart.Position.X,-49999,workspace[_G.PunishPlayer].HumanoidRootPart.Position.Z)
-end
-task.wait(0.01)
-if Timer < 1 then
-Timer = Timer + 0.01
-end
-until game.Players[_G.PunishPlayer].Character and workspace[_G.PunishPlayer]:FindFirstChild("HumanoidRootPart") and workspace[_G.PunishPlayer]:FindFirstChild("entered") and workspace[_G.PunishPlayer].Ragdolled.Value == false and Timer >= 1
-if Cancel == false then
-game:GetService("ReplicatedStorage").SLOC:FireServer()
-end
-wait(.25)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-game.Workspace.VoidPart.VoidPart1.CanCollide = false
-if game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Part",true) == nil then
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-end
-else
-Notification("You don't have Swapper equipped, or you aren't in the arena.", _G.TimeNotify)
-end
-    end
-})
-
-TabGlove:AddButton({
-    Name = "Cancel",
-    Callback = function()
-Cancel = true
-wait(0.1)
-Cancel = false
     end
 })
 
@@ -7021,7 +6965,11 @@ _G.TeleportOldPlace = Value
 TabGlove:AddButton({
       Name = "Player Teleport Recall",
       Callback = function()
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" and game.Players.LocalPlayer.Backpack:FindFirstChild("Recall") == nil then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" then
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Recall") then
+	game.Players.LocalPlayer.Backpack:FindFirstChild("Recall") Parent = game.Players.LocalPlayer.Character
+end
+wait(0.3)
 if _G.TeleportOldPlace == "Yes" then
 OLG = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 end
@@ -7035,7 +6983,7 @@ elseif _G.TeleportOldPlace == "Player" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton].Character.HumanoidRootPart.CFrame
 end
 else
-Notification("You don't have Recall equipped or you haven't in arena or you have equip Backpack Recall.", _G.TimeNotify)
+Notification("You don't have Recall equipped or you haven't in arena.", _G.TimeNotify)
 end
     end
 })
@@ -7044,15 +6992,23 @@ TabGlove:AddButton({
       Name = "Grab Player Teleport",
       Callback = function()
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Grab" and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players[_G.PlayerButton].Character:FindFirstChild("entered") then
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Grab") then
+	game.Players.LocalPlayer.Backpack:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Character
+end
+wait(0.36)
 if _G.TeleportOldPlace == "Yes" then
 OLG = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 end
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton].Character.HumanoidRootPart.CFrame
-wait(0.15)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton].Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+wait(0.2)
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 wait(0.15)
 if _G.TeleportOldPlace == "Yes" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OLG
+end
+wait(0.37)
+if game.Players.LocalPlayer.Character:FindFirstChild("Grab") then
+	game.Players.LocalPlayer.Character:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Backpack
 end
 else
 Notification("You don't have Grab equipped, or you have to go Arena, or player go to Arena", _G.TimeNotify)
@@ -7086,7 +7042,7 @@ end
 elseif _G.OvenPlayerAuto == true then
 Notification("You don't have Oven equipped.", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Oven"]:Set(false)
+OrionLib.Flags["Auto Oven"]:Set(false)
 end
     end
 })
@@ -7117,84 +7073,7 @@ end
 elseif _G.AutoSiphonPlayer == true then
 Notification("You don't have Siphon equipped.", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Auto Siphon Player"]:Set(false)
-end
-    end
-})
-
-TabGlove:AddButton({
-      Name = "Kick Player Recall",
-      Callback = function()
-if _G.PlayerChoose == "Username" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" and game.Players.LocalPlayer.Character:FindFirstChild("Recall") and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players[PlayerKickRecall].Character:FindFirstChild("entered") and game.Players[PlayerKickRecall].Character:FindFirstChild("HumanoidRootPart") then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = false
-end
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-725,310,-2)
-task.wait(0.25)
-game:GetService("ReplicatedStorage").Recall:InvokeServer(game:GetService("Players").LocalPlayer.Character.Recall)
-wait(2.2)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[PlayerKickRecall].Character.HumanoidRootPart.CFrame
-task.wait(1)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = true
-end
-else
-Notification("You don't have Recall equipped, or you have Backpack Recall equipped, or player not enter arena", _G.TimeNotify)
-end
-elseif _G.PlayerChoose == "Random" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Recall" and game.Players.LocalPlayer.Character:FindFirstChild("Recall") and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = false
-end
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-725,310,-2)
-task.wait(0.25)
-game:GetService("ReplicatedStorage").Recall:InvokeServer(game:GetService("Players").LocalPlayer.Character.Recall)
-wait(2.2)
-local players = game.Players:GetChildren()
-local randomPlayer = players[math.random(1, #players)]
-repeat randomPlayer = players[math.random(1, #players)] until randomPlayer ~= game.Players.LocalPlayer and randomPlayer.Character:FindFirstChild("entered") and randomPlayer.Character:FindFirstChild("ded") == nil and randomPlayer.Character:FindFirstChild("InLabyrinth") == nil and randomPlayer.Character:FindFirstChild("rock") == nil
-Target = randomPlayer
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Target.Character.HumanoidRootPart.CFrame
-task.wait(1)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = true
-end
-else
-Notification("You don't have Recall equipped, or you have Backpack Recall equipped, or player not enter arena", _G.TimeNotify)
-end
-end
-    end
-})
-
-TabGlove:AddButton({
-      Name = "Kick Player Za Hando",
-      Callback = function()
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Za Hando" then
-OGWS = game.Players.LocalPlayer.Character.Humanoid.WalkSpeed
-OGJP = game.Players.LocalPlayer.Character.Humanoid.JumpPower
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = false
-end
-game:GetService("ReplicatedStorage").Erase:FireServer()
-wait(0.47)
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 0
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = 0
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-725,310,-2)
-wait(3.75)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = OGWS
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = OGJP
-for i,v in pairs(game.Workspace.Lobby.brazil:GetChildren()) do
-v.CanTouch = true
-end
-else
-Notification("You don't have Za Hando equipped.", _G.TimeNotify)
+OrionLib.Flags["Auto Siphon Player"]:Set(false)
 end
     end
 })
@@ -7524,7 +7403,7 @@ end
 elseif _G.InfinityPillow == true then
 Notification("You don't have Pillow equipped", _G.TimeNotify)
 wait(0.05)
-OrionLib.Flag["Inf Pillow"]:Set(false)
+OrionLib.Flags["Inf Pillow"]:Set(false)
 end
     end
 })
@@ -7559,7 +7438,7 @@ end
 task.wait()
 end
 elseif _G.InfiniteIngredients == true then
-OrionLib.Flag["Infinite Ingredients"]:Set(false)
+OrionLib.Flags["Infinite Ingredients"]:Set(false)
 wait(0.05)
 Notification("You don't have Alchemist equipped", _G.TimeNotify)
 end
@@ -7650,7 +7529,7 @@ end
 task.wait(0.01)
 end
 elseif _G.AutoMakePotion == true then
-OrionLib.Flag["Auto Get Potion"]:Set(false)
+OrionLib.Flags["Auto Get Potion"]:Set(false)
 wait(0.05)
 Notification("You don't have Alchemist equipped", _G.TimeNotify)
 end
@@ -7670,6 +7549,572 @@ end
 	end	  
 })
 
+TabGlove:AddSlider({
+	Name = "Extend Ability",
+    Min = 0,
+    Max = 100,
+    Default = 0,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Extend",
+	Callback = function(Value)
+_G.ExtendPingPong = Value
+	end    
+})
+
+TabGlove:AddDropdown({
+    Name = "Clone",
+    Options = {"Orbit", "Orbit Player"},
+    Default = "",
+    Callback = function(Value)
+_G.Clone = Value
+    end
+})
+
+TabGlove:AddToggle({
+    Name = "Auto Clone",
+    Flag = "Auto Clone",
+    Default = false, 
+    Callback = function(Value) 
+_G.CloneAuto = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Cherry" or game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
+while _G.CloneAuto do
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Cherry" then
+if workspace:FindFirstChild("cherry_storage") then
+for i, v in pairs(workspace.cherry_storage:GetChildren()) do
+if v.Name == ("Cherry "..game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("clone_remote") then
+v.clone_remote:FireServer()
+if _G.Clone == "Orbit" then
+v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
+elseif _G.Clone == "Orbit Player" then
+v.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton2].Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
+end
+end
+end
+end
+elseif game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == ("Å"..game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
+if _G.Clone == "Orbit" then
+v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
+elseif _G.Clone == "Orbit Player" then
+v.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton2].Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
+end
+                    end
+               end
+end
+task.wait()
+end
+elseif _G.CloneAuto == true then
+Notification("You don't have Cherry or Replica equipped", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["Auto Clone"]:Set(false)
+end
+    end
+})
+
+TabGlove:AddDropdown({
+    Name = "Ping Pong",
+    Options = {"Fling", "Fling Player", "Orbit", "Orbit Player", "Nuke"},
+    Default = "",
+    Callback = function(Value)
+_G.PingPongServer = Value
+    end
+})
+
+TabGlove:AddToggle({
+    Name = "Ping Pong",
+    Flag = "PingPong",
+    Default = false, 
+    Callback = function(Value) 
+_G.PingPongServerBr = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Ping Pong" then
+PingPongBall = game.Players.LocalPlayer.Name.."_PingPongBall"
+if _G.PingPongServer == "Orbit" then
+Orbit = "0"
+if OrbitSpeed == nil then
+OrbitSpeed = 1
+end
+game.Players.LocalPlayer.Character.Torso.RadioPart.Rotation = game.Players.LocalPlayer.Character.HumanoidRootPart.Rotation
+end
+while _G.PingPongServerBr do
+if _G.PingPongServer == "Orbit" then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+Orbit = Orbit + OrbitSpeed
+game.Players.LocalPlayer.Character.Torso.RadioPart.Rotation = Vector3.new(-180, Orbit, -180)
+if game.Players.LocalPlayer.Character.Torso.RadioPart:GetChildren()[2] then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.ClassName == "Part" and v.Name == PingPongBall then
+v.CFrame = game.Players.LocalPlayer.Character.Torso.RadioPart.CFrame * CFrame.new(0,0,-_G.ExtendPingPong) * CFrame.Angles(math.rad(0), math.rad(-90), math.rad(0))
+                    end
+                end
+for i,v in pairs(game.Players.LocalPlayer.Character.Torso.RadioPart:GetChildren()) do
+                    if v.ClassName == "Part" and v.Name == PingPongBall then
+                        v.CFrame = game.Players.LocalPlayer.Character.Torso.RadioPart.CFrame * CFrame.new(0,0,_G.ExtendPingPong) * CFrame.Angles(math.rad(0), math.rad(90), math.rad(0))
+                    end
+                end
+elseif game.Players.LocalPlayer.Character.Torso.RadioPart:GetChildren()[1] or game.Players.LocalPlayer.Character.Torso.RadioPart:GetChildren()[2] then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.ClassName == "Part" and v.Name == PingPongBall then
+v.Parent = game.Players.LocalPlayer.Character.Torso.RadioPart
+break
+                    end
+                end
+end
+elseif _G.PingPongServer == "Orbit Player" then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+if game.Players[_G.PlayerButton2].Character and game.Players[_G.PlayerButton2].Character:WaitForChild("Ragdolled").Value == false then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == (game.Players.LocalPlayer.Name.."_PingPongBall") then
+v.CFrame = game.Players[_G.PlayerButton2].Character.HumanoidRootPart.CFrame * CFrame.new(math.cos(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong, 0, math.sin(tick() * OrbitSpeed + (i - 1) * math.pi / 2) * _G.ExtendPingPong)
+                    end
+                end
+end
+elseif _G.PingPongServer == "Fling" then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+for i, v in pairs(game.Players:GetPlayers()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+for i,a in pairs(game.Workspace:GetChildren()) do
+                    if a.Name == (game.Players.LocalPlayer.Name.."_PingPongBall") then
+a.CFrame = v.Character.HumanoidRootPart.CFrame
+                    end
+                end
+end
+end
+end
+elseif _G.PingPongServer == "Fling Player" then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+if game.Players[_G.PlayerButton2].Character and game.Players[_G.PlayerButton2].Character:WaitForChild("Ragdolled").Value == false then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == (game.Players.LocalPlayer.Name.."_PingPongBall") then
+v.CFrame = game.Players[_G.PlayerButton2].Character.HumanoidRootPart.CFrame
+                    end
+                end
+end
+elseif _G.PingPongServer == "Nuke" then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == (game.Players.LocalPlayer.Name.."_PingPongBall") then
+v.CFrame = game.workspace.Origo.CFrame * CFrame.new(math.random(-_G.ExtendPingPong, _G.ExtendPingPong), -5, math.random(-_G.ExtendPingPong, _G.ExtendPingPong))
+
+                    end
+                end
+end
+task.wait(0.01)
+end
+elseif Value == true then
+Notification("You don't have Ping Pong equipped.", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["PingPong"]:Set(false)
+end
+    end
+})
+
+TabGlove:AddDropdown({
+    Name = "Equipped Glove Farm",
+    Options = {"Baller","Replica","Blink"},
+    Default = "",
+    Callback = function(Value)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+if Value == "Baller" then
+fireclickdetector(workspace.Lobby["Baller"].ClickDetector)
+elseif Value == "Replica" then
+fireclickdetector(workspace.Lobby["Replica"].ClickDetector)
+elseif Value == "Blink" then
+fireclickdetector(workspace.Lobby["Blink"].ClickDetector)
+end
+else
+Notification("You aren't in the lobby.", _G.TimeNotify)
+end
+    end
+})
+
+TabGlove:AddDropdown({
+    Name = "Will Teleport Farm",
+    Options = {"Up To You","SafeSpotBox 1.0","SafeSpotBox 2.0"},
+    Default = "SafeSpotBox 1.0",
+    Callback = function(Value)
+_G.GetTeleport = Value
+    end
+})
+
+TabGlove:AddDropdown({
+    Name = "Slap Farm",
+    Options = {"Replica + Baller","Replica + Baller + Blink", "Baller", "Replica", "Blink"},
+    Default = "Replica + Baller",
+    Callback = function(Value)
+_G.FarmSlap = Value
+    end
+})
+
+TabGlove:AddToggle({
+    Name = "Slap Farm",
+    Flag = "SlapFarm",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoFarmSlap = Value 
+if _G.AutoFarmSlap == true then
+if _G.FarmSlap == "Replica + Baller" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Baller" then
+coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
+elseif _G.AutoFarmSlap == true then
+Notification("You don't have Baller equipped.", _G.TimeNotify) 
+wait(0.05)
+OrionLib.Flags["SlapFarm"]:Set(false) 
+end
+elseif _G.FarmSlap == "Replica + Baller + Blink" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Blink" then
+coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
+elseif _G.AutoFarmSlap == true then
+Notification("You don't have Blink equipped.", _G.TimeNotify) 
+wait(0.05)
+OrionLib.Flags["SlapFarm"]:Set(false) 
+end
+elseif _G.FarmSlap == "Replica" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
+coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
+elseif _G.AutoFarmSlap == true then
+Notification("You don't have Replica equipped.", _G.TimeNotify) 
+wait(0.05)
+OrionLib.Flags["SlapFarm"]:Set(false) 
+end
+elseif _G.FarmSlap == "Baller" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Baller" then
+coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
+elseif _G.AutoFarmSlap == true then
+Notification("You don't have Baller equipped.", _G.TimeNotify) 
+wait(0.05)
+OrionLib.Flags["SlapFarm"]:Set(false) 
+end
+elseif _G.FarmSlap == "Blink" then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Blink" then
+coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
+elseif _G.AutoFarmSlap == true then
+Notification("You don't have Blink equipped.", _G.TimeNotify) 
+wait(0.05)
+OrionLib.Flags["SlapFarm"]:Set(false) 
+end
+end
+end
+while _G.AutoFarmSlap do 
+for i, v in pairs(workspace:GetChildren()) do 
+                 if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
+if gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
+gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v:WaitForChild("HumanoidRootPart"))
+else
+game:GetService("ReplicatedStorage").GeneralHit:FireServer(v:WaitForChild("HumanoidRootPart"))
+end
+                 end
+end
+task.wait()
+end
+    end
+})
+
+TabGlove:AddSlider({
+	Name = "Extend HitBox Rob",
+	Default = 16,
+    Min = 16,
+    Max = 400,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Hitbox",
+	Callback = function(Value)
+_G.ExtendHitboxRob = Value
+	end    
+})
+
+TabGlove:AddDropdown({
+    Name = "Hitbox Rob",
+    Options = {"You","All"},
+    Default = "All",
+    Callback = function(Value)
+_G.RobHitbox = Value
+    end
+})
+
+TabGlove:AddToggle({
+    Name = "Hitbox All Rob & Color",
+    Default = false, 
+    Callback = function(Value)
+_G.HitboxRob = Value
+while _G.HitboxRob do
+if _G.RobHitbox == "All" then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == "Field" then
+                        v.Size = Vector3.new(_G.ExtendHitboxRob,_G.ExtendHitboxRob,_G.ExtendHitboxRob)
+                        v.BrickColor = BrickColor.new(_G.ColorHitboxRob)
+                    end
+                end
+elseif _G.RobHitbox == "You" then
+for i,v in pairs(game.Workspace:GetChildren()) do
+         if v.Name == "Field" and 0 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude then
+              v.Size = Vector3.new(_G.ExtendHitboxRob,_G.ExtendHitboxRob,_G.ExtendHitboxRob)
+              v.BrickColor = BrickColor.new(_G.ColorHitboxRob)
+         end
+     end
+end
+task.wait()
+end
+if _G.HitboxRob == false then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name == "Field" then
+                        v.Size = Vector3.new(16,16,16)
+                        v.BrickColor = BrickColor.new(255,255,255)
+                    end
+                end
+end
+    end
+})
+
+TabGlove:AddColorpicker({
+	Name = "Color Hitbox",
+	Default = Color3.fromRGB(255, 0, 0),
+	Callback = function(Value)
+_G.ColorHitboxRob = Value
+	end	  
+})
+
+TabGlove:AddTextbox({
+	Name = "Fly Speed Cloud",
+    Default = "2",
+    Callback = function(Value)
+_G.SetSpeedFlyCloud = Value
+    end
+})
+
+TabGlove:AddToggle({
+    Name = "Cloud Speed",
+    Flag = "Cloud Speed",
+    Default = false, 
+    Callback = function(Value)
+_G.CloudSpeed = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Cloud" then
+while _G.CloudSpeed do
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("BodyVelocity") and v:FindFirstChild("VehicleSeat") then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if 3 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.VehicleSeat.Position).Magnitude then
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X > 0 then
+v.BodyVelocity.Velocity = v.BodyVelocity.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X * _G.SetSpeedFlyCloud)
+end
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X < 0 then
+v.BodyVelocity.Velocity = v.BodyVelocity.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X * _G.SetSpeedFlyCloud)
+end
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z > 0 then
+v.BodyVelocity.Velocity = v.BodyVelocity.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z * _G.SetSpeedFlyCloud)
+end
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z < 0 then
+v.BodyVelocity.Velocity = v.BodyVelocity.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z * _G.SetSpeedFlyCloud)
+end
+end
+end
+end
+end
+task.wait()
+end
+elseif _G.CloudSpeed == true then
+Notification("You don't have Cloud equipped.", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["Cloud Speed"]:Set(false)
+end
+    end
+})
+
+TabGlove:AddTextbox({
+	Name = "Player",
+    Default = "Username",
+    Callback = function(Value)
+_G.PlayerTarget = Value
+for _, v in pairs(game.Players:GetPlayers()) do
+if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
+PlayerTa = v
+break
+end
+end
+if PlayerTa then
+_G.PlayerButton3 = PlayerTa.Name
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
+else
+Notification("Can't find player", _G.TimeNotify)
+end
+    end
+})
+
+TabGlove:AddDropdown({
+    Name = "Cloud Bring",
+    Options = {"Player","Your"},
+    Default = "Player",
+    Callback = function(Value)
+_G.CloudBring = Value
+    end
+})
+
+TabGlove:AddToggle({
+    Name = "Auto Bring Cloud",
+    Flag = "Bring Cloud",
+    Default = false, 
+    Callback = function(Value)
+_G.BringCloud = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Cloud" then
+while _G.BringCloud do
+if _G.CloudBring == "Player" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players[_G.PlayerButton3].Character:FindFirstChild("entered") and game.Players[_G.PlayerButton3].Character.Humanoid.Sit == false then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+                        v.VehicleSeat.CFrame = game.Players[_G.PlayerButton3].Character.HumanoidRootPart.CFrame * CFrame.new(0,-2.32,0)
+                    end
+               end
+          end
+elseif _G.CloudBring == "Your" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == false then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+                        v.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0,-2.32,0)
+                    end
+               end
+          end
+end
+task.wait()
+end
+elseif _G.BringCloud == true then
+Notification("You don't have Cloud equipped.", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["Bring Cloud"]:Set(false)
+end
+    end
+})
+
+TabGlove:AddDropdown({
+    Name = "Firework Bring",
+    Options = {"Player","Your"},
+    Default = "Player",
+    Callback = function(Value)
+_G.FireworkBring = Value
+    end
+})
+
+TabGlove:AddToggle({
+    Name = "Auto Bring Firework",
+    Flag = "Auto Bring Firework",
+    Default = false, 
+    Callback = function(Value)
+_G.BringFirework = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Firework" then
+while _G.BringFirework do
+if _G.FireworkBring == "Player" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players[_G.PlayerButton3].Character:FindFirstChild("entered") and game.Players[_G.PlayerButton3].Character.Humanoid.Sit == false then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+                        v.VehicleSeat.CFrame = game.Players[_G.PlayerButton3].Character.HumanoidRootPart.CFrame
+                    end
+               end
+          end
+elseif _G.FireworkBring == "Your" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == false then
+for i,v in pairs(game.Workspace:GetChildren()) do
+                    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+                        v.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                    end
+               end
+          end
+end
+task.wait()
+end
+elseif _G.BringFirework == true then
+Notification("You don't have Firework equipped.", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["Auto Bring Firework"]:Set(false)
+end
+    end
+})
+
+TabGlove:AddToggle({
+    Name = "Auto Full Kinetic",
+    Flag = "Auto Full Kinetic",
+    Default = false, 
+    Callback = function(Value)
+_G.FullKineticSpam = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Kinetic" and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+while _G.FullKineticSpam do
+game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = 0,["Direction"] = Vector3.new(0,0.01,0)})
+task.wait()
+end
+elseif _G.FullKineticSpam == true then
+Notification("You don't have Kinetic equipped.", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["Auto Full Kinetic"]:Set(false)
+end
+    end
+})
+
+TabGlove:AddButton({
+      Name = "Infinite Invisibility",
+      Callback = function()
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.leaderstats.Slaps.Value >= 666 then
+OGlove = game.Players.LocalPlayer.leaderstats.Glove.Value
+fireclickdetector(workspace.Lobby.Ghost.ClickDetector)
+game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
+fireclickdetector(workspace.Lobby[OGlove].ClickDetector)
+task.wait(1)
+for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+if v:IsA("BasePart") then
+v.Transparency = 0
+end
+end
+else
+Notification("You need to be in lobby and have 666+ slaps.", _G.TimeNotify)
+end
+    end
+})
+
+TabGlove:AddToggle({
+    Name = "Auto Color Skin",
+    Flag = "Auto Color Skin",
+    Default = false, 
+    Callback = function(Value)
+_G.GoldColor = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Golden" then
+while _G.GoldColor do
+game:GetService("ReplicatedStorage"):WaitForChild("Goldify"):FireServer(false, BrickColor.new(_G.skinColor))
+task.wait()
+end
+elseif _G.GoldColor == true then
+Notification("You don't have Golden equipped.", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["Auto Color Skin"]:SetValue(false)
+end
+    end
+})
+
+TabGlove:AddColorpicker({
+	Name = "Color Skin",
+	Default = Color3.fromRGB(255, 0, 0),
+	Callback = function(Value)
+_G.skinColor = Value
+	end	  
+})
+
+TabGlove:AddToggle({
+    Name = "Auto Rainbow",
+    Flag = "Auto Rainbow",
+    Default = false, 
+    Callback = function(Value)
+_G.Rainbow = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Golden" then
+while _G.Rainbow and game.Players.LocalPlayer.leaderstats.Glove.Value == "Golden" do
+local randomnumber = math.random(1004, 1032)
+game:GetService("ReplicatedStorage").Goldify:FireServer(false, BrickColor.new(randomnumber))
+task.wait(0.075)
+end
+elseif _G.Rainbow == true then
+Notification("You don't have Golden equipped.", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["Auto Rainbow"]:SetValue(false)
+end
+    end
+})
+----// Set Toggle Anti \\-----
 game.Workspace.NoChanged.Changed:Connect(function()
 OrionLib.Flags["Anti Void"]:Set(game.Workspace.NoChanged.Value)
 end)
@@ -7833,6 +8278,171 @@ end)
 game.Workspace.NoChanged.Changed:Connect(function()
 OrionLib.Flags["Anti Ragdoll"]:Set(game.Workspace.NoChanged.Value)
 end)
+elseif game.PlaceId == 11828384869 then
+local Window = OrionLib:MakeWindow({
+     IntroText = "Omega X Article Hub 🅰️",
+     IntroIcon = "rbxassetid://15315284749",
+     Name = "Omega X Article Hub - Maze 👁️",
+     SearchBar = {
+         Default = "🔍 Search Tabs",
+         ClearTextOnFocus = true
+     },
+     IntroToggleIcon = "rbxassetid://7734091286",
+     HidePremium = false, 
+     SaveConfig = false,
+     IntroEnabled = true,
+     ConfigFolder = "slap battles"
+})
+
+Tabs = {
+    Tab1 = Window:MakeTab({Name = "Badges", Icon = "rbxassetid://7733673987", PremiumOnly = false}),
+    ["Settings Ui"] = Window:MakeTab({Name = "Settings Ui", Icon = "rbxassetid://7733955511", PremiumOnly = false}),
+}
+
+local TabBadge = Tabs.Tab1
+TabBadge:AddButton({
+      Name = "Infinite Invisibility",
+      Callback = function()
+Time = 121
+wait(0.4)
+spawn(function()
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.CounterLever.Main.CFrame
+game.Workspace.CounterLever.ClickDetector.MouseClick:Connect(function()
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0,100,0)
+wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+for i = 1,Time do
+Time = Time - 1
+Notification("You wait time [ "..Time.." ] receive.", 1)
+wait(1)
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+for i, v in pairs(workspace.Maze:GetChildren()) do
+if v.Name == "Part" and v:FindFirstChild("A0") and v:FindFirstChild("ClickDetector") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0,-20,0)
+v.ClickDetector.MouseClick:Connect(function()
+game.Workspace.Ruins.Elude.Glove.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+end)
+end
+end
+end)
+end)
+wait(3.5)
+fireclickdetector(game.Workspace.CounterLever.ClickDetector)
+repeat task.wait() until Time == 0
+wait(2)
+for i, v in pairs(workspace.Maze:GetChildren()) do
+if v.Name == "Part" and v:FindFirstChild("A0") and v:FindFirstChild("ClickDetector") then
+fireclickdetector(v.ClickDetector)
+end
+end
+    end
+})
+
+TabBadge:AddButton({
+      Name = "Teleport Alchemist Plushie",
+      Callback = function()
+if game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored == true then
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+end
+wait(0.5)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace._ugcQuestObjectEludeHat.Handle.CFrame
+    end
+})
+elseif game.PlaceId == 13833961666 then
+local Window = OrionLib:MakeWindow({
+     IntroText = "Omega X Article Hub 🅰️",
+     IntroIcon = "rbxassetid://15315284749",
+     Name = "Omega X Article Hub - Boss Bob 💥",
+     SearchBar = {
+         Default = "🔍 Search Tabs",
+         ClearTextOnFocus = true
+     },
+     IntroToggleIcon = "rbxassetid://7734091286",
+     HidePremium = false, 
+     SaveConfig = false,
+     IntroEnabled = true,
+     ConfigFolder = "slap battles"
+})
+
+Tabs = {
+	Tab = Window:MakeTab({Name = "Info", Icon = "rbxassetid://7734053426", PremiumOnly = false}),
+    Tab1 = Window:MakeTab({Name = "Script", Icon = "rbxassetid://7733673987", PremiumOnly = false}),
+    Tab2 = Window:MakeTab({Name = "Misc", Icon = "rbxassetid://7733673987", PremiumOnly = false}),
+    ["Settings Ui"] = Window:MakeTab({Name = "Settings Ui", Icon = "rbxassetid://7733955511", PremiumOnly = false}),
+}
+
+local InfoTab = Tabs.Tab
+local CanYouFps = InfoTab:AddLabel("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]")
+local CanYouPing = InfoTab:AddLabel("Your Ping [ "..game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString().." ]")
+local TimeServer = InfoTab:AddLabel("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]")
+local TimeNow = InfoTab:AddLabel("Now Time [ "..os.date("%X").." ]")
+if game.Workspace:FindFirstChild("BossFolder") and game.Workspace.BossFolder:FindFirstChild("Health") then
+HealthBoss = InfoTab:AddLabel("Health Boss [ "..game.Workspace.BossFolder.Health.Value.." ]")
+else
+HealthBoss = InfoTab:AddLabel("Check Health Boss [ Not Started Yet ]")
+end
+if tonumber(os.date("%H")) >= 5 and tonumber(os.date("%H")) < 12 then
+local AlarmTime = InfoTab:AddLabel("Good Morning [ "..tonumber(os.date("%H")).." Hour ]")
+elseif tonumber(os.date("%H")) >= 12 and tonumber(os.date("%H")) < 17 then
+local AlarmTime = InfoTab:AddLabel("Good Afternoon [ "..tonumber(os.date("%H")).." Hour ]")
+elseif tonumber(os.date("%H")) >= 17 and tonumber(os.date("%H")) < 21 then
+local AlarmTime = InfoTab:AddLabel("Good Evening [ "..tonumber(os.date("%H")).." Hour ]")
+else
+local AlarmTime = InfoTab:AddLabel("Good Night [ "..tonumber(os.date("%H")).." Hour ]")
+end
+local AgeAccYou = InfoTab:AddLabel("You Account Age [ "..game.Players.LocalPlayer.AccountAge.." ]")
+
+InfoTab:AddToggle({
+    Name = "Auto Set Info",
+    Default = false, 
+    Callback = function(Value)
+_G.InfoServerSet = Value
+while _G.InfoServerSet do
+CanYouFps:Set("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]")
+CanYouPing:Set("Your Ping [ "..game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString().." ]")
+TimeServer:Set("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]")
+TimeNow:Set("Now Time [ "..os.date("%X").." ]")
+Health:Set("Health [ "..game.Players.LocalPlayer.Character.Humanoid.Health.." ]")
+if game.Workspace:FindFirstChild("BossFolder") and game.Workspace.BossFolder:FindFirstChild("Health") then
+HealthBoss:Set("Health Boss [ "..game.Workspace.BossFolder.Health.Value.." ]")
+else
+HealthBoss:Set("Check Health Boss [ Not Started Yet ]")
+end
+if tonumber(os.date("%H")) >= 5 and tonumber(os.date("%H")) < 12 then
+AlarmTime:Set("Good Morning [ "..tonumber(os.date("%H")).." Hour ]")
+elseif tonumber(os.date("%H")) >= 12 and tonumber(os.date("%H")) < 17 then
+AlarmTime:Set("Good Afternoon [ "..tonumber(os.date("%H")).." Hour ]")
+elseif tonumber(os.date("%H")) >= 17 and tonumber(os.date("%H")) < 21 then
+AlarmTime:Set("Good Evening [ "..tonumber(os.date("%H")).." Hour ]")
+else
+AlarmTime:Set("Good Night [ "..tonumber(os.date("%H")).." Hour ]")
+end
+AgeAccYou:Set("You Account Age [ "..game.Players.LocalPlayer.AccountAge.." ]")
+task.wait()
+end
+    end
+})
+
+local ScriptTab = Tabs.Tab1
+Script = {
+	["Fly V3"] = "https://raw.githubusercontent.com/Giangplay/Script/main/Fly_V3.lua",
+	["Anti Lag"] = "https://raw.githubusercontent.com/Giangplay/Script/main/Anti-lag.lua",
+	["Inf yield"] = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",
+	["Executor | Ui Library"] = "https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/SCRIPT/Executor.lua",
+	["Rspy v2"] = "https://raw.githubusercontent.com/Giangplay/Script/main/RemoteSpy-V2.lua"
+}
+
+for i, v in pairs(Script) do
+ScriptTab:AddButton({
+      Name = i,
+      Callback = function()
+loadstring(game:HttpGet(v))()
+    end
+})
+end
+
+local MiscTab = Tabs.Tab2
 
 end
 
@@ -7851,7 +8461,7 @@ Tabs["Settings Ui"]:AddSlider({
 
 Tabs["Settings Ui"]:AddToggle({
     Name = "Notification Sound",
-    Default = false,
+    Default = true,
     Callback = function(Value)
 _G.NotificationSound = Value
     end
