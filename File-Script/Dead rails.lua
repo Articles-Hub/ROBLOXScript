@@ -132,11 +132,11 @@ for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
 if v.ClassName == "Model" and v:FindFirstChild("ObjectInfo") and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 5 then
 for h, m in pairs(v.ObjectInfo:GetChildren()) do
 if m.Name == "TextLabel" and m.Text == "Fuel" and m.Text ~= "Valuable" and m.Text ~= "Bounty" then
-game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(v)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStartDrag:FireServer(v)
 wait(0.3)
 v:SetPrimaryPartCFrame(workspace.Train.TrainControls:FindFirstChild("FuelDetect").CFrame)
 wait(0.3)
-game:GetService("ReplicatedStorage").Shared.Remotes.RequestStopDrag:FireServer()
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStopDrag:FireServer()
 end
 end
 end
@@ -156,11 +156,11 @@ for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
 if v.ClassName == "Model" and v:FindFirstChild("ObjectInfo") and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 10 then
 for h, m in pairs(v.ObjectInfo:GetChildren()) do
 if m.Name == "TextLabel" and m.Text == "Fuel" and m.Text ~= "Valuable" and m.Text ~= "Bounty" then
-game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(v)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStartDrag:FireServer(v)
 wait(0.3)
 v:SetPrimaryPartCFrame(workspace.Train.TrainControls:FindFirstChild("FuelDetect").CFrame)
 wait(0.3)
-game:GetService("ReplicatedStorage").Shared.Remotes.RequestStopDrag:FireServer()
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStopDrag:FireServer()
 end
 end
 end
@@ -180,25 +180,40 @@ for h, m in pairs(v.ObjectInfo:GetChildren()) do
 if m.Name == "TextLabel" then
 if m.Text == "Valuable" or m.Text == "Junk" or m.Text == "Gun" then
 if workspace:FindFirstChild("SafeZones") and workspace.SafeZones:FindFirstChild("SafeZone") and workspace.SafeZones.SafeZone:FindFirstChild("Buildings") then
-for z, w in pairs(workspace.SafeZones.SafeZone.Buildings.TradingPost:FindFirstChild("BountySquare"):GetChildren()) do
+for z, j in pairs(workspace.SafeZones.SafeZone.Buildings:GetChildren()) do
+if j.Name:find("Trading") and j:FindFirstChild("BountySquare") then
+for k, w in pairs(j.BountySquare:GetChildren()) do
 if w.Name == "Part" and w:FindFirstChild("SurfaceGui") and w.SurfaceGui:FindFirstChild("TextLabel") then
-game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(v)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStartDrag:FireServer(v)
 wait(0.3)
+spawn(function()
+for i = 1, 60 do
+if v.PrimaryPart ~= nil then
 v:SetPrimaryPartCFrame(w.CFrame)
+end
+task.wait()
+end
+end)
 task.wait(0.3)
-game:GetService("ReplicatedStorage").Shared.Remotes.RequestStopDrag:FireServer()
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStopDrag:FireServer()
+end
+end
 end
 end
 end
 elseif m.Text == "Bounty" then
 if workspace:FindFirstChild("SafeZones") and workspace.SafeZones:FindFirstChild("SafeZone") and workspace.SafeZones.SafeZone:FindFirstChild("Buildings") then
-for z, w in pairs(workspace.SafeZones.SafeZone.Buildings.SheriffsOffice:FindFirstChild("BountySquare"):GetChildren()) do
+for z, j in pairs(workspace.SafeZones.SafeZone.Buildings:GetChildren()) do
+if j.Name:find("Sheriffs") and j:FindFirstChild("BountySquare") then
+for z, w in pairs(j.BountySquare:GetChildren()) do
 if w.Name == "Part" and w:FindFirstChild("SurfaceGui") and w.SurfaceGui:FindFirstChild("TextLabel") then
-game:GetService("ReplicatedStorage").Shared.Remotes.RequestStartDrag:FireServer(v)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStartDrag:FireServer(v)
 wait(0.3)
 v:SetPrimaryPartCFrame(w.CFrame)
 task.wait(0.3)
-game:GetService("ReplicatedStorage").Shared.Remotes.RequestStopDrag:FireServer()
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStopDrag:FireServer()
+end
+end
 end
 end
 end
@@ -224,7 +239,7 @@ Main1Group:AddToggle("Auto Store Item", {
 _G.StoreItem = Value
 while _G.StoreItem do
 for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
-if v.ClassName == "Model" and v:FindFirstChild("HumanoidRootPart") == nil and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 15 then
+if v.ClassName == "Model" and v:FindFirstChild("HumanoidRootPart") == nil and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 20 then
 if game.Players.LocalPlayer.Character:FindFirstChild("Sack") and game.Players.LocalPlayer.Character.Sack:FindFirstChild("BillboardGui") and game.Players.LocalPlayer.Character.Sack.BillboardGui:FindFirstChild("TextLabel") then
 if game.Players.LocalPlayer.Character.Sack.BillboardGui.TextLabel.Text ~= (game.Players.LocalPlayer.Character.Sack.SackSettings:FindFirstChild("Limit").Value.."/"..game.Players.LocalPlayer.Character.Sack.SackSettings:FindFirstChild("Limit").Value) then
 game:GetService("ReplicatedStorage").Remotes.StoreItem:FireServer(v)
@@ -241,6 +256,62 @@ end
    Mode = "Toggle",
    SyncToggleState = true
 })
+
+Main1Group:AddButton("Complete Assembly Tesla", function()
+if workspace:FindFirstChild("TeslaLab") and workspace.TeslaLab:FindFirstChild("ExperimentTable") then
+local Tesla = workspace.TeslaLab.ExperimentTable:FindFirstChild("PlacedParts")
+if Tesla:FindFirstChild("BrainJar") and Tesla:FindFirstChild("LeftWerewolfArm") and Tesla:FindFirstChild("LeftWerewolfLeg") and Tesla:FindFirstChild("RightWerewolfArm") and Tesla:FindFirstChild("RightWerewolfLeg") and Tesla:FindFirstChild("WerewolfTorso") then
+Notification("Successful Assembly, you must reap to fight to get the Electricity gun", 5)
+if workspace.TeslaLab:FindFirstChild("Generator") then
+for i, v in pairs(workspace.TeslaLab.Generator:GetChildren()) do
+if v:IsA("BasePart") and v:FindFirstChild("PowerEsp") and v:FindFirstChild("PowerPrompt") then
+local Highlight = Instance.new("Highlight")
+Highlight.Name = "PowerEsp"
+Highlight.FillColor = Color3.fromRGB(0, 255, 0) 
+Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+Highlight.FillTransparency = 0.5
+Highlight.OutlineTransparency = 0
+Highlight.Adornee = v
+Highlight.Parent = v
+end
+end
+end
+else
+Notification("Go to tesla parts", 5)
+repeat task.wait()
+for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
+if v.Name:find("Werewolf") or v.Name == "BrainJar" then
+if v:FindFirstChild("HumanoidRootPart") == nil and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 10 then
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStartDrag:FireServer(v)
+wait(0.3)
+v:SetPrimaryPartCFrame(workspace.TeslaLab.ExperimentTable:FindFirstChild("Hitbox").CFrame)
+task.wait(0.3)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStopDrag:FireServer()
+end
+end
+end
+until Tesla:FindFirstChild("BrainJar") and Tesla:FindFirstChild("LeftWerewolfArm") and Tesla:FindFirstChild("LeftWerewolfLeg") and Tesla:FindFirstChild("RightWerewolfArm") and Tesla:FindFirstChild("RightWerewolfLeg") and Tesla:FindFirstChild("WerewolfTorso")
+wait(0.2)
+Notification("Successful Assembly, you must reap to fight to get the Electricity gun", 5)
+if workspace.TeslaLab:FindFirstChild("Generator") then
+for i, v in pairs(workspace.TeslaLab.Generator:GetChildren()) do
+if v:IsA("BasePart") and v:FindFirstChild("PowerEsp") and v:FindFirstChild("PowerPrompt") then
+local Highlight = Instance.new("Highlight")
+Highlight.Name = "PowerEsp"
+Highlight.FillColor = Color3.fromRGB(0, 255, 0) 
+Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+Highlight.FillTransparency = 0.5
+Highlight.OutlineTransparency = 0
+Highlight.Adornee = v
+Highlight.Parent = v
+end
+end
+end
+end
+else
+Notification("Testla don't have spawn", 5)
+end
+end)
 
 Main1Group:AddSlider("Powerfull Clever", {
     Text = "Powerfull Clever",
@@ -259,7 +330,7 @@ CFrameCamera = game.Workspace.CurrentCamera.CFrame
 local CameraWait = game:GetService("TweenService"):Create(game.Workspace.CurrentCamera, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {CFrame = game.Workspace.CurrentCamera.CFrame * CFrame.new(0, 0, -_G.PowerfullClever)})
 CameraWait:Play()
 CameraWait.Completed:Connect(function()
-    game:GetService("ReplicatedStorage").Shared.Remotes.RequestStopDrag:FireServer()
+    game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStopDrag:FireServer()
 end)
 task.wait(0.5)
 game:GetService("TweenService"):Create(game.Workspace.CurrentCamera, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {CFrame = CFrameCamera}):Play()
@@ -307,7 +378,7 @@ if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
             (_G.EspDistance == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.TrainControls.ConductorSeat:FindFirstChild("VehicleSeat").Position).Magnitude).." ]" or "")..
             (_G.EspDistanceTrain == true and " / [ "..workspace.Train.TrainControls.DistanceDial.SurfaceGui:FindFirstChild("TextLabel").Text.." ]" or "")..
             (_G.EspTime == true and "\nTime [ "..game:GetService("ReplicatedStorage").TimeHour.Value.." ]" or "")..
-            (_G.EspFeel == true and " / Feel [ "..workspace.Train:FindFirstChild("Fuel").Value.." ]" or "")
+            (_G.EspFeel == true and " / Fuel [ "..workspace.Train:FindFirstChild("Fuel").Value.." ]" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = (_G.EspGuiTextSize == nil and 20 or _G.EspGuiTextSize)
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = (_G.EspGuiTextColor == nil and Color3.new(0,0,0) or _G.EspGuiTextColor)
 end
@@ -337,8 +408,8 @@ end
 })
 
 _G.EspFeel = false
-Main2Group:AddToggle("Esp Feel", {
-    Text = "Esp Feel",
+Main2Group:AddToggle("Esp Fuel", {
+    Text = "Esp Fuel",
     Default = false, 
     Callback = function(Value) 
 _G.EspFeel = Value
@@ -366,8 +437,8 @@ _G.EspDistanceTrain = Value
 Main2Group:AddDivider()
 end
 
-Main2Group:AddToggle("Orb", {
-    Text = "Esp Orb",
+Main2Group:AddToggle("Ore", {
+    Text = "Esp Ore",
     Default = false, 
     Callback = function(Value) 
 _G.EspOrb = Value
@@ -409,20 +480,20 @@ if v["Boulder_a"]:FindFirstChild("Esp_Gui") and v["Boulder_a"]["Esp_Gui"]:FindFi
     v["Boulder_a"]["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(0,0,0)
 end
 if _G.EspGui == true and v["Boulder_a"]:FindFirstChild("Esp_Gui") == nil then
-	GuiTrainEsp = Instance.new("BillboardGui", v["Boulder_a"])
-	GuiTrainEsp.Adornee = v
-	GuiTrainEsp.Name = "Esp_Gui"
-	GuiTrainEsp.Size = UDim2.new(0, 100, 0, 150)
-	GuiTrainEsp.AlwaysOnTop = true
-	GuiTrainEsp.StudsOffset = Vector3.new(0, 3, 0)
-	GuiTrainEspText = Instance.new("TextLabel", GuiTrainEsp)
-	GuiTrainEspText.BackgroundTransparency = 1
-	GuiTrainEspText.Font = Enum.Font.SourceSansBold
-	GuiTrainEspText.Size = UDim2.new(0, 100, 0, 100)
-	GuiTrainEspText.TextSize = 15
-	GuiTrainEspText.TextColor3 = Color3.new(0,0,0) 
-	GuiTrainEspText.TextStrokeTransparency = 0.5
-	GuiTrainEspText.Text = ""
+	GuiOreEsp = Instance.new("BillboardGui", v["Boulder_a"])
+	GuiOreEsp.Adornee = v
+	GuiOreEsp.Name = "Esp_Gui"
+	GuiOreEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiOreEsp.AlwaysOnTop = true
+	GuiOreEsp.StudsOffset = Vector3.new(0, 3, 0)
+	GuiOreEspText = Instance.new("TextLabel", GuiOreEsp)
+	GuiOreEspText.BackgroundTransparency = 1
+	GuiOreEspText.Font = Enum.Font.SourceSansBold
+	GuiOreEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiOreEspText.TextSize = 15
+	GuiOreEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiOreEspText.TextStrokeTransparency = 0.5
+	GuiOreEspText.Text = ""
 	elseif _G.EspGui == false and v["Boulder_a"]:FindFirstChild("Esp_Gui") then
 	v["Boulder_a"]:FindFirstChild("Esp_Gui"):Destroy()
 end
@@ -632,7 +703,45 @@ end
     end
 })
 
-function EspMods(y)
+_G.EspModsAntilag = {}
+workspace.DescendantAdded:Connect(function(v)
+	if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+	    if v.Humanoid.Health > 0 then
+	        table.insert(_G.EspModsAntilag, v)
+		end
+	end
+end)
+Main2Group:AddToggle("Mods", {
+    Text = "Esp Mods",
+    Default = false, 
+    Callback = function(Value) 
+_G.EspMods = Value
+if _G.EspMods == false then
+_G.EspModsAntilag = {}
+for i, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+        if v:FindFirstChild("Esp_Highlight") then
+              v:FindFirstChild("Esp_Highlight"):Destroy()
+           end
+			if v:FindFirstChild("HumanoidRootPart") and v.HumanoidRootPart:FindFirstChild("Esp_Gui") then
+				v.HumanoidRootPart:FindFirstChild("Esp_Gui"):Destroy()
+			end
+        end
+    end
+else
+_G.EspModsAntilag = {}
+for i, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+	    if v.Humanoid.Health > 0 then
+	        table.insert(_G.EspModsAntilag, v)
+		end
+	end
+end
+end
+while _G.EspMods do
+for i, y in pairs(_G.EspModsAntilag) do
+if y:FindFirstChild("HumanoidRootPart") and y:FindFirstChild("Humanoid") then
+if y.Humanoid.Health > 0 then
 if y:FindFirstChild("Esp_Highlight") then
 	y:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	y:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -676,12 +785,8 @@ if _G.EspGui == true and y.HumanoidRootPart:FindFirstChild("Esp_Gui") == nil the
 	y.HumanoidRootPart:FindFirstChild("Esp_Gui"):Destroy()
 end
 end
-Main2Group:AddToggle("Mods", {
-    Text = "Esp Mods",
-    Default = false, 
-    Callback = function(Value) 
-_G.EspMods = Value
-if _G.EspMods == false then
+end
+if y:FindFirstChild("HumanoidRootPart") == nil or y:FindFirstChild("Humanoid") and y.Humanoid.Health <= 0 then
 for i, v in pairs(workspace:GetDescendants()) do
     if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
         if v:FindFirstChild("Esp_Highlight") then
@@ -692,19 +797,88 @@ for i, v in pairs(workspace:GetDescendants()) do
 			end
         end
     end
+for i = #_G.EspModsAntilag, 1, -1 do
+	if _G.EspModsAntilag[i] == y then
+		table.remove(_G.EspModsAntilag, i)
+	end
 end
-while _G.EspMods do
-for i, v in pairs(workspace:GetDescendants()) do
-if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
-if v.Humanoid.Health <= 0 or (v.Humanoid.Health <= 0 and v.Parent == workspace:FindFirstChild("RuntimeItems")) then
-if v:FindFirstChild("Esp_Highlight") then
-v:FindFirstChild("Esp_Highlight"):Destroy()
 end
-if v:FindFirstChild("HumanoidRootPart") and v.HumanoidRootPart:FindFirstChild("Esp_Gui") then
-v.HumanoidRootPart:FindFirstChild("Esp_Gui"):Destroy()
 end
-else
-EspMods(v)
+task.wait()
+end
+    end
+})
+
+Main2Group:AddToggle("Bank", {
+    Text = "Esp Bank / Code",
+    Default = false, 
+    Callback = function(Value) 
+_G.EspBank = Value
+if _G.EspBank == false then
+if game.Workspace:FindFirstChild("Towns") then
+	for i, v in pairs(game.Workspace.Towns:GetChildren()) do
+		if v:IsA("Model") and v:FindFirstChild("Buildings") then
+			for e, a in pairs(v.Buildings:GetChildren()) do
+				if a.Name:find("Bank") and a:FindFirstChild("Vault") and a.Vault:FindFirstChild("Union") then
+					for x, j in pairs(v.Vault:FindFirstChild("Union"):GetChildren()) do
+						if j.Name:find("Esp_") then
+							j:Destroy()
+						end
+					end
+				end
+			end
+		end
+	end
+end
+end
+while _G.EspBank do
+if game.Workspace:FindFirstChild("Towns") then
+for i, v in pairs(game.Workspace.Towns:GetChildren()) do
+if v:IsA("Model") and v:FindFirstChild("Buildings") then
+for e, a in pairs(v.Buildings:GetChildren()) do
+if a.Name:find("Bank") and a:FindFirstChild("Vault") and a.Vault:FindFirstChild("Union") then
+if a.Vault.Union:FindFirstChild("Esp_Highlight") then
+	a.Vault.Union:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	a.Vault.Union:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and a.Vault.Union:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = a.Vault.Union
+	Highlight.Parent = a.Vault.Union
+	elseif _G.EspHighlight == false and a.Vault.Union:FindFirstChild("Esp_Highlight") then
+	a.Vault.Union:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if a.Vault.Union:FindFirstChild("Esp_Gui") and a.Vault.Union["Esp_Gui"]:FindFirstChild("TextLabel") then
+	a.Vault.Union["Esp_Gui"]:FindFirstChild("TextLabel").Text = "Bank | "..a.Vault:FindFirstChild("Combination").Value..
+            (_G.EspDistance == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Vault.Union.Position).Magnitude).." ]" or "")
+    a.Vault.Union["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    a.Vault.Union["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(0,0,0)
+end
+if _G.EspGui == true and a.Vault.Union:FindFirstChild("Esp_Gui") == nil then
+	GuiBankEsp = Instance.new("BillboardGui", a.Vault.Union)
+	GuiBankEsp.Adornee = a.Vault.Union
+	GuiBankEsp.Name = "Esp_Gui"
+	GuiBankEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiBankEsp.AlwaysOnTop = true
+	GuiBankEsp.StudsOffset = Vector3.new(0, 3, 0)
+	GuiBankEspText = Instance.new("TextLabel", GuiBankEsp)
+	GuiBankEspText.BackgroundTransparency = 1
+	GuiBankEspText.Font = Enum.Font.SourceSansBold
+	GuiBankEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiBankEspText.TextSize = 15
+	GuiBankEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiBankEspText.TextStrokeTransparency = 0.5
+	GuiBankEspText.Text = ""
+	elseif _G.EspGui == false and a.Vault.Union:FindFirstChild("Esp_Gui") then
+	a.Vault.Union:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
 end
 end
 end
@@ -922,7 +1096,13 @@ end
 end
 end
 if Options.ChooseCollect.Value["Gun"] then
-if v:FindFirstChild("ObjectInfo") then
+if v:FindFirstChild("ServerWeaponState") then
+for c, a in pairs(v:GetChildren()) do
+if a:IsA("BasePart") and 30 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Position).Magnitude then
+game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
+end
+end
+elseif v:FindFirstChild("ObjectInfo") then
 for h, m in pairs(v.ObjectInfo:GetChildren()) do
 if m.Name == "TextLabel" and m.Text == "Gun" then
 for c, a in pairs(v:GetChildren()) do
@@ -965,37 +1145,71 @@ if v:IsA("Model") and v.Name == "Unicorn" and v:FindFirstChild("HumanoidRootPart
 v:FindFirstChild("Esp_Unicorn"):Destroy()
 end
 end
+if NotificationUnicornGet then
+NotificationUnicornGet:Disconnect()
+NotificationUnicornGet = nil
 end
-while _G.NotificationUnicorn do
+elseif _G.NotificationUnicorn == true then
+spawn(function()
 for i, v in pairs(workspace:GetDescendants()) do
-if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and not game.Players:GetPlayerFromCharacter(v) then
-if v.Name == "Unicorn" then
+if v:IsA("Model") and v.Name:find("Unicorn") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Esp_Unicorn") and not game.Players:GetPlayerFromCharacter(v) then
 if v:FindFirstChild("Esp_Unicorn") == nil then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
 Notification("Unicorn Spawn / Health [ "..v.Humanoid.Health.." ]", 7)
 else
 Notification("Unicorn Spawn [ Dead ]", 7)
 end
-end
-repeat task.wait()
+repeat task.wait() 
 if v:FindFirstChild("Esp_Unicorn") == nil then
-	local Highlight = Instance.new("Highlight")
-	Highlight.Name = "Esp_Unicorn"
-	Highlight.FillColor = Color3.fromRGB(0, 255, 0) 
-	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
-	Highlight.FillTransparency = 0.5
-	Highlight.OutlineTransparency = 0
-	Highlight.Adornee = v
-	Highlight.Parent = v
+local Highlight = Instance.new("Highlight")
+Highlight.Name = "Esp_Unicorn"
+Highlight.FillColor = Color3.fromRGB(0, 255, 0)
+Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+Highlight.FillTransparency = 0.5
+Highlight.OutlineTransparency = 0
+Highlight.Adornee = v
+Highlight.Parent = v
 end
-until _G.NotificationUnicorn == false or v:FindFirstChild("HumanoidRootPart") == nil
-if v:FindFirstChild("Esp_Unicorn") then
+until _G.NotificationUnicorn == false or v:FindFirstChild("HumanoidRootPart") == nil or v:FindFirstChild("Humanoid") and v.Humanoid.Health <= 0
+for i, v in pairs(workspace:GetDescendants()) do
+if v:IsA("Model") and v.Name == "Unicorn" and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Esp_Unicorn") and not game.Players:GetPlayerFromCharacter(v) then
 v:FindFirstChild("Esp_Unicorn"):Destroy()
 end
 end
 end
 end
-task.wait()
+end
+end)
+NotificationUnicornGet = workspace.DescendantAdded:Connect(function(v)
+if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and not game.Players:GetPlayerFromCharacter(v) then
+if v.Name:find("Unicorn") then
+if v:FindFirstChild("Esp_Unicorn") == nil then
+if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+Notification("Unicorn Spawn / Health [ "..v.Humanoid.Health.." ]", 7)
+else
+Notification("Unicorn Spawn [ Dead ]", 7)
+end
+repeat task.wait() 
+if v:FindFirstChild("Esp_Unicorn") == nil then
+local Highlight = Instance.new("Highlight")
+Highlight.Name = "Esp_Unicorn"
+Highlight.FillColor = Color3.fromRGB(0, 255, 0)
+Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+Highlight.FillTransparency = 0.5
+Highlight.OutlineTransparency = 0
+Highlight.Adornee = v
+Highlight.Parent = v
+end
+until _G.NotificationUnicorn == false or v:FindFirstChild("HumanoidRootPart") == nil or v:FindFirstChild("Humanoid") and v.Humanoid.Health <= 0
+for i, v in pairs(workspace:GetDescendants()) do
+if v:IsA("Model") and v.Name == "Unicorn" and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Esp_Unicorn") and not game.Players:GetPlayerFromCharacter(v) then
+v:FindFirstChild("Esp_Unicorn"):Destroy()
+end
+end
+end
+end
+end
+end)
 end
     end
 })
@@ -1007,54 +1221,6 @@ Misc2Group:AddDropdown("NoMods", {
     Values = {"Horse", "Wolf", "Werewolf"},
     Default = "",
     Multi = true
-})
-
-Misc2Group:AddSlider("Hitbox", {
-    Text = "Hitbox Mods",
-    Default = 50,
-    Min = 20,
-    Max = 55,
-    Rounding = 0,
-    Compact = false,
-    Callback = function(Value)
-_G.SizeMods = Value
-    end
-})
-
-Misc2Group:AddToggle("Hitbox", {
-    Text = "Hitbox Mods",
-    Default = false, 
-    Callback = function(Value) 
-_G.HitboxStMods = Value
-if _G.HitboxStMods == false then
-for i, v in pairs(workspace:GetDescendants()) do
-if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
-v.HumanoidRootPart.Size = Vector3.new(5, 5, 5)
-v.HumanoidRootPart.Transparency = 1
-end
-end
-end
-while _G.HitboxStMods do
-for i, v in pairs(workspace:GetDescendants()) do
-if v ~= workspace:FindFirstChild("RuntimeItems") and v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
-if not Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn") then
-if not Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf" then
-if not Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf" then
-if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-v.HumanoidRootPart.Size = Vector3.new(_G.SizeMods, _G.SizeMods, _G.SizeMods)
-v.HumanoidRootPart.Transparency = 0.5
-else
-v.HumanoidRootPart.Size = Vector3.new(5, 5, 5)
-v.HumanoidRootPart.Transparency = 1
-end
-end
-end
-end
-end
-end
-task.wait()
-end
-    end
 })
 
 Misc2Group:AddDropdown("Melee", {
@@ -1139,18 +1305,6 @@ _G.DistanceGun = Value
     end
 })
 
-function GunAuraSt(Mods)
-for j, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-        if h:IsA("Tool") and h:FindFirstChild("ClientWeaponState") and h.ClientWeaponState:FindFirstChild("CurrentAmmo") then
-			if h.ClientWeaponState.CurrentAmmo.Value ~= 0 then
-				game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), h, game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame, {["1"] = Mods})
-			elseif h.ClientWeaponState.CurrentAmmo.Value == 0 then
-				game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), h)
-				repeat task.wait() until h.ClientWeaponState.CurrentAmmo.Value ~= 0
-			end
-        end
-    end
-end
 Misc2Group:AddToggle("Gun Aura", {
     Text = "Gun Aura",
     Default = false, 
@@ -1158,13 +1312,22 @@ Misc2Group:AddToggle("Gun Aura", {
 _G.KillAuraGun = Value
 while _G.KillAuraGun do
 for i, v in pairs(workspace:GetDescendants()) do
-if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < _G.DistanceGun then
-if not Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn") then
-if not Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf" then
-if not Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf" then
+if not Options.NoMods.Value["Horse"] or (not v.Name:find("Horse") and not v.Name:find("Unicorn")) then
+if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
+if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
-GunAuraSt(v.Humanoid)
+for j, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if h:IsA("Tool") and h:FindFirstChild("ClientWeaponState") and h.ClientWeaponState:FindFirstChild("CurrentAmmo") then
+			if h.ClientWeaponState.CurrentAmmo.Value ~= 0 then
+				game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), h, game.Players.LocalPlayer.Character.Head.CFrame, {["1"] = v.Humanoid})
+			elseif h.ClientWeaponState.CurrentAmmo.Value == 0 then
+				game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), h)
+				repeat task.wait() until h.ClientWeaponState.CurrentAmmo.Value ~= 0
+			end
+        end
+    end
 end
 end
 end
@@ -1188,9 +1351,9 @@ for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance < DistanceMath then
-if not Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn") then
-if not Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf" then
-if not Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf" then
+if not Options.NoMods.Value["Horse"] or (not v.Name:find("Horse") and not v.Name:find("Unicorn")) then
+if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
+if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTarget, DistanceMath = v:FindFirstChild("Head"), Distance
 end
@@ -1225,9 +1388,9 @@ for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance2 = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance2 < DistanceMathMods then
-if not Options.NoMods.Value["Horse"] or (v.Name ~= "Horse" and v.Name ~= "Unicorn") then
-if not Options.NoMods.Value["Wolf"] or v.Name ~= "Wolf" then
-if not Options.NoMods.Value["Werewolf"] or v.Name ~= "Werewolf" then
+if not Options.NoMods.Value["Horse"] or (not v.Name:find("Horse") and not v.Name:find("Unicorn")) then
+if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
+if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTargetHead, DistanceMathMods = v:FindFirstChild("Head"), Distance2
 end
@@ -1259,16 +1422,6 @@ end
    SyncToggleState = true
 })
 
-Misc2Group:AddDropdown("Health Heal", {
-    Text = "Auto Heal",
-    Values = {"Bandage", "Snake Oil"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-_G.AutoHealth = Value
-    end
-})
-
 Misc2Group:AddSlider("Health Heal", {
     Text = "Health Heal",
     Default = 68,
@@ -1288,8 +1441,8 @@ Misc2Group:AddToggle("Auto Heal", {
 _G.AutoHeal = Value
 while _G.AutoHeal do
 if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health < (_G.HealthyHeal or 68)then
-	if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(_G.AutoHealth or "Bandage") and game:GetService("Players").LocalPlayer.Backpack[_G.AutoHealth or "Bandage"]:FindFirstChild("Use") then
-	    game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(_G.AutoHealth or "Bandage").Use:FireServer()
+	if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Bandage") and game:GetService("Players").LocalPlayer.Backpack["Bandage"]:FindFirstChild("Use") then
+	    game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Bandage").Use:FireServer()
 	end
 end
 task.wait()
