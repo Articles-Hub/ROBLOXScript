@@ -1282,8 +1282,8 @@ end
 
 local Misc2Group = Tabs.Tab1:AddRightGroupbox("Combat")
 
-Misc2Group:AddToggle("Slow Health Bar Mods", {
-    Text = "Slow Health Bar Mods",
+Misc2Group:AddToggle("Show Health Bar Mods", {
+    Text = "Show Health Bar Mods",
     Default = false, 
     Callback = function(Value) 
 _G.HealthBarMods = Value
