@@ -175,7 +175,7 @@ Main1Group:AddToggle("Auto Sell", {
 _G.SellItem = Value
 while _G.SellItem do
 for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
-if v.ClassName == "Model" and v:FindFirstChild("ObjectInfo") and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 7 then
+if v.Name ~= "Rock" and v:FindFirstChild("ObjectInfo") and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 7 then
 for h, m in pairs(v.ObjectInfo:GetChildren()) do
 if m.Name == "TextLabel" then
 if m.Text == "Valuable" or m.Text == "Junk" or m.Text == "Gun" then
@@ -239,7 +239,7 @@ Main1Group:AddToggle("Auto Store Item", {
 _G.StoreItem = Value
 while _G.StoreItem do
 for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
-if v.ClassName == "Model" and v:FindFirstChild("HumanoidRootPart") == nil and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 20 then
+if v.Name ~= "Rock" and v:FindFirstChild("HumanoidRootPart") == nil and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 20 then
 if game.Players.LocalPlayer.Character:FindFirstChild("Sack") and game.Players.LocalPlayer.Character.Sack:FindFirstChild("BillboardGui") and game.Players.LocalPlayer.Character.Sack.BillboardGui:FindFirstChild("TextLabel") then
 if game.Players.LocalPlayer.Character.Sack.BillboardGui.TextLabel.Text ~= (game.Players.LocalPlayer.Character.Sack.SackSettings:FindFirstChild("Limit").Value.."/"..game.Players.LocalPlayer.Character.Sack.SackSettings:FindFirstChild("Limit").Value) then
 game:GetService("ReplicatedStorage").Remotes.StoreItem:FireServer(v)
@@ -260,13 +260,12 @@ end
 Main1Group:AddButton("Complete Assembly Tesla", function()
 if workspace:FindFirstChild("TeslaLab") and workspace.TeslaLab:FindFirstChild("ExperimentTable") then
 local Tesla = workspace.TeslaLab.ExperimentTable:FindFirstChild("PlacedParts")
-if Tesla:FindFirstChild("BrainJar") and Tesla:FindFirstChild("LeftWerewolfArm") and Tesla:FindFirstChild("LeftWerewolfLeg") and Tesla:FindFirstChild("RightWerewolfArm") and Tesla:FindFirstChild("RightWerewolfLeg") and Tesla:FindFirstChild("WerewolfTorso") then
-Notification("Successful Assembly, you must reap to fight to get the Electricity gun", 5)
-if workspace.TeslaLab:FindFirstChild("Generator") then
-for i, v in pairs(workspace.TeslaLab.Generator:GetChildren()) do
-if v:IsA("BasePart") and v:FindFirstChild("PowerEsp") and v:FindFirstChild("PowerPrompt") then
+for i, v in pairs(Testla:GetChildren()) do
+if v.Name:find("Werewolf") or v.Name == "BrainJar" then
+if v.PrimaryPart ~= nil and v.PrimaryPart.Transparency ~= 1 then
+if v:FindFirstChild("PartEsp") then
 local Highlight = Instance.new("Highlight")
-Highlight.Name = "PowerEsp"
+Highlight.Name = "PartEsp"
 Highlight.FillColor = Color3.fromRGB(0, 255, 0) 
 Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
 Highlight.FillTransparency = 0.5
@@ -274,10 +273,6 @@ Highlight.OutlineTransparency = 0
 Highlight.Adornee = v
 Highlight.Parent = v
 end
-end
-end
-else
-Notification("Go to tesla parts", 5)
 repeat task.wait()
 for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
 if v.Name:find("Werewolf") or v.Name == "BrainJar" then
@@ -290,12 +285,12 @@ game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStopDrag:
 end
 end
 end
-until Tesla:FindFirstChild("BrainJar") and Tesla:FindFirstChild("LeftWerewolfArm") and Tesla:FindFirstChild("LeftWerewolfLeg") and Tesla:FindFirstChild("RightWerewolfArm") and Tesla:FindFirstChild("RightWerewolfLeg") and Tesla:FindFirstChild("WerewolfTorso")
-wait(0.2)
-Notification("Successful Assembly, you must reap to fight to get the Electricity gun", 5)
+until v.PrimaryPart.Transparency <= 0
+else
 if workspace.TeslaLab:FindFirstChild("Generator") then
 for i, v in pairs(workspace.TeslaLab.Generator:GetChildren()) do
-if v:IsA("BasePart") and v:FindFirstChild("PowerEsp") and v:FindFirstChild("PowerPrompt") then
+if v:IsA("BasePart") and v:FindFirstChild("PowerEsp") == nil and v:FindFirstChild("PowerPrompt") then
+Notification("Successful Assembly, you must reap to fight to get the Electricity gun", 5)
 local Highlight = Instance.new("Highlight")
 Highlight.Name = "PowerEsp"
 Highlight.FillColor = Color3.fromRGB(0, 255, 0) 
@@ -305,6 +300,24 @@ Highlight.OutlineTransparency = 0
 Highlight.Adornee = v
 Highlight.Parent = v
 end
+end
+end
+end
+end
+end
+wait(0.2)
+if workspace.TeslaLab:FindFirstChild("Generator") then
+for i, v in pairs(workspace.TeslaLab.Generator:GetChildren()) do
+if v:IsA("BasePart") and v:FindFirstChild("PowerEsp") == nil and v:FindFirstChild("PowerPrompt") then
+Notification("Successful Assembly, you must reap to fight to get the Electricity gun", 5)
+local Highlight = Instance.new("Highlight")
+Highlight.Name = "PowerEsp"
+Highlight.FillColor = Color3.fromRGB(0, 255, 0) 
+Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+Highlight.FillTransparency = 0.5
+Highlight.OutlineTransparency = 0
+Highlight.Adornee = v
+Highlight.Parent = v
 end
 end
 end
@@ -1293,51 +1306,56 @@ end
    SyncToggleState = true
 })
 
-Misc2Group:AddSlider("Gun Distance", {
-    Text = "Gun Distance Aura",
-    Default = 50,
-    Min = 10,
-    Max = 200,
-    Rounding = 0,
-    Compact = false,
-    Callback = function(Value)
-_G.DistanceGun = Value
-    end
-})
-
 Misc2Group:AddToggle("Gun Aura", {
     Text = "Gun Aura",
     Default = false, 
     Callback = function(Value) 
 _G.KillAuraGun = Value
 while _G.KillAuraGun do
+local DistanceGunAura, ModsTargetShotHead, ModsTargetShotHumanoid = math.huge, nil, nil
 for i, v in pairs(workspace:GetDescendants()) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
-if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < _G.DistanceGun then
+local DistanceGun = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
+if DistanceGun < DistanceGunAura then
 if not Options.NoMods.Value["Horse"] or (not v.Name:find("Horse") and not v.Name:find("Unicorn")) then
 if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
-for j, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-        if h:IsA("Tool") and h:FindFirstChild("ClientWeaponState") and h.ClientWeaponState:FindFirstChild("CurrentAmmo") then
-			if h.ClientWeaponState.CurrentAmmo.Value ~= 0 then
-				game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), h, game.Players.LocalPlayer.Character.Head.CFrame, {["1"] = v.Humanoid})
-			elseif h.ClientWeaponState.CurrentAmmo.Value == 0 then
-				game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), h)
-				repeat task.wait() until h.ClientWeaponState.CurrentAmmo.Value ~= 0
+ModsTargetShotHead, ModsTargetShotHumanoid, DistanceGunAura = v.Head, v.Humanoid, DistanceGun
+end
+end
+end
+end
+end
+end
+end
+if ModsTargetShotHead and ModsTargetShotHumanoid then
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:FindFirstChild("ClientWeaponState") and v.ClientWeaponState:FindFirstChild("CurrentAmmo") then
+			if v.ClientWeaponState.CurrentAmmo.Value ~= 0 then
+				if v.Name:find("Shotgun") then
+					for i = 1, 6 do
+                       _G.ModsShotgun[tostring(i)] = ModsTargetShotHumanoid
+                    end
+					game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), v, CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, ModsTargetShotHead.Position), _G.ModsShotgun)
+				else
+					game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), v, CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, ModsTargetShotHead.Position), {["1"] = ModsTargetShotHumanoid})
+				end
+			elseif v.ClientWeaponState.CurrentAmmo.Value == 0 then
+				game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), v)
+				repeat task.wait() until v.ClientWeaponState.CurrentAmmo.Value ~= 0
 			end
         end
     end
 end
-end
-end
-end
-end
-end
-end
-task.wait(1)
+task.wait(0.5)
 end
     end
+}):AddKeyPicker("GunAuraKill", {
+   Default = "M",
+   Text = "Gun Aura",
+   Mode = "Toggle",
+   SyncToggleState = true
 })
 
 Misc2Group:AddToggle("Aimbot Mods", {
