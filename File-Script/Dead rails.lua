@@ -2,6 +2,59 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
+if game.CoreGui:FindFirstChild("Gun Health Track") == nil then
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "Gun Health Track"
+gui.Enabled = false
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0.2, 0, 0.1, 0)
+Frame.Position = UDim2.new(0.02, 0, 0.87, 0)
+Frame.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame.BorderColor3 = Color3.new(0, 0, 0)
+Frame.BorderSizePixel = 1
+Frame.Active = true
+Frame.BackgroundTransparency = 0 
+Frame.Parent = gui
+
+local UICorner = Instance.new("UIStroke")
+UICorner.Color = Color3.new(0, 0, 0)
+UICorner.Thickness = 3
+UICorner.Parent = Frame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 5)
+UICorner.Parent = Frame
+
+local Frame1 = Instance.new("Frame")
+Frame1.Size = UDim2.new(1, 0, 1, 0)
+Frame1.Position = UDim2.new(0, 0, 0, 0)
+Frame1.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+Frame1.BorderColor3 = Color3.new(0, 0, 0)
+Frame1.BorderSizePixel = 1
+Frame1.Active = true
+Frame1.BackgroundTransparency = 0 
+Frame1.Parent = Frame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 5)
+UICorner.Parent = Frame1
+
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Size = UDim2.new(1, 0, 1, 0)
+TextLabel.Position = UDim2.new(0, 0, 0, 0)
+TextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+TextLabel.BorderColor3 = Color3.new(0, 0, 0)
+TextLabel.BorderSizePixel = 1
+TextLabel.Text = ""
+TextLabel.TextSize = 15
+TextLabel.BackgroundTransparency = 1
+TextLabel.TextColor3 = Color3.new(0, 0, 0)
+TextLabel.Font = Enum.Font.Code
+TextLabel.TextWrapped = true
+TextLabel.Parent = Frame
+end
+
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/Source.lua"))()
 local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/ThemeManager.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/SaveManager.lua"))()
@@ -1229,6 +1282,14 @@ end
 
 local Misc2Group = Tabs.Tab1:AddRightGroupbox("Combat")
 
+Misc2Group:AddToggle("Slow Health Bar Mods", {
+    Text = "Slow Health Bar Mods",
+    Default = false, 
+    Callback = function(Value) 
+_G.HealthBarMods = Value
+    end
+})
+
 Misc2Group:AddDropdown("NoMods", {
     Text = "No Mods",
     Values = {"Horse", "Wolf", "Werewolf"},
@@ -1306,6 +1367,29 @@ end
    SyncToggleState = true
 })
 
+Misc2Group:AddDropdown("GunFastAura", {
+    Text = "Gun Aura",
+    Values = {"Fast", "Normal"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.GunAuraKillSkib = Value
+    end
+})
+
+Misc2Group:AddSlider("Delay Shot", {
+    Text = "Delay Shot",
+    Default = 0.25,
+    Min = 0.01,
+    Max = 1,
+    Rounding = 2,
+    Compact = false,
+    Callback = function(Value)
+_G.DelayShot = Value
+    end
+})
+
+_G.DelayShot = 0.25
 Misc2Group:AddToggle("Gun Aura", {
     Text = "Gun Aura",
     Default = false, 
@@ -1322,6 +1406,12 @@ if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTargetShotHead, ModsTargetShotHumanoid, DistanceGunAura = v.Head, v.Humanoid, DistanceGun
+if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
+game.CoreGui["Gun Health Track"].Enabled = true
+elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = (v.Name:gsub("Model_", "").." Health: "..string.format("%.0f", (v.Humanoid.Health)).." / "..v.Humanoid.MaxHealth)
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+end
 end
 end
 end
@@ -1330,16 +1420,38 @@ end
 end
 end
 if ModsTargetShotHead and ModsTargetShotHumanoid then
+_G.ModsShotgun = {}
+if _G.GunAuraKillSkib == "Fast" then
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
         if v:FindFirstChild("ClientWeaponState") and v.ClientWeaponState:FindFirstChild("CurrentAmmo") then
 			if v.ClientWeaponState.CurrentAmmo.Value ~= 0 then
-				if v.Name:find("Shotgun") then
+				if v.Name == "Shotgun" or v.Name == "Sawed-Off Shotgun" then
 					for i = 1, 6 do
                        _G.ModsShotgun[tostring(i)] = ModsTargetShotHumanoid
                     end
-					game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), v, CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, ModsTargetShotHead.Position), _G.ModsShotgun)
 				else
-					game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), v, CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, ModsTargetShotHead.Position), {["1"] = ModsTargetShotHumanoid})
+					_G.ModsShotgun["1"] = ModsTargetShotHumanoid
+				end
+				if _G.ModsShotgun ~= nil then
+					game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), v, CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, ModsTargetShotHead.Position), _G.ModsShotgun)
+					game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), v)
+				end
+			end
+        end
+    end
+elseif _G.GunAuraKillSkib == "Normal" then
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:FindFirstChild("ClientWeaponState") and v.ClientWeaponState:FindFirstChild("CurrentAmmo") then
+			if v.ClientWeaponState.CurrentAmmo.Value ~= 0 then
+				if v.Name == "Shotgun" or v.Name == "Sawed-Off Shotgun" then
+					for i = 1, 6 do
+                       _G.ModsShotgun[tostring(i)] = ModsTargetShotHumanoid
+                    end
+				else
+					_G.ModsShotgun["1"] = ModsTargetShotHumanoid
+				end
+				if _G.ModsShotgun ~= nil then
+					game.ReplicatedStorage.Remotes.Weapon.Shoot:FireServer(game.Workspace:GetServerTimeNow(), v, CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, ModsTargetShotHead.Position), _G.ModsShotgun)
 				end
 			elseif v.ClientWeaponState.CurrentAmmo.Value == 0 then
 				game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), v)
@@ -1348,7 +1460,19 @@ for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
         end
     end
 end
-task.wait(0.5)
+else
+if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
+game.CoreGui["Gun Health Track"].Enabled = false
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+end
+end
+task.wait(_G.DelayShot)
+end
+if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
+game.CoreGui["Gun Health Track"].Enabled = false
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
 end
     end
 }):AddKeyPicker("GunAuraKill", {
@@ -1374,6 +1498,12 @@ if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTarget, DistanceMath = v:FindFirstChild("Head"), Distance
+if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
+game.CoreGui["Gun Health Track"].Enabled = true
+else
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = (v.Name:gsub("Model_", "").." Health: "..string.format("%.0f", (v.Humanoid.Health)).." / "..v.Humanoid.MaxHealth)
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+end
 end
 end
 end
@@ -1383,8 +1513,19 @@ end
 end
 if ModsTarget then
 game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (ModsTarget.Position + Vector3.new(0, ModsTarget.Size.Y / 2, 0) - game.Workspace.CurrentCamera.CFrame.Position).unit)
+else
+if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
+game.CoreGui["Gun Health Track"].Enabled = false
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+end
 end
 task.wait()
+end
+if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
+game.CoreGui["Gun Health Track"].Enabled = false
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
 end
     end
 }):AddKeyPicker("AimbotMods", {
@@ -1411,6 +1552,12 @@ if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTargetHead, DistanceMathMods = v:FindFirstChild("Head"), Distance2
+if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
+game.CoreGui["Gun Health Track"].Enabled = true
+elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = (v.Name:gsub("Model_", "").." Health: "..string.format("%.0f", (v.Humanoid.Health)).." / "..v.Humanoid.MaxHealth)
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+end
 end
 end
 end
@@ -1423,11 +1570,21 @@ if game.Workspace.CurrentCamera.CameraSubject ~= ModsTargetHead then
 game.Workspace.CurrentCamera.CameraSubject = ModsTargetHead
 end
 else
+if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
+game.CoreGui["Gun Health Track"].Enabled = false
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+end
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Workspace.CurrentCamera.CameraSubject ~= game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
 end
 end
 task.wait()
+end
+if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
+game.CoreGui["Gun Health Track"].Enabled = false
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
 end
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
