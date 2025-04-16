@@ -11119,7 +11119,7 @@ Tabs["Settings Ui"]:AddSlider({
 	Default = 5,
 	Color = Color3.fromRGB(255,255,255),
 	Increment = 1,
-	ValueName = "Volume",
+	ValueName = "Time",
 	Callback = function(Value)
 		_G.TimeNotify = Value
 	end    
