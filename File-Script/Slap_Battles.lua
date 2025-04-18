@@ -2851,6 +2851,31 @@ end
     end
 })
 
+TabBadge:AddButton({
+    Name = "Join Map Eggs",
+    Callback = function()
+if workspace:FindFirstChild("EasterHuntEggs") == nil then
+Notification("You have get Hitman quest", _G.TimeNotify)
+repeat task.wait() until workspace:FindFirstChild("EasterHuntEggs")
+end
+if workspace:FindFirstChild("EasterHuntEggs") then
+for i, v in pairs(workspace.EasterHuntEggs:GetChildren()) do
+v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+end
+end
+wait(0.5)
+if workspace:FindFirstChild("EggTeleport") == nil then
+repeat task.wait() until workspace:FindFirstChild("EggTeleport")
+end
+if workspace:FindFirstChild("EggTeleport") and workspace.EggTeleport:FindFirstChild("ClickDetector") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace:FindFirstChild("EggTeleport").CFrame
+if fireclickdetector then
+fireclickdetector(workspace.EggTeleport.ClickDetector)
+end
+end
+    end
+})
+
 TabBadge:AddToggle({
     Name = "Bus Stab",
     Default = false,
@@ -10490,7 +10515,7 @@ MiscpTab:AddButton({
 if game.Workspace.QuestStuff:FindFirstChild("Key") and game.Workspace.QuestStuff.Key.Transparency == 0 then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.QuestStuff.Key.CFrame
 wait(0.35)
-if (fireclickdetector and fireclickdetector()) then
+if fireclickdetector then
 for i,v in ipairs(game.Workspace.QuestStuff:GetChildren()) do
             if v.Name == "Key" and v:FindFirstChild("ClickDetector") then
                    fireclickdetector(v.ClickDetector, 0)
@@ -10508,7 +10533,7 @@ MiscTab:AddButton({
 if game.Workspace.Buildings:FindFirstChild("oog's cage") and game.Workspace.Buildings["oog's cage"]:FindFirstChild("Door") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Buildings["oog's cage"].Door.Door.CFrame * CFrame.new(-3,0,0)
 wait(0.35)
-if (fireclickdetector and fireclickdetector()) then
+if fireclickdetector then
 for i,v in ipairs(game.Workspace.Buildings["oog's cage"]:GetChildren()) do
             if v.Name == "Door" and v:FindFirstChild("ClickDetector") then
                    fireclickdetector(v.ClickDetector, 0)
@@ -10530,7 +10555,7 @@ repeat task.wait() until game.Workspace:FindFirstChild("BoxingGloves")
 wait(0.5)
 for i,v in pairs(game.Workspace:GetChildren()) do
 if v.Name == "BoxingGloves" and v:FindFirstChild("ClickDetector") then
-if (fireclickdetector and fireclickdetector()) then
+if fireclickdetector then
 fireclickdetector(v.ClickDetector, 0)
 fireclickdetector(v.ClickDetector, 1)
 end
@@ -10545,7 +10570,7 @@ MiscTab:AddButton({
 for i, v in ipairs(workspace.Signs:GetChildren()) do
 if v.Name == "Sign" and v:FindFirstChild("Text") and v.Text:FindFirstChild("ClickDetector") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Text.CFrame
-if (fireclickdetector and fireclickdetector()) then
+if fireclickdetector then
 fireclickdetector(v.Text.ClickDetector, 0)
 fireclickdetector(v.Text.ClickDetector, 1)
 end
@@ -10617,7 +10642,7 @@ MiscTab:AddButton({
 if game.Workspace:FindFirstChild("Orb") and game.Workspace.Orb:FindFirstChild("Meshes/rock chain glove_defaultglove_cell.001") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Orb["Meshes/rock chain glove_defaultglove_cell.001"].CFrame
 end
-if (fireclickdetector and fireclickdetector()) then
+if fireclickdetector then
 if game.Workspace:FindFirstChild("Orb") then
 fireclickdetector(game.Workspace.Orb.ClickDetector, 0)
 fireclickdetector(game.Workspace.Orb.ClickDetector, 1)
@@ -10654,7 +10679,7 @@ if workspace:FindFirstChild("Furniture") and workspace.Furniture:FindFirstChild(
 for i,v in ipairs(workspace.Furniture.jorgisBasketballs:GetChildren()) do
 if v.Name == "B-Ball" and v:FindFirstChild("ClickDetector") then
 v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-if (fireclickdetector and fireclickdetector()) then
+if fireclickdetector then
 fireclickdetector(v.ClickDetector, 0)
 fireclickdetector(v.ClickDetector, 1)
 end
@@ -10671,7 +10696,7 @@ if workspace:FindFirstChild("Furniture") and workspace.Furniture:FindFirstChild(
 for i,v in ipairs(workspace.Furniture.jorgisDresser:GetChildren()) do
 if v.Name == "Drawer" and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("ClickDetector") then
 v.Handle.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-if (fireclickdetector and fireclickdetector()) then
+if fireclickdetector then
 fireclickdetector(v.Handle.ClickDetector, 0)
 fireclickdetector(v.Handle.ClickDetector, 1)
 end
@@ -11092,6 +11117,57 @@ wait(0.3)
 if fireproximityprompt then
 fireproximityprompt(workspace.Map.Components.GloveIsland.ClaimGlove:FindFirstChild("ProximityPrompt"))
 end
+end
+end
+end
+    end
+})
+elseif game.PlaceId == 129665246576996 then
+local Window = OrionLib:MakeWindow({
+     IntroText = "Omega X Article Hub 🅰️",
+     IntroIcon = "rbxassetid://15315284749",
+     Name = "Articles Hub - Obby Eggs 🥚",
+     SearchBar = {
+         Default = "🔍 Search Tabs",
+         ClearTextOnFocus = true
+     },
+     IntroToggleIcon = "rbxassetid://7734091286",
+     HidePremium = false, 
+     SaveConfig = false,
+     IntroEnabled = true,
+     ConfigFolder = "slap battles"
+})
+
+Tabs = {
+	Tab = Window:MakeTab({Name = "Misc", Icon = "rbxassetid://7733673987", PremiumOnly = false}),
+	["Settings Ui"] = Window:MakeTab({Name = "Settings Ui", Icon = "rbxassetid://7733955511", PremiumOnly = false})
+}
+
+local MiscTab = Tabs.Tab
+MiscTab:AddButton({
+    Name = "Get Badge",
+    Callback = function()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if workspace:FindFirstChild("Kenneth") and workspace.Kenneth:FindFirstChild("Head") and workspace.Kenneth.Head:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Kenneth.Head.CFrame
+wait(0.6)
+if fireproximityprompt then
+fireproximityprompt(workspace.Kenneth.Head.ProximityPrompt)
+end
+end
+wait(1)
+for i, v in pairs(workspace:FindFirstChild("TrialCompletedPoints"):GetChildren()) do
+if v.Name:find("Trial") and v:FindFirstChild("root") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.root.CFrame
+wait(0.8)
+end
+end 
+wait(2.5)
+if workspace:FindFirstChild("Kenneth") and workspace.Kenneth:FindFirstChild("Head") and workspace.Kenneth.Head:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Kenneth.Head.CFrame
+wait(0.6)
+if fireproximityprompt then
+fireproximityprompt(workspace.Kenneth.Head.ProximityPrompt)
 end
 end
 end
