@@ -391,7 +391,7 @@ if v.Name:find("Werewolf") or v.Name == "BrainJar" then
 if v.PrimaryPart and v.PrimaryPart.Transparency == 1 then
 repeat task.wait()
 for n, m in pairs(workspace.RuntimeItems:GetChildren()) do
-if m.Name == v.Name and m:FindFirstChild("HumanoidRootPart") == nil and m.PrimaryPart then
+if v.Name:find("Werewolf") or v.Name == "BrainJar" and m:FindFirstChild("HumanoidRootPart") == nil and m.PrimaryPart then
 if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - m.PrimaryPart.Position).Magnitude < 10 then
 game.ReplicatedStorage.Shared.Network.RemoteEvent.RequestStartDrag:FireServer(m)
 task.wait(0.3)
