@@ -3859,7 +3859,7 @@ function Library:Notify(...)
         Size = UDim2.fromScale(1, 1),
         Parent = TimerBar,
     })
-    
+
     if typeof(Data.Time) == "Instance" then
         TimerFill.Size = UDim2.fromScale(0, 1)
     end
@@ -3873,7 +3873,7 @@ function Library:Notify(...)
     end
 
     Library.Notifications[FakeBackground] = Data
-    
+
     FakeBackground.Visible = true
     TweenService:Create(Background, Library.NotifyTweenInfo, {
         Position = UDim2.fromOffset(-2, -2),
@@ -4979,8 +4979,14 @@ function Library:CreateWindow(WindowInfo)
     if WindowInfo.AutoShow then
         task.spawn(Library.Toggle)
     end
+    
+    if WindowInfo.AutoLock then
+        task.spawn(function()
+			Library.CantDragForced = true
+			self:SetText(Library.CantDragForced and "Unlock" or "Lock")
+		end)
+    end
 
-    if Library.IsMobile then
         local ToggleButton = Library:AddDraggableButton("Toggle", function()
             Library:Toggle()
         end)
@@ -4999,8 +5005,7 @@ function Library:CreateWindow(WindowInfo)
         else
             LockButton.Button.Position = UDim2.fromOffset(6, 46)
         end
-    end
-
+        
     --// Execution \\--
     local LastTab
     SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
