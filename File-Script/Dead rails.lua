@@ -362,8 +362,8 @@ game:GetService("ReplicatedStorage").Remotes.StoreItem:FireServer(v)
 end
 end
 else
-if Options.ChooseStore.Value["Item"] and v:FindFirstChild("HumanoidRootPart") == nil then
-if Options.ChooseStore.Value["Mods"] and v:FindFirstChild("HumanoidRootPart") then
+if not Options.ChooseStore.Value["Item"] or v:FindFirstChild("HumanoidRootPart") == nil then
+if not Options.ChooseStore.Value["Mods"] or v:FindFirstChild("HumanoidRootPart") then
 if game.Players.LocalPlayer.Character:FindFirstChild("Sack") and game.Players.LocalPlayer.Character.Sack:FindFirstChild("BillboardGui") and game.Players.LocalPlayer.Character.Sack.BillboardGui:FindFirstChild("TextLabel") then
 if game.Players.LocalPlayer.Character.Sack.BillboardGui.TextLabel.Text ~= (game.Players.LocalPlayer.Character.Sack.SackSettings:FindFirstChild("Limit").Value.."/"..game.Players.LocalPlayer.Character.Sack.SackSettings:FindFirstChild("Limit").Value) then
 game:GetService("ReplicatedStorage").Remotes.StoreItem:FireServer(v)
@@ -1324,8 +1324,8 @@ Notification("Unicorn Spawn [ Dead ]", 7)
 end
 repeat task.wait() 
 if v:FindFirstChild("Esp_UnicornGui") == nil then
-GuiItemEsp = Instance.new("BillboardGui", game.Workspace.Part)
-GuiItemEsp.Adornee = game.Workspace.Part
+GuiItemEsp = Instance.new("BillboardGui", v)
+GuiItemEsp.Adornee = v
 GuiItemEsp.Name = "Esp_UnicornGui"
 GuiItemEsp.Size = UDim2.new(0, 50, 0, 50)
 GuiItemEsp.AlwaysOnTop = true
@@ -1372,15 +1372,13 @@ Misc1Group:AddToggle("WalkSpeed", {
 _G.WalkSpeed = Value
 if _G.WalkSpeed == false then
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-workspace.CurrentCamera.FieldOfView = 75
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
 end
 end
 while _G.WalkSpeed do
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-workspace.CurrentCamera.FieldOfView = 100
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16.5
-wait(4)
+wait(6.5)
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 18.5
 end
 task.wait(4)
@@ -1820,9 +1818,9 @@ MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
 MenuGroup:AddSlider("GuiSize", {
     Text = "Scale Gui",
-    Default = 2,
-    Min = 2,
-    Max = 10,
+    Default = 100,
+    Min = 50,
+    Max = 200,
     Rounding = 1,
     Compact = true,
     Callback = function(Value)
