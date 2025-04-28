@@ -3053,8 +3053,117 @@ end
 TabBadge:AddSection({Name = "Mastery"})
 
 TabBadge:AddDropdown({
+    Name = "Shard Mastery",
+    Options = {"Shard Overkill", "Get Slap", "Slap Aimbot"},
+    Default = "",
+    Callback = function(Value)
+_G.ShardMastery = Value
+    end
+})
+
+TabBadge:AddToggle({
+    Name = "Auto Shard Mastery",
+    Flag = "Auto Shard Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoShardMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Shard" then
+while _G.AutoShardMastery do
+if _G.ShardMastery == "Shard Overkill" then
+game:GetService("ReplicatedStorage").Shards:FireServer()
+wait(0.2)
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.leaderstats.Glove.Value == "OVERKILL" and v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 8)
+wait(0.46)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+end
+end
+end
+end
+task.wait(5)
+elseif _G.ShardMastery == "Get Slap" then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+wait(0.5)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.8)
+game:GetService("ReplicatedStorage").Duplicate:FireServer(true)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.05)
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+fireclickdetector(workspace.Lobby.Shard.ClickDetector)
+wait(0.3)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+if gloveHits["Shard"] and v:FindFirstChild("HumanoidRootPart") then
+gloveHits["Shard"]:FireServer(v:FindFirstChild("HumanoidRootPart"))
+end
+until v:FindFirstChild("HumanoidRootPart") == nil or _G.AutoShardMastery == false
+end
+end
+wait(0.2)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+if _G.AutoShardMastery == true then
+fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+else
+fireclickdetector(workspace.Lobby.Shard.ClickDetector)
+end
+end
+elseif _G.ShardMastery == "Aimbot Character" then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+local Dilstance, TargetCharacter = math.huge, nil
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+local DistancePlayer = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
+if DistancePlayer < Distance then
+Dilstance, TargetCharacter = DistancePlayer, v
+end
+end
+end
+end
+end
+if TargetCharacter then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(TargetCharacter.HumanoidRootPart.Position.X, game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y, TargetCharacter.HumanoidRootPart.Position.Z))
+end
+end
+end
+task.wait()
+end
+elseif _G.AutoShardMastery == true then
+Notification("You don't have Shard equipped", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["Auto Shard Mastery"]:Set(false)
+end
+    end
+})
+
+TabBadge:AddDropdown({
     Name = "Space Mastery",
-    Options = {"Place Time", "Ambush", "Complete On Island Slapple"},
+    Options = {"Place Time", "Complete On Island Slapple"},
     Default = "",
     Callback = function(Value)
 _G.SpaceMastery = Value
@@ -3113,63 +3222,6 @@ until game.Players.LocalPlayer.Character:FindFirstChild("Ragdolled") and game.Pl
 wait(1)
 game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.workspace.Arena.island5.Union.CFrame * CFrame.new(0,3.25,0))
 task.wait(6)
-elseif _G.SpaceMastery == "Ambush" then
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-fireclickdetector(workspace.Lobby.Replica.ClickDetector)
-wait(0.5)
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.1)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-wait(0.8)
-game:GetService("ReplicatedStorage").Duplicate:FireServer(true)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-wait(0.05)
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Space.ClickDetector)
-wait(0.3)
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.2)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-for i, v in pairs(game.Workspace:GetChildren()) do
-if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
-task.spawn(function()
-repeat
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("ZeroGSoundEffect") then
-game:GetService("ReplicatedStorage").ZeroGSound:FireServer()
-end
-task.wait(5)
-until v:FindFirstChild("HumanoidRootPart") == nil or _G.AutoSpaceMastery == false
-end)
-repeat task.wait()
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("ZeroGSoundEffect") == nil then
-if gloveHits["Space"] and v:FindFirstChild("HumanoidRootPart") then
-gloveHits["Space"]:FireServer(v:FindFirstChild("HumanoidRootPart"))
-end
-end
-until v:FindFirstChild("HumanoidRootPart") == nil or _G.AutoSpaceMastery == false
-end
-end
-wait(0.2)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-if _G.AutoSpaceMastery == true then
-fireclickdetector(workspace.Lobby.Replica.ClickDetector)
-else
-fireclickdetector(workspace.Lobby.Space.ClickDetector)
-end
-end
 end
 task.wait()
 end
@@ -4948,9 +5000,11 @@ local players = game.Players:GetChildren()
 local randomPlayer = players[math.random(1, #players)]
 repeat randomPlayer = players[math.random(1, #players)] until randomPlayer ~= game.Players.LocalPlayer and randomPlayer.Character:FindFirstChild("entered") and randomPlayer.Character:FindFirstChild("ded") == nil and randomPlayer.Character:FindFirstChild("InLabyrinth") == nil and randomPlayer.Character:FindFirstChild("rock") == nil
 Target = randomPlayer
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("FerrymanStaff") then
 game.Players.LocalPlayer.Character.FerrymanStaff.StaffConfig.AbilityEvent:FireServer("Leap")
 wait(1.85)
 game.Players.LocalPlayer.Character.FerrymanStaff.StaffConfig.AbilityEvent:FireServer("FinishLeap",Target.Character.HumanoidRootPart.Position)
+end
 task.wait(5)
 end
 while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Scythe" do
@@ -5133,6 +5187,10 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer(true)
 task.wait()
 end
 while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Tank" do
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+task.wait()
+end
+while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Eggler" do
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 task.wait()
 end
@@ -7164,6 +7222,30 @@ if game.Players.LocalPlayer.Character:FindFirstChild("Grab") then
 end
 else
 Notification("You don't have Grab equipped, or you have to go Arena, or player go to Arena", _G.TimeNotify)
+end
+    end
+})
+
+TabGlove:AddButton({
+      Name = "Eggler Player Teleport",
+      Callback = function()
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Eggler" and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players[_G.PlayerButton].Character:FindFirstChild("entered") then
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Eggler") then
+	game.Players.LocalPlayer.Backpack:FindFirstChild("Eggler").Parent = game.Players.LocalPlayer.Character
+end
+wait(0.36)
+if _G.TeleportOldPlace == "Yes" then
+OLG = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+end
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+wait(0.1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton].Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+task.wait(0.4)
+if _G.TeleportOldPlace == "Yes" then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OLG
+end
+else
+Notification("You don't have Eggler equipped, or you have to go Arena, or player go to Arena", _G.TimeNotify)
 end
     end
 })
