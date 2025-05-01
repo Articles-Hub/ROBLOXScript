@@ -2876,6 +2876,60 @@ end
     end
 })
 
+TabBadge:AddDropdown({
+    Name = "Farm Bob",
+    Default = "",
+    Options = {"Fast", "Walk"},
+    Callback = function(Value)
+_G.AutoBob = Value
+    end
+})
+
+TabBadge:AddToggle({
+    Name = "AutoFarm Bob",
+    Default = false, 
+    Flag = "AutoFarm Bob",
+    Callback = function(Value) 
+_G.Bobfarm = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
+while _G.Bobfarm do
+if _G.AutoBob == "Walk" then
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = workspace.Lobby.Teleport1.Position
+end
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+wait(0.3)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil
+end
+elseif _G.AutoBob == "Fast" then
+repeat task.wait() until game.Players.LocalPlayer.Character
+if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.3)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil
+end
+end
+task.wait()
+end
+elseif _G.Bobfarm == true then
+Notification("You don't have Bob equipped", _G.TimeNotify)
+wait(0.05)
+OrionLib.Flags["AutoFarm Bob"]:Set(false)
+end
+    end
+})
+
 TabBadge:AddToggle({
     Name = "Bus Stab",
     Default = false,
@@ -3021,7 +3075,7 @@ end
 end
 task.wait(1.2)
 end
-elseif Brickfarm == true then
+elseif _G.Brickfarm == true then
 Notification("You don't have Brick equipped", _G.TimeNotify)
 wait(0.05)
 OrionLib.Flags["AutoFarm Brick"]:Set(false)
@@ -3054,7 +3108,7 @@ TabBadge:AddSection({Name = "Mastery"})
 
 TabBadge:AddDropdown({
     Name = "Shard Mastery",
-    Options = {"Shard Overkill", "Get Slap", "Slap Aimbot"},
+    Options = {"Aimbot Overkill", "Get Slap", "Aimbot Character"},
     Default = "",
     Callback = function(Value)
 _G.ShardMastery = Value
@@ -3069,21 +3123,18 @@ TabBadge:AddToggle({
 _G.AutoShardMastery = Value
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Shard" then
 while _G.AutoShardMastery do
-if _G.ShardMastery == "Shard Overkill" then
-game:GetService("ReplicatedStorage").Shards:FireServer()
-wait(0.2)
+if _G.ShardMastery == "Aimbot Overkill" then
 for i,v in pairs(game.Players:GetChildren()) do
 if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
 if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
 if v.leaderstats.Glove.Value == "OVERKILL" and v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 8)
-wait(0.46)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Ragdolled").Value == false then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(v.Character.HumanoidRootPart.Position.X, game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y, v.Character.HumanoidRootPart.Position.Z))
 end
 end
 end
 end
-task.wait(5)
+end
 elseif _G.ShardMastery == "Get Slap" then
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 fireclickdetector(workspace.Lobby.Replica.ClickDetector)
@@ -3133,21 +3184,23 @@ end
 end
 elseif _G.ShardMastery == "Aimbot Character" then
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-local Dilstance, TargetCharacter = math.huge, nil
+local Distance, TargetCharacter = math.huge, nil
 for i,v in pairs(game.Players:GetChildren()) do
 if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
 if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
 if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
-local DistancePlayer = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
+local DistancePlayer = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.Character.HumanoidRootPart.Position).Magnitude
 if DistancePlayer < Distance then
-Dilstance, TargetCharacter = DistancePlayer, v
+Distance, TargetCharacter = DistancePlayer, v
 end
 end
 end
 end
 end
 if TargetCharacter then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(TargetCharacter.HumanoidRootPart.Position.X, game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y, TargetCharacter.HumanoidRootPart.Position.Z))
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Ragdolled").Value == false then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(TargetCharacter.Character.HumanoidRootPart.Position.X, game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y, TargetCharacter.Character.HumanoidRootPart.Position.Z))
+end
 end
 end
 end
