@@ -2543,16 +2543,20 @@ TabBadge:AddButton({
 	Callback = function()
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Fort" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 4031317971987872) then
 local OldCFrew = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,60,0)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 200, 0)
+wait(0.4)
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
 wait(0.3)
 game:GetService("ReplicatedStorage").Fortlol:FireServer()
-wait(0.3)
+wait(0.8)
 for i, v in pairs(workspace:GetChildren()) do
 if v.Name == "Part" and v:FindFirstChild("brownsmoke") and v:FindFirstChild("Sound") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
 end
 end
-wait(0.2)
+wait(0.3)
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+wait(0.8)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldCFrew
 else
 Notification("You don't have Fort equipped, or you have Owner Badge", _G.TimeNotify)
@@ -2612,6 +2616,7 @@ if game.Workspace:FindFirstChild("TreasureChestFolder") and game.Workspace.Treas
 game.Workspace.TreasureChestFolder.TreasureChest.OpenRemote:FireServer()
 end
 game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.3)
 repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
 wait(0.2)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom.BountyHunterBooth._configPart.CFrame * CFrame.new(-5,0,0)
@@ -2852,26 +2857,26 @@ end
 })
 
 TabBadge:AddButton({
-    Name = "Join Map Eggs",
+    Name = "Join Map Nightmade Slender",
     Callback = function()
-if workspace:FindFirstChild("EasterHuntEggs") == nil then
-Notification("You have get Hitman quest", _G.TimeNotify)
-repeat task.wait() until workspace:FindFirstChild("EasterHuntEggs")
+if workspace:FindFirstChild("BountyHunterRoom") and workspace.BountyHunterRoom:FindFirstChild("BountyHunterLever") then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if workspace:FindFirstChild("BountyHunterRoom") and workspace.BountyHunterRoom:FindFirstChild("BountyHunterLever") and workspace.BountyHunterRoom.BountyHunterLever:FindFirstChild("Root") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom.BountyHunterLever.Root.CFrame
+wait(0.4)
+if fireproximityprompt then
+fireproximityprompt(workspace.BountyHunterRoom.BountyHunterLever.Root:FindFirstChild("ProximityPrompt"))
 end
-if workspace:FindFirstChild("EasterHuntEggs") then
-for i, v in pairs(workspace.EasterHuntEggs:GetChildren()) do
-v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-end
-end
-wait(0.5)
-if workspace:FindFirstChild("EggTeleport") == nil then
-repeat task.wait() until workspace:FindFirstChild("EggTeleport")
-end
-if workspace:FindFirstChild("EggTeleport") and workspace.EggTeleport:FindFirstChild("ClickDetector") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace:FindFirstChild("EggTeleport").CFrame
+repeat task.wait() until workspace.Lobby:FindFirstChild("Clothesline Model") and workspace.Lobby["Clothesline Model"]:FindFirstChild("Part") and workspace.Lobby["Clothesline Model"].Part:FindFirstChild("jerma").Texture == "rbxassetid://16591849948"
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Lobby["Clothesline Model"]:FindFirstChild("Part").CFrame
+wait(0.3)
 if fireclickdetector then
-fireclickdetector(workspace.EggTeleport.ClickDetector)
+fireclickdetector(workspace.Lobby["Clothesline Model"].Part:FindFirstChild("ClickDetector"))
 end
+end
+end
+else
+Notification("You don't have completed quest hitman", _G.TimeNotify)
 end
     end
 })
@@ -3127,7 +3132,7 @@ if _G.ShardMastery == "Aimbot Overkill" then
 for i,v in pairs(game.Players:GetChildren()) do
 if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
 if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
-if v.leaderstats.Glove.Value == "OVERKILL" and v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+if v.leaderstats.Glove.Value == "OVERKILL" then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Ragdolled").Value == false then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(v.Character.HumanoidRootPart.Position.X, game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y, v.Character.HumanoidRootPart.Position.Z))
 end
@@ -3237,6 +3242,7 @@ task.wait(1)
 game:GetService("ReplicatedStorage").ZeroGSound:FireServer()
 game:GetService("Players").LocalPlayer.Reset:FireServer()
 repeat wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
+wait(0.3)
 elseif _G.SpaceMastery == "Complete On Island Slapple" then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
 repeat task.wait() until game.Players.LocalPlayer.Character
@@ -5247,6 +5253,10 @@ while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Eggl
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 task.wait()
 end
+while _G.OnAbility and game.Players.LocalPlayer.leaderstats.Glove.Value == "Slender" do
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+task.wait()
+end
     end
 })
 
@@ -5377,15 +5387,15 @@ TabMisc:AddToggle({
 _G.LoadingEmote = Value
 Anims = {
     ["L"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["L"]),
-    ["Groove"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Groove"]),
-    ["Helicopter"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Helicopter"]),
-    ["Floss"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Floss"]),
-    ["Kick"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Kick"]),
-    ["Headless"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Headless"]),
-    ["Laugh"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Laugh"]),
-    ["Parker"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Parker"]),
-    ["Thriller"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Thriller"]),
-    ["Spasm"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Spasm"])
+    ["GROOVE"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Groove"]),
+    ["HELICOPTER"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Helicopter"]),
+    ["FLOSS"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Floss"]),
+    ["KICK"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Kick"]),
+    ["HEADLESS"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Headless"]),
+    ["LAUGH"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Laugh"]),
+    ["PARKER"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Parker"]),
+    ["THRILLER"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Thriller"]),
+    ["SPASM"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Spasm"])
 }
 local GuiEmote = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes")
 if GuiEmote:FindFirstChild("Emotes") and GuiEmote.Emotes:FindFirstChild("Frame") and GuiEmote.Emotes.Frame:FindFirstChild("Buttons") then
@@ -5430,24 +5440,24 @@ task.wait()
 if string.lower(msg) == "/e l" then
    Anims["L"]:Play()
 elseif string.lower(msg) == "/e groove" then
-   Anims["Groove"]:Play()
+   Anims["GROOVE"]:Play()
 elseif string.lower(msg) == "/e helicopter" then
-   Anims["Helicopter"]:Play()
+   Anims["HELICOPTER"]:Play()
 elseif string.lower(msg) == "/e floss" then
-   Anims["Floss"]:Play()
+   Anims["FLOSS"]:Play()
 elseif string.lower(msg) == "/e kick" then
-   Anims["Kick"]:Play()
+   Anims["KICK"]:Play()
 elseif string.lower(msg) == "/e headless" then
-   Anims["Headless"]:Play()
+   Anims["HEADLESS"]:Play()
 elseif string.lower(msg) == "/e laugh" then
-   Anims["Laugh"]:Play()
+   Anims["LAUGH"]:Play()
    game:GetService("ReplicatedStorage").AnimationSound:FireServer("LAUGH")
 elseif string.lower(msg) == "/e parker" then
-   Anims["Parker"]:Play()
+   Anims["PARKER"]:Play()
 elseif string.lower(msg) == "/e thriller" then
-   Anims["Thriller"]:Play()
+   Anims["THRILLER"]:Play()
 elseif string.lower(msg) == "/e spasm" then
-   Anims["Spasm"]:Play()
+   Anims["SPASM"]:Play()
 end
 game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
     if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
@@ -10730,13 +10740,9 @@ end
 })
 
 MiscTab:AddToggle({
-
 	Name = "Auto Teleport Clock",
-
 	Default = false,
-
 	Callback = function(Value)
-
 		_G.AutoTPClock = Value
 while _G.AutoTPClock do
 for i,v in pairs(workspace.Buildings:GetChildren()) do
@@ -10900,13 +10906,9 @@ Tabs = {
 
 local MiscTab = Tabs.Tab
 MiscTab:AddToggle({
-
 	Name = "Auto Collect Pillow",
-
 	Default = false,
-
 	Callback = function(Value)
-
 		_G.AutoCollectPillow = Value
 while _G.AutoCollectPillow do
 for i,v in pairs(game.Workspace.map:GetChildren()) do
@@ -11257,11 +11259,11 @@ end
 end
     end
 })
-elseif game.PlaceId == 129665246576996 then
+elseif game.PlaceId == 132277598079047 then
 local Window = OrionLib:MakeWindow({
      IntroText = "Omega X Article Hub 🅰️",
      IntroIcon = "rbxassetid://15315284749",
-     Name = "Articles Hub - Obby Eggs 🥚",
+     Name = "Articles Hub - Nightmade Slender 🌑",
      SearchBar = {
          Default = "🔍 Search Tabs",
          ClearTextOnFocus = true
@@ -11283,26 +11285,13 @@ MiscTab:AddButton({
     Name = "Get Badge",
     Callback = function()
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-if workspace:FindFirstChild("Kenneth") and workspace.Kenneth:FindFirstChild("Head") and workspace.Kenneth.Head:FindFirstChild("ProximityPrompt") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Kenneth.Head.CFrame
-wait(0.6)
+for i, v in pairs(workspace:FindFirstChild("Pages"):GetChildren()) do
+if v.Name == "Page" and v:FindFirstChild("Part") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Part.CFrame
+wait(0.38)
 if fireproximityprompt then
-fireproximityprompt(workspace.Kenneth.Head.ProximityPrompt)
+fireproximityprompt(v.Part:FindFirstChild("ProximityPrompt"))
 end
-end
-wait(1)
-for i, v in pairs(workspace:FindFirstChild("TrialCompletedPoints"):GetChildren()) do
-if v.Name:find("Trial") and v:FindFirstChild("root") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.root.CFrame
-wait(0.8)
-end
-end 
-wait(2.5)
-if workspace:FindFirstChild("Kenneth") and workspace.Kenneth:FindFirstChild("Head") and workspace.Kenneth.Head:FindFirstChild("ProximityPrompt") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Kenneth.Head.CFrame
-wait(0.6)
-if fireproximityprompt then
-fireproximityprompt(workspace.Kenneth.Head.ProximityPrompt)
 end
 end
 end
