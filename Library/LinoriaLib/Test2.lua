@@ -4990,6 +4990,94 @@ function Library:CreateWindow(WindowInfo)
     
 function Library:ToggleMobileButton(Params)
 if Params.Hide then
+local Widget = Instance.new("Frame", game:GetService("Players").LocalPlayer.PlayerGui.TopbarStandard.Holders.Right)
+Widget.Size = UDim2.new(0, 104, 0, 44)
+Widget.Position = UDim2.new(0, 0, 0, 0)
+Widget.BackgroundColor3 = Color3.new(0, 0, 0)
+Widget.BorderSizePixel = 0
+Widget.Active = true
+Widget.BackgroundTransparency = 0.3
+
+local Corner1 = Instance.new("UICorner", Widget)
+Corner1.CornerRadius = UDim.new(1, 0)
+
+local Overlay = Instance.new("Frame", Widget)
+Overlay.Size = UDim2.new(0, 38, 1, -8)
+Overlay.Position = UDim2.new(0, 4, 0, 4)
+Overlay.BackgroundColor3 = Color3.new(1, 1, 1)
+Overlay.BorderColor3 = Color3.new(0, 0, 0)
+Overlay.BorderSizePixel = 1
+Overlay.Active = true
+Overlay.BackgroundTransparency = 0.975
+Overlay.Visible = false
+
+local Corner2 = Instance.new("UICorner", Overlay)
+Corner2.CornerRadius = UDim.new(1, 0)
+
+local IconButton = Instance.new("ImageButton", Widget)
+IconButton.Size = UDim2.new(0, 38, 1, 0)
+IconButton.Position = UDim2.new(0, 0, 0, 0)
+IconButton.Image = ""
+IconButton.ImageTransparency = 0
+IconButton.BackgroundTransparency = 1
+IconButton.ZIndex = 3
+
+local Icon = Instance.new("ImageLabel", Widget)
+Icon.Size = UDim2.new(0, 27, 0, 26)
+Icon.Position = UDim2.new(0, 9, 0, 9)
+Icon.BackgroundColor3 = Color3.new(0, 0, 0)
+Icon.Image = "rbxassetid://138586597298825"
+Icon.ImageTransparency = 0
+Icon.BackgroundTransparency = 1
+Icon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+
+local FPSText = Instance.new("TextLabel", Widget)
+FPSText.Size = UDim2.new(0, 50, 1, 0)
+FPSText.Position = UDim2.new(0, 40, 0, 0)
+FPSText.BorderSizePixel = 0
+FPSText.Text = "0"
+FPSText.TextSize = 17
+FPSText.BackgroundTransparency = 1
+FPSText.TextColor3 = Color3.fromRGB(255, 255, 255)
+FPSText.Font = Enum.Font.SciFi
+
+local RunService = game:GetService("RunService")
+
+local currentFPS = 0
+local frames = 0
+local lastTime = os.clock()
+
+RunService.RenderStepped:Connect(function()
+	frames += 1
+	local now = os.clock()
+	if now - lastTime >= 1 then
+		currentFPS = frames
+		frames = 0
+		lastTime = now
+		FPSText.Text = tostring(currentFPS)
+		if currentFPS >= 55 then
+			FPSText.TextColor3 = Color3.fromRGB(0, 255, 0)
+		elseif currentFPS >= 30 then
+			FPSText.TextColor3 = Color3.fromRGB(255, 165, 0)
+		else
+			FPSText.TextColor3 = Color3.fromRGB(255, 0, 0)
+		end
+	end
+end)
+
+_G.Enable = false
+IconButton.MouseButton1Click:Connect(function()
+	_G.Enable = not _G.Enable
+	if _G.Enable then
+		Overlay.Visible = true
+		Icon.ImageColor3 = Color3.fromRGB(235, 235, 235)
+		Library:Toggle()
+	else
+		Overlay.Visible = false
+		Icon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+		Library:Toggle()
+	end
+end)
 
 else
         local ToggleButton = Library:AddDraggableButton("Toggle", function()
