@@ -96,9 +96,9 @@ for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
 if v.ClassName == "Model" and v.PrimaryPart ~= nil then
 if v.PrimaryPart:FindFirstChild("DragAlignPosition") then
 for j, x in pairs(workspace:GetChildren()) do
-if x:IsA("Model") and x:FindFirstChild("RequiredComponents") and x.RequiredComponents:FindFirstChild("Platform") and x.RequiredComponents.Platform:FindFirstChild("Base") then
+if x:IsA("Model") and x:FindFirstChild("RequiredComponents") and x.RequiredComponents:FindFirstChild("Base") then
 if v.PrimaryPart:FindFirstChild("DragWeldConstraint") == nil then
-game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestWeld:FireServer(v, x.RequiredComponents.Platform:FindFirstChild("Base"))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestWeld:FireServer(v, x.RequiredComponents:FindFirstChild("Base"))
 end
 end
 end
@@ -183,7 +183,7 @@ local Window = Library:CreateWindow({
     Center = true,
     AutoShow = true,
     Resizable = true,
-    Footer = "Omega X Article Hub Version: 1.0.0",
+    Footer = "Omega X Article Hub Version: 1.0.5",
 	Icon = 125448486325517,
 	AutoLock = true,
     ShowCustomCursor = true,
@@ -414,7 +414,7 @@ for j, x in pairs(workspace:GetChildren()) do
 if x:IsA("Model") and x:FindFirstChild("RequiredComponents") and x.RequiredComponents:FindFirstChild("Platform") and x.RequiredComponents.Platform:FindFirstChild("Base") then
 if x.RequiredComponents:FindFirstChild("Controls") and x.RequiredComponents.Controls:FindFirstChild("ConductorSeat") and x.RequiredComponents.Controls.ConductorSeat:FindFirstChild("VehicleSeat") then
 if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - x.RequiredComponents.Controls.ConductorSeat:FindFirstChild("VehicleSeat").Position).Magnitude < 60 then
-game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestWeld:FireServer(v, x.RequiredComponents.Platform:FindFirstChild("Base"))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestWeld:FireServer(v, x.RequiredComponents:FindFirstChild("Base"))
 repeat task.wait() until _G.WeldItem == false or v.PrimaryPart:FindFirstChild("DragWeldConstraint")
 end
 end
@@ -660,7 +660,7 @@ if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 end
 if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiTrainEsp = Instance.new("BillboardGui", v)
-	GuiTrainEsp.Adornee = v
+	GuiTrainEsp.Adornee = v.RequiredComponents.Controls.ConductorSeat:FindFirstChild("VehicleSeat")
 	GuiTrainEsp.Name = "Esp_Gui"
 	GuiTrainEsp.Size = UDim2.new(0, 100, 0, 150)
 	GuiTrainEsp.AlwaysOnTop = true
@@ -680,15 +680,6 @@ end
 end
 task.wait()
 end
-    end
-})
-
-_G.EspFeel = false
-Main2Group:AddToggle("Esp Fuel", {
-    Text = "Esp Fuel",
-    Default = false, 
-    Callback = function(Value) 
-_G.EspFeel = Value
     end
 })
 
@@ -1084,34 +1075,8 @@ end
     end
 })
 
-Main2Group:AddToggle("Bank", {
-    Text = "Esp Bank / Code",
-    Default = false, 
-    Callback = function(Value) 
-_G.EspBank = Value
-if _G.EspBank == false then
-if game.Workspace:FindFirstChild("Towns") then
-	for i, v in pairs(game.Workspace.Towns:GetChildren()) do
-		if v:IsA("Model") and v:FindFirstChild("Buildings") then
-			for e, a in pairs(v.Buildings:GetChildren()) do
-				if a.Name:find("Bank") and a:FindFirstChild("Vault") and a.Vault:FindFirstChild("Union") then
-					for x, j in pairs(v.Vault:FindFirstChild("Union"):GetChildren()) do
-						if j.Name:find("Esp_") then
-							j:Destroy()
-						end
-					end
-				end
-			end
-		end
-	end
-end
-end
-while _G.EspBank do
-if game.Workspace:FindFirstChild("Towns") then
-for i, v in pairs(game.Workspace.Towns:GetChildren()) do
-if v:IsA("Model") and v:FindFirstChild("Buildings") then
-for e, a in pairs(v.Buildings:GetChildren()) do
-if a.Name:find("Bank") and a:FindFirstChild("Vault") and a.Vault:FindFirstChild("Union") then
+function BankEsp(a)
+if a:FindFirstChild("Vault") and a.Vault:FindFirstChild("Union") then
 if a.Vault.Union:FindFirstChild("Esp_Highlight") then
 	a.Vault.Union:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	a.Vault.Union:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -1152,6 +1117,63 @@ if _G.EspGui == true and a.Vault.Union:FindFirstChild("Esp_Gui") == nil then
 	elseif _G.EspGui == false and a.Vault.Union:FindFirstChild("Esp_Gui") then
 	a.Vault.Union:FindFirstChild("Esp_Gui"):Destroy()
 end
+end
+end
+Main2Group:AddToggle("Bank", {
+    Text = "Esp Bank / Code",
+    Default = false, 
+    Callback = function(Value) 
+_G.EspBank = Value
+if _G.EspBank == false then
+if game.Workspace:FindFirstChild("Towns") then
+	for i, v in pairs(game.Workspace.Towns:GetChildren()) do
+		if v:IsA("Model") and v:FindFirstChild("Buildings") then
+			for e, a in pairs(v.Buildings:GetChildren()) do
+				if a.Name:find("Bank") and a:FindFirstChild("Vault") and a.Vault:FindFirstChild("Union") then
+					for x, j in pairs(v.Vault:FindFirstChild("Union"):GetChildren()) do
+						if j.Name:find("Esp_") then
+							j:Destroy()
+						end
+					end
+				end
+			end
+		end
+	end
+end
+if game.Workspace:FindFirstChild("Sterling") then
+	for i, v in pairs(game.Workspace.Sterling:GetChildren()) do
+		if v.Name == "Town" and v:FindFirstChild("Buildings") then
+			for e, a in pairs(v.Buildings:GetChildren()) do
+				if a.Name:find("Bank") and a:FindFirstChild("Vault") and a.Vault:FindFirstChild("Union") then
+					for x, j in pairs(v.Vault:FindFirstChild("Union"):GetChildren()) do
+						if j.Name:find("Esp_") then
+							j:Destroy()
+						end
+					end
+				end
+			end
+		end
+	end
+end
+end
+while _G.EspBank do
+if game.Workspace:FindFirstChild("Towns") then
+for i, v in pairs(game.Workspace.Towns:GetChildren()) do
+if v:IsA("Model") and v:FindFirstChild("Buildings") then
+for e, a in pairs(v.Buildings:GetChildren()) do
+if a.Name:find("Bank") and a:FindFirstChild("Vault") and a.Vault:FindFirstChild("Union") then
+BankEsp(a)
+end
+end
+end
+end
+end
+if game.Workspace:FindFirstChild("Sterling") then
+for i, v in pairs(game.Workspace.Sterling:GetChildren()) do
+if v.Name == "Town" and v:FindFirstChild("Buildings") then
+for e, a in pairs(v.Buildings:GetChildren()) do
+if a.Name:find("Bank") and a:FindFirstChild("Vault") and a.Vault:FindFirstChild("Union") then
+BankEsp(a)
 end
 end
 end
@@ -1527,6 +1549,33 @@ end
     end
 })
 
+Misc1Group:AddToggle("NotificationSterling", {
+    Text = "Notification Sterling",
+    Default = false, 
+    Callback = function(Value) 
+_G.NotificationSterling = Value
+if _G.NotificationSterling == false then
+if NotificationSterlingGet then
+NotificationSterlingGet:Disconnect()
+NotificationSterlingGet = nil
+end
+elseif _G.NotificationSterling == true then
+spawn(function()
+for i, v in pairs(workspace:GetChildren()) do
+if v.Name == "Sterling" then
+Notification("Spawn Sterling", 7)
+end
+end
+end)
+NotificationSterlingGet = workspace.ChildAdded:Connect(function(v)
+if v.Name == "Sterling" then
+Notification("Spawn Sterling", 7)
+end
+end)
+end
+    end
+})
+
 Misc1Group:AddToggle("WalkSpeed", {
     Text = "WalkSpeed",
     Default = false, 
@@ -1540,7 +1589,7 @@ end
 while _G.WalkSpeed do
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16.5
-wait(5)
+wait(6.5)
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 18.5
 end
 task.wait(6.7)
@@ -1674,6 +1723,21 @@ _G.ReachShot = Value
     end
 })
 
+_G.ModsAntilag = {}
+workspace.DescendantAdded:Connect(function(v)
+	if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
+	    if v.Humanoid.Health > 0 then
+	        table.insert(_G.ModsAntilag, v)
+		else
+			for i = #_G.ModsAntilag, 1, -1 do
+				if _G.ModsAntilag[i] == v then
+					table.remove(_G.ModsAntilag, i)
+				end
+			end
+		end
+	end
+end)
+
 _G.DelayShot = 0.25
 _G.ReachShot = 250
 Misc2Group:AddToggle("Gun Aura", {
@@ -1683,7 +1747,7 @@ Misc2Group:AddToggle("Gun Aura", {
 _G.KillAuraGun = Value
 while _G.KillAuraGun do
 local DistanceGunAura, ModsTargetShotHead, ModsTargetShotHumanoid = math.huge, nil, nil
-for i, v in pairs(workspace:GetDescendants()) do
+for i, v in pairs(_G.ModsAntilag) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local DistanceGun = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if DistanceGun < DistanceGunAura and DistanceGun < _G.ReachShot then
@@ -1692,7 +1756,7 @@ if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if not v.Name:find("Soldier") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
-ModsTargetShotHead, ModsTargetShotHumanoid, CharacterMods, DistanceGunAura = v.Head, v.Humanoid, v, DistanceGun
+ModsTargetShotHead, ModsTargetShotHumanoid, DistanceGunAura = v.Head, v.Humanoid, DistanceGun
 if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
 game.CoreGui["Gun Health Track"].Enabled = true
 elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
@@ -1771,6 +1835,24 @@ end
    SyncToggleState = true
 })
 
+Misc2Group:AddToggle("Auto Reload", {
+    Text = "Auto Reload Gun",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoReload = Value
+while _G.AutoReload do
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:FindFirstChild("ClientWeaponState") and v.ClientWeaponState:FindFirstChild("CurrentAmmo") then
+			if v.ClientWeaponState.CurrentAmmo.Value ~= 0 then
+				game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), v)
+			end
+        end
+    end
+task.wait()
+end
+    end
+})
+
 Misc2Group:AddToggle("Aimbot Mods", {
     Text = "Aimbot Mods",
     Default = false, 
@@ -1778,7 +1860,7 @@ Misc2Group:AddToggle("Aimbot Mods", {
 _G.AimbotMods = Value
 while _G.AimbotMods do
 local DistanceMath, ModsTarget = math.huge, nil
-for i, v in pairs(workspace:GetDescendants()) do
+for i, v in pairs(_G.ModsAntilag) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance and Distance < DistanceMath then
@@ -1834,7 +1916,7 @@ _G.CamlockMods = Value
 while _G.CamlockMods do
 local DistanceMathMods = math.huge
 local ModsTargetHead
-for i, v in pairs(workspace:GetDescendants()) do
+for i, v in pairs(_G.ModsAntilag) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance2 = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance2 < DistanceMathMods then
