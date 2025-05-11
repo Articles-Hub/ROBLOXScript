@@ -3030,7 +3030,7 @@ end
 })
 
 Badge2Group:AddButton({
-    Text = "Get Free Lamp",
+    Text = "Join Map Slenderman",
     Func = function()
 if workspace:FindFirstChild("BountyHunterRoom") and workspace.BountyHunterRoom:FindFirstChild("BountyHunterLever") then
 if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -3299,6 +3299,112 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
+Badge3Group:AddDropdown("Phase Mastery", {
+    Text = "Phase Mastery",
+    Values = {"200 Second Island", "Slap + Ability", "Ability + Slap (2 Sec)"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.PhaceMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Phase Mastery", {
+    Text = "Auto Phase Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoPhaseMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Phase" then
+while _G.AutoPhaseMastery do
+if _G.PhaceMastery == "200 Second Island" then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if not _G.PlaceTp then
+_G.PlaceTp = {
+	["Island 1"] = workspace.Arena.island4:FindFirstChild("moyai").CFrame * CFrame.new(0, 0, -30),
+	["Island 2"] = game.workspace:FindFirstChild("Origo").CFrame * CFrame.new(0, -5, 0),
+	["Island 3"] = workspace.Arena.island1["Sakura Tree"]["petal pile"].CFrame * CFrame.new(0, 5, 0),
+	["Island 4"] = workspace.Arena.island2["Sakura Tree"]["petal pile"].CFrame * CFrame.new(0, 5, 0),
+	["Island 5"] = workspace.Arena.island3["Sakura Tree"]["petal pile"].CFrame * CFrame.new(0, 5, 0),
+	["Island 6"] = workspace.Arena.island5:FindFirstChild("Union").CFrame * CFrame.new(0, 3.25, 0),
+	["Island 7"] = workspace.Arena.CannonIsland.Cannon:FindFirstChild("Base").CFrame * CFrame.new(0, 0, 35),
+	["Island 8"] = workspace.Arena.Fort:FindFirstChild("Floor").CFrame * CFrame.new(0, 5, 0)
+}
+end
+for i, v in pairs(_G.PlaceTp) do
+if _G.AutoPhaseMastery == true then
+game:GetService("ReplicatedStorage").PhaseA:FireServer()
+wait(0.3)
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(v)
+end
+until game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BlackheartREAL") == nil
+task.wait(1)
+end
+end
+end
+elseif _G.PhaceMastery == "Slap + Ability" then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(v.Character:FindFirstChild("HumanoidRootPart").CFrame)
+repeat task.wait() until _G.AutoPhaseMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 6
+wait(0.35)
+gloveHits["Phase"]:FireServer(v.Character:FindFirstChild("HumanoidRootPart"))
+wait(0.05)
+game:GetService("ReplicatedStorage").PhaseA:FireServer()
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+wait(0.2)
+repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BlackheartREAL") == nil
+task.wait(3)
+end
+end
+end
+end
+end
+end
+end
+elseif _G.PhaceMastery == "Ability + Slap (2 Sec)" then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game:GetService("ReplicatedStorage").PhaseA:FireServer()
+wait(0.25)
+repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BlackheartREAL") == nil
+wait(0.11)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(v.Character:FindFirstChild("HumanoidRootPart").CFrame)
+repeat task.wait() until _G.AutoPhaseMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 6
+wait(0.35)
+gloveHits["Phase"]:FireServer(v.Character:FindFirstChild("HumanoidRootPart"))
+wait(0.05)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+task.wait(3)
+end
+end
+end
+end
+end
+end
+end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Phase equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Phase Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Shard Mastery", {
     Text = "Shard Mastery",
     Values = {"Aimbot Overkill", "Get Slap", "Aimbot Character"},
@@ -3409,7 +3515,7 @@ end
 
 Badge3Group:AddDropdown("Space Mastery", {
     Text = "Space Mastery",
-    Values = {"Aimbot Overkill", "Get Slap", "Aimbot Character"},
+    Values = {"Place Time", "Complete On Island Slapple"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -5572,15 +5678,15 @@ Misc1Basic:AddToggle("Free Emote", {
 _G.LoadingEmote = Value
 Anims = {
     ["L"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["L"]),
-    ["Groove"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Groove"]),
-    ["Helicopter"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Helicopter"]),
-    ["Floss"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Floss"]),
-    ["Kick"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Kick"]),
-    ["Headless"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Headless"]),
-    ["Laugh"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Laugh"]),
-    ["Parker"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Parker"]),
-    ["Thriller"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Thriller"]),
-    ["Spasm"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Spasm"])
+    ["GROOVE"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Groove"]),
+    ["HELICOPTER"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Helicopter"]),
+    ["FLOSS"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Floss"]),
+    ["KICK"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Kick"]),
+    ["HEADLESS"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Headless"]),
+    ["LAUGH"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Laugh"]),
+    ["PARKER"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Parker"]),
+    ["THRILLER"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Thriller"]),
+    ["SPASM"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Spasm"])
 }
 local GuiEmote = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes")
 if GuiEmote:FindFirstChild("Emotes") and GuiEmote.Emotes:FindFirstChild("Frame") and GuiEmote.Emotes.Frame:FindFirstChild("Buttons") then
@@ -5625,24 +5731,24 @@ task.wait()
 if string.lower(msg) == "/e l" then
    Anims["L"]:Play()
 elseif string.lower(msg) == "/e groove" then
-   Anims["Groove"]:Play()
+   Anims["GROOVE"]:Play()
 elseif string.lower(msg) == "/e helicopter" then
-   Anims["Helicopter"]:Play()
+   Anims["HELICOPTER"]:Play()
 elseif string.lower(msg) == "/e floss" then
-   Anims["Floss"]:Play()
+   Anims["FLOSS"]:Play()
 elseif string.lower(msg) == "/e kick" then
-   Anims["Kick"]:Play()
+   Anims["KICK"]:Play()
 elseif string.lower(msg) == "/e headless" then
-   Anims["Headless"]:Play()
+   Anims["HEADLESS"]:Play()
 elseif string.lower(msg) == "/e laugh" then
-   Anims["Laugh"]:Play()
+   Anims["LAUGH"]:Play()
    game:GetService("ReplicatedStorage").AnimationSound:FireServer("LAUGH")
 elseif string.lower(msg) == "/e parker" then
-   Anims["Parker"]:Play()
+   Anims["PARKER"]:Play()
 elseif string.lower(msg) == "/e thriller" then
-   Anims["Thriller"]:Play()
+   Anims["THRILLER"]:Play()
 elseif string.lower(msg) == "/e spasm" then
-   Anims["Spasm"]:Play()
+   Anims["SPASM"]:Play()
 end
 game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
     if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
@@ -5679,7 +5785,7 @@ end)
  Misc1Basic:AddInput("UserGlove", {
     Default = "",
     Numeric = false,
-    Text = "",
+    Text = "Glove",
     Finished = true,
     Placeholder = "UserGlove",
     Callback = function(Value)
