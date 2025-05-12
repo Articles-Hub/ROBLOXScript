@@ -891,7 +891,6 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiItemEsp.Name = "Esp_Gui"
 	GuiItemEsp.Size = UDim2.new(0, 100, 0, 150)
 	GuiItemEsp.AlwaysOnTop = true
-	GuiItemEsp.StudsOffset = Vector3.new(0, 3, 0)
 	GuiItemEspText = Instance.new("TextLabel", GuiItemEsp)
 	GuiItemEspText.BackgroundTransparency = 1
 	GuiItemEspText.Font = Enum.Font.SourceSansBold
@@ -942,7 +941,6 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiItemEsp.Name = "Esp_Gui"
 	GuiItemEsp.Size = UDim2.new(0, 100, 0, 150)
 	GuiItemEsp.AlwaysOnTop = true
-	GuiItemEsp.StudsOffset = Vector3.new(0, 3, 0)
 	GuiItemEspText = Instance.new("TextLabel", GuiItemEsp)
 	GuiItemEspText.BackgroundTransparency = 1
 	GuiItemEspText.Font = Enum.Font.SourceSansBold
@@ -1038,7 +1036,6 @@ if _G.EspGui == true and y.HumanoidRootPart:FindFirstChild("Esp_Gui") == nil the
 	GuiModsEsp.Name = "Esp_Gui"
 	GuiModsEsp.Size = UDim2.new(0, 100, 0, 150)
 	GuiModsEsp.AlwaysOnTop = true
-	GuiModsEsp.StudsOffset = Vector3.new(0, 3, 0)
 	GuiModsEspText = Instance.new("TextLabel", GuiModsEsp)
 	GuiModsEspText.BackgroundTransparency = 1
 	GuiModsEspText.Font = Enum.Font.SourceSansBold
@@ -1612,6 +1609,16 @@ end
     end
 })
 
+Misc2Group:AddDropdown("CharacterMods", {
+    Text = "Character Mods",
+    Values = {"Head", "HumanoidRootPart"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.CharacterMods = Value
+    end
+})
+
 Misc2Group:AddDropdown("NoMods", {
     Text = "No Mods",
     Values = {"Horse", "Wolf", "Werewolf"},
@@ -1728,12 +1735,6 @@ workspace.DescendantAdded:Connect(function(v)
 	if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 	    if v.Humanoid.Health > 0 then
 	        table.insert(_G.ModsAntilag, v)
-		else
-			for i = #_G.ModsAntilag, 1, -1 do
-				if _G.ModsAntilag[i] == v then
-					table.remove(_G.ModsAntilag, i)
-				end
-			end
 		end
 	end
 end)
@@ -1756,12 +1757,18 @@ if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if not v.Name:find("Soldier") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
-ModsTargetShotHead, ModsTargetShotHumanoid, DistanceGunAura = v.Head, v.Humanoid, DistanceGun
+ModsTargetShotHead, ModsTargetShotHumanoid, DistanceGunAura = v:FindFirstChild(_G.CharacterMods or "Head"), v.Humanoid, DistanceGun
 if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
 game.CoreGui["Gun Health Track"].Enabled = true
 elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = (v.Name:gsub("Model_", "").." Health: "..string.format("%.0f", (v.Humanoid.Health)).." / "..v.Humanoid.MaxHealth)
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+end
+else
+for i = #_G.ModsAntilag, 1, -1 do
+	if _G.ModsAntilag[i] == v then
+		table.remove(_G.ModsAntilag, i)
+	end
 end
 end
 end
@@ -1842,12 +1849,10 @@ Misc2Group:AddToggle("Auto Reload", {
 _G.AutoReload = Value
 while _G.AutoReload do
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-        if v:FindFirstChild("ClientWeaponState") and v.ClientWeaponState:FindFirstChild("CurrentAmmo") then
-			if v.ClientWeaponState.CurrentAmmo.Value ~= 0 then
-				game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), v)
-			end
-        end
+    if v:FindFirstChild("ClientWeaponState") and v.ClientWeaponState:FindFirstChild("CurrentAmmo") then
+		game.ReplicatedStorage.Remotes.Weapon.Reload:FireServer(game.Workspace:GetServerTimeNow(), v)
     end
+end
 task.wait()
 end
     end
@@ -1869,12 +1874,18 @@ if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if not v.Name:find("Soldier") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
-ModsTarget, DistanceMath = v:FindFirstChild("Head"), Distance
+ModsTarget, DistanceMath = v:FindFirstChild(_G.CharacterMods or "Head"), Distance
 if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
 game.CoreGui["Gun Health Track"].Enabled = true
 elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = (v.Name:gsub("Model_", "").." Health: "..string.format("%.0f", (v.Humanoid.Health)).." / "..v.Humanoid.MaxHealth)
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+end
+else
+for i = #_G.ModsAntilag, 1, -1 do
+	if _G.ModsAntilag[i] == v then
+		table.remove(_G.ModsAntilag, i)
+	end
 end
 end
 end
@@ -1935,12 +1946,18 @@ if game.Players.LocalPlayer.Character:FindFirstChild("Esp_LocalPlayer") == nil t
 	Highlight.Adornee = game.Players.LocalPlayer.Character
 	Highlight.Parent = game.Players.LocalPlayer.Character
 end
-ModsTargetHead, DistanceMathMods = v:FindFirstChild("Head"), Distance2
+ModsTargetHead, DistanceMathMods = v:FindFirstChild(_G.CharacterMods or "Head"), Distance2
 if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
 game.CoreGui["Gun Health Track"].Enabled = true
 elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = (v.Name:gsub("Model_", "").." Health: "..string.format("%.0f", (v.Humanoid.Health)).." / "..v.Humanoid.MaxHealth)
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+end
+else
+for i = #_G.ModsAntilag, 1, -1 do
+	if _G.ModsAntilag[i] == v then
+		table.remove(_G.ModsAntilag, i)
+	end
 end
 end
 end
@@ -2006,7 +2023,7 @@ Misc2Group:AddToggle("Auto Heal", {
     Callback = function(Value) 
 _G.AutoHeal = Value
 while _G.AutoHeal do
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health < (_G.HealthyHeal or 68)then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health < (_G.HealthyHeal or 68) then
 	if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Bandage") and game:GetService("Players").LocalPlayer.Backpack["Bandage"]:FindFirstChild("Use") then
 	    game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Bandage").Use:FireServer()
 	end
