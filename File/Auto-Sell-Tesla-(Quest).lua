@@ -474,6 +474,26 @@ if game.Players.LocalPlayer.Character ~= nil then
 	end
 end
 
+function TweenWalk(Part)
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil then
+local bv = Instance.new("BodyVelocity")
+bv.Name = "VelocityHandler"
+bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+bv.MaxForce = Vector3.new(100000, 100000, 100000)
+bv.Velocity = Vector3.new(0, 0, 0)
+end
+local TweenService = game:GetService("TweenService")
+local Tween = TweenService:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, TweenInfo.new((game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Part).Magnitude / 16, Enum.EasingStyle.Linear), {CFrame = CFrame.new(Part)})
+Tween:Play()
+Tween.Completed:Wait()
+Tween:Cancel()
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler:Destroy()
+end
+end
+end
+
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
 end
@@ -489,13 +509,8 @@ task.wait()
 end
 end)
 repeat task.wait()
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = workspace.RuntimeItems:FindFirstChild("GoldBar").Prop_GoldBar.Position
-end
+TweenWalk(workspace.RuntimeItems:FindFirstChild("GoldBar").Prop_GoldBar.Position + Vector3.new(0, 5, 0))
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - workspace.RuntimeItems:FindFirstChild("GoldBar").Prop_GoldBar.Position).Magnitude < 6.5
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-end
 wait(0.5)
 if workspace:FindFirstChild("StartingZone") and workspace.StartingZone:FindFirstChild("Buildings") then
 for z, j in pairs(workspace.StartingZone.Buildings:GetChildren()) do
@@ -547,14 +562,9 @@ wait(0.6)
 for i, v in pairs(workspace:FindFirstChild("RuntimeItems"):GetChildren()) do
 if (v.Name == "GoldBar" or v.Name == "SilverBar") and v.PrimaryPart ~= nil and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 200 then
 repeat task.wait()
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = v.PrimaryPart.Position
-end
+TweenWalk(v.PrimaryPart.Position)
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude < 6.5
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-end
-wait(0.5)
+wait(0.2)
 if game.Players.LocalPlayer.Backpack:FindFirstChild("Sack") then
 game.Players.LocalPlayer.Backpack:FindFirstChild("Sack").Parent = game.Players.LocalPlayer.Character
 wait(0.2)
@@ -619,8 +629,8 @@ for i, v in pairs(workspace.StartingZone.Buildings:GetChildren()) do
 if v.Name:find("Doctor") then
 if v:FindFirstChild("BandageTable") and v.BandageTable:FindFirstChild("ShopItems") and v.BandageTable.ShopItems:FindFirstChild("Bandage") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = v.BandageTable.ShopItems:FindFirstChild("Bandage").PrimaryPart.Position + Vector3.new(-5, 0, 5)
-until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.BandageTable.ShopItems:FindFirstChild("Bandage").PrimaryPart.Position).Magnitude < 7
+TweenWalk(v.BandageTable.ShopItems:FindFirstChild("Bandage").PrimaryPart.Position + Vector3.new(-5, 0, 5))
+until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.BandageTable.ShopItems:FindFirstChild("Bandage").PrimaryPart.Position).Magnitude < 9
 task.wait(0.5)
 for o = 1, 2 do
 for k = 1, 5 do
@@ -654,7 +664,7 @@ if v.Name == "Bandage" then
 for c, a in pairs(v:GetChildren()) do
 if a:IsA("BasePart") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = a.Position
+TweenWalk(a.Position)
 until 10.5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Position).Magnitude
 game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
 end
@@ -667,11 +677,8 @@ if workspace:FindFirstChild("StartingZone") and workspace.StartingZone:FindFirst
 for z, j in pairs(workspace.StartingZone.Buildings:GetChildren()) do
 if j.Name:find("Gunsmith") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = j.AmmoTable.ShopItems:FindFirstChild("ShotgunShells").PrimaryPart.Position
+TweenWalk(j.AmmoTable.ShopItems:FindFirstChild("ShotgunShells").PrimaryPart.Position)
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - j.AmmoTable.ShopItems:FindFirstChild("ShotgunShells").PrimaryPart.Position).Magnitude < 5.5
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-end
 task.wait(0.5)
 if j:FindFirstChild("AmmoTable") and j.AmmoTable:FindFirstChild("ShopItems") and j.AmmoTable.ShopItems:FindFirstChild("ShotgunShells") then
 for i = 1, 4 do
@@ -697,11 +704,8 @@ end
 wait(0.5)
 if j:FindFirstChild("GunTable") and j.GunTable:FindFirstChild("ShopItems") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = j.GunTable.ShopItems:FindFirstChild("Shotgun").PrimaryPart.Position
+TweenWalk(j.GunTable.ShopItems:FindFirstChild("Shotgun").PrimaryPart.Position)
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - j.GunTable.ShopItems:FindFirstChild("Shotgun").PrimaryPart.Position).Magnitude < 5.5
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-end
 wait(0.8)
 game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.RequestStartDrag:FireServer(j.GunTable.ShopItems:FindFirstChild("Shotgun"))
 wait(0.3)
@@ -726,7 +730,7 @@ if v.Name:find("Ammo") or v.Name:find("Shells") then
 for c, a in pairs(v:GetChildren()) do
 if a:IsA("BasePart") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = a.Position
+TweenWalk(a.Position)
 until 10.5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Position).Magnitude
 game:GetService("ReplicatedStorage").Shared.Network.RemotePromise.Remotes.C_ActivateObject:FireServer(v)
 end
@@ -736,7 +740,7 @@ if v:FindFirstChild("ServerWeaponState") then
 for c, a in pairs(v:GetChildren()) do
 if a:IsA("BasePart") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = a.Position
+TweenWalk(a.Position)
 until 10.5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Position).Magnitude
 game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
 end
@@ -747,7 +751,7 @@ if m.Name == "TextLabel" and m.Text == "Gun" then
 for c, a in pairs(v:GetChildren()) do
 if a:IsA("BasePart") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = a.Position
+TweenWalk(a.Position)
 until 10.5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Position).Magnitude
 game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
 end
@@ -770,7 +774,7 @@ OurLaw = BasePart:FindFirstChild("OutlawBase")
 Sen = OurLaw:FindFirstChild("Sentries")
 if Sen.EnemyTurret:FindFirstChild("TurretOutlaw") and Sen.EnemyTurret.TurretOutlaw:FindFirstChild("Humanoid") and Sen.EnemyTurret.TurretOutlaw:FindFirstChild("HumanoidRootPart") then
 while Sen.EnemyTurret:FindFirstChild("TurretOutlaw").Humanoid.Health > 0 do
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Sen.EnemyTurret:FindFirstChild("TurretOutlaw").HumanoidRootPart.CFrame * CFrame.new(0, 0, -5)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Sen.EnemyTurret:FindFirstChild("TurretOutlaw").HumanoidRootPart.CFrame * CFrame.new(0, 0, 5)
 task.wait()
 end
 end
@@ -839,7 +843,7 @@ for i, v in pairs(workspace:FindFirstChild("RuntimeItems"):GetChildren()) do
 if v.Name:find("Outlaw") and v:FindFirstChild("HumanoidRootPart") then
 repeat task.wait()
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = v:FindFirstChild("HumanoidRootPart").Position
+TweenWalk(v:FindFirstChild("HumanoidRootPart").Position)
 end
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v:FindFirstChild("HumanoidRootPart").Position).Magnitude < 6.5
 wait(0.5)
@@ -910,7 +914,7 @@ for i, v in pairs(workspace.StartingZone.Buildings:GetChildren()) do
 if v.Name:find("Doctor") then
 if v:FindFirstChild("BandageTable") and v.BandageTable:FindFirstChild("ShopItems") and v.BandageTable.ShopItems:FindFirstChild("Bandage") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = v.BandageTable.ShopItems:FindFirstChild("Bandage").PrimaryPart.Position + Vector3.new(-5, 0, 5)
+TweenWalk(v.BandageTable.ShopItems:FindFirstChild("Bandage").PrimaryPart.Position + Vector3.new(-5, 0, 5))
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.BandageTable.ShopItems:FindFirstChild("Bandage").PrimaryPart.Position).Magnitude < 8.5
 task.wait(0.5)
 for o = 1, 4 do
@@ -945,7 +949,7 @@ if v.Name == "Bandage" then
 for c, a in pairs(v:GetChildren()) do
 if a:IsA("BasePart") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = a.Position
+TweenWalk(a.Position)
 until 10.5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Position).Magnitude
 game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
 end
@@ -958,11 +962,8 @@ if workspace:FindFirstChild("StartingZone") and workspace.StartingZone:FindFirst
 for z, j in pairs(workspace.StartingZone.Buildings:GetChildren()) do
 if j.Name:find("Gunsmith") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = j.AmmoTable.ShopItems:FindFirstChild("ShotgunShells").PrimaryPart.Position
+TweenWalk(j.AmmoTable.ShopItems:FindFirstChild("ShotgunShells").PrimaryPart.Position)
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - j.AmmoTable.ShopItems:FindFirstChild("ShotgunShells").PrimaryPart.Position).Magnitude < 5.5
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-end
 task.wait(0.5)
 if j:FindFirstChild("AmmoTable") and j.AmmoTable:FindFirstChild("ShopItems") and j.AmmoTable.ShopItems:FindFirstChild("ShotgunShells") then
 for i = 1, 4 do
@@ -991,7 +992,7 @@ if v.Name:find("Ammo") or v.Name:find("Shells") then
 for c, a in pairs(v:GetChildren()) do
 if a:IsA("BasePart") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = a.Position
+TweenWalk(a.Position)
 until 10.5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Position).Magnitude
 game:GetService("ReplicatedStorage").Shared.Network.RemotePromise.Remotes.C_ActivateObject:FireServer(v)
 end
@@ -1001,7 +1002,7 @@ if v:FindFirstChild("ServerWeaponState") then
 for c, a in pairs(v:GetChildren()) do
 if a:IsA("BasePart") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = a.Position
+TweenWalk(a.Position)
 until 10.5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Position).Magnitude
 game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
 end
@@ -1012,7 +1013,7 @@ if m.Name == "TextLabel" and m.Text == "Gun" then
 for c, a in pairs(v:GetChildren()) do
 if a:IsA("BasePart") then
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = a.Position
+TweenWalk(a.Position)
 until 10.5 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - a.Position).Magnitude
 game:GetService("ReplicatedStorage").Remotes.Tool.PickUpTool:FireServer(v)
 end
@@ -1052,13 +1053,8 @@ if workspace:FindFirstChild("TeslaLab") and workspace.TeslaLab:FindFirstChild("E
 for n, m in pairs(workspace.RuntimeItems:GetChildren()) do
 if (m.Name:find("Werewolf") or m.Name == "BrainJar") and m:FindFirstChild("HumanoidRootPart") == nil and m.PrimaryPart then
 repeat task.wait()
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = m.PrimaryPart.Position
-end
+TweenWalk(m.PrimaryPart.Position)
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - m.PrimaryPart.Position).Magnitude < 10
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-end
 wait(0.3)
 if game.Players.LocalPlayer.Backpack:FindFirstChild("Sack") then
 game.Players.LocalPlayer.Backpack:FindFirstChild("Sack").Parent = game.Players.LocalPlayer.Character
@@ -1074,7 +1070,7 @@ end
 wait(0.5)
 repeat task.wait()
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = workspace.TeslaLab.ExperimentTable:FindFirstChild("Hitbox").Position
+TweenWalk(workspace.TeslaLab.ExperimentTable:FindFirstChild("Hitbox").Position)
 end
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - workspace.TeslaLab.ExperimentTable:FindFirstChild("Hitbox").Position).Magnitude < 5.6
 wait(0.5)
@@ -1094,9 +1090,7 @@ if workspace.TeslaLab:FindFirstChild("Generator") then
 for i, v in pairs(workspace.TeslaLab.Generator:GetChildren()) do
 if v.Name:find("BasePart") then
 repeat task.wait()
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = v.Position
-end
+TweenWalk(v.Position)
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude < 6.5
 wait(0.3)
 if fireproximityprompt then
@@ -1107,7 +1101,7 @@ end
 end
 wait(0.5)
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = workspace.TeslaLab.ExperimentTable:FindFirstChild("Hitbox").Position + Vector3.new(-5, 0, 5)
+TweenWalk(workspace.TeslaLab.ExperimentTable:FindFirstChild("Hitbox").Position + Vector3.new(-5, 0, 5))
 until workspace.RuntimeItems:FindFirstChild("Electrocutioner")
 wait(0.5)
 repeat task.wait()
@@ -1168,8 +1162,8 @@ end
 until BridgeControlTop:FindFirstChild("Part") and BridgeControlTop.Part:FindFirstChild("BillboardGui").Enabled == true
 wait(0.3)
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = Vector3.new(238, 3, -48902)
-until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(238, 3, -48902)).Magnitude < 6.5
+TweenWalk(Vector3.new(199, 3, -48902))
+until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(199, 3, -48902)).Magnitude < 6.5
 wait(0.5)
 repeat task.wait()
 local DistanceMathMods = math.huge
@@ -1236,7 +1230,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Worksp
 game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
 end
 end
-until workspace.RuntimeEntities:FindFirstChild("Model_NikolaTesla") and workspace.RuntimeEntities.NikolaTesla:FindFirstChild("Head")
+until workspace.RuntimeEntities:FindFirstChild("Model_NikolaTesla") and workspace.RuntimeEntities.Model_NikolaTesla:FindFirstChild("Head")
 wait(0.5)
 repeat task.wait()
 if workspace.RuntimeEntities:FindFirstChild("Model_NikolaTesla") then
@@ -1269,7 +1263,7 @@ for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
         end
     end
 end
-until workspace.RuntimeItems:FindFirstChild("Model_NikolaTesla")
+until workspace.RuntimeItems:FindFirstChild("Model_NikolaTesla") or (workspace.RuntimeEntities:FindFirstChild("Model_NikolaTesla") and workspace.RuntimeEntities.Model_NikolaTesla:FindFirstChild("Humanoid") <= 0)
 wait(0.5)
 if game.Players.LocalPlayer.Character:FindFirstChild("Esp_LocalPlayer") then
 game.Players.LocalPlayer.Character:FindFirstChild("Esp_LocalPlayer"):Destroy()
@@ -1284,7 +1278,7 @@ game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character:
 end
 wait(0.3)
 repeat task.wait()
-game.Players.LocalPlayer.Character.Humanoid.WalkToPoint = workspace.RuntimeItems:FindFirstChild("Model_NikolaTesla").Head.Position
+TweenWalk(workspace.RuntimeItems:FindFirstChild("Model_NikolaTesla").Head.Position)
 until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - workspace.RuntimeItems:FindFirstChild("Model_NikolaTesla").Head.Position).Magnitude < 6.5
 wait(0.3)
 if game.Players.LocalPlayer.Backpack:FindFirstChild("Sack") then
