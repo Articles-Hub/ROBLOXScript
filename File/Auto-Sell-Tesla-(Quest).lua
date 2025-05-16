@@ -772,13 +772,9 @@ repeat task.wait() until workspace.Baseplates:FindFirstChild("FinalBasePlate")
 BasePart = workspace.Baseplates:FindFirstChild("FinalBasePlate")
 OurLaw = BasePart:FindFirstChild("OutlawBase") 
 Sen = OurLaw:FindFirstChild("Sentries")
-if Sen.EnemyTurret:FindFirstChild("TurretOutlaw") and Sen.EnemyTurret.TurretOutlaw:FindFirstChild("Humanoid") and Sen.EnemyTurret.TurretOutlaw:FindFirstChild("HumanoidRootPart") then
-while Sen.EnemyTurret:FindFirstChild("TurretOutlaw").Humanoid.Health > 0 do
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Sen.EnemyTurret:FindFirstChild("TurretOutlaw").HumanoidRootPart.CFrame * CFrame.new(0, 0, 5)
-task.wait()
-end
-end
-for i, v in pairs(Sen:FindFirstChild("EnemyTurret"):GetChildren()) do
+if Sen:FindFirstChild("TurretSpot") and Sen.TurretSpot:FindFirstChild("MaximGun") and Sen.TurretSpot.MaximGun:FindFirstChild("VehicleSeat") then
+wait(1.5)
+for i, v in pairs(Sen:FindFirstChild("TurretSpot"):GetChildren()) do
 if v.Name == "MaximGun" and v:FindFirstChild("VehicleSeat") then
 v.VehicleSeat.Disabled = false
 end
@@ -786,14 +782,15 @@ end
 wait(0.5)
 game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
 repeat task.wait()
-for i, v in pairs(Sen:FindFirstChild("EnemyTurret"):GetChildren()) do
+for i, v in pairs(Sen:FindFirstChild("TurretSpot"):GetChildren()) do
 if v.Name == "MaximGun" and v:FindFirstChild("VehicleSeat") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.VehicleSeat.CFrame
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChild("VehicleSeat").CFrame
 end
 end
 until game.Players.LocalPlayer.Character.Humanoid.Sit == true
 wait(0.5)
 game.Players.LocalPlayer.Character.Humanoid.Sit = false
+end
 wait(0.5)
 for i, v in pairs(OurLaw:FindFirstChild("Buildings"):GetChildren()) do
 if v.Name:find("House") and v:FindFirstChild("Lantern") and v.Lantern:FindFirstChild("Bulb") then
