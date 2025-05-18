@@ -174,6 +174,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler:Destroy()
 end
 end
 end
+_G.CharacterToYour = {["Head"] = (game.Players.LocalPlayer.Character:FindFirstChild("Head").Size)}
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/Test.lua"))()
 local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/ThemeManagerCopy.lua"))()
@@ -1691,8 +1692,8 @@ end
 end
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
 if v:IsA("Tool") and v:FindFirstChild("Configuration") and v.Configuration:FindFirstChild("Animations") and v.Configuration.Animations:FindFirstChild("SwingAnimation") then
-game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Network"):WaitForChild("RemoteEvent"):WaitForChild("SwingMelee"):FireServer(v, game.Workspace:GetServerTimeNow(), game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector)
-game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Network"):WaitForChild("RemoteEvent"):WaitForChild("ChargeMelee"):FireServer(game.Workspace:GetServerTimeNow(), v)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
 end
 end
 task.wait()
@@ -1739,11 +1740,18 @@ _G.ReachShot = Value
     end
 })
 
-_G.ModsAntilag = {}
+_G.ModsAntilag = {
+	GunAura = {},
+	Aimbot = {},
+	Camlock = {},
+	Hitbox = {},
+}
 workspace.DescendantAdded:Connect(function(v)
 	if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 	    if v.Humanoid.Health > 0 then
-	        table.insert(_G.ModsAntilag, v)
+			for i, v1 in pairs(_G.ModsAntilag) do
+		        table.insert(_G.ModsAntilag[i], v)
+			end
 		end
 	end
 end)
@@ -1757,7 +1765,7 @@ Misc2Group:AddToggle("Gun Aura", {
 _G.KillAuraGun = Value
 while _G.KillAuraGun do
 local DistanceGunAura, ModsTargetShotHead, ModsTargetShotHumanoid = math.huge, nil, nil
-for i, v in pairs(_G.ModsAntilag) do
+for i, v in pairs(_G.ModsAntilag.GunAura) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local DistanceGun = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if DistanceGun < DistanceGunAura and DistanceGun < _G.ReachShot then
@@ -1770,21 +1778,22 @@ ModsTargetShotHead, ModsTargetShotHumanoid, DistanceGunAura = v:FindFirstChild(_
 if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
 game.CoreGui["Gun Health Track"].Enabled = true
 elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = (v.Name:gsub("Model_", "").." Health\n"..string.format("%.0f", (v.Humanoid.Health)).." / "..v.Humanoid.MaxHealth)
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = ((#(v.Name:gsub("Model_", "")) > 13) and (string.sub(v.Name:gsub("Model_", ""), 1, 9).."...") or v.Name:gsub("Model_", "")).." Health\n"..string.format("%.0f", v.Humanoid.Health).." / " ..v.Humanoid.MaxHealth
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
 end
-else
-for i = #_G.ModsAntilag, 1, -1 do
-	if _G.ModsAntilag[i] == v then
-		table.remove(_G.ModsAntilag, i)
+end
+end
+end
+end
+end
+end
+end
+if v:FindFirstChild("HumanoidRootPart") == nil or (v:FindFirstChild("Humanoid") and v.Humanoid.Health <= 0) then
+	for i = #_G.ModsAntilag.GunAura, 1, -1 do
+		if _G.ModsAntilag.GunAura[i] == v then
+			table.remove(_G.ModsAntilag.GunAura, i)
+		end
 	end
-end
-end
-end
-end
-end
-end
-end
 end
 end
 if ModsTargetShotHead and ModsTargetShotHumanoid then
@@ -1867,45 +1876,151 @@ end
     end
 })
 
-Misc2Group:AddToggle("Aimbot Mods", {
-    Text = "Aimbot Mods",
+Misc2Group:AddToggle("Hitbox Mods", {
+    Text = "Hitbox Mods",
     Default = false, 
     Callback = function(Value) 
-_G.AimbotMods = Value
-while _G.AimbotMods do
-local DistanceMath, ModsTarget = math.huge, nil
-for i, v in pairs(_G.ModsAntilag) do
+_G.Hitbox = Value
+if _G.Hitbox == false then
+for i, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+        v:FindFirstChild("Head").Size = _G.CharacterToYour["Head"]
+    end
+end
+end
+while _G.Hitbox do
+for i, v in pairs(_G.ModsAntilag.Hitbox) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
-Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
-if Distance and Distance < DistanceMath then
 if not Options.NoMods.Value["Horse"] or (not v.Name:find("Horse") and not v.Name:find("Unicorn")) then
 if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if not v.Name:find("Soldier") then
 if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
-ModsTarget, DistanceMath = v:FindFirstChild(_G.CharacterMods or "Head"), Distance
-if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
-game.CoreGui["Gun Health Track"].Enabled = true
-elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = (v.Name:gsub("Model_", "").." Health\n"..string.format("%.0f", (v.Humanoid.Health)).." / "..v.Humanoid.MaxHealth)
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+v:FindFirstChild("Head").Size = Vector3.new(6, 6, 6)
 end
-else
-for i = #_G.ModsAntilag, 1, -1 do
-	if _G.ModsAntilag[i] == v then
-		table.remove(_G.ModsAntilag, i)
+end
+end
+end
+end
+end
+if v:FindFirstChild("HumanoidRootPart") == nil or v:FindFirstChild("Humanoid") and v.Humanoid.Health <= 0 then
+for i, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+        v:FindFirstChild("Head").Size = _G.CharacterToYour["Head"]
+    end
+end
+for i = #_G.ModsAntilag.Hitbox, 1, -1 do
+	if _G.ModsAntilag.Hitbox[i] == v then
+		table.remove(_G.ModsAntilag.Hitbox, i)
 	end
 end
 end
 end
+task.wait()
+end
+    end
+})
+
+Misc2Group:AddDropdown("Aimbot", {
+    Text = "Aimbot",
+    Values = {"Fov", "Lock"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.AimbotForGet = Value
+    end
+})
+
+Misc2Group:AddSlider("FovSize", {
+    Text = "Aimbot Fov Size",
+    Default = 250,
+    Min = 10,
+    Max = 300,
+    Rounding = 0,
+    Compact = false,
+    Callback = function(Value)
+_G.FovSize = Value
+    end
+})
+
+RaycastParams = RaycastParams.new()
+RaycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+Misc2Group:AddToggle("Aimbot Mods", {
+    Text = "Aimbot Mods",
+    Default = false, 
+    Callback = function(Value)
+_G.AimbotMods = Value
+while _G.AimbotMods do
+if _G.AimbotForGet == "Fov" then
+if not FOVring then
+FOVring = Drawing.new("Circle")
+FOVring.Visible = true
+FOVring.Thickness = 2
+FOVring.Color = Color3.fromRGB(128, 0, 128)
+FOVring.Filled = false
+FOVring.Radius = _G.FovSize or 100
+FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
+end
+if FOVring then
+FOVring.Visible = true
+FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
+FOVring.Radius = (_G.FovSize or 100) * (workspace.CurrentCamera.ViewportSize.Y / 1080)
+end
+elseif _G.AimbotForGet ~= "Fov" then
+if FOVring then
+FOVring.Visible = false
+end
+end
+local DistanceMath, ModsTarget = math.huge, nil
+for i, v in pairs(_G.ModsAntilag.Aimbot) do
+if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
+local Distance
+if _G.AimbotForGet == "Fov" then
+RaycastParams.FilterDescendantsInstances = {game.Players.LocalPlayer.Character}
+local CharacterHuh = (v:FindFirstChild("HumanoidRootPart").Position + v:FindFirstChild("HumanoidRootPart").Velocity * 0.02) + (v:FindFirstChild("Head").Position - v:FindFirstChild("HumanoidRootPart").Position)
+local ScreenPos, Visible = workspace.CurrentCamera:WorldToViewportPoint(CharacterHuh)
+if Visible and ScreenPos.Z > 0 then
+local Direction = (CharacterHuh - workspace.CurrentCamera.CFrame.Position).Unit * 1000
+local Ray = workspace:Raycast(workspace.CurrentCamera.CFrame.Position, Direction, RaycastParams)
+if Ray and Ray.Instance:IsDescendantOf(v) then
+local CamLock = workspace.CurrentCamera.ViewportSize / 2
+Distance = (Vector2.new(ScreenPos.X, ScreenPos.Y) - CamLock).Magnitude
+end
+end
+elseif _G.AimbotForGet ~= "Fov" then
+Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
+end
+if Distance and ((_G.AimbotForGet == "Fov" and (Distance < DistanceMath and Distance < (_G.FovSize or 100))) or (Distance < DistanceMath)) then
+if not Options.NoMods.Value["Horse"] or (not v.Name:find("Horse") and not v.Name:find("Unicorn")) then
+if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
+if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
+if not v.Name:find("Soldier") then
+if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+ModsTarget, DistanceMath = v:FindFirstChild(_G.CharacterMods or "Head"), Distance
+if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
+game.CoreGui["Gun Health Track"].Enabled = true
+elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = ((#(v.Name:gsub("Model_", "")) > 13) and (string.sub(v.Name:gsub("Model_", ""), 1, 9).."...") or v.Name:gsub("Model_", "")).." Health\n"..string.format("%.0f", v.Humanoid.Health).." / " ..v.Humanoid.MaxHealth
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
 end
 end
 end
+end
+end
+end
+end
+if v:FindFirstChild("HumanoidRootPart") == nil or (v:FindFirstChild("Humanoid") and v.Humanoid.Health <= 0) then
+	for i = #_G.ModsAntilag.Aimbot, 1, -1 do
+	    if _G.ModsAntilag.Aimbot[i] == v then
+	        table.remove(_G.ModsAntilag.Aimbot, i)
+	    end
+	end
 end
 end
 end
 if ModsTarget then
-game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (ModsTarget.Position + Vector3.new(0, ModsTarget.Size.Y / 2, 0) - game.Workspace.CurrentCamera.CFrame.Position).unit)
+local LookVector = workspace.CurrentCamera.CFrame.LookVector:Lerp((ModsTarget.Position - workspace.CurrentCamera.CFrame.Position).Unit, 0.754)
+workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, workspace.CurrentCamera.CFrame.Position + LookVector)
 else
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
@@ -1914,6 +2029,9 @@ game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(
 end
 end
 task.wait()
+end
+if FOVring then
+FOVring.Visible = false
 end
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
@@ -1928,6 +2046,7 @@ end
    SyncToggleState = true
 })
 
+
 Misc2Group:AddToggle("Camlock Mods", {
     Text = "Camlock Mods",
     Default = false, 
@@ -1936,7 +2055,7 @@ _G.CamlockMods = Value
 while _G.CamlockMods do
 local DistanceMathMods = math.huge
 local ModsTargetHead
-for i, v in pairs(_G.ModsAntilag) do
+for i, v in pairs(_G.ModsAntilag.Camlock) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 local Distance2 = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance2 < DistanceMathMods then
@@ -1959,21 +2078,22 @@ ModsTargetHead, DistanceMathMods = v:FindFirstChild(_G.CharacterMods or "Head"),
 if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
 game.CoreGui["Gun Health Track"].Enabled = true
 elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = (v.Name:gsub("Model_", "").." Health\n"..string.format("%.0f", (v.Humanoid.Health)).." / "..v.Humanoid.MaxHealth)
+game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = ((#(v.Name:gsub("Model_", "")) > 13) and (string.sub(v.Name:gsub("Model_", ""), 1, 9).."...") or v.Name:gsub("Model_", "")).." Health\n"..string.format("%.0f", v.Humanoid.Health).." / " ..v.Humanoid.MaxHealth
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
 end
-else
-for i = #_G.ModsAntilag, 1, -1 do
-	if _G.ModsAntilag[i] == v then
-		table.remove(_G.ModsAntilag, i)
+end
+end
+end
+end
+end
+end
+end
+if v:FindFirstChild("HumanoidRootPart") == nil or (v:FindFirstChild("Humanoid") and v.Humanoid.Health <= 0) then
+	for i = #_G.ModsAntilag.Camlock, 1, -1 do
+		if _G.ModsAntilag.Camlock[i] == v then
+			table.remove(_G.ModsAntilag.Camlock, i)
+		end
 	end
-end
-end
-end
-end
-end
-end
-end
 end
 end
 if ModsTargetHead then
