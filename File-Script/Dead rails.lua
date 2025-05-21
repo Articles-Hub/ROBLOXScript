@@ -23,22 +23,37 @@ UICorner.Thickness = 2.5
 UICorner.Parent = Frame
 
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 5)
+UICorner.CornerRadius = UDim.new(0, 8)
 UICorner.Parent = Frame
 
 local Frame1 = Instance.new("Frame")
 Frame1.Size = UDim2.new(1, 0, 1, 0)
 Frame1.Position = UDim2.new(0, 0, 0, 0)
-Frame1.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+Frame1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 Frame1.BorderColor3 = Color3.new(0, 0, 0)
 Frame1.BorderSizePixel = 1
 Frame1.Active = true
-Frame1.BackgroundTransparency = 0 
+Frame1.BackgroundTransparency = 0.3
 Frame1.Parent = Frame
 
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 5)
+UICorner.CornerRadius = UDim.new(0, 8)
 UICorner.Parent = Frame1
+
+local Frame2 = Instance.new("Frame")
+Frame2.Name = "Frame1"
+Frame2.Size = UDim2.new(1, 0, 1, 0)
+Frame2.Position = UDim2.new(0, 0, 0, 0)
+Frame2.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+Frame2.BorderColor3 = Color3.new(0, 0, 0)
+Frame2.BorderSizePixel = 1
+Frame2.Active = true
+Frame2.BackgroundTransparency = 0.15
+Frame2.Parent = Frame1
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = Frame2
 
 local TextLabel = Instance.new("TextLabel")
 TextLabel.Size = UDim2.new(1, 0, 1, 0)
@@ -222,7 +237,9 @@ Tabs = {
 local Main1Group = Tabs.Tab:AddLeftGroupbox("Main")
 
 DistanceTrain = Main1Group:AddLabel("Distance [ Nah ]", true)
-Time = Main1Group:AddLabel("Time [ "..game:GetService("ReplicatedStorage").TimeHour.Value.." ]", true)
+if game:GetService("ReplicatedStorage"):FindFirstChild("TimeHour") then
+Time = Main1Group:AddLabel("Time [ "..game:GetService("ReplicatedStorage"):FindFirstChild("TimeHour").Value.." ]", true)
+end
 
 Main1Group:AddToggle("Return Check", {
     Text = "Return Check",
@@ -949,7 +966,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 			(_G.EspFuel == true and v:GetAttribute("Fuel") and "Fuel [ "..v:GetAttribute("Fuel").." ]" or "")..
-	        (_G.EspName == true and "\n"..v.Name..(_G.EspMoney == true and (v:GetAttribute("Value") or v:GetAttribute("Bounty")) and " ($"..(v:GetAttribute("Value") or v:GetAttribute("Bounty"))..")" or "") or "")..
+	        (_G.EspName == true and "\n"..v.Name:gsub("Model_", "")..(_G.EspMoney == true and (v:GetAttribute("Value") or v:GetAttribute("Bounty")) and " ($"..(v:GetAttribute("Value") or v:GetAttribute("Bounty"))..")" or "") or "")..
 	        (_G.EspDistance == true and v.PrimaryPart and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude).." ]" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
@@ -1333,6 +1350,33 @@ end
     end
 })
 
+Misc1Group:AddToggle("No Fog", {
+    Text = "No Fog",
+    Default = false, 
+    Callback = function(Value) 
+_G.Nofog = Value
+while _G.Nofog do
+game:GetService("Lighting").FogStart = 100000
+game:GetService("Lighting").FogEnd = 200000
+for i, v in pairs(game:GetService("Lighting"):GetChildren()) do
+if v.ClassName == "Atmosphere" then
+v.Density = 0
+v.Haze = 0
+end
+end
+task.wait()
+end
+game:GetService("Lighting").FogStart = 0
+game:GetService("Lighting").FogEnd = 1000
+for i, v in pairs(game:GetService("Lighting"):GetChildren()) do
+if v.ClassName == "Atmosphere" then
+v.Density = 0.3
+v.Haze = 1
+end
+end
+    end
+})
+
 Misc1Group:AddToggle("Noclip", {
     Text = "Noclip",
     Default = false, 
@@ -1657,7 +1701,7 @@ _G.HealthBarMods = Value
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
 end
     end
 })
@@ -1679,21 +1723,37 @@ Misc2Group:AddDropdown("NoMods", {
     Multi = true
 })
 
+Misc2Group:AddDropdown("CharacterMods", {
+    Text = "Attack Melee",
+    Values = {"Charge", "Attack Fast"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.MeleeAttack = Value
+    end
+})
+
 Misc2Group:AddToggle("Auto Attack Melee", {
     Text = "Auto Attack Melee",
     Default = false, 
     Callback = function(Value) 
 _G.AutoAttackMelee = Value
 while _G.AutoAttackMelee do
+if _G.MeleeAttack == "Attack Fast" then
 for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
 if v:IsA("Tool") and v:FindFirstChild("Configuration") and v.Configuration:FindFirstChild("Animations") and v.Configuration.Animations:FindFirstChild("SwingAnimation") then
 v.Parent = game.Players.LocalPlayer.Character
 end
 end
+end
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
 if v:IsA("Tool") and v:FindFirstChild("Configuration") and v.Configuration:FindFirstChild("Animations") and v.Configuration.Animations:FindFirstChild("SwingAnimation") then
+if _G.MeleeAttack == "Attack Fast" then
 game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
 game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+elseif _G.MeleeAttack == "Charge" then
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+end
 end
 end
 task.wait()
@@ -1744,8 +1804,17 @@ _G.ModsAntilag = {
 	GunAura = {},
 	Aimbot = {},
 	Camlock = {},
-	Hitbox = {},
+	Hitbox = {}
 }
+for i, v in ipairs(workspace:GetDescendants()) do
+	if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
+	    if v.Humanoid.Health > 0 then
+			for i, v1 in pairs(_G.ModsAntilag) do
+		        table.insert(_G.ModsAntilag[i], v)
+			end
+		end
+	end
+end
 workspace.DescendantAdded:Connect(function(v)
 	if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 	    if v.Humanoid.Health > 0 then
@@ -1779,7 +1848,7 @@ if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").
 game.CoreGui["Gun Health Track"].Enabled = true
 elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = ((#(v.Name:gsub("Model_", "")) > 13) and (string.sub(v.Name:gsub("Model_", ""), 1, 9).."...") or v.Name:gsub("Model_", "")).." Health\n"..string.format("%.0f", v.Humanoid.Health).." / " ..v.Humanoid.MaxHealth
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
 end
 end
 end
@@ -1842,7 +1911,7 @@ else
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
 end
 end
 task.wait(_G.DelayShot)
@@ -1850,7 +1919,7 @@ end
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
 end
     end
 }):AddKeyPicker("GunAuraKill", {
@@ -1921,87 +1990,40 @@ end
     end
 })
 
-Misc2Group:AddDropdown("Aimbot", {
-    Text = "Aimbot",
-    Values = {"Fov", "Lock"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-_G.AimbotForGet = Value
-    end
-})
-
-Misc2Group:AddSlider("FovSize", {
-    Text = "Aimbot Fov Size",
-    Default = 250,
-    Min = 10,
-    Max = 300,
-    Rounding = 0,
-    Compact = false,
-    Callback = function(Value)
-_G.FovSize = Value
-    end
-})
-
-RaycastParams = RaycastParams.new()
-RaycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+function CheckWall(Target, Target1)
+    local Direction = (Target.Position - game.Workspace.CurrentCamera.CFrame.Position).unit * (Target.Position - game.Workspace.CurrentCamera.CFrame.Position).Magnitude
+    local RaycastParams = RaycastParams.new()
+    RaycastParams.FilterDescendantsInstances = {game.Players.LocalPlayer.Character, game.Workspace.CurrentCamera}
+    RaycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    local Result = game.Workspace:Raycast(game.Workspace.CurrentCamera.CFrame.Position, Direction, RaycastParams)
+    return Result == nil or Result.Instance:IsDescendantOf(Target1)
+end
 Misc2Group:AddToggle("Aimbot Mods", {
     Text = "Aimbot Mods",
     Default = false, 
-    Callback = function(Value)
+    Callback = function(Value) 
 _G.AimbotMods = Value
 while _G.AimbotMods do
-if _G.AimbotForGet == "Fov" then
-if not FOVring then
-FOVring = Drawing.new("Circle")
-FOVring.Visible = true
-FOVring.Thickness = 2
-FOVring.Color = Color3.fromRGB(128, 0, 128)
-FOVring.Filled = false
-FOVring.Radius = _G.FovSize or 100
-FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
-end
-if FOVring then
-FOVring.Visible = true
-FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
-FOVring.Radius = (_G.FovSize or 100) * (workspace.CurrentCamera.ViewportSize.Y / 1080)
-end
-elseif _G.AimbotForGet ~= "Fov" then
-if FOVring then
-FOVring.Visible = false
-end
-end
 local DistanceMath, ModsTarget = math.huge, nil
 for i, v in pairs(_G.ModsAntilag.Aimbot) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
-local Distance
-if _G.AimbotForGet == "Fov" then
-RaycastParams.FilterDescendantsInstances = {game.Players.LocalPlayer.Character}
-local CharacterHuh = (v:FindFirstChild("HumanoidRootPart").Position + v:FindFirstChild("HumanoidRootPart").Velocity * 0.02) + (v:FindFirstChild("Head").Position - v:FindFirstChild("HumanoidRootPart").Position)
-local ScreenPos, Visible = workspace.CurrentCamera:WorldToViewportPoint(CharacterHuh)
-if Visible and ScreenPos.Z > 0 then
-local Direction = (CharacterHuh - workspace.CurrentCamera.CFrame.Position).Unit * 1000
-local Ray = workspace:Raycast(workspace.CurrentCamera.CFrame.Position, Direction, RaycastParams)
-if Ray and Ray.Instance:IsDescendantOf(v) then
-local CamLock = workspace.CurrentCamera.ViewportSize / 2
-Distance = (Vector2.new(ScreenPos.X, ScreenPos.Y) - CamLock).Magnitude
+if not CheckWall(v:FindFirstChild("Head"), v) then 
+	continue
 end
-end
-elseif _G.AimbotForGet ~= "Fov" then
 Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
-end
-if Distance and ((_G.AimbotForGet == "Fov" and (Distance < DistanceMath and Distance < (_G.FovSize or 100))) or (Distance < DistanceMath)) then
+if Distance and Distance < DistanceMath then
 if not Options.NoMods.Value["Horse"] or (not v.Name:find("Horse") and not v.Name:find("Unicorn")) then
 if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
 if not v.Name:find("Soldier") then
-if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then 
 ModsTarget, DistanceMath = v:FindFirstChild(_G.CharacterMods or "Head"), Distance
 if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").Enabled == false then
 game.CoreGui["Gun Health Track"].Enabled = true
 elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = ((#(v.Name:gsub("Model_", "")) > 13) and (string.sub(v.Name:gsub("Model_", ""), 1, 9).."...") or v.Name:gsub("Model_", "")).." Health\n"..string.format("%.0f", v.Humanoid.Health).." / " ..v.Humanoid.MaxHealth
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+end
 end
 end
 end
@@ -2017,26 +2039,21 @@ if v:FindFirstChild("HumanoidRootPart") == nil or (v:FindFirstChild("Humanoid") 
 	end
 end
 end
-end
 if ModsTarget then
-local LookVector = workspace.CurrentCamera.CFrame.LookVector:Lerp((ModsTarget.Position - workspace.CurrentCamera.CFrame.Position).Unit, 0.754)
-workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, workspace.CurrentCamera.CFrame.Position + LookVector)
+game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (ModsTarget.Position - game.Workspace.CurrentCamera.CFrame.Position).unit)
 else
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
 end
 end
 task.wait()
 end
-if FOVring then
-FOVring.Visible = false
-end
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
 end
     end
 }):AddKeyPicker("AimbotMods", {
@@ -2045,7 +2062,6 @@ end
    Mode = "Toggle",
    SyncToggleState = true
 })
-
 
 Misc2Group:AddToggle("Camlock Mods", {
     Text = "Camlock Mods",
@@ -2079,7 +2095,7 @@ if _G.HealthBarMods == true and game.CoreGui:FindFirstChild("Gun Health Track").
 game.CoreGui["Gun Health Track"].Enabled = true
 elseif game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = ((#(v.Name:gsub("Model_", "")) > 13) and (string.sub(v.Name:gsub("Model_", ""), 1, 9).."...") or v.Name:gsub("Model_", "")).." Health\n"..string.format("%.0f", v.Humanoid.Health).." / " ..v.Humanoid.MaxHealth
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1, 0)
 end
 end
 end
@@ -2107,7 +2123,7 @@ end
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
 end
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Workspace.CurrentCamera.CameraSubject ~= game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
@@ -2121,7 +2137,7 @@ end
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
 game.CoreGui["Gun Health Track"].Frame:FindFirstChild("TextLabel").Text = "Nah Health: Nil"
-game.CoreGui["Gun Health Track"].Frame:FindFirstChild("Frame").Size = UDim2.new(1, 0, 1, 0)
+game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
 end
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
@@ -2150,10 +2166,7 @@ Misc2Group:AddDropdown("HealNowBro", {
     Text = "Auto Heal",
     Values = {"Snake Oil", "Bandage"},
     Default = "",
-    Multi = false,
-    Callback = function(Value)
-_G.HealPlayer = Value
-    end
+    Multi = true
 })
 
 Misc2Group:AddToggle("Auto Heal", {
@@ -2163,14 +2176,16 @@ Misc2Group:AddToggle("Auto Heal", {
 _G.AutoHeal = Value
 while _G.AutoHeal do
 if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health < (_G.HealthyHeal or 68) then
-	if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(_G.HealPlayer or "Bandage") and game:GetService("Players").LocalPlayer.Backpack[_G.HealPlayer or "Bandage"]:FindFirstChild("Use") then
-		if _G.HealPlayer == "Snake Oil" then
-			game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Snake Oil").Use:FireServer(game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Snake Oil"))
-			wait(1)
-		else
-		    game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Bandage").Use:FireServer()
-		end
-	end
+if Options.HealNowBro.Value["Bandage"] then
+if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Bandage") and game:GetService("Players").LocalPlayer.Backpack["Bandage"]:FindFirstChild("Use") then
+game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Bandage").Use:FireServer()
+end
+end
+if Options.HealNowBro.Value["Snake Oil"] then
+if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Snake Oil") and game:GetService("Players").LocalPlayer.Backpack["Snake Oil"]:FindFirstChild("Use") then
+game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Snake Oil").Use:FireServer(game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Snake Oil"))
+end
+end
 end
 task.wait()
 end
