@@ -3054,6 +3054,30 @@ end
     end
 })
 
+Badge2Group:AddButton({
+    Text = "Join Map Egger",
+    Func = function()
+if workspace:FindFirstChild("EasterHuntEggs") == nil then
+Notification("You have get Hitman quest", _G.TimeNotify)
+repeat task.wait() until workspace:FindFirstChild("EasterHuntEggs")
+end
+if workspace:FindFirstChild("EasterHuntEggs") then
+for i, v in pairs(workspace.EasterHuntEggs:GetChildren()) do
+v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+end
+end
+wait(0.5)
+if workspace:FindFirstChild("EggTeleport") == nil then
+repeat task.wait() until workspace:FindFirstChild("EggTeleport")
+end
+if workspace:FindFirstChild("EggTeleport") and workspace.EggTeleport:FindFirstChild("ClickDetector") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace:FindFirstChild("EggTeleport").CFrame
+if fireclickdetector then
+fireclickdetector(workspace.EggTeleport.ClickDetector)
+end
+    end
+})
+
 Badge2Group:AddToggle("Bus Stab", {
     Text = "Bus Stab",
     Default = false, 
@@ -6323,18 +6347,15 @@ _G.TycoonAuto = Value
     Default = false, 
     Callback = function(Value) 
 _G.AutoClickTycoon = Value
+while _G.AutoClickTycoon do
 if _G.TycoonAuto == "All" then
-while _G.AutoClickTycoon and _G.TycoonAuto == "All" do
 for _,v in pairs(game.Workspace:GetChildren()) do
 if string.find(v.Name, "ÅTycoon") and v:FindFirstChild("Click") then
 fireclickdetector(v.Click.ClickDetector, 0)
 fireclickdetector(v.Click.ClickDetector, 1)
 end
 end
-task.wait()
-end
 elseif _G.TycoonAuto == "Your" then
-while _G.AutoClickTycoon and _G.TycoonAuto == "Your" do
 for _,v in pairs(game.Workspace:GetChildren()) do
 if v.Name:match(game.Players.LocalPlayer.Name) then
 for i,x in pairs(v:GetChildren()) do
@@ -6348,8 +6369,8 @@ fireclickdetector(v.Click.ClickDetector, 1)
 end
 end
 end
-task.wait()
 end
+task.wait()
 end
     end
 })
@@ -6359,26 +6380,23 @@ end
     Default = false, 
     Callback = function(Value) 
 _G.AutoDestroyTycoon = Value
-if _G.TycoonAuto == "All" then
 while _G.AutoDestroyTycoon do
+if _G.TycoonAuto == "All" then
 for _,v in pairs(game.Workspace:GetChildren()) do
 if string.find(v.Name, "ÅTycoon") and v:FindFirstChild("Destruct") then
 fireclickdetector(v.Destruct.ClickDetector, 0)
 fireclickdetector(v.Destruct.ClickDetector, 1)
 end
 end
-task.wait()
-end
 elseif _G.TycoonAuto == "Your" then
-while _G.AutoDestroyTycoon do
 for _,v in pairs(game.Workspace:GetChildren()) do
 if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("Destruct") then
 fireclickdetector(v.Destruct.ClickDetector, 0)
 fireclickdetector(v.Destruct.ClickDetector, 1)
 end
 end
-task.wait()
 end
+task.wait()
 end
     end
 })
@@ -11539,6 +11557,52 @@ wait(0.38)
 if fireproximityprompt then
 fireproximityprompt(v.Part:FindFirstChild("ProximityPrompt"))
 end
+end
+end
+end
+end)
+elseif game.PlaceId == 129665246576996 then
+local Window = Library:CreateWindow({
+    Title = "Map Egger 🥚",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+	Footer = "Omega X Article Hub Version: 1.0.5",
+	Icon = 83462777349222,
+	ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local Misc1Group = Tabs.Tab:AddLeftGroupbox("Badge")
+
+Misc1Group:AddButton("Get Badge", function()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if workspace:FindFirstChild("Kenneth") and workspace.Kenneth:FindFirstChild("Head") and workspace.Kenneth.Head:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Kenneth.Head.CFrame
+wait(0.6)
+if fireproximityprompt then
+fireproximityprompt(workspace.Kenneth.Head.ProximityPrompt)
+end
+end
+for i, v in pairs(workspace:FindFirstChild("TrialCompletedPoints"):GetChildren()) do
+if v.Name:find("Trial") and v:FindFirstChild("root") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.root.CFrame
+wait(0.8)
+end
+end 
+wait(2.5)
+if workspace:FindFirstChild("Kenneth") and workspace.Kenneth:FindFirstChild("Head") and workspace.Kenneth.Head:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Kenneth.Head.CFrame
+wait(0.6)
+if fireproximityprompt then
+fireproximityprompt(workspace.Kenneth.Head.ProximityPrompt)
 end
 end
 end
