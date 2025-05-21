@@ -1725,7 +1725,7 @@ Misc2Group:AddDropdown("NoMods", {
 
 Misc2Group:AddDropdown("CharacterMods", {
     Text = "Attack Melee",
-    Values = {"Charge", "Attack Fast"},
+    Values = {"Charge", "Attack Fast", "Insta Kill (Lag)", " Insta Kill (nolag)"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -1753,6 +1753,63 @@ game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:Fire
 game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
 elseif _G.MeleeAttack == "Charge" then
 game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+elseif _G.MeleeAttack == "Insta Kill (Lag)" then
+for i = 1,300 do
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+elseif _G.MeleeAttack == "Insta Kill (nolag)" then
+for i = 1,150 do
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.ChargeMelee:FireServer(v, 1747454200.211104)
+game:GetService("ReplicatedStorage").Shared.Network.RemoteEvent.SwingMelee:FireServer(v, 1747454200.211104, Vector3.new(-0.998392641544342, 0.001820647856220603, 0.05664642155170441))
+end
+end
+end						
+end
+end							
 end
 end
 end
