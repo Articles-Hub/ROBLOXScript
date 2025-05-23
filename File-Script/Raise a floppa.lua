@@ -218,7 +218,7 @@ Main2Group:AddToggle("PetPoppa", {
     Callback = function(Value) 
 _G.AutoPetPoppa = Value
 while _G.AutoPetPoppa do
-local Happy = string.gsub(game.Players.LocalPlayer.PlayerGui.FloppaUI.Frame.Floppa.Happiness.Percentage.Text, "%D", "")
+local Happy = game.Players.LocalPlayer.PlayerGui.FloppaUI.Frame.Floppa.Happiness.Percentage.Text:gsub("%", "")
 if tonumber(Happy) <= _G.HappyPet then
 for i,v in ipairs(game.Workspace:GetChildren()) do
 if v.Name == "Poppa" and v:FindFirstChild("HumanoidRootPart") and v.HumanoidRootPart:FindFirstChild("ProximityPrompt") then
@@ -252,6 +252,23 @@ if Catnip ~= nil then
 Catnip.Parent = game.Players.LocalPlayer.Character
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Floppa.HumanoidRootPart.CFrame
 fireproximityprompt(workspace.Floppa.HumanoidRootPart.ProximityPrompt)
+end
+task.wait()
+end
+    end
+})
+
+Main2Group:AddToggle("DJ El Gato", {
+    Text = "Auto Click DJ El Gato",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoDJElGato = Value
+while _G.AutoDJElGato do
+for i, v in pairs(workspace.Unlocks:GetChildren()) do
+if v.Name == "DJ El Gato" and v:FindFirstChild("Primary") and v:FindFirstChild("Cooldown").Value == 0 then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChild("Primary").CFrame
+fireproximityprompt(v:FindFirstChild("ProximityPrompt"))
+end
 end
 task.wait()
 end
@@ -313,7 +330,6 @@ for i, v in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
              table.insert(Seeds, v)
 		end
 	end
-end
 for i, v in ipairs(Seeds) do
 v.Parent = game.Players.LocalPlayer.Character
 end
@@ -337,7 +353,7 @@ Main3Group:AddToggle("SeedHarvest", {
 _G.AutoHarvestPlants = Value
 while _G.AutoHarvestPlants do
 for i, v in ipairs(workspace.Unlocks:GetChildren()) do
-	if v.Name:match("Planter") then
+	if v.Name:match("Planter") and v:FindFirstChild("Plant") and v:FindFirstChild("Growth") then
 		if v.Plant.Value ~= nil and v.Growth.Value == 100 then
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChild("Soil").CFrame * CFrame.new(-1,-5,0)
 			fireproximityprompt(v.Soil:FindFirstChild("ProximityPrompt"))
