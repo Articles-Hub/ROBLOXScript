@@ -3075,6 +3075,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace:FindFirst
 if fireclickdetector then
 fireclickdetector(workspace.EggTeleport.ClickDetector)
 end
+end
     end
 })
 
@@ -4998,17 +4999,36 @@ fireclickdetector(workspace:WaitForChild("Keypad").Buttons:FindFirstChild("Enter
 end
 end)
 
+ Misc1Basic:AddDropdown("FarmSlap", {
+    Text = "AutoFarm Slap",
+    Values = {"Aimbot","Teleport", "Tween"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.AutoFarmSlapBattles = Value
+    end
+})
+
  Misc1Basic:AddToggle("Auto Farm Slap", {
     Text = "Auto Farm Slap",
     Default = false, 
     Callback = function(Value) 
 _G.AutoFarmSlap = Value
 while _G.AutoFarmSlap do
+if _G.AutoFarmSlapBattles == "Aimbot" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+game.Players.LocalPlayer.Character.Humanoid:MoveTo(game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").Position)
+end
+end
+end
+local DstanceHuge, Target = math.huge, nil
 for i,v in pairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
 if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
 if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
 if _G.AutoFarmSlap == true then
+if _G.AutoFarmSlapBattles == "Teleport" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Character:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0,5,0)
 task.wait(0.5)
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
@@ -5018,12 +5038,47 @@ gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Charact
 else
 game:GetService("ReplicatedStorage").GeneralHit:FireServer(v.Character.HumanoidRootPart)
 end
+elseif _G.AutoFarmSlapBattles == "Tween" then
+TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0), true, 1)
+wait(0.35)
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Mace" then
+gloveHits["Mace"]:FireServer(v.Character.HumanoidRootPart, 100)
+elseif gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
+gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v.Character.HumanoidRootPart)
+else
+game:GetService("ReplicatedStorage").GeneralHit:FireServer(v.Character.HumanoidRootPart)
+end
+elseif _G.AutoFarmSlapBattles == "Aimbot" then
+local DstancePlayer = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+if DstancePlayer < DstanceHuge then
+DstanceHuge, Target = DstancePlayer, v.Character
 end
 end
 end
 end
 end
-task.wait(0.45)
+end
+end
+if Target and _G.AutoFarmSlapBattles == "Aimbot" then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Ragdolled").Value == false then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(Target.HumanoidRootPart.Position.X, game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y, Target.HumanoidRootPart.Position.Z))
+end
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+if v:IsA("Tool") and v:FindFirstChild("Glove") then
+if (v:FindFirstChild("Glove").Position - Target.HumanoidRootPart.Position).Magnitude <= 5.5 then
+game:GetService("VirtualUser"):ClickButton1(Vector2.new(200, 200))
+elseif (v:FindFirstChild("Glove").Position - Target.HumanoidRootPart.Position).Magnitude <= -2.5 then
+game.Players.LocalPlayer.Character.Humanoid:MoveTo(v:FindFirstChild("Glove").Position + Vector3.new(0, 0, -15))
+game:GetService("VirtualUser"):ClickButton1(Vector2.new(200, 200))
+else
+game.Players.LocalPlayer.Character.Humanoid:MoveTo(Target.HumanoidRootPart.Position)
+end
+end
+end
+end
+end
+task.wait()
 end
     end
 })
@@ -11682,10 +11737,10 @@ MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
 MenuGroup:AddButton("Copy Link discord", function()
     if setclipboard then
-        setclipboard("https://discord.gg/ZC63JwSg8T")
+        setclipboard("https://discord.gg/ycv8aZfChd")
         Library:Notify("Copied discord link to clipboard!")
     else
-        Library:Notify("Discord link: https://discord.gg/ZC63JwSg8T", 10)
+        Library:Notify("Discord link: https://discord.gg/ycv8aZfChd", 10)
     end
 end):AddButton("Copy Link Zalo", function()
     if setclipboard then
