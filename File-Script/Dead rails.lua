@@ -1997,6 +1997,18 @@ end
     end
 })
 
+Misc2Group:AddSlider("FovAimbot", {
+    Text = "Fov Aimbot",
+    Default = 65,
+    Min = 10,
+    Max = 250,
+    Rounding = 0,
+    Compact = false,
+    Callback = function(Value)
+_G.FovAimbot = Value
+    end
+})
+
 function CheckWall(Target, Target1)
     local Direction = (Target.Position - game.Workspace.CurrentCamera.CFrame.Position).unit * (Target.Position - game.Workspace.CurrentCamera.CFrame.Position).Magnitude
     local RaycastParams = RaycastParams.new()
@@ -2011,14 +2023,26 @@ Misc2Group:AddToggle("Aimbot Mods", {
     Callback = function(Value) 
 _G.AimbotMods = Value
 while _G.AimbotMods do
+if not FOVring then
+FOVring = Drawing.new("Circle")
+FOVring.Visible = true
+FOVring.Thickness = 1.5
+FOVring.Radius = 50
+FOVring.Color = Color3.fromRGB(255, 128, 128)
+FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
+end
+if FOVring then
+FOVring.Visible = true
+FOVring.Radius = _G.FovAimbot or 50
+end
 local DistanceMath, ModsTarget = math.huge, nil
 for i, v in pairs(_G.ModsAntilag.Aimbot) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 if not CheckWall(v:FindFirstChild("Head"), v) then 
 	continue
 end
-Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
-if Distance and Distance < DistanceMath then
+Distance = (v.Head.Position - Ray.new(workspace.CurrentCamera.CFrame.Position, workspace.CurrentCamera.CFrame.LookVector).Unit:ClosestPoint(v.Head.Position)).Magnitude
+if Distance < DistanceMath then
 if not Options.NoMods.Value["Horse"] or (not v.Name:find("Horse") and not v.Name:find("Unicorn")) then
 if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
 if not Options.NoMods.Value["Werewolf"] or not v.Name:find("Werewolf") then
@@ -2047,7 +2071,10 @@ if v:FindFirstChild("HumanoidRootPart") == nil or (v:FindFirstChild("Humanoid") 
 end
 end
 if ModsTarget then
+local Point = workspace.CurrentCamera:WorldToScreenPoint(ModsTarget.Position)
+if (Vector2.new(Point.X, Point.Y) - workspace.CurrentCamera.ViewportSize / 2).Magnitude < _G.FovAimbot then
 game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (ModsTarget.Position - game.Workspace.CurrentCamera.CFrame.Position).unit)
+end
 else
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
@@ -2056,6 +2083,9 @@ game.CoreGui["Gun Health Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDi
 end
 end
 task.wait()
+end
+if FOVring then
+FOVring.Visible = false
 end
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
