@@ -5,28 +5,23 @@ end
 if LoadingScriptSlap then return end
 LoadingScriptSlap = true
 if game.PlaceId == 6403373529 or game.PlaceId == 9015014224 or game.PlaceId == 11520107397 or game.PlaceId == 124596094333302 then
-if hookmetamethod and getnamecallmethod then
-local bypass;
-    bypass = hookmetamethod(game, "__namecall", function(method, ...) 
-        if getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.Ban then
-            return
-        elseif getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.AdminGUI then
-            return
-        elseif getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.WalkSpeedChanged then
-            return
-        elseif getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.GRAB then
-            return
-        elseif getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.SpecialGloveAccess then
-            return
-        end
-        return bypass(method, ...)
-    end)
-game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Bypass Success",Icon = "rbxassetid://7733658504",Duration = 5})
-elseif not hookmetamethod and not getnamecallmethod then
-game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "You cannot bypass, you must be careful",Icon = "rbxassetid://7733658504",Duration = 5})
+if game.ReplicatedStorage:FindFirstChild("AdminGUI") then
+	game.ReplicatedStorage.AdminGUI:Destroy()
 end
-if game.StarterPlayer.StarterPlayerScripts:FindFirstChild("ClientAnticheat") and game.StarterPlayer.StarterPlayerScripts.ClientAnticheat:FindFirstChild("AntiMobileExploits") then
-   game.StarterPlayer.StarterPlayerScripts.ClientAnticheat.AntiMobileExploits:Destroy()
+if game.ReplicatedStorage:FindFirstChild("Ban") then
+	game.ReplicatedStorage.Ban:Destroy()
+end
+if game.StarterPlayer.StarterPlayerScripts:FindFirstChild("ClientAnticheat") then
+	game.StarterPlayer.StarterPlayerScripts.ClientAnticheat:Destroy()
+end
+if game.ReplicatedStorage:FindFirstChild("GRAB") then
+	game.ReplicatedStorage.GRAB:Destroy()
+end
+if game.ReplicatedStorage:FindFirstChild("SpecialGloveAccess") then
+	game.ReplicatedStorage.SpecialGloveAccess:Destroy()
+end
+if game.ReplicatedStorage:FindFirstChild("WalkSpeedChanged") then
+	game.ReplicatedStorage.WalkSpeedChanged:Destroy()
 end
 _G.TimeNotify = 5
 
@@ -5066,10 +5061,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Pla
 end
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
 if v:IsA("Tool") and v:FindFirstChild("Glove") then
-if (v:FindFirstChild("Glove").Position - Target.HumanoidRootPart.Position).Magnitude <= 5.5 then
-game:GetService("VirtualUser"):ClickButton1(Vector2.new(200, 200))
-elseif (v:FindFirstChild("Glove").Position - Target.HumanoidRootPart.Position).Magnitude <= -2.5 then
-game.Players.LocalPlayer.Character.Humanoid:MoveTo(v:FindFirstChild("Glove").Position + Vector3.new(0, 0, -15))
+if (v:FindFirstChild("Glove").Position - Target.HumanoidRootPart.Position).Magnitude <= 5 then
 game:GetService("VirtualUser"):ClickButton1(Vector2.new(200, 200))
 else
 game.Players.LocalPlayer.Character.Humanoid:MoveTo(Target.HumanoidRootPart.Position)
