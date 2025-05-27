@@ -4,6 +4,27 @@ end
 
 if LoadingScriptSlap then return end
 LoadingScriptSlap = true
+function TweenTp(Part, CFnew, Body, Speed)
+BodyEnter = Body
+if BodyEnter == true then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil then
+local bv = Instance.new("BodyVelocity")
+bv.Name = "VelocityHandler"
+bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+bv.MaxForce = Vector3.new(100000, 100000, 100000)
+bv.Velocity = Vector3.new(0, 0, 0)
+end
+end
+local Tween = game:GetService("TweenService"):Create(Part, TweenInfo.new(Speed, Enum.EasingStyle.Linear), {CFrame = CFnew})
+Tween:Play()
+Tween.Completed:Wait()
+Tween:Cancel()
+if BodyEnter == true then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler:Destroy()
+end
+end
+end
 if game.PlaceId == 6403373529 or game.PlaceId == 9015014224 or game.PlaceId == 11520107397 or game.PlaceId == 124596094333302 then
 if game.ReplicatedStorage:FindFirstChild("AdminGUI") then
 	game.ReplicatedStorage.AdminGUI:Destroy()
@@ -63,28 +84,6 @@ SlapChanged.Value = ""
 local GloveChanged = Instance.new("StringValue", NametagChanged)
 GloveChanged.Name = "GloveChanged"
 GloveChanged.Value = ""
-end
-
-function TweenTp(Part, CFnew, Body, Speed)
-BodyEnter = Body
-if BodyEnter == true then
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil then
-local bv = Instance.new("BodyVelocity")
-bv.Name = "VelocityHandler"
-bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-bv.MaxForce = Vector3.new(100000, 100000, 100000)
-bv.Velocity = Vector3.new(0, 0, 0)
-end
-end
-local Tween = game:GetService("TweenService"):Create(Part, TweenInfo.new(Speed, Enum.EasingStyle.Linear), {CFrame = CFnew})
-Tween:Play()
-Tween.Completed:Wait()
-Tween:Cancel()
-if BodyEnter == true then
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler:Destroy()
-end
-end
 end
 
 function AutoFarmSlap(Choose)
@@ -9635,14 +9634,16 @@ end
     end
 })
 
-Combat2Group:AddToggle("Reach Collect Item", {
-    Text = "Reach Collect Item",
+Combat2Group:AddToggle("Auto Collect Item", {
+    Text = "Auto Collect Item",
     Default = false,
     Callback = function(Value)
-_G.ReachCollectItem = Value
-while _G.ReachCollectItem do
+_G.AutoCollectItem = Value
+while _G.AutoCollectItem do
 for i, v in pairs(workspace:FindFirstChild("Items"):GetChildren()) do
-if v:FindFirstChild("Handle") and 15 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Handle.Position).Magnitude then
+if v:FindFirstChild("Handle") and _G.AutoCollectItem == true then
+TweenTp(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v:FindFirstChild("Handle").CFrame * CFrame.new(0, 3, 0), true, 2)
+wait(0.15)
 game:GetService("ReplicatedStorage").Events.Item:FireServer(v.Handle)
 end
 end
@@ -10048,7 +10049,7 @@ CodeLab = Misc1Group:AddLabel("Code [ ???? ]")
 
 Misc1Group:AddButton("Get Lab Code", function()
 if game.Workspace.Map.CodeBrick.SurfaceGui:FindFirstChild("IMGTemplate") then
-local Code = {}
+Code = {}
 for i,v in pairs(game.Workspace.Map.CodeBrick.SurfaceGui:GetChildren()) do
                     if v.Name == "IMGTemplate" then
                         if v.Image == "http://www.roblox.com/asset/?id=9648769161" then
@@ -10092,7 +10093,7 @@ end)
 
 Misc1Group:AddButton("Get Chain", function()
 if game.Workspace.Map.CodeBrick.SurfaceGui:FindFirstChild("IMGTemplate") then
-local Code = {}
+Code = {}
 for i,v in pairs(game.Workspace.Map.CodeBrick.SurfaceGui:GetChildren()) do
                     if v.Name == "IMGTemplate" then
                         if v.Image == "http://www.roblox.com/asset/?id=9648769161" then
