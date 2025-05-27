@@ -2028,6 +2028,7 @@ FOVring = Drawing.new("Circle")
 FOVring.Visible = true
 FOVring.Thickness = 1.5
 FOVring.Radius = 50
+FOVring.Transparency = 0.1
 FOVring.Color = Color3.fromRGB(255, 128, 128)
 FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
 end
@@ -2343,4 +2344,4 @@ SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
 SaveManager:BuildConfigSection(Tabs["UI Settings"])
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
-SaveManager:LoadAutoloadConfig()
+SaveManager:LoadAutoloadConfig() 
