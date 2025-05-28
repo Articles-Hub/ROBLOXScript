@@ -90,7 +90,7 @@ end
 })
 
 Main1Group:AddToggle("AutoCollect2", {
-    Text = "Auto Collect Gen",
+    Text = "Auto Collect Gem",
     Default = false, 
     Callback = function(Value) 
 _G.AutoCollectGem = Value
@@ -113,7 +113,7 @@ Main1Group:AddToggle("AutoCollect3", {
 _G.AutoPickUpMike = Value
 while _G.AutoPickUpMike do
 if game.Workspace:FindFirstChild("Milk Delivery") and game.Workspace["Milk Delivery"]:FindFirstChild("Crate") then
-for i,v in ipairs(game.Workspace["Milk Delivery"]:GetChildren()) do
+for i,v in ipairs(game.Workspace:FindFirstChild("Milk Delivery"):GetChildren()) do
 if v.Name == "Crate" and v:FindFirstChild("ProximityPrompt") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
 fireproximityprompt(v:FindFirstChild("ProximityPrompt"))
@@ -124,6 +124,16 @@ task.wait()
 end
     end
 })
+
+Main1Group:AddButton("Buy Item", function()
+for i, v in ipairs(game.Players.LocalPlayer.PlayerGui.PlayerUI["the_interwebs"].Unlocks:GetChildren()) do
+if v:IsA("Frame") and not v.Name:match("Food") and not v.Name:match("food") then
+if v:FindFirstChild("Purchase Button").Text ~= "Owned" then
+game:GetService("ReplicatedStorage").Events.Unlock:FireServer(v.Name, "the_interwebs")
+end
+end
+end
+end)
 
 Main1Group:AddToggle("Buy", {
     Text = "Auto Buy",
@@ -136,7 +146,7 @@ if v:IsA("Frame") and not v.Name:match("Food") and not v.Name:match("food") then
 if v:FindFirstChild("Purchase Button").Text ~= "Owned" then
 if _G.AutoBuy == true then
 game:GetService("ReplicatedStorage").Events.Unlock:FireServer(v.Name, "the_interwebs")
-wait(0.45)
+task.wait(0.1)
 end
 end
 end
@@ -147,6 +157,14 @@ end
 })
 
 local Main2Group = Tabs.Tab:AddRightGroupbox("Misc")
+
+Main1Group:AddButton("Trash Item", function()
+if game.Workspace:FindFirstChild("Key Parts") and game.Workspace["Key Parts"]:FindFirstChild("Trashcan") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace["Key Parts"]:FindFirstChild("Trashcan").CFrame
+wait(0.35)
+fireproximityprompt(workspace["Key Parts"].Trashcan:FindFirstChild("ProximityPrompt"))
+end
+end)
 
 Main2Group:AddToggle("CleanPoop", {
     Text = "Auto Clean Poop",
@@ -218,10 +236,11 @@ Main2Group:AddToggle("PetPoppa", {
     Callback = function(Value) 
 _G.AutoPetPoppa = Value
 while _G.AutoPetPoppa do
-local Happy = game.Players.LocalPlayer.PlayerGui.FloppaUI.Frame.Floppa.Happiness.Percentage.Text:gsub("%", "")
-if tonumber(Happy) <= _G.HappyPet then
+local Happy = game.Players.LocalPlayer.PlayerGui.FloppaUI.Frame.Floppa.Happiness.Percentage.Text:gsub("%%", "")
+local Happy1 = tonumber(Happy)
+if Happy1 <= _G.HappyPet then
 for i,v in ipairs(game.Workspace:GetChildren()) do
-if v.Name == "Poppa" and v:FindFirstChild("HumanoidRootPart") and v.HumanoidRootPart:FindFirstChild("ProximityPrompt") then
+if v.Name == "Floppa" and v:FindFirstChild("HumanoidRootPart") and v.HumanoidRootPart:FindFirstChild("ProximityPrompt") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame
 fireproximityprompt(v.HumanoidRootPart:FindFirstChild("ProximityPrompt"))
 end
@@ -238,6 +257,7 @@ Main2Group:AddToggle("FeedCatnip", {
     Callback = function(Value) 
 _G.AutoFeelCatnip = Value
 while _G.AutoFeelCatnip do
+local Catnip
 for i, v in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
 if v.Name:match("Catnip") then
 Catnip = v
@@ -258,19 +278,161 @@ end
     end
 })
 
+Main2Group:AddToggle("GiveRent", {
+    Text = "Auto Give Rent",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoClaimRent = Value
+while _G.AutoClaimRent do
+if workspace:FindFirstChild("Rent") == nil then
+game:GetService("ReplicatedStorage").Events["Collect Rent"]:FireServer()
+end
+task.wait(2)
+if workspace:FindFirstChild("Rent") then
+firetouchinterest(workspace:FindFirstChild("Rent"), game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart"), 0)
+firetouchinterest(workspace:FindFirstChild("Rent"), game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart"), 1)
+end
+task.wait()
+end
+    end
+})
+
+Main2Group:AddToggle("Almond Water", {
+    Text = "Auto Collect Almond Water",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoCollectAlmondWater = Value
+while _G.AutoCollectAlmondWater do
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+for i, v in pairs(game.Workspace.Backrooms.Rooms:FindFirstChild("Backrooms 5"):GetChildren()) do
+if v.Name == "Exit" and v:FindFirstChild("Frame") and v.Frame:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Frame.CFrame
+fireproximityprompt(v.Frame:FindFirstChild("ProximityPrompt"))
+end
+end
+until game:GetService("Players").LocalPlayer:FindFirstChild("BackroomsLevel").Value == 4
+repeat task.wait()
+for i,v in ipairs(game.Workspace.Backrooms:GetChildren()) do
+if v.Name == "Almond Water" and v:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+fireproximityprompt(v:FindFirstChild("ProximityPrompt"))
+end
+end
+until game:GetService("Players").LocalPlayer:FindFirstChild("BackroomsLevel").Value == 0
+end
+task.wait()
+end
+Almost = {}
+for i, v in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
+    if v.Name == "Almond Water" then
+        table.insert(Almost, v)
+   end
+end
+for i, v in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+     if v.Name == "Almond Water" then
+         table.insert(Almost, v)
+	end
+end
+for i, v in ipairs(Almost) do
+v.Parent = game.Players.LocalPlayer.Character
+end
+wait(0.5)
+for i = 1, #Almost do
+Item = Almost[i]
+repeat task.wait()
+for i,v in ipairs(game.Workspace:GetChildren()) do
+if v.Name == "Floppa" and v:FindFirstChild("HumanoidRootPart") and v.HumanoidRootPart:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame
+fireproximityprompt(v.HumanoidRootPart:FindFirstChild("ProximityPrompt"))
+end
+end
+until not Item:IsDescendantOf(game)
+end
+    end
+})
+
+Main2Group:AddToggle("Hot / Cold", {
+    Text = "Auto Floppa Hot / Cold",
+    Default = false, 
+    Callback = function(Value) 
+_G.AntiFloppaHotCold = Value
+while _G.AntiFloppaHotCold do
+if game.Workspace.Floppa:FindFirstChild("Moodlets") then
+if game.Workspace.Floppa.Moodlets:FindFirstChild("Hot").Value == true then
+if game.Workspace.World.Foliage:FindFirstChild("Lemonade Stand") then
+if game.Players.LocalPlayer.Character:FindFirstChild("Lemonade") == nil and game.Players.LocalPlayer.Backpack:FindFirstChild("Lemonade") == nil then
+for i,v in pairs(game.Workspace.World.Foliage:FindFirstChild("Lemonade Stand"):GetChildren()) do
+if v.Name == "Handle" and v:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+wait(0.3)
+fireproximityprompt(v:FindFirstChild("ProximityPrompt"))
+repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("Lemonade") or game.Players.LocalPlayer.Backpack:FindFirstChild("Lemonade")
+end
+end
+end
+for i,v in ipairs(game.Workspace:GetChildren()) do
+if v.Name == "Floppa" and v:FindFirstChild("HumanoidRootPart") and v.HumanoidRootPart:FindFirstChild("ProximityPrompt") then
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("Lemonade") == nil then
+game.Players.LocalPlayer.Backpack:FindFirstChild("Lemonade").Parent = game.Players.LocalPlayer.Character
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame
+fireproximityprompt(v.HumanoidRootPart:FindFirstChild("ProximityPrompt"))
+until game.Workspace.Floppa:FindFirstChild("Moodlets") and game.Workspace.Floppa.Moodlets:FindFirstChild("Hot").Value == false
+end
+end
+end
+elseif game.Workspace.Floppa.Moodlets:FindFirstChild("Cold").Value == true then
+if game.Workspace.World.Foliage:FindFirstChild("Hot Chocolate Stand") then
+if game.Players.LocalPlayer.Character:FindFirstChild("Hot Chocolate") == nil and game.Players.LocalPlayer.Backpack:FindFirstChild("Hot Chocolate") == nil then
+for i,v in pairs(game.Workspace.World.Foliage:FindFirstChild("Hot Chocolate Stand"):GetChildren()) do
+if v.Name == "HotChocolate" and v:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+wait(0.3)
+fireproximityprompt(v:FindFirstChild("ProximityPrompt"))
+repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("Hot Chocolate") or game.Players.LocalPlayer.Backpack:FindFirstChild("Hot Chocolate")
+end
+end
+end
+for i,v in ipairs(game.Workspace:GetChildren()) do
+if v.Name == "Floppa" and v:FindFirstChild("HumanoidRootPart") and v.HumanoidRootPart:FindFirstChild("ProximityPrompt") then
+repeat task.wait()
+if game.Players.LocalPlayer.Character:FindFirstChild("Hot Chocolate") == nil then
+game.Players.LocalPlayer.Backpack:FindFirstChild("Hot Chocolate").Parent = game.Players.LocalPlayer.Character
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame
+fireproximityprompt(v.HumanoidRootPart:FindFirstChild("ProximityPrompt"))
+until game.Workspace.Floppa:FindFirstChild("Moodlets") and game.Workspace.Floppa.Moodlets:FindFirstChild("Cold").Value == false
+end
+end
+end
+end
+end
+task.wait()
+end
+    end
+})
+
 Main2Group:AddToggle("DJ El Gato", {
     Text = "Auto Click DJ El Gato",
     Default = false, 
     Callback = function(Value) 
 _G.AutoDJElGato = Value
+if workspace.Unlocks:FindFirstChild("DJ El Gato") then
 while _G.AutoDJElGato do
 for i, v in pairs(workspace.Unlocks:GetChildren()) do
 if v.Name == "DJ El Gato" and v:FindFirstChild("Primary") and v:FindFirstChild("Cooldown").Value == 0 then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChild("Primary").CFrame
-fireproximityprompt(v:FindFirstChild("ProximityPrompt"))
+fireproximityprompt(v.Primary:FindFirstChild("ProximityPrompt"))
 end
 end
 task.wait()
+end
+elseif _G.AutoDJElGato == true then
+Notification("You don't have buy DJ El Gato", _G.TimeNotify)
+wait(0.05)
+Toggles["DJ El Gato"]:SetValue(false)
 end
     end
 })
@@ -280,6 +442,7 @@ Main2Group:AddToggle("CubePoppa", {
     Default = false, 
     Callback = function(Value) 
 _G.AutoCubePoppa = Value
+if game.Workspace.Unlocks:FindFirstChild("Altar") then
 while _G.AutoCubePoppa do
 if game.Workspace.Unlocks:FindFirstChild("Altar") and game.Workspace.Unlocks.Altar:FindFirstChild("Floppa Cube") then
 for i,v in ipairs(game.Workspace.Unlocks.Altar["Floppa Cube"]:GetChildren()) do
@@ -290,6 +453,11 @@ end
 end
 end
 task.wait()
+end
+elseif _G.AutoCubePoppa == true then
+Notification("You don't have buy Poppa Cube", _G.TimeNotify)
+wait(0.05)
+Toggles["CubePoppa"]:SetValue(false)
 end
     end
 })
@@ -303,8 +471,8 @@ Main3Group:AddToggle("SeedPick", {
 _G.AutoPickUpSeeds = Value
 while _G.AutoPickUpSeeds do
 for i, v in ipairs(game.Workspace.Seeds:GetChildren()) do
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0,2.5,0)
 if v:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0,2.5,0)
 fireproximityprompt(v:FindFirstChild("ProximityPrompt"))
 end
 end
@@ -321,15 +489,15 @@ _G.AutoPlantSeeds = Value
 while _G.AutoPlantSeeds do
 Seeds = {}
 for i, v in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
-        if v.Name:match("Seed") or v.Name:match("Spore") then
-            table.insert(Seeds, v)
-       end
+    if v.Name:match("Seed") or v.Name:match("Spore") then
+        table.insert(Seeds, v)
+   end
 end
 for i, v in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-         if v.Name:match("Seed") or v.Name:match("Spore") then
-             table.insert(Seeds, v)
-		end
+     if v.Name:match("Seed") or v.Name:match("Spore") then
+         table.insert(Seeds, v)
 	end
+end
 for i, v in ipairs(Seeds) do
 v.Parent = game.Players.LocalPlayer.Character
 end
@@ -431,14 +599,15 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and gam
 if game.Players.LocalPlayer.Character.Humanoid.Health ~= 0 then
 v.HumanoidRootPart.CanCollide = false
 v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,-4.5)
-if game.Players.LocalPlayer.Character:FindFirstChild("Sword") then
-game.Players.LocalPlayer.Character:FindFirstChild("Sword"):Activate()
-elseif game.Players.LocalPlayer.Character:FindFirstChild("Excalibur") then
-game.Players.LocalPlayer.Character:FindFirstChild("Excalibur"):Activate()
-elseif game.Players.LocalPlayer.Backpack:FindFirstChild("Sword") then
-game.Players.LocalPlayer.Backpack:FindFirstChild("Sword").Parent = game.Players.LocalPlayer.Character
-elseif game.Players.LocalPlayer.Backpack:FindFirstChild("Excalibur") then
-game.Players.LocalPlayer.Backpack:FindFirstChild("Excalibur").Parent = game.Players.LocalPlayer.Character
+for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+if v.Name == "Sword" or v.Name == "Excalibur" then
+v.Parent = game.Players.LocalPlayer.Character
+end
+end
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+if v.Name == "Sword" or v.Name == "Excalibur" then
+v:Activate()
+end
 end
 end
 end
@@ -447,7 +616,6 @@ task.wait()
 end
     end
 })
-
 ----------------------------------------------------------------------------------------------------
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
 local CreditsGroup = Tabs["UI Settings"]:AddRightGroupbox("Credits")
