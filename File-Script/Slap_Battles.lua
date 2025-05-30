@@ -86,6 +86,10 @@ GloveChanged.Name = "GloveChanged"
 GloveChanged.Value = ""
 end
 
+function CheckUnlockGlove(Value)
+	return game.Players.LocalPlayer:FindFirstChild("_unlockedGloves") and game.Players.LocalPlayer._unlockedGloves:FindFirstChild(Value)
+end
+
 function AutoFarmSlap(Choose)
 if _G.GetTeleport == "Up To You" then
 OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
@@ -3069,6 +3073,57 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace:FindFirst
 if fireclickdetector then
 fireclickdetector(workspace.EggTeleport.ClickDetector)
 end
+end
+    end
+})
+
+Badge2Group:AddDropdown("Farm Bob", {
+    Text = "Farm Bob",
+    Values = {"Walk", "Teleport"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.BobFarmCh = Value
+    end
+})
+
+Badge2Group:AddToggle("Bob", {
+    Text = "Bob Farm",
+    Default = false, 
+    Callback = function(Value) 
+_G.BobFarm = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" and CheckUnlockGlove("bob").Value == false then
+while _G.BobFarm do
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+if CheckUnlockGlove("bob").Value == false then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+if _G.BobFarmCh == "Walk" then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+game.Players.LocalPlayer.Character.Humanoid:MoveTo(game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").Position)
+end
+elseif _G.BobFarmCh == "Teleport" then
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+end
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0 then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+wait(0.1)
+game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+end
+end
+elseif CheckUnlockGlove("bob").Value == true then
+Notification("Your got bob", 5)
+Toggles["Bob"]:SetValue(false)
+end
+end
+task.wait()
+end
+elseif _G.BobFarm == true then
+Notification("You don't have Replica equipped, or you have owner badge", 5)
+wait(0.05)
+Toggles["Bob"]:SetValue(false)
 end
     end
 })
