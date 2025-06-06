@@ -679,24 +679,26 @@ MenuGroup:AddToggle("KeybindMenuOpen", {Default = false, Text = "Open Keybind Me
 MenuGroup:AddToggle("ShowCustomCursor", {Text = "Custom Cursor", Default = true, Callback = function(Value) Library.ShowCustomCursor = Value end})
 MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
-MenuGroup:AddButton("Copy Link discord", function()
+_G.LinkJoin = loadstring(game:HttpGet("https://pastefy.app/2LKQlhQM/raw"))()
+MenuGroup:AddButton("Copy Link Discord", function()
     if setclipboard then
-        setclipboard("https://discord.gg/ycv8aZfChd")
+        setclipboard(_G.LinkJoin["Discord"])
         Library:Notify("Copied discord link to clipboard!")
     else
-        Library:Notify("Discord link: https://discord.gg/ycv8aZfChd", 10)
+        Library:Notify("Discord link: ".._G.LinkJoin["Discord"], 10)
     end
 end):AddButton("Copy Link Zalo", function()
     if setclipboard then
-        setclipboard("https://zalo.me/g/qlukiy407")
+        setclipboard(_G.LinkJoin["Zalo"])
         Library:Notify("Copied Zalo link to clipboard!")
     else
-        Library:Notify("Zalo link: https://zalo.me/g/qlukiy407", 10)
+        Library:Notify("Zalo link: ".._G.LinkJoin["Zalo"], 10)
     end
 end)
 MenuGroup:AddButton("Unload", function() Library:Unload() end)
-CreditsGroup:AddLabel("AmongUs - Python / Dex / Script / Python", true)
+CreditsGroup:AddLabel("AmongUs - Python / Dex / Script", true)
 CreditsGroup:AddLabel("Giang Hub - Script / Dex", true)
+CreditsGroup:AddLabel("Cao Mod - Script / Dex", true)
 
 Info:AddLabel("Counter [ "..game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(game.Players.LocalPlayer).." ]", true)
 Info:AddLabel("Executor [ "..identifyexecutor().." ]", true)
@@ -727,8 +729,8 @@ end)
 
 Info:AddButton("Copy Join JobId", function()
     if setclipboard then
-        setclipboard('game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, "'..game.JobId..'", game.Players.LocalPlayer)')
-        Library:Notify("Copied Success")
+        setclipboard('game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, '..game.JobId..", game.Players.LocalPlayer)")
+        Library:Notify("Copied Success") 
     else
         Library:Notify(tostring(game.JobId), 10)
     end
@@ -741,4 +743,4 @@ SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
 SaveManager:BuildConfigSection(Tabs["UI Settings"])
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
-SaveManager:LoadAutoloadConfig()
+SaveManager:LoadAutoloadConfig() 
