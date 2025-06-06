@@ -88,11 +88,11 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
 until game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Sit == true
 wait(0.5)
 game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Sit = false
+wait(0.5)
 repeat task.wait()
 for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
 if v.Name == "MaximGun" and v:FindFirstChild("VehicleSeat") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.VehicleSeat.Position).Magnitude < 400 then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.VehicleSeat.CFrame
-v.VehicleSeat:Sit(game.Players.LocalPlayer.Character:FindFirstChild("Humanoid"))
 end
 end
 until game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Sit == true
