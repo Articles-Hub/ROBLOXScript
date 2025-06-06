@@ -90,235 +90,6 @@ function CheckUnlockGlove(Value)
 	return game.Players.LocalPlayer:FindFirstChild("_unlockedGloves") and game.Players.LocalPlayer._unlockedGloves:FindFirstChild(Value)
 end
 
-function AutoFarmSlap(Choose)
-if _G.GetTeleport == "Up To You" then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-end
-_G.FarmSlapBruh = Choose
-while _G.AutoFarmSlap do
-if _G.FarmSlapBruh == "Baller" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Baller" then
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
-wait(30.05)
-end
-elseif _G.FarmSlapBruh == "Blink" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Blink" then
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-wait(0.1)
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleport == "SafeSpotBox 1.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleport == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
-end
-game:GetService("ReplicatedStorage").Blink:FireServer("OutOfBody", {["dir"] = Vector3.new(0, 0, 0),["ismoving"] = false,["mousebehavior"] = Enum.MouseBehavior.Default})
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-wait(0.05)
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Dual.ClickDetector)
-wait(0.1)
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.2)
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleport == "SafeSpotBox 1.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleport == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
-wait(17)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Blink.ClickDetector)
-end
-task.wait(48.05)
-elseif _G.FarmSlapBruh == "Replica" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.1)
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleport == "SafeSpotBox 1.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleport == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
-wait(0.2)
-game:GetService("ReplicatedStorage").Duplicate:FireServer(true)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-wait(0.05)
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Dual.ClickDetector)
-wait(0.1)
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.2)
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleport == "SafeSpotBox 1.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleport == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
-wait(17)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Replica.ClickDetector)
-end
-elseif _G.FarmSlapBruh == "Replica + Baller" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Baller" then
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.25)
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
-task.wait(0.09)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Replica.ClickDetector)
-wait(0.25)
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.25)
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleport == "SafeSpotBox 1.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleport == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
-wait(0.5)
-game:GetService("ReplicatedStorage").Duplicate:FireServer()
-wait(20)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Baller.ClickDetector)
-end
-elseif _G.FarmSlapBruh == "Replica + Baller + Blink" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Blink" then
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-end
-wait(0.25)
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleport == "SafeSpotBox 1.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleport == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
-wait(0.2)
-game:GetService("ReplicatedStorage").Blink:FireServer("OutOfBody", {["dir"] = Vector3.new(0, 0, 0),["ismoving"] = false,["mousebehavior"] = Enum.MouseBehavior.Default})
-fireclickdetector(workspace.Lobby.Baller.ClickDetector)
-wait(0.25)
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.25)
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleport == "SafeSpotBox 1.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleport == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
-wait(0.25)
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
-task.wait(0.09)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Replica.ClickDetector)
-wait(0.5)
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.25)
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleport == "SafeSpotBox 1.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleport == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
-wait(0.25)
-game:GetService("ReplicatedStorage").Duplicate:FireServer()
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-wait(0.05)
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Dual.ClickDetector)
-wait(0.1)
-repeat task.wait() until game.Players.LocalPlayer.Character
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
-wait(0.2)
-if _G.GetTeleport == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleport == "SafeSpotBox 1.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleport == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
-wait(20)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-fireclickdetector(workspace.Lobby.Blink.ClickDetector)
-end
-end
-end
-end
-
 ---SafeSpotBox---
 
 if workspace:FindFirstChild("SafeBox") == nil then
@@ -3094,6 +2865,7 @@ Badge2Group:AddToggle("Bob", {
 _G.BobFarm = Value
 if game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" and CheckUnlockGlove("bob").Value == false then
 while _G.BobFarm do
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 if CheckUnlockGlove("bob").Value == false then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
@@ -3108,14 +2880,16 @@ end
 end
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0 then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
-wait(0.1)
+wait(0.17)
 game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+wait(0.12)
 game:GetService("Players").LocalPlayer.Reset:FireServer()
 end
 end
 elseif CheckUnlockGlove("bob").Value == true then
 Notification("Your got bob", 5)
 Toggles["Bob"]:SetValue(false)
+end
 end
 end
 task.wait()
@@ -8355,110 +8129,6 @@ end
     end
 })
 
-Glove2Group:AddDropdown("GloveFarm", {
-    Text = "Equipped Glove Farm",
-    Values = {"Baller","Replica","Blink"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
-if Value == "Baller" then
-fireclickdetector(workspace.Lobby["Baller"].ClickDetector)
-elseif Value == "Replica" then
-fireclickdetector(workspace.Lobby["Replica"].ClickDetector)
-elseif Value == "Blink" then
-fireclickdetector(workspace.Lobby["Blink"].ClickDetector)
-end
-else
-Notification("You aren't in the lobby.", _G.TimeNotify)
-end
-    end
-})
-
-Glove2Group:AddDropdown("SafeFarm", {
-    Text = "Will Teleport Farm",
-    Values = {"Up To You","SafeSpotBox 1.0","SafeSpotBox 2.0"},
-    Default = "SafeSpotBox 1.0",
-    Multi = false,
-    Callback = function(Value)
-_G.GetTeleport = Value
-    end
-})
-
-_G.FarmSlap = "Replica + Baller"
-Glove2Group:AddDropdown("AutoFarm Slap", {
-    Text = "Slap Farm",
-    Values = {"Replica + Baller","Replica + Baller + Blink", "Baller", "Replica", "Blink"},
-    Default = "Replica + Baller",
-    Multi = false,
-    Callback = function(Value)
-_G.FarmSlap = Value
-    end
-})
-
-Glove2Group:AddToggle("SlapFarm", {
-    Text = "Slap Farm",
-    Default = false, 
-    Callback = function(Value) 
-_G.AutoFarmSlap = Value 
-if _G.AutoFarmSlap == true then
-if _G.FarmSlap == "Replica + Baller" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Baller" then
-coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
-elseif _G.AutoFarmSlap == true then
-Notification("You don't have Baller equipped.", _G.TimeNotify) 
-wait(0.05)
-Toggles["SlapFarm"]:SetValue(false) 
-end
-elseif _G.FarmSlap == "Replica + Baller + Blink" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Blink" then
-coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
-elseif _G.AutoFarmSlap == true then
-Notification("You don't have Blink equipped.", _G.TimeNotify) 
-wait(0.05)
-Toggles["SlapFarm"]:SetValue(false) 
-end
-elseif _G.FarmSlap == "Replica" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Replica" then
-coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
-elseif _G.AutoFarmSlap == true then
-Notification("You don't have Replica equipped.", _G.TimeNotify) 
-wait(0.05)
-Toggles["SlapFarm"]:SetValue(false) 
-end
-elseif _G.FarmSlap == "Baller" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Baller" then
-coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
-elseif _G.AutoFarmSlap == true then
-Notification("You don't have Baller equipped.", _G.TimeNotify) 
-wait(0.05)
-Toggles["SlapFarm"]:SetValue(false) 
-end
-elseif _G.FarmSlap == "Blink" then
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Blink" then
-coroutine.wrap(AutoFarmSlap)(_G.FarmSlap) 
-elseif _G.AutoFarmSlap == true then
-Notification("You don't have Blink equipped.", _G.TimeNotify) 
-wait(0.05)
-Toggles["SlapFarm"]:SetValue(false) 
-end
-end
-end
-while _G.AutoFarmSlap do 
-for i, v in pairs(workspace:GetChildren()) do 
-                 if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
-if gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value] ~= nil then
-gloveHits[game.Players.LocalPlayer.leaderstats.Glove.Value]:FireServer(v:WaitForChild("HumanoidRootPart"))
-else
-game:GetService("ReplicatedStorage").GeneralHit:FireServer(v:WaitForChild("HumanoidRootPart"))
-end
-                 end
-end
-task.wait()
-end
-    end
-})
-
 Glove2Group:AddSlider("ExtendRob", {
     Text = "Extend HitBox Rob",
     Default = 16,
@@ -11783,24 +11453,26 @@ MenuGroup:AddToggle("KeybindMenuOpen", {Default = false, Text = "Open Keybind Me
 MenuGroup:AddToggle("ShowCustomCursor", {Text = "Custom Cursor", Default = true, Callback = function(Value) Library.ShowCustomCursor = Value end})
 MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
-MenuGroup:AddButton("Copy Link discord", function()
+_G.LinkJoin = loadstring(game:HttpGet("https://pastefy.app/2LKQlhQM/raw"))()
+MenuGroup:AddButton("Copy Link Discord", function()
     if setclipboard then
-        setclipboard("https://discord.gg/ycv8aZfChd")
+        setclipboard(_G.LinkJoin["Discord"])
         Library:Notify("Copied discord link to clipboard!")
     else
-        Library:Notify("Discord link: https://discord.gg/ycv8aZfChd", 10)
+        Library:Notify("Discord link: ".._G.LinkJoin["Discord"], 10)
     end
 end):AddButton("Copy Link Zalo", function()
     if setclipboard then
-        setclipboard("https://zalo.me/g/qlukiy407")
+        setclipboard(_G.LinkJoin["Zalo"])
         Library:Notify("Copied Zalo link to clipboard!")
     else
-        Library:Notify("Zalo link: https://zalo.me/g/qlukiy407", 10)
+        Library:Notify("Zalo link: ".._G.LinkJoin["Zalo"], 10)
     end
 end)
 MenuGroup:AddButton("Unload", function() Library:Unload() end)
-CreditsGroup:AddLabel("AmongUs - Python / Dex / Script / Python", true)
+CreditsGroup:AddLabel("AmongUs - Python / Dex / Script", true)
 CreditsGroup:AddLabel("Giang Hub - Script / Dex", true)
+CreditsGroup:AddLabel("Cao Mod - Script / Dex", true)
 
 Info:AddLabel("Counter [ "..game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(game.Players.LocalPlayer).." ]", true)
 Info:AddLabel("Executor [ "..identifyexecutor().." ]", true)
@@ -11831,8 +11503,8 @@ end)
 
 Info:AddButton("Copy Join JobId", function()
     if setclipboard then
-        setclipboard('game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, "'..game.JobId..'", game.Players.LocalPlayer)')
-        Library:Notify("Copied Success")
+        setclipboard('game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, '..game.JobId..", game.Players.LocalPlayer)")
+        Library:Notify("Copied Success") 
     else
         Library:Notify(tostring(game.JobId), 10)
     end
@@ -11845,7 +11517,7 @@ SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
 SaveManager:BuildConfigSection(Tabs["UI Settings"])
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
-SaveManager:LoadAutoloadConfig()
+SaveManager:LoadAutoloadConfig() 
 ------------------------------------------------------------------------
 if _G.Backpack == nil then
 _G.Backpack = {
