@@ -1525,6 +1525,29 @@ end
     end
 })
 
+v2 = require(game:GetService("ReplicatedStorage").Shared.Remotes)
+Misc1Group:AddToggle("Banjo", {
+    Text = "Auto Banjo Heal",
+    Default = false, 
+    Tooltip = "Class Music",
+    Callback = function(Value) 
+_G.BanjoHeal = Value
+while _G.BanjoHeal do
+for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+if v.Name == "Banjo" then
+v.Parent = game.Players.LocalPlayer.Character
+end
+end
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+if v.Name == "Banjo" then
+v2.Events.PlayBanjo:FireServer(v, 1)
+end
+end
+task.wait()
+end
+    end
+})
+
 Misc1Group:AddToggle("NotificationUnicorn", {
     Text = "Notification Unicorn",
     Default = false, 
@@ -1811,24 +1834,29 @@ _G.ModsAntilag = {
 	GunAura = {},
 	Aimbot = {},
 	Camlock = {},
-	Hitbox = {}
+	Hitbox = {},
+	EatHeal = {}
 }
-for i, v in ipairs(workspace:GetDescendants()) do
+function Checkmods(v)
 	if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 	    if v.Humanoid.Health > 0 then
 			for i, v1 in pairs(_G.ModsAntilag) do
+				if i ~= "EatHeal" then
 		        table.insert(_G.ModsAntilag[i], v)
+				end
 			end
+		elseif v.Humanoid.Health <= 0 then
+			table.insert(_G.ModsAntilag["EatHeal"], v)
 		end
 	end
 end
+
+for i, v in ipairs(workspace:GetDescendants()) do
+	Checkmods(v)
+end
 workspace.DescendantAdded:Connect(function(v)
-	if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
-	    if v.Humanoid.Health > 0 then
-			for i, v1 in pairs(_G.ModsAntilag) do
-		        table.insert(_G.ModsAntilag[i], v)
-			end
-		end
+	if v:IsA("Model") then 
+		Checkmods(v)
 	end
 end)
 
@@ -1997,15 +2025,28 @@ end
     end
 })
 
-Misc2Group:AddSlider("FovAimbot", {
-    Text = "Fov Aimbot",
-    Default = 65,
-    Min = 10,
-    Max = 250,
-    Rounding = 0,
-    Compact = false,
-    Callback = function(Value)
-_G.FovAimbot = Value
+Misc2Group:AddToggle("Eat Mods", {
+    Text = "Eat Mods",
+    Default = false,
+    Tooltip = "Class Zombie",
+    Callback = function(Value) 
+_G.EatMods = Value
+while _G.EatMods do
+for i, v in pairs(_G.ModsAntilag.EatHeal) do
+if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(v) then
+if v.Humanoid.Health <= 0 and 8 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude then
+for i, s in pairs(v.HumanoidRootPart:GetChildren()) do
+if s:IsA("ProximityPrompt") then
+if fireproximityprompt then
+fireproximityprompt(s)
+end
+end
+end
+end
+end
+end
+task.wait()
+end
     end
 })
 
@@ -2023,26 +2064,13 @@ Misc2Group:AddToggle("Aimbot Mods", {
     Callback = function(Value) 
 _G.AimbotMods = Value
 while _G.AimbotMods do
-if not FOVring then
-FOVring = Drawing.new("Circle")
-FOVring.Visible = true
-FOVring.Thickness = 1.5
-FOVring.Radius = 50
-FOVring.Transparency = 0.1
-FOVring.Color = Color3.fromRGB(255, 128, 128)
-FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
-end
-if FOVring then
-FOVring.Visible = true
-FOVring.Radius = _G.FovAimbot or 50
-end
 local DistanceMath, ModsTarget = math.huge, nil
 for i, v in pairs(_G.ModsAntilag.Aimbot) do
 if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") and not game.Players:GetPlayerFromCharacter(v) then
 if not CheckWall(v:FindFirstChild("Head"), v) then 
 	continue
 end
-Distance = (v.Head.Position - Ray.new(workspace.CurrentCamera.CFrame.Position, workspace.CurrentCamera.CFrame.LookVector).Unit:ClosestPoint(v.Head.Position)).Magnitude
+local Distance = (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - v.HumanoidRootPart.Position).Magnitude
 if Distance < DistanceMath then
 if not Options.NoMods.Value["Horse"] or (not v.Name:find("Horse") and not v.Name:find("Unicorn")) then
 if not Options.NoMods.Value["Wolf"] or not v.Name:find("Wolf") then
@@ -2072,10 +2100,7 @@ if v:FindFirstChild("HumanoidRootPart") == nil or (v:FindFirstChild("Humanoid") 
 end
 end
 if ModsTarget then
-local Point = workspace.CurrentCamera:WorldToScreenPoint(ModsTarget.Position)
-if (Vector2.new(Point.X, Point.Y) - workspace.CurrentCamera.ViewportSize / 2).Magnitude < _G.FovAimbot then
 game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (ModsTarget.Position - game.Workspace.CurrentCamera.CFrame.Position).unit)
-end
 else
 if game.CoreGui:FindFirstChild("Gun Health Track").Enabled == true then
 game.CoreGui["Gun Health Track"].Enabled = false
@@ -2281,19 +2306,20 @@ MenuGroup:AddToggle("KeybindMenuOpen", {Default = false, Text = "Open Keybind Me
 MenuGroup:AddToggle("ShowCustomCursor", {Text = "Custom Cursor", Default = true, Callback = function(Value) Library.ShowCustomCursor = Value end})
 MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
-MenuGroup:AddButton("Copy Link discord", function()
+_G.LinkJoin = loadstring(game:HttpGet("https://pastefy.app/2LKQlhQM/raw"))()
+MenuGroup:AddButton("Copy Link Discord", function()
     if setclipboard then
-        setclipboard("https://discord.gg/ycv8aZfChd")
+        setclipboard(_G.LinkJoin["Discord"])
         Library:Notify("Copied discord link to clipboard!")
     else
-        Library:Notify("Discord link: https://discord.gg/ycv8aZfChd", 10)
+        Library:Notify("Discord link: ".._G.LinkJoin["Discord"], 10)
     end
 end):AddButton("Copy Link Zalo", function()
     if setclipboard then
-        setclipboard("https://zalo.me/g/qlukiy407")
+        setclipboard(_G.LinkJoin["Zalo"])
         Library:Notify("Copied Zalo link to clipboard!")
     else
-        Library:Notify("Zalo link: https://zalo.me/g/qlukiy407", 10)
+        Library:Notify("Zalo link: ".._G.LinkJoin["Zalo"], 10)
     end
 end)
 MenuGroup:AddButton("Unload", function() Library:Unload() end)
@@ -2331,7 +2357,7 @@ end)
 Info:AddButton("Copy Join JobId", function()
     if setclipboard then
         setclipboard('game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, '..game.JobId..", game.Players.LocalPlayer)")
-        Library:Notify("Copied Success")
+        Library:Notify("Copied Success") 
     else
         Library:Notify(tostring(game.JobId), 10)
     end
