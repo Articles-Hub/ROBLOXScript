@@ -25,6 +25,73 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler:Destroy()
 end
 end
 end
+if game.CoreGui:FindFirstChild("Gui Track") == nil then
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "Gui Track"
+gui.Enabled = false
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0.2, 0, 0.1, 0)
+Frame.Position = UDim2.new(0.02, 0, 0.87, 0)
+Frame.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame.BorderColor3 = Color3.new(0, 0, 0)
+Frame.BorderSizePixel = 1
+Frame.Active = true
+Frame.BackgroundTransparency = 0 
+Frame.Parent = gui
+
+local UICorner = Instance.new("UIStroke")
+UICorner.Color = Color3.new(0, 0, 0)
+UICorner.Thickness = 2.5
+UICorner.Parent = Frame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = Frame
+
+local Frame1 = Instance.new("Frame")
+Frame1.Size = UDim2.new(1, 0, 1, 0)
+Frame1.Position = UDim2.new(0, 0, 0, 0)
+Frame1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Frame1.BorderColor3 = Color3.new(0, 0, 0)
+Frame1.BorderSizePixel = 1
+Frame1.Active = true
+Frame1.BackgroundTransparency = 0.3
+Frame1.Parent = Frame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = Frame1
+
+local Frame2 = Instance.new("Frame")
+Frame2.Name = "Frame1"
+Frame2.Size = UDim2.new(1, 0, 1, 0)
+Frame2.Position = UDim2.new(0, 0, 0, 0)
+Frame2.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+Frame2.BorderColor3 = Color3.new(0, 0, 0)
+Frame2.BorderSizePixel = 1
+Frame2.Active = true
+Frame2.BackgroundTransparency = 0.15
+Frame2.Parent = Frame1
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = Frame2
+
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Size = UDim2.new(1, 0, 1, 0)
+TextLabel.Position = UDim2.new(0, 0, 0, 0)
+TextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+TextLabel.BorderColor3 = Color3.new(0, 0, 0)
+TextLabel.BorderSizePixel = 1
+TextLabel.Text = ""
+TextLabel.TextSize = 15
+TextLabel.BackgroundTransparency = 1
+TextLabel.TextColor3 = Color3.new(0, 0, 0)
+TextLabel.Font = Enum.Font.Code
+TextLabel.TextWrapped = true
+TextLabel.Parent = Frame
+end
 if game.PlaceId == 6403373529 or game.PlaceId == 9015014224 or game.PlaceId == 11520107397 or game.PlaceId == 124596094333302 then
 if game.ReplicatedStorage:FindFirstChild("AdminGUI") then
 	game.ReplicatedStorage.AdminGUI:Destroy()
@@ -3147,6 +3214,193 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
+Badge3Group:AddDropdown("Tycoon Mastery", {
+    Text = "Tycoon Mastery",
+    Values = {"15k Point Die", "Defense Tycoon (Walk)", "Defense Tycoon (TP)", "Kill Player (Tycoon God)"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.TycoonMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Tycoon Mastery", {
+    Text = "Auto Tycoon Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoTycoonMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Tycoon" then
+while _G.AutoTycoonMastery do
+if _G.TycoonMastery == "15k Point Die" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") < 15000 then
+for _,v in pairs(game.Workspace:GetChildren()) do
+if v.Name:match(game.Players.LocalPlayer.Name) then
+for i,x in pairs(v:GetChildren()) do
+if x.Name == "TycoonDrop" then
+x.CFrame = v.End.CFrame
+end
+end
+if v:FindFirstChild("Click") then
+fireclickdetector(v.Click.ClickDetector, 0)
+fireclickdetector(v.Click.ClickDetector, 1)
+end
+end
+end
+if game.CoreGui:FindFirstChild("Gui Track").Enabled == false then
+game.CoreGui["Gui Track"].Enabled = true
+elseif game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
+game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Tycoon Your Point\n"..game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount").." / 15000"
+game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount") / 15000, 0, 1, 0)
+end
+elseif game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) == nil then
+game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(CFrame.new(17894, -26.257728576660156, -3579.11279296875, 0.9996822476387024, -1.1041408759515647e-10, 0.02520809881389141, 2.8899729831444176e-10, 1, -7.080715569429685e-09, -0.02520809881389141, 7.085750652890965e-09, 0.9996822476387024))
+spawn(function()
+repeat task.wait()
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+until (game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") >= 15000) or (game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0)
+end)
+wait(1)
+end
+if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") >= 15000 then
+if game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
+game.CoreGui["Gui Track"].Enabled = false
+game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Nah"
+game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
+end
+repeat task.wait()
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
+until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+end
+end
+elseif _G.TycoonMastery:match("Defense Tycoon") then
+if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) then
+local Target = nil
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+if (v.Character.HumanoidRootPart.Position - game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):FindFirstChild("End").Position).Magnitude < 30 then
+Target = v.Character
+end
+if _G.TycoonMastery == "Defense Tycoon (Walk)" then
+if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):FindFirstChild("End").Position).Magnitude > 45 then
+local DstancePlayer = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+if DstancePlayer < 75 then
+Target = v.Character
+end
+end
+end
+end
+end
+end
+end
+if Target then
+if _G.TycoonMastery == "Defense Tycoon (Walk)" then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+if v:IsA("Tool") and v:FindFirstChild("Glove") then
+if (v:FindFirstChild("Glove").Position - Target.HumanoidRootPart.Position).Magnitude <= 5 then
+game:GetService("VirtualUser"):ClickButton1(Vector2.new(200, 200))
+else
+game.Players.LocalPlayer.Character.Humanoid:MoveTo(Target.HumanoidRootPart.Position)
+end
+end
+end
+end
+elseif _G.TycoonMastery == "Defense Tycoon (TP)" then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(Target.HumanoidRootPart.CFrame)
+wait(0.3)
+for i = 1, 1000 do
+gloveHits["All"]:FireServer(Target.HumanoidRootPart)
+end
+end
+else
+if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):FindFirstChild("End") then
+if _G.TycoonMastery == "Defense Tycoon (Walk)" then
+game.Players.LocalPlayer.Character.Humanoid:MoveTo(game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):FindFirstChild("End").Position)
+elseif _G.TycoonMastery == "Defense Tycoon (TP)" then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):FindFirstChild("End").CFrame)
+end
+end
+end
+end
+elseif _G.TycoonMastery == "Kill Player (Tycoon God)" then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") < 5000 then
+for _,v in pairs(game.Workspace:GetChildren()) do
+if v.Name:match(game.Players.LocalPlayer.Name) then
+for i,x in pairs(v:GetChildren()) do
+if x.Name == "TycoonDrop" then
+x.CFrame = v.End.CFrame
+end
+end
+if v:FindFirstChild("Click") then
+fireclickdetector(v.Click.ClickDetector, 0)
+fireclickdetector(v.Click.ClickDetector, 1)
+end
+end
+end
+if game.CoreGui:FindFirstChild("Gui Track").Enabled == false then
+game.CoreGui["Gui Track"].Enabled = true
+elseif game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
+game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Tycoon Your Point\n"..game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount").." / 5000"
+game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount") / 5000, 0, 1, 0)
+end
+elseif game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) == nil then
+game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(CFrame.new(17894, -26.257728576660156, -3579.11279296875, 0.9996822476387024, -1.1041408759515647e-10, 0.02520809881389141, 2.8899729831444176e-10, 1, -7.080715569429685e-09, -0.02520809881389141, 7.085750652890965e-09, 0.9996822476387024))
+spawn(function()
+repeat task.wait()
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+until (game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") >= 5000) or (game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0)
+end)
+wait(1)
+end
+if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") >= 5000 then
+if game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
+game.CoreGui["Gui Track"].Enabled = false
+game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Nah"
+game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(v.Character:FindFirstChild("HumanoidRootPart").CFrame)
+repeat task.wait() until _G.AutoTycoonMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 6
+wait(0.35)
+gloveHits["All"]:FireServer(v.Character:FindFirstChild("HumanoidRootPart"))
+wait(0.05)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+task.wait(7)
+end
+end
+end
+end
+end
+end
+end
+end
+end
+end
+task.wait()
+end
+if game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
+game.CoreGui["Gui Track"].Enabled = false
+game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Nah"
+game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
+end
+elseif Value == true then
+Notification("You don't have Tycoon equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Tycoon Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Phase Mastery", {
     Text = "Phase Mastery",
     Values = {"200 Second Island", "Slap + Ability", "Ability + Slap (2 Sec)"},
@@ -3651,24 +3905,60 @@ end
 end
 end
 elseif _G.RobMastery == "Get Kill" then
-repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-repeat task.wait() 
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+wait(0.5)
+repeat task.wait() until game.Players.LocalPlayer.Character
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.8)
+game:GetService("ReplicatedStorage").Duplicate:FireServer(true)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.05)
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+fireclickdetector(workspace.Lobby.rob.ClickDetector)
+wait(0.3)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
 firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
 firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
 end
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
-end
+wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.25)
 game:GetService("ReplicatedStorage").rob:FireServer()
 for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
 if v.Name == "whiteframe" then
 v:Destroy()
 end
 end
-until _G.AutoRobMastery == false or game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health > 0 and game.Players.LocalPlayer.Character:FindFirstChild("Head").Transparency == 1
-game:GetService("ReplicatedStorage").Events.rob_r:FireServer("throw", {["victim"] = game:GetService("Players").LocalPlayer, ["cf"] = workspace["SafeBox"].CFrame})
+repeat task.wait() until _G.AutoRobMastery == false or game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health > 0 and game.Players.LocalPlayer.Character:FindFirstChild("Head").Transparency == 1
+wait(0.2)
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+if v:FindFirstChild("HumanoidRootPart") then
+v:FindFirstChild("HumanoidRootPart").CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+end
+until _G.AutoRobMastery == false or v:FindFirstChild("HumanoidRootPart") == nil
+end
+end
+task.wait(0.1)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+if _G.WormholeMastery == true then
+fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+else
+fireclickdetector(workspace.Lobby.rob.ClickDetector)
+end
 end
 end
 task.wait()
@@ -11742,6 +12032,8 @@ end)
 end)
 ------------------------------------------------------------------------
 gloveHits = {
+	["All"] = game.ReplicatedStorage.GeneralHit,
+	------------------------------------------------------------------------
     ["Default"] = game.ReplicatedStorage.b,
     ["Extended"] = game.ReplicatedStorage.b,
     ------------------------------------------------------------------------
