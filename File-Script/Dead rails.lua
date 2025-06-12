@@ -1666,28 +1666,45 @@ end
     end
 })
 
-Misc1Group:AddToggle("NotificationSterling", {
-    Text = "Notification Sterling",
+Misc1Group:AddDropdown("Spawn Notification", {
+    Text = "Spawn Notification",
+    Values = {"Sterling", "Tesla", "Stillwater Prison", "Fort Constitution"},
+    Default = "",
+    Multi = true
+})
+
+function NotifySpawn(v)
+if Options["Spawn Notification"].Value["Sterling"] and v.Name == "Sterling" then
+Notification("Spawn Sterling", 7)
+end
+if Options["Spawn Notification"].Value["Tesla"] and v.Name == "TeslaLab" then
+if v:FindFirstChild("ExperimentTable") then
+Notification("Spawn TeslaLab", 7)
+end
+end
+if Options["Spawn Notification"].Value["Stillwater Prison"] and v.Name == "StillwaterPrison" then
+Notification("Spawn Stillwater Prison", 7)
+end
+if Options["Spawn Notification"].Value["Fort Constitution"] and v.Name == "FortConstitution" then
+Notification("Spawn Fort Constitution", 7)
+end
+end
+Misc1Group:AddToggle("NotificationSpawn", {
+    Text = "Notification Spawn",
     Default = false, 
     Callback = function(Value) 
-_G.NotificationSterling = Value
-if _G.NotificationSterling == false then
-if NotificationSterlingGet then
-NotificationSterlingGet:Disconnect()
-NotificationSterlingGet = nil
+_G.NotificationSpawn = Value
+if _G.NotificationSpawn == false then
+if NotificationSpawnGet then
+NotificationSpawnGet:Disconnect()
+NotificationSpawnGet = nil
 end
-elseif _G.NotificationSterling == true then
-spawn(function()
+elseif _G.NotificationSpawn == true then
 for i, v in pairs(workspace:GetChildren()) do
-if v.Name == "Sterling" then
-Notification("Spawn Sterling", 7)
+NotifySpawn(v)
 end
-end
-end)
-NotificationSterlingGet = workspace.ChildAdded:Connect(function(v)
-if v.Name == "Sterling" then
-Notification("Spawn Sterling", 7)
-end
+NotificationSpawnGet = workspace.ChildAdded:Connect(function(v)
+NotifySpawn(v)
 end)
 end
     end
@@ -1842,7 +1859,7 @@ function Checkmods(v)
 	    if v.Humanoid.Health > 0 then
 			for i, v1 in pairs(_G.ModsAntilag) do
 				if i ~= "EatHeal" then
-		        table.insert(_G.ModsAntilag[i], v)
+			        table.insert(_G.ModsAntilag[i], v)
 				end
 			end
 		elseif v.Humanoid.Health <= 0 then
@@ -1850,7 +1867,6 @@ function Checkmods(v)
 		end
 	end
 end
-
 for i, v in ipairs(workspace:GetDescendants()) do
 	Checkmods(v)
 end
@@ -1902,7 +1918,7 @@ end
 end
 if ModsTargetShotHead and ModsTargetShotHumanoid then
 _G.ModsShotgun = {}
-ShotNow = {14, 8, 2, 5, 11, 17}
+ShotNow = {14, 8, 2, 5, 11, 17
 if _G.GunAuraKillSkib == "Fast" then
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
         if v:FindFirstChild("ClientWeaponState") and v.ClientWeaponState:FindFirstChild("CurrentAmmo") then
