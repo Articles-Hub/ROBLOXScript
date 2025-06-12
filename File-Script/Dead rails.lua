@@ -1918,7 +1918,7 @@ end
 end
 if ModsTargetShotHead and ModsTargetShotHumanoid then
 _G.ModsShotgun = {}
-ShotNow = {14, 8, 2, 5, 11, 17
+ShotNow = {14, 8, 2, 5, 11, 17}
 if _G.GunAuraKillSkib == "Fast" then
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
         if v:FindFirstChild("ClientWeaponState") and v.ClientWeaponState:FindFirstChild("CurrentAmmo") then
