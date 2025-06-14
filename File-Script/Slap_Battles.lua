@@ -11753,7 +11753,7 @@ if game.Workspace:FindFirstChild("Rig") and game.Workspace.Rig:FindFirstChild("H
 if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
 game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
 elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-if game.Workspace:FindFirstChild("GuideNPC") and game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
+if game.Workspace:FindFirstChild("Rig") and game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
 game.Players.LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
 if game.Players.LocalPlayer.Character:FindFirstChild("Lantern") and game.Players.LocalPlayer.Character.Lantern:FindFirstChild("Network") then
 game:GetService("Players").LocalPlayer.Character.Lantern.Network:FireServer("Hit", game.Workspace.Rig:FindFirstChild("HumanoidRootPart"))
