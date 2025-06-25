@@ -1778,9 +1778,8 @@ _G.AntiBob = Value
 while _G.AntiBob do
 for i, v in pairs(game.Workspace:GetChildren()) do
 if string.find(v.Name, "ÅBOB_") and v:FindFirstChild("Target") and v.Target.Value == game.Players.LocalPlayer.Name then
-if v:FindFirstChild("HumanoidRootPart") then
-v:FindFirstChild("HumanoidRootPart").CFrame = game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].Part.CFrame
-end
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].Part.CFrame * CFrame.new(0,30,0)
+Toggles["Anti COD"]:SetValue(true)
 end
 end
 task.wait()
@@ -2626,6 +2625,7 @@ if game.Workspace:FindFirstChild("TreasureChestFolder") and game.Workspace.Treas
 game.Workspace.TreasureChestFolder.TreasureChest.OpenRemote:FireServer()
 end
 game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.2)
 repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
 wait(0.2)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom.BountyHunterBooth._configPart.CFrame * CFrame.new(-5,0,0)
@@ -2868,6 +2868,73 @@ end
 Badge2Group:AddButton({
     Text = "Join Map Slenderman",
     Func = function()
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Balloon" and CheckUnlockGlove("Pocket").Value == true then
+if workspace:FindFirstChild("TapeRecorder") and workspace.TapeRecorder:FindFirstChild("Front") then
+if workspace.TapeRecorder:FindFirstChild("PowerButton").Color ~= Color3.fromRGB(0, 255, 0) then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.TapeRecorder:FindFirstChild("PowerButton").CFrame * CFrame.new(0, 0, -5)
+wait(0.5)
+if fireproximityprompt then
+fireproximityprompt(workspace.TapeRecorder.Front:FindFirstChild("ProximityPrompt"))
+end
+repeat task.wait() until workspace.TapeRecorder:FindFirstChild("PowerButton").Color == Color3.fromRGB(255, 0, 0)
+end
+_G.Code = {}
+local Soon = {}
+repeat task.wait()
+if workspace.TapeRecorder:FindFirstChild("PowerButton").Color == Color3.fromRGB(0, 255, 0) then
+	for i, v in pairs(workspace.TapeRecorder.Front:FindFirstChild("DigitsSFX"):GetChildren()) do
+		if v:IsA("Sound") and v.Playing then
+			if not Soon[v.Name] then
+				table.insert(_G.Code, v.Name)
+				Soon[v.Name] = true
+			end
+		end
+	end
+end
+until workspace.TapeRecorder:FindFirstChild("PowerButton").Color == Color3.fromRGB(255, 0, 0)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.3)
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
+end
+wait(0.13)
+if fireclickdetector then
+fireclickdetector(workspace.Lobby["Pocket"].ClickDetector)
+end
+wait(0.2)
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer(workspace.Arena.CannonIsland.Cannon.Base.CFrame * CFrame.new(0,0,35))
+wait(0.2)
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.3)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Arena.CannonIsland.Cannon.Base.CFrame * CFrame.new(0,0,35)
+---- Step 2 Join Room
+wait(5)
+if game.Workspace:FindFirstChild("RoomsFolder") then
+for i,v in pairs(game.Workspace.RoomsFolder:GetChildren()) do
+if v.Name == (game.Players.LocalPlayer.Name.."'s Room") and v:FindFirstChild("PocketKeypad") then
+fireclickdetector(v.PocketKeypad.Buttons:FindFirstChild("Reset").ClickDetector)
+wait(0.2)
+for d, f in pairs(_G.Code) do
+fireclickdetector(v.PocketKeypad.Buttons:FindFirstChild(f).ClickDetector)
+wait(0.1)
+end
+task.wait(0.15)
+fireclickdetector(v.PocketKeypad.Buttons:FindFirstChild("Enter").ClickDetector)
+end
+end
+end
+wait(0.3)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.3)
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
+wait(0.3)
+----- Click
+repeat task.wait() until workspace:FindFirstChild("BountyHunterRoom") and workspace.BountyHunterRoom:FindFirstChild("BountyHunterLever") and workspace.BountyHunterRoom.BountyHunterLever:FindFirstChild("Root")
+wait(0.15)
 if workspace:FindFirstChild("BountyHunterRoom") and workspace.BountyHunterRoom:FindFirstChild("BountyHunterLever") then
 if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 if workspace:FindFirstChild("BountyHunterRoom") and workspace.BountyHunterRoom:FindFirstChild("BountyHunterLever") and workspace.BountyHunterRoom.BountyHunterLever:FindFirstChild("Root") then
@@ -2884,8 +2951,9 @@ fireclickdetector(workspace.Lobby["Clothesline Model"].Part:FindFirstChild("Clic
 end
 end
 end
+end
 else
-Notification("You don't have completed quest hitman", _G.TimeNotify)
+Notification("You don't have Balloon or not owner glove Pocket", _G.TimeNotify)
 end
     end
 })
@@ -3233,6 +3301,119 @@ end
 })
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
+
+Badge3Group:AddDropdown("Defense Mastery", {
+    Text = "Defense Mastery",
+    Values = {"Slap 20 Player", "Slap Player From Cude (Walk)", "Slap Player From Cude (TP)", "Cude Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.DefenseMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Defense Mastery", {
+    Text = "Auto Defense Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoDefenseMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Defense" then
+while _G.AutoDefenseMastery do
+if _G.DefenseMastery == "Slap 20 Player" then
+local Target, Huge = nil, math.huge
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+if (v.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < Huge then
+Target = v.Character
+end
+end
+end
+end
+end
+if Target then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(Target.HumanoidRootPart.CFrame)
+task.wait(0.3)
+gloveHits["Defense"]:FireServer(Target.HumanoidRootPart)
+wait(0.25)
+end
+elseif _G.DefenseMastery:match("Slap Player From Cude") then
+local Target = nil
+if game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."ÅBarrier") then
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+if (v.Character.HumanoidRootPart.Position - game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."ÅBarrier").Position).Magnitude < 20 then
+Target = v.Character
+end
+end
+end
+end
+end
+end
+if Target then
+if _G.DefenseMastery == "Slap Player From Cude (TP)" then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(Target.HumanoidRootPart.CFrame)
+wait(0.3)
+gloveHits["Defense"]:FireServer(Target.HumanoidRootPart)
+wait(0.3)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."ÅBarrier").CFrame)
+elseif _G.DefenseMastery == "Slap Player From Cude (Walk)" then
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+if v:IsA("Tool") and v:FindFirstChild("Glove") then
+if (v:FindFirstChild("Glove").Position - Target.HumanoidRootPart.Position).Magnitude <= 5 then
+game:GetService("VirtualUser"):ClickButton1(Vector2.new(200, 200))
+else
+game.Players.LocalPlayer.Character.Humanoid:MoveTo(Target.HumanoidRootPart.Position)
+end
+end
+end
+end
+end
+else
+if game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."ÅBarrier") then
+if _G.DefenseMastery == "Slap Player From Cude (TP)" then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."ÅBarrier").CFrame)
+elseif _G.DefenseMastery == "Slap Player From Cude (Walk)" then
+game.Players.LocalPlayer.Character.Humanoid:MoveTo(game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."ÅBarrier").Position)
+end
+end
+end
+elseif _G.DefenseMastery == "Cude Player" then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(v.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+repeat task.wait() until _G.AutoDefenseMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 6
+wait(0.22)
+game:GetService("ReplicatedStorage").Barrier:FireServer(1)
+wait(0.05)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
+task.wait(3.5)
+end
+end
+end
+end
+end
+end
+end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Defense equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Defense Mastery"]:SetValue(false)
+end
+    end
+})
 
 Badge3Group:AddDropdown("Tycoon Mastery", {
     Text = "Tycoon Mastery",
@@ -3968,7 +4149,7 @@ repeat task.wait()
 if v:FindFirstChild("HumanoidRootPart") then
 v:FindFirstChild("HumanoidRootPart").CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 end
-until _G.AutoRobMastery == false or v:FindFirstChild("HumanoidRootPart") == nil
+until _G.AutoRobMastery == false or v:FindFirstChild("HumanoidRootPart").Transparency == 1
 end
 end
 task.wait(0.1)
@@ -5910,6 +6091,9 @@ for i, v in pairs(GuiEmote.Emotes.Frame:FindFirstChild("Buttons"):GetChildren())
 				        end
 				    end
 				task.wait()
+				if v.Text:match("LAUGH") then
+					game:GetService("ReplicatedStorage").AnimationSound:FireServer("LAUGH")
+				end
 				Anims[v.Text]:Play()
 				game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
 				    if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
@@ -6588,7 +6772,6 @@ end
 
 local Misc2Esp = TabBoxMisc1:AddTab("Esp") 
 
-_G.ColorESP = Color3.new(255,255,255)
 Misc2Esp:AddToggle("Esp Glove", {
     Text = "Esp Glove",
     Default = false, 
@@ -6599,48 +6782,23 @@ for i, v in ipairs(game.Players:GetChildren()) do
 if v.Character:FindFirstChild("Head") and v.Character.Head:FindFirstChild("GloveEsp") then
 v.Character.Head.GloveEsp:Destroy()
 end
-if v.Character and v.Character:FindFirstChild(v.Name) then
-v.Character[v.Name]:Destroy()
-end
-for i,f in pairs(game.Workspace:GetChildren()) do
-if f.Name == (v.Name.."_Body") then
-if f:FindFirstChild("HumanoidRootPart") and f.HumanoidRootPart:FindFirstChild("BodyGloveEsp") then
-f.HumanoidRootPart.BodyGloveEsp:Destroy()
-if f:FindFirstChild("HumanoidRootPart") and f.HumanoidRootPart:FindFirstChild("EspBoxBody") then
-f.HumanoidRootPart.EspBoxBody:Destroy()
-end
-end
-end
-end
-for i,t in pairs(game.Workspace:GetChildren()) do
-if t.Name == (v.Name.."_Ghost") then
-if t:FindFirstChild("RootPart") and t.RootPart:FindFirstChild("GhostGloveEsp") then
-t.RootPart.GhostGloveEsp:Destroy()
-if t:FindFirstChild("RootPart") and t.RootPart:FindFirstChild("EspBoxGhost") then
-t.RootPart.EspBoxGhost:Destroy()
-end
-end
-end
+if v.Character and v.Character:FindFirstChild("Highlight") then
+v.Character.Highlight:Destroy()
 end
 end
 end
 while _G.GloveESP do
 for i,v in ipairs(game.Players:GetChildren()) do
 if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-if v.Character.Head:FindFirstChild("GloveEsp") and v.Character.Head.GloveEsp:FindFirstChild("TextLabel") and v.Character.Head.GloveEsp.TextLabel.TextColor3 ~= _G.ColorESP then
-v.Character.Head.GloveEsp.TextLabel.TextColor3 = _G.ColorESP
-end
 if v.Character.Head:FindFirstChild("GloveEsp") and v.Character.Head.GloveEsp:FindFirstChild("TextLabel") then
+v.Character.Head.GloveEsp.TextLabel.TextSize = _G.TextSize or 10
+v.Character.Head.GloveEsp.TextLabel.TextColor3 = _G.ColorESP or Color3.new(255,255,255)
 v.Character.Head.GloveEsp.TextLabel.Text = 
-          (_G.GloveEsp == true and "Glove [ "..v.leaderstats.Glove.Value.." ]" or "")..
-          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude).." ]" or "")..
-          (_G.SlapEsp == true and "\nSlap [ "..v.leaderstats.Slaps.Value.." ]" or "")..
-          (_G.NameEsp == true and "\nName [ "..v.Name.." ]" or "")
+		  (_G.NameEsp == true and v.Name or "")..
+          (_G.GloveEsp == true and "\n"..v.leaderstats.Glove.Value or "")..(_G.SlapEsp == true and " (👏"..v.leaderstats.Slaps.Value..")" or "")..
+          (_G.DistanceEsp == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude).." ]" or "")
 end
-if game.Workspace:FindFirstChild(v.Name.."_Body") and v.Character.Head:FindFirstChild("GloveEsp") then
-v.Character.Head.GloveEsp:Destroy()
-end
-if game.Workspace:FindFirstChild(v.Name.."_Body") == nil and v.Character.Head:FindFirstChild("GloveEsp") == nil then
+if v.Character.Head:FindFirstChild("GloveEsp") == nil then
 GloveEsp = Instance.new("BillboardGui", v.Character.Head)
 GloveEsp.Adornee = v.Character.Head
 GloveEsp.Name = "GloveEsp"
@@ -6651,128 +6809,26 @@ GloveEspText = Instance.new("TextLabel", GloveEsp)
 GloveEspText.BackgroundTransparency = 1
 GloveEspText.Font = Enum.Font.SourceSansBold
 GloveEspText.Size = UDim2.new(0, 100, 0, 100)
-GloveEspText.TextSize = _G.TextSize
-GloveEspText.TextColor3 = _G.ColorESP
+GloveEspText.TextSize = _G.TextSize or 10
+GloveEspText.TextColor3 = _G.ColorESP or Color3.new(255,255,255)
 GloveEspText.TextStrokeTransparency = 0.5
 GloveEspText.Text = ""
 end
 if _G.HighlightEsp == true then
-if v.Character and v.Character:FindFirstChild(v.Name) == nil then
+if v.Character and v.Character:FindFirstChild("Highlight") then
+v.Character.Highlight.FillColor = _G.ColorESP or Color3.new(255,255,255)
+end
+if v.Character and v.Character:FindFirstChild("Highlight") == nil then
 local HighlightEsp = Instance.new("Highlight", v.Character)
 HighlightEsp.Adornee = v.Character
-HighlightEsp.Name = v.Name
-HighlightEsp.OutlineTransparency = 0
+HighlightEsp.Name = "Highlight"
+HighlightEsp.OutlineTransparency = 1
 HighlightEsp.FillTransparency = 0.5
 HighlightEsp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 end
 elseif _G.HighlightEsp == false then
-if v.Character and v.Character:FindFirstChild(v.Name) then
-v.Character[v.Name]:Destroy()
-end
-end
-if _G.GhostEsp == true then
-for i,f in pairs(game.Workspace:GetChildren()) do
-if f.Name == (v.Name.."_Body") then
-if f:FindFirstChild("HumanoidRootPart") and f.HumanoidRootPart:FindFirstChild("BodyGloveEsp") and f.HumanoidRootPart.BodyGloveEsp:FindFirstChild("TextLabel") and f.HumanoidRootPart.BodyGloveEsp.TextLabel.TextColor3 ~= _G.ColorESP then
-f.HumanoidRootPart.BodyGloveEsp.TextLabel.TextColor3 = _G.ColorESP
-if f:FindFirstChild("HumanoidRootPart") and f.HumanoidRootPart:FindFirstChild("EspBoxBody") and f.HumanoidRootPart.EspBoxBody.Color3 ~= _G.ColorESP then
-f.HumanoidRootPart.EspBoxBody.Color3 = _G.ColorESP
-if _G.DistanceEsp == true and f:FindFirstChild("HumanoidRootPart") and f.HumanoidRootPart:FindFirstChild("BodyGloveEsp") and f.HumanoidRootPart.BodyGloveEsp:FindFirstChild("TextLabel") then
-f.HumanoidRootPart.BodyGloveEsp.TextLabel.Text = "Body [ "..v.Name.." ]\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - f.HumanoidRootPart.Position).Magnitude).." ]"
-elseif _G.DistanceEsp == false and f:FindFirstChild("HumanoidRootPart") and f.HumanoidRootPart:FindFirstChild("BodyGloveEsp") and f.HumanoidRootPart.BodyGloveEsp:FindFirstChild("TextLabel") and f.HumanoidRootPart.BodyGloveEsp.TextLabel.Text ~= "Body [ "..v.Name.." ]" then
-f.HumanoidRootPart.BodyGloveEsp.TextLabel.Text = "Body [ "..v.Name.." ]"
-end
-end
-end
-end
-end
-for i,t in pairs(game.Workspace:GetChildren()) do
-if t.Name == (v.Name.."_Ghost") then
-if t:FindFirstChild("RootPart") and t.RootPart:FindFirstChild("GhostGloveEsp") and t.RootPart.GhostGloveEsp:FindFirstChild("TextLabel") and t.RootPart.GhostGloveEsp.TextLabel.TextColor3 ~= _G.ColorESP then
-t.RootPart.GhostGloveEsp.TextLabel.TextColor3 = _G.ColorESP
-if t:FindFirstChild("RootPart") and t.RootPart:FindFirstChild("EspBoxGhost") and t.RootPart.EspBoxGhost.Color3 ~= _G.ColorESP then
-t.RootPart.EspBoxGhost.Color3 = _G.ColorESP
-if _G.DistanceEsp == true and t:FindFirstChild("RootPart") and t.RootPart:FindFirstChild("GhostGloveEsp") and t.RootPart.GhostGloveEsp:FindFirstChild("TextLabel") then
-t.RootPart.GhostGloveEsp.TextLabel = "Ghost [ "..v.Name.." ]\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - t.RootPart.Position).Magnitude).." ]"
-elseif _G.DistanceEsp == false and t:FindFirstChild("RootPart") and t.RootPart:FindFirstChild("GhostGloveEsp") and t.RootPart.GhostGloveEsp:FindFirstChild("TextLabel") and t.RootPart.GhostGloveEsp.TextLabel.Text ~= "Ghost [ "..v.Name.." ]" then
-t.RootPart.GhostGloveEsp.TextLabel.Text = "Ghost [ "..v.Name.." ]"
-end
-end
-end
-end
-end
-if game.Workspace:FindFirstChild(v.Name.."_Body") and game.Workspace[v.Name.."_Body"]:FindFirstChild("HumanoidRootPart") and game.Workspace[v.Name.."_Body"].HumanoidRootPart:FindFirstChild("BodyGloveEsp") == nil then
-BodyGloveEsp = Instance.new("BillboardGui", game.Workspace[v.Name.."_Body"].HumanoidRootPart)
-BodyGloveEsp.Adornee = game.Workspace[v.Name.."_Body"].HumanoidRootPart
-BodyGloveEsp.Name = "BodyGloveEsp"
-BodyGloveEsp.Size = UDim2.new(0, 100, 0, 150)
-BodyGloveEsp.AlwaysOnTop = true
-BodyGloveEsp.StudsOffset = Vector3.new(0, 3, 0)
-BodyGloveEspText = Instance.new("TextLabel", BodyGloveEsp)
-BodyGloveEspText.BackgroundTransparency = 1
-BodyGloveEspText.Size = UDim2.new(0, 100, 0, 100)
-BodyGloveEspText.TextSize = _G.TextSize
-BodyGloveEspText.Font = Enum.Font.SourceSansBold
-BodyGloveEspText.TextColor3 = _G.ColorESP
-BodyGloveEspText.TextStrokeTransparency = 0.5
-BodyGloveEspText.Text = "Body [ "..v.Name.." ]"
-if game.Workspace:FindFirstChild(v.Name.."_Body") and game.Workspace[v.Name.."_Body"]:FindFirstChild("HumanoidRootPart") and game.Workspace[v.Name.."_Body"].HumanoidRootPart:FindFirstChild("EspBoxBody") == nil then
-local EspBoxBody = Instance.new("BoxHandleAdornment", game.Workspace[v.Name.."_Body"].HumanoidRootPart)
-EspBoxBody.Name = "EspBoxBody"
-EspBoxBody.Size = game.Workspace[v.Name.."_Body"].HumanoidRootPart.Size
-EspBoxBody.Adornee = game.Workspace[v.Name.."_Body"].HumanoidRootPart
-EspBoxBody.Color3 = _G.ColorESP
-EspBoxBody.AlwaysOnTop = true
-EspBoxBody.ZIndex = 5
-EspBoxBody.Transparency = 0.5
-            end
-         end
-if game.Workspace:FindFirstChild(v.Name.."_Ghost") and game.Workspace[v.Name.."_Ghost"]:FindFirstChild("RootPart") and game.Workspace[v.Name.."_Ghost"].RootPart:FindFirstChild("GhostGloveEsp") == nil then
-GhostGloveEsp = Instance.new("BillboardGui", game.Workspace[v.Name.."_Ghost"].RootPart)
-GhostGloveEsp.Adornee = game.Workspace[v.Name.."_Ghost"].RootPart
-GhostGloveEsp.Name = "GhostGloveEsp"
-GhostGloveEsp.Size = UDim2.new(0, 100, 0, 150)
-GhostGloveEsp.AlwaysOnTop = true
-GhostGloveEsp.StudsOffset = Vector3.new(0, 3, 0)
-GhostGloveEspText = Instance.new("TextLabel", GhostGloveEsp)
-GhostGloveEspText.BackgroundTransparency = 1
-GhostGloveEspText.Size = UDim2.new(0, 100, 0, 100)
-GhostGloveEspText.TextSize = _G.TextSize
-GhostGloveEspText.Font = Enum.Font.SourceSansBold
-GhostGloveEspText.TextColor3 = _G.ColorESP
-GhostGloveEspText.TextStrokeTransparency = 0.5
-GhostGloveEspText.Text = "Ghost [ "..v.Name.." ]"
-if game.Workspace:FindFirstChild(v.Name.."_Ghost") and game.Workspace[v.Name.."_Ghost"]:FindFirstChild("RootPart") and game.Workspace[v.Name.."_Ghost"].RootPart:FindFirstChild("EspBoxGhost") == nil then
-local EspBoxGhost = Instance.new("BoxHandleAdornment", game.Workspace[v.Name.."_Ghost"].RootPart)
-EspBoxGhost.Name = "EspBoxGhost"
-EspBoxGhost.Size = game.Workspace[v.Name.."_Ghost"].RootPart.Size
-EspBoxGhost.Adornee = game.Workspace[v.Name.."_Ghost"].RootPart
-EspBoxGhost.Color3 = _G.ColorESP
-EspBoxGhost.AlwaysOnTop = true
-EspBoxGhost.ZIndex = 5
-EspBoxGhost.Transparency = 0.5
-                   end
-                end
-elseif _G.GhostEsp == false then
-for i,f in pairs(game.Workspace:GetChildren()) do
-if f.Name == (v.Name.."_Body") then
-if f:FindFirstChild("HumanoidRootPart") and f.HumanoidRootPart:FindFirstChild("BodyGloveEsp") then
-f.HumanoidRootPart.BodyGloveEsp:Destroy()
-if f:FindFirstChild("HumanoidRootPart") and f.HumanoidRootPart:FindFirstChild("EspBoxBody") then
-f.HumanoidRootPart.EspBoxBody:Destroy()
-end
-end
-end
-end
-for i,t in pairs(game.Workspace:GetChildren()) do
-if t.Name == (v.Name.."_Ghost") then
-if t:FindFirstChild("RootPart") and t.RootPart:FindFirstChild("GhostGloveEsp") then
-t.RootPart.GhostGloveEsp:Destroy()
-if t:FindFirstChild("RootPart") and t.RootPart:FindFirstChild("EspBoxGhost") then
-t.RootPart.EspBoxGhost:Destroy()
-end
-end
-end
+if v.Character and v.Character:FindFirstChild("Highlight") then
+v.Character.Highlight:Destroy()
 end
 end
 end
@@ -6828,15 +6884,6 @@ _G.NameEsp = Value
     end
 })
 
-_G.GhostEsp = false
-Misc2Esp:AddToggle("Ghost Esp", {
-    Text = "Ghost Esp",
-    Default = false, 
-    Callback = function(Value) 
-_G.GhostEsp = Value
-    end
-})
-
 _G.HighlightEsp = false
 Misc2Esp:AddToggle("Highlight Esp", {
     Text = "Highlight Esp",
@@ -6846,35 +6893,15 @@ _G.HighlightEsp = Value
     end
 })
 
-_G.TextSize = 10
 Misc2Esp:AddSlider("Size Text Esp", {
     Text = "Size Text Esp",
     Default = 10,
     Min = 10,
-    Max = 40,
+    Max = 30,
     Rounding = 0,
     Compact = true,
     Callback = function(Value)
 _G.TextSize = Value
-for i, v in ipairs(game.Players:GetChildren()) do
-if v.Character:FindFirstChild("Head") and v.Character.Head:FindFirstChild("GloveEsp") and v.Character.Head.GloveEsp:FindFirstChild("TextLabel") and v.Character.Head.GloveEsp.TextLabel.TextSize ~= Value then
-v.Character.Head.GloveEsp.TextLabel.TextSize = Value
-end
-for i,f in pairs(game.Workspace:GetChildren()) do
-if f.Name == (v.Name.."_Body") then
-if f:FindFirstChild("HumanoidRootPart") and f.HumanoidRootPart:FindFirstChild("BodyGloveEsp") and f.HumanoidRootPart.BodyGloveEsp:FindFirstChild("TextLabel") and f.HumanoidRootPart.BodyGloveEsp.TextLabel.TextSize ~= Value then
-f.HumanoidRootPart.BodyGloveEsp.TextLabel.TextSize = Value
-end
-end
-end
-for i,t in pairs(game.Workspace:GetChildren()) do
-if t.Name == (v.Name.."_Ghost") then
-if t:FindFirstChild("RootPart") and t.RootPart:FindFirstChild("GhostGloveEsp") and t.RootPart.GhostGloveEsp:FindFirstChild("TextLabel") and t.RootPart.GhostGloveEsp.TextLabel.TextSize ~= Value then
-t.RootPart.GhostGloveEsp.TextLabel.TextSize = Value
-end
-end
-end
-end
     end
 })
 
@@ -6891,6 +6918,7 @@ _G.PlayerTarget = Value
 for _, v in pairs(game.Players:GetPlayers()) do
 if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
 PlayerTa = v
+break
 end
 end
 if PlayerTa then
@@ -7233,6 +7261,7 @@ _G.PlayerTarget = Value
 for _, v in pairs(game.Players:GetPlayers()) do
 if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
 PlayerTa = v
+break
 end
 end
 if PlayerTa then
@@ -7341,6 +7370,7 @@ _G.PlayerTarget = Value
 for _, v in pairs(game.Players:GetPlayers()) do
 if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
 PlayerTa = v
+break
 end
 end
 if PlayerTa then
@@ -7503,6 +7533,7 @@ _G.PlayerTarget = Value
 for _, v in pairs(game.Players:GetPlayers()) do
 if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
 PlayerTa = v
+break
 end
 end
 if PlayerTa then
@@ -8158,9 +8189,13 @@ end
     end
 })
 
+local PotionNames = {}
+for i, v in pairs(_G.GetPotion) do
+    table.insert(PotionNames, i)
+end
 Glove2Group:AddDropdown("Potion", {
     Text = "Potion",
-    Values = {"Grug","Nightmare","Confusion","Power","Paralyzing","Haste","Invisibility","Explosion","Invincible","Toxic","Freeze","Feather","Speed","Lethal","Slow","Antitoxin","Corrupted Vine","Field","Lost"},
+    Values = PotionNames,
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -8197,6 +8232,11 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 end
 if _G.Potion2 == "Normal" then
 for i = 1, #_G.GetPotion[_G.MakePotion] do
+repeat task.wait()
+if not game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Cauldron") then
+	game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+end
+until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Cauldron")
 game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("AddItem", _G.GetPotion[_G.MakePotion][i])
 game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("MixItem", _G.GetPotion[_G.MakePotion][i])
 task.wait()
@@ -8205,11 +8245,39 @@ game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("BrewPotion")
 elseif _G.Potion2 == "Number" then
 for a = 1, _G.PotionNumber do
 for i = 1, #_G.GetPotion[_G.MakePotion] do
+repeat task.wait()
+if not game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Cauldron") then
+	game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+end
+until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Cauldron")
 game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("AddItem", _G.GetPotion[_G.MakePotion][i])
 game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("MixItem", _G.GetPotion[_G.MakePotion][i])
 end
 game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("BrewPotion")
 end
+end
+else
+Notification("You don't have Alchemist equipped", _G.TimeNotify)
+end
+end)
+
+Glove2Group:AddButton("Get All Potions", function()
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Alchemist" then
+if not game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Cauldron") then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+end
+for i, v in pairs(_G.GetPotion) do
+    for j, p in pairs(v) do
+	    repeat task.wait(0.2)
+			if not game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Cauldron") then
+				game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+			end
+		until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Cauldron")
+        game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("AddItem", p)
+        game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("MixItem", p)
+        task.wait(0.07)
+    end
+    game:GetService("ReplicatedStorage").AlchemistEvent:FireServer("BrewPotion")
 end
 else
 Notification("You don't have Alchemist equipped", _G.TimeNotify)
@@ -8254,6 +8322,7 @@ _G.PlayerTarget = Value
 for _, v in pairs(game.Players:GetPlayers()) do
 if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
 PlayerTa = v
+break
 end
 end
 if PlayerTa then
@@ -8559,6 +8628,7 @@ _G.PlayerTarget = Value
 for _, v in pairs(game.Players:GetPlayers()) do
 if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
 PlayerTa = v
+break
 end
 end
 if PlayerTa then
@@ -8692,48 +8762,6 @@ else
 Notification("You need to be in lobby and have 666+ slaps.", _G.TimeNotify)
 end
 end)
-
-Glove2Group:AddToggle("Auto Color Skin", {
-    Text = "Auto Color Skin",
-    Default = false, 
-    Callback = function(Value)
-_G.GoldColor = Value
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Golden" then
-while _G.GoldColor do
-game:GetService("ReplicatedStorage"):WaitForChild("Goldify"):FireServer(false, BrickColor.new(_G.skinColor))
-task.wait()
-end
-elseif _G.GoldColor == true then
-Notification("You don't have Golden equipped.", _G.TimeNotify)
-wait(0.05)
-Toggles["Auto Color Skin"]:SetValue(false)
-end
-    end
-}):AddColorPicker("Color Skin", {
-     Default = Color3.new(255,255,255),
-     Callback = function(Value)
-_G.skinColor = Value
-     end
-})
-
-Glove2Group:AddToggle("Auto Rainbow", {
-    Text = "Auto Rainbow",
-    Default = false, 
-    Callback = function(Value)
-_G.Rainbow = Value
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Golden" then
-while _G.Rainbow and game.Players.LocalPlayer.leaderstats.Glove.Value == "Golden" do
-local randomnumber = math.random(1004, 1032)
-game:GetService("ReplicatedStorage").Goldify:FireServer(false, BrickColor.new(randomnumber))
-task.wait(0.075)
-end
-elseif _G.Rainbow == true then
-Notification("You don't have Golden equipped.", _G.TimeNotify)
-wait(0.05)
-Toggles["Auto Rainbow"]:SetValue(false)
-end
-    end
-})
 ----// Set Toggle Anti \\-----
 game.Workspace.NoChanged.Changed:Connect(function()
 Toggles["Anti Void"]:SetValue(game.Workspace.NoChanged.Value)
