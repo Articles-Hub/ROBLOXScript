@@ -2638,7 +2638,7 @@ Badge2Group:AddButton({
     Func = function()
 if game.Players.LocalPlayer.leaderstats.Slaps.Value >= 5000 then
 for i, v in pairs(workspace.PocketDimension.Doors:GetChildren()) do
-if game.Players.LocalPlayer:FindFirstChild("_unlockedGloves") and game.Players.LocalPlayer._unlockedGloves:FindFirstChild("[REDACTED]").Value == false then
+if CheckUnlockGlove("[REDACTED]").Value == false then
 repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
 task.wait(0.3)
@@ -2653,7 +2653,7 @@ end
 Badge2Group:AddButton({
     Text = "Get Glove Tank",
     Func = function()
-if game.Players.LocalPlayer.leaderstats.Glove.Value == "Pillow" and game.Players.LocalPlayer:FindFirstChild("_unlockedGloves") and game.Players.LocalPlayer._unlockedGloves:FindFirstChild("Shotgun").Value == true and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Pillow" and CheckUnlockGlove("Shotgun").Value == true and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer(CFrame.new(260, 36, 191))
 wait(1)
 local Pillow = workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s PillowFort")
@@ -3301,6 +3301,128 @@ end
 })
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
+
+Badge3Group:AddDropdown("Car Mastery", {
+    Text = "Car Mastery",
+    Values = {"Farm Exp (Clone)", "Farm Exp (Player)", "Upgrade All"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.CarMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Car Mastery", {
+    Text = "Auto Car Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoCarMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Car Keys" then
+while _G.AutoCarMastery do
+if _G.CarMastery == "Farm Exp (Clone)" then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+wait(0.5)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.8)
+game:GetService("ReplicatedStorage").Duplicate:FireServer(true)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.05)
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+fireclickdetector(workspace.Lobby["Car Keys"].ClickDetector)
+wait(0.3)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.3)
+repeat task.wait() 
+game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+until game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") and game.Players.LocalPlayer.Character.CarKeysCar:FindFirstChild("VehicleSeat")
+wait(4)
+if game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") then
+game.Players.LocalPlayer.Character.CarKeysCar.Front:FindFirstChild("BumperHitbox").Size = Vector3.new(25, 25, 25)
+game.Players.LocalPlayer.Character.CarKeysCar.Front:FindFirstChild("BumperHitbox").CanCollide = false
+end
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+if v:FindFirstChild("HumanoidRootPart") then
+if game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") then
+v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.CarKeysCar.Front:FindFirstChild("BumperHitbox").CFrame * CFrame.new(0, 10, 0)
+game.Players.LocalPlayer.Character.CarKeysCar:FindFirstChild("VehicleSeat").CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,55,0) * CFrame.Angles(math.rad(-90), 0, 0)
+end
+end
+until v:FindFirstChild("HumanoidRootPart") == nil or _G.CarMastery == false
+end
+end
+wait(0.2)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+if _G.CarMastery == true then
+fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+else
+fireclickdetector(workspace.Lobby["Car Keys"].ClickDetector)
+end
+end
+elseif _G.CarMastery == "Farm Exp (Player)" then
+if game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") == nil then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.3)
+repeat task.wait() 
+game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+until game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") and game.Players.LocalPlayer.Character.CarKeysCar:FindFirstChild("VehicleSeat")
+wait(3)
+else
+if game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") then
+game.Players.LocalPlayer.Character.CarKeysCar.Front:FindFirstChild("BumperHitbox").Size = Vector3.new(25, 25, 25)
+game.Players.LocalPlayer.Character.CarKeysCar.Front:FindFirstChild("BumperHitbox").CanCollide = false
+for i,v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+v.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.CarKeysCar.Front:FindFirstChild("BumperHitbox").CFrame * CFrame.new(0, 10, 0)
+game.Players.LocalPlayer.Character.CarKeysCar:FindFirstChild("VehicleSeat").CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,55,0) * CFrame.Angles(math.rad(-90), 0, 0)
+end
+end
+end
+end
+end
+end
+elseif _G.CarMastery == "Upgrade All" then
+for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
+if v.Name == "CarKeysGUI" and v:FindFirstChild("CarKeysAttributes") then
+for j, b in pairs(v.CarKeysAttributes:GetChildren()) do
+if b.ClassName == "ImageLabel" then
+game:GetService("ReplicatedStorage").CarKeysUpgrade:FireServer(b.Name)
+wait(0.15)
+end
+end
+end
+end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Car Keys equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Car Mastery"]:SetValue(false)
+end
+    end
+})
 
 Badge3Group:AddDropdown("Defense Mastery", {
     Text = "Defense Mastery",
@@ -4267,8 +4389,8 @@ end
 elseif _G.CloudMastery == "Pickup Player (100 Player)" then
 local players = game.Players:GetChildren()
 local RandomPlayer = players[math.random(1, #players)]
-if _G.GetPlayerSit == RandomPlayer then
-  return RandomPlayer
+if _G.GetPlayerSit[RandomPlayer] then
+  return
 end
 if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
 if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character.Ragdolled.Value == false and RandomPlayer.Character:FindFirstChild("Mirage") == nil then
@@ -4279,8 +4401,8 @@ for i, g in pairs(game.Workspace:GetChildren()) do
                     end
                end
 until RandomPlayer.Character.Humanoid.Sit == true
-if _G.GetPlayerSit ~= RandomPlayer then
-table.insert(_G.GetPlayerSit, RandomPlayer)
+if not _G.GetPlayerSit[RandomPlayer] then
+_G.GetPlayerSit[RandomPlayer] = true
 end
 if RandomPlayer.Character.Humanoid.Sit == true then
 gloveHits["Cloud"]:FireServer(RandomPlayer.Character.HumanoidRootPart)
@@ -11749,11 +11871,14 @@ fireclickdetector(MapStuff.Glass:FindFirstChild("ClickDetector"))
 end
 end
 wait(0.5)
+repeat task.wait() 
 if MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") then
 local Value = MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text
 Notification('Please calculate Panel the number "'..MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text..'" ('..string.sub(Value, 1, 3).." = "..string.sub(Value, 4, 6)..")", 5)
 end
-repeat task.wait() until MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text == "UNLOCKED"
+until MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text == "UNLOCKED"
+wait(0.5)
+Notification("Please adjust the picture on the wall, so that it is reasonable", 5)
 repeat task.wait(1.5)
 if MapStuff:FindFirstChild("ShovelChest") and MapStuff.ShovelChest:FindFirstChild("Hitbox") then
 if fireclickdetector then
@@ -11947,7 +12072,7 @@ _G.Backpack = {
 	},
 	["New"] = {
 		["Hotbar"] = (game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position + UDim2.new(0, 0, 0, -10)),
-		["Inventory"] = UDim2.new(0.5, -100, 1, -260),
+		["Inventory"] = (game:GetService("CoreGui").RobloxGui.Backpack.Inventory.Position + UDim2.new(0, 0, 0, -10)),
 		["Backpack Number"] = {}
 	}
 }
@@ -12066,8 +12191,7 @@ task.wait()
 end
 end)
 
-for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
-if v:IsA("TextButton") then
+function BackpackV2(v)
 v.MouseEnter:Connect(function()
 if _G.BackpackV2 == true then
 local sound = Instance.new("Sound", workspace)
@@ -12092,72 +12216,30 @@ end
 end)
 v.MouseButton1Click:Connect(function()
 if _G.BackpackV2 == true then
-spawn(function()
-game:GetService("TweenService"):Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 70, 0, 70)}):Play()
-local TweenGui = game:GetService("TweenService"):Create(v, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 360})
-TweenGui:Play()
-TweenGui.Completed:Connect(function()
-v.Rotation = 0
-end)
-game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
-end)
 local sound = Instance.new("Sound", workspace)
 sound.SoundId = "rbxassetid://10066936758"
 sound.Volume = 2
 sound.PlaybackSpeed = 1
 sound.PlayOnRemove = true
 sound:Destroy()
-end
+local TweenGui = game:GetService("TweenService"):Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 70, 0, 70)})
+TweenGui:Play()
+TweenGui.Completed:Connect(function()
+game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
 end)
 end
+end)
 end
 
-spawn(function()
+for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+if v:IsA("TextButton") then
+BackpackV2(v)
+end
+end
 game:GetService("CoreGui").RobloxGui.Backpack.Inventory.ScrollingFrame.UIGridFrame.ChildAdded:Connect(function(v)
 if v:IsA("TextButton") then
-v.MouseEnter:Connect(function()
-if _G.BackpackV2 == true then
-local sound = Instance.new("Sound", workspace)
-sound.SoundId = "rbxassetid://10066942189"
-sound.Volume = 2
-sound.PlaybackSpeed = 1
-sound.PlayOnRemove = true
-sound:Destroy()
-game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 70, 0, 70)}):Play()
+BackpackV2(v)
 end
-end)
-v.MouseLeave:Connect(function()
-if _G.BackpackV2 == true then
-local sound = Instance.new("Sound", workspace)
-sound.SoundId = "rbxassetid://10066942189"
-sound.Volume = 2
-sound.PlaybackSpeed = 1
-sound.PlayOnRemove = true
-sound:Destroy()
-game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
-end
-end)
-v.MouseButton1Click:Connect(function()
-if _G.BackpackV2 == true then
-spawn(function()
-game:GetService("TweenService"):Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 70, 0, 70)}):Play()
-local TweenGui = game:GetService("TweenService"):Create(v, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 360})
-TweenGui:Play()
-TweenGui.Completed:Connect(function()
-v.Rotation = 0
-end)
-game:GetService("TweenService"):Create(v, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
-end)
-local sound = Instance.new("Sound", workspace)
-sound.SoundId = "rbxassetid://10066936758"
-sound.Volume = 2
-sound.PlaybackSpeed = 1
-sound.PlayOnRemove = true
-sound:Destroy()
-end
-end)
-end
-end)
 end)
 ------------------------------------------------------------------------
 gloveHits = {
