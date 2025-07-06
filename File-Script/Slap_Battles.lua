@@ -1105,30 +1105,10 @@ Anti2Group:AddSlider("Transparency Anti Void", {
     Default = 0.5,
     Min = 0,
     Max = 1,
-    Rounding = 0,
+    Rounding = 1,
     Compact = true,
     Callback = function(Value)
 _G.Transparency = Value
-if _G.AntiVoid == true then
-if _G.AntiVoidChoose == "Normal" then
-game.Workspace["VoidPart"].Transparency = Value
-game.Workspace["VoidPart"]["TAntiVoid"].Transparency = Value
-elseif _G.AntiVoidChoose == "Retro" then
-game.Workspace["Psycho"]["Retro1"].Transparency = Value
-game.Workspace["Psycho"]["Retro1"]["Retro2"].Transparency = Value
-game.Workspace["Psycho"]["Retro1"]["Retro3"].Transparency = Value
-elseif _G.AntiVoidChoose == "Water" then
-game.Workspace["Psycho"]["Kraken"].Transparency = Value
-elseif _G.AntiVoidChoose == "Psycho" then
-game.Workspace["Psycho"].Transparency = Value
-elseif _G.AntiVoidChoose == "Bob" then
-game.Workspace["VoidPart"]["TAntiVoid"].Transparency = Value
-game.Workspace["BobWalk1"].Transparency = Value
-for i,v in pairs(game.Workspace.BobWalk1:GetChildren()) do
-v.Transparency = _G.Transparency
-end
-end
-end
     end
 })
 
@@ -1141,13 +1121,7 @@ Anti2Group:AddDropdown("Choose Anti Void", {
     Default = "Normal",
     Multi = false,
     Callback = function(Value)
-if _G.AntiVoid == true then
-Toggles["Anti Void"]:SetValue(false)
 _G.AntiVoidChoose = Value
-Toggles["Anti Void"]:SetValue(true)
-elseif _G.AntiVoid == false then
-_G.AntiVoidChoose = Value
-end
     end
 })
 
@@ -1156,69 +1130,81 @@ Anti2Group:AddToggle("Anti Void", {
     Default = false,
     Callback = function(Value)
 _G.AntiVoid = Value
-if _G.AntiVoidChoose == "Normal" then
-game.Workspace["VoidPart"].CanCollide = Value
-game.Workspace["VoidPart"]["TAntiVoid"].CanCollide = Value
-if Value == false then
-game.Workspace["VoidPart"].Transparency = 1
-game.Workspace["VoidPart"]["TAntiVoid"].Transparency = 1
-else
-game.Workspace["VoidPart"].Transparency = _G.Transparency
-game.Workspace["VoidPart"]["TAntiVoid"].Transparency = _G.Transparency
-end
-elseif _G.AntiVoidChoose == "Retro" then
-game.Workspace["Psycho"]["Retro1"].CanCollide = Value
-game.Workspace["Psycho"]["Retro1"]["Retro2"].CanCollide = Value
-game.Workspace["Psycho"]["Retro1"]["Retro3"].CanCollide = Value
-if Value == true then
-game.Workspace["Psycho"]["Retro1"].Transparency = _G.Transparency
-game.Workspace["Psycho"]["Retro1"]["Retro2"].Transparency = _G.Transparency
-game.Workspace["Psycho"]["Retro1"]["Retro3"].Transparency = _G.Transparency
-else
-game.Workspace["Psycho"]["Retro1"].Transparency = 1
-game.Workspace["Psycho"]["Retro1"]["Retro2"].Transparency = 1
-game.Workspace["Psycho"]["Retro1"]["Retro3"].Transparency = 1
-end
-elseif _G.AntiVoidChoose == "Water" then
-game.Workspace["Psycho"]["Kraken"].CanCollide = Value
-if Value == true then
-game.Workspace["Psycho"]["Kraken"].Transparency = _G.Transparency
-else
-game.Workspace["Psycho"]["Kraken"].Transparency = 1
-end
-elseif _G.AntiVoidChoose == "Psycho" then
-game.Workspace["Psycho"].CanCollide = Value
-if Value == true then
-game.Workspace["Psycho"].Transparency = _G.Transparency
-else
-game.Workspace["Psycho"].Transparency = 1
-end
-elseif _G.AntiVoidChoose == "Bob" then
-game.Workspace["VoidPart"]["TAntiVoid"].CanCollide = Value
-game.Workspace["BobWalk1"].CanCollide = Value
-for i,v in pairs(game.Workspace.BobWalk1:GetChildren()) do
-v.CanCollide = Value
-end
-if Value == true then
-game.Workspace["VoidPart"]["TAntiVoid"].Transparency = _G.Transparency
-game.Workspace["BobWalk1"].Transparency = _G.Transparency
-for i,v in pairs(game.Workspace.BobWalk1:GetChildren()) do
-v.Transparency = _G.Transparency
-end
-else
-game.Workspace["VoidPart"]["TAntiVoid"].Transparency = 1
-game.Workspace["BobWalk1"].Transparency = 1
-for i,v in pairs(game.Workspace.BobWalk1:GetChildren()) do
-v.Transparency = 1
-end
-end
-elseif _G.AntiVoidChoose == "Fall" then
 while _G.AntiVoid do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y < -30 then
+if _G.AntiVoidChoose == "Fall" then
 game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace.Origo.CFrame * CFrame.new(0,-5,0))
+end
+end
+for i, v in pairs(game.Workspace:GetChildren()) do
+	if v.Name == "BobWalk1" then
+		v.CanCollide = (_G.AntiVoidChoose == "Bob" and Value or false)
+		v.Transparency = (_G.AntiVoidChoose == "Bob" and _G.Transparency or 1)
+		for _, n in pairs(v:GetChildren()) do
+			n.Transparency = (_G.AntiVoidChoose == "Bob" and _G.Transparency or 1)
+			n.CanCollide = (_G.AntiVoidChoose == "Bob" and Value or false)
+		end
+	end
+	if v.Name == "Psycho" then
+		v.Transparency = (_G.AntiVoidChoose == "Psycho" and _G.Transparency or 1)
+		v.CanCollide = (_G.AntiVoidChoose == "Psycho" and Value or false)
+		if v:FindFirstChild("Kraken") then
+			v.Kraken.Transparency = (_G.AntiVoidChoose == "Water" and _G.Transparency or 1)
+			v.Kraken.CanCollide = (_G.AntiVoidChoose == "Water" and Value or false)
+		end
+		if v:FindFirstChild("Retro1") then
+			v.Retro1.Transparency = (_G.AntiVoidChoose == "Retro" and _G.Transparency or 1)
+			v.Retro1.CanCollide = (_G.AntiVoidChoose == "Retro" and Value or false)
+			for _, n in pairs(v.Retro1:GetChildren()) do
+				n.Transparency = (_G.AntiVoidChoose == "Retro" and _G.Transparency or 1)
+				n.CanCollide = (_G.AntiVoidChoose == "Retro" and Value or false)
+			end
+		end
+	end
+	if v.Name == "VoidPart" then
+		v.CanCollide = (_G.AntiVoidChoose == "Normal" and Value or false)
+		v.Transparency = (_G.AntiVoidChoose == "Normal" and _G.Transparency or 1)
+		if v:FindFirstChild("TAntiVoid") then
+			v.TAntiVoid.CanCollide = ((_G.AntiVoidChoose == "Normal" or _G.AntiVoidChoose == "Bob") and Value or false)
+			v.TAntiVoid.Transparency = ((_G.AntiVoidChoose == "Normal" or _G.AntiVoidChoose == "Bob") and _G.Transparency or 1)
+		end
+	end
 end
 task.wait()
 end
+for i, v in pairs(game.Workspace:GetChildren()) do
+	if v.Name == "BobWalk1" then
+		v.CanCollide = false
+		v.Transparency = 1
+		for _, n in pairs(v:GetChildren()) do
+			n.Transparency = 1
+			n.CanCollide = false
+		end
+	end
+	if v.Name == "Psycho" then
+		v.CanCollide = false
+		v.Transparency = 1
+		if v:FindFirstChild("Kraken") then
+			v.Kraken.Transparency = 1
+			v.Kraken.CanCollide = false
+		end
+		if v:FindFirstChild("Retro1") then
+			v.Retro1.Transparency = 1
+			v.Retro1.CanCollide = false
+			for _, n in pairs(v.Retro1:GetChildren()) do
+				n.Transparency = 1
+				n.CanCollide = false
+			end
+		end
+	end
+	if v.Name == "VoidPart" then
+		v.CanCollide = false
+		v.Transparency = 1
+		if v:FindFirstChild("TAntiVoid") then
+			v.TAntiVoid.CanCollide = false
+			v.TAntiVoid.Transparency = 1
+		end
+	end
 end
     end
 })
@@ -1880,16 +1866,17 @@ Anti2Group:AddToggle("Anti COD", {
     Text = "Anti Cube Of Death",
     Default = false,
     Callback = function(Value)
-if Value == true then
+_G.AntiCod = Value
+while _G.AntiCod do
 if game.Workspace:FindFirstChild("the cube of death(i heard it kills)", 1) and game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"]:FindFirstChild("Part") then
 game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].CanTouch = false
 game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].Part.CanTouch = false
 end
-else
+task.wait()
+end
 if game.Workspace:FindFirstChild("the cube of death(i heard it kills)", 1) and game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"]:FindFirstChild("Part") then
 game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].CanTouch = true
 game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].Part.CanTouch = true
-end
 end
     end
 })
@@ -1898,29 +1885,34 @@ Anti2Group:AddToggle("Anti Death Barriers", {
     Text = "Anti Death Barriers",
     Default = false,
     Callback = function(Value)
-if Value == true then
+_G.AntiDead = Value
+while _G.AntiDead do
+if game.Workspace:FindFirstChild("DEATHBARRIER") then
+workspace.DEATHBARRIER.CanTouch = not Value
 for i,v in pairs(game.Workspace.DEATHBARRIER:GetChildren()) do
-                    if v.ClassName == "Part" and v.Name == "BLOCK" then
-                        v.CanTouch = false
-                    end
-                end
-workspace.DEATHBARRIER.CanTouch = false
-workspace.DEATHBARRIER2.CanTouch = false
-workspace.dedBarrier.CanTouch = false
-workspace.ArenaBarrier.CanTouch = false
-workspace.AntiDefaultArena.CanTouch = false
-else
-for i,v in pairs(game.Workspace.DEATHBARRIER:GetChildren()) do
-                    if v.ClassName == "Part" and v.Name == "BLOCK" then
-                        v.CanTouch = true
-                    end
-                end
+    if v.ClassName == "Part" and v.Name == "BLOCK" then
+        v.CanTouch = not Value
+    end
+end
+end
+workspace.DEATHBARRIER2.CanTouch = not Value 
+workspace.dedBarrier.CanTouch = not Value
+workspace.ArenaBarrier.CanTouch = not Value
+workspace.AntiDefaultArena.CanTouch = not Value
+task.wait()
+end
+if game.Workspace:FindFirstChild("DEATHBARRIER") then
 workspace.DEATHBARRIER.CanTouch = true
+for i,v in pairs(game.Workspace.DEATHBARRIER:GetChildren()) do
+    if v.ClassName == "Part" and v.Name == "BLOCK" then
+        v.CanTouch = true
+    end
+end
+end
 workspace.DEATHBARRIER2.CanTouch = true
 workspace.dedBarrier.CanTouch = true
 workspace.ArenaBarrier.CanTouch = true
 workspace.AntiDefaultArena.CanTouch = true
-end
     end
 })
 
@@ -2636,7 +2628,7 @@ end
 Badge2Group:AddButton({
     Text = "Get Glove [Redacted]",
     Func = function()
-if game.Players.LocalPlayer.leaderstats.Slaps.Value >= 5000 then
+if game.Players.LocalPlayer.leaderstats.Slaps.Value >= 5000 and CheckUnlockGlove("[REDACTED]").Value == false then
 for i, v in pairs(workspace.PocketDimension.Doors:GetChildren()) do
 if CheckUnlockGlove("[REDACTED]").Value == false then
 repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
@@ -3302,6 +3294,92 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
+Badge3Group:AddDropdown("Voodoo Mastery", {
+    Text = "Voodoo Mastery",
+    Values = {"Farm Voodoo", "Voodoo Slap 20 Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.VoodooMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Voodoo Mastery", {
+    Text = "Auto Voodoo Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoVoodooMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Voodoo" then
+while _G.AutoVoodooMastery do
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Voodoo") then
+game.Players.LocalPlayer.Backpack:FindFirstChild("Voodoo").Parent = game.Players.LocalPlayer.Character
+end
+if _G.VoodooMastery == "Farm Voodoo" then
+local players = game.Players:GetChildren()
+local RandomPlayer = players[math.random(1, #players)]
+if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
+if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character:FindFirstChild("Mirage") == nil and RandomPlayer.Character.Humanoid.Health ~= 0 then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+task.wait(2.5)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+repeat task.wait() until _G.AutoVoodooMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 6
+task.wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+task.wait(0.2)
+for i = 1, 3 do
+gloveHits["All"]:FireServer(RandomPlayer.Character:FindFirstChild("Head"))
+task.wait(0.25)
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.2)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.05)
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+wait(0.3)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+end
+end
+wait(0.4)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+elseif _G.VoodooMastery == "Voodoo Slap 20 Player" then
+local players = game.Players:GetChildren()
+local RandomPlayer = players[math.random(1, #players)]
+if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
+if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character:FindFirstChild("Mirage") == nil and RandomPlayer.Character.Humanoid.Health ~= 0 then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+task.wait(2.5)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+repeat task.wait() until _G.AutoVoodooMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 6
+task.wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+task.wait(0.2)
+for i = 1, 3 do
+gloveHits["All"]:FireServer(RandomPlayer.Character:FindFirstChild("Head"))
+task.wait(0.3)
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+task.wait(5)
+end
+end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Voodoo equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Voodoo Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Car Mastery", {
     Text = "Car Mastery",
     Values = {"Farm Exp (Clone)", "Farm Exp (Player)", "Upgrade All"},
@@ -3351,7 +3429,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"
 wait(0.3)
 repeat task.wait() 
 game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
-until game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") and game.Players.LocalPlayer.Character.CarKeysCar:FindFirstChild("VehicleSeat")
+until _G.AutoCarMastery == false or game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") and game.Players.LocalPlayer.Character.CarKeysCar:FindFirstChild("VehicleSeat")
 wait(4)
 if game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") then
 game.Players.LocalPlayer.Character.CarKeysCar.Front:FindFirstChild("BumperHitbox").Size = Vector3.new(25, 25, 25)
@@ -3384,7 +3462,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"
 wait(0.3)
 repeat task.wait() 
 game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
-until game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") and game.Players.LocalPlayer.Character.CarKeysCar:FindFirstChild("VehicleSeat")
+until _G.AutoCarMastery == false or game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") and game.Players.LocalPlayer.Character.CarKeysCar:FindFirstChild("VehicleSeat")
 wait(3)
 else
 if game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") then
