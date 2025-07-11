@@ -2164,6 +2164,44 @@ game:GetService("TeleportService"):Teleport(17290438723)
 })
 
 Badge1Group:AddButton({
+    Text = "Auto Get Plunger",
+    Func = function()
+local teleportFunc = queueonteleport or queue_on_teleport
+    if teleportFunc then
+        teleportFunc([[
+            if not game:IsLoaded() then
+                game.Loaded:Wait()
+            end
+            repeat task.wait() until game.Players.LocalPlayer
+wait(1.9)
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+local Plunger = workspace:FindFirstChild("plunger glove")
+Plunger:FindFirstChild("plungerglove").CFrame = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+if fireclickdetector then
+fireclickdetector(Plunger:FindFirstChildOfClass("ClickDetector"))
+end
+end
+]])
+elseif not teleportFunc then
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
+end
+if workspace:FindFirstChild("BountyHunterRoom") and workspace.BountyHunterRoom:FindFirstChild("PlungerMain") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom:FindFirstChild("PlungerMain").CFrame
+if fireclickdetector then
+fireclickdetector(workspace.BountyHunterRoom.PlungerMain:FindFirstChildOfClass("ClickDetector"))
+end
+end
+repeat task.wait() until workspace:FindFirstChild("plungers") and workspace.plungers:FindFirstChild("ToiletPlunger").Transparency < 1
+wait(0.4)
+if workspace:FindFirstChild("plungers") and workspace.plungers:FindFirstChild("ToiletPlunger") and workspace.plungers.ToiletPlunger:FindFirstChildOfClass("ClickDetector") then
+if fireclickdetector then
+fireclickdetector(workspace.plungers.ToiletPlunger:FindFirstChildOfClass("ClickDetector"))
+end
+end
+  	end    
+})
+
+Badge1Group:AddButton({
     Text = "Auto Get Admin",
     Func = function()
 local teleportFunc = queueonteleport or queue_on_teleport
@@ -2970,6 +3008,25 @@ if workspace:FindFirstChild("EggTeleport") and workspace.EggTeleport:FindFirstCh
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace:FindFirstChild("EggTeleport").CFrame
 if fireclickdetector then
 fireclickdetector(workspace.EggTeleport.ClickDetector)
+end
+end
+    end
+})
+
+Badge2Group:AddButton({
+    Text = "Join Map Plunger",
+    Func = function()
+if workspace:FindFirstChild("BountyHunterRoom") and workspace.BountyHunterRoom:FindFirstChild("PlungerMain") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom:FindFirstChild("PlungerMain").CFrame
+if fireclickdetector then
+fireclickdetector(workspace.BountyHunterRoom.PlungerMain:FindFirstChildOfClass("ClickDetector"))
+end
+end
+repeat task.wait() until workspace:FindFirstChild("plungers") and workspace.plungers:FindFirstChild("ToiletPlunger").Transparency < 1
+wait(0.4)
+if workspace:FindFirstChild("plungers") and workspace.plungers:FindFirstChild("ToiletPlunger") and workspace.plungers.ToiletPlunger:FindFirstChildOfClass("ClickDetector") then
+if fireclickdetector then
+fireclickdetector(workspace.plungers.ToiletPlunger:FindFirstChildOfClass("ClickDetector"))
 end
 end
     end
@@ -12000,6 +12057,36 @@ if workspace:FindFirstChild("Slasher") and workspace.Slasher:FindFirstChild("Glo
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Slasher.Glove.CFrame * CFrame.new(0, 3, 0)
 end
 until workspace:FindFirstChild("Slasher") == nil
+end
+end)
+elseif game.PlaceId == 89837553336708 then
+local Window = Library:CreateWindow({
+    Title = "Map Plunger 🪠",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+	Footer = "Omega X Article Hub Version: 1.0.5",
+	Icon = 83462777349222,
+	ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local Misc1Group = Tabs.Tab:AddLeftGroupbox("Badge")
+
+Misc1Group:AddButton("Get Badge", function()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+local Plunger = workspace:FindFirstChild("plunger glove")
+Plunger:FindFirstChild("plungerglove").CFrame = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+if fireclickdetector then
+fireclickdetector(Plunger:FindFirstChildOfClass("ClickDetector"))
+end
 end
 end)
 end
