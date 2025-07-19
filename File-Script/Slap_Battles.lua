@@ -3383,6 +3383,92 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
+Badge3Group:AddDropdown("Voodoo Mastery", {
+    Text = "Voodoo Mastery",
+    Values = {"Farm Voodoo", "Voodoo Slap 20 Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.VoodooMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Voodoo Mastery", {
+    Text = "Auto Voodoo Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoVoodooMastery = Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value == "Voodoo" then
+while _G.AutoVoodooMastery do
+if game.Players.LocalPlayer.Backpack:FindFirstChild("Voodoo") then
+game.Players.LocalPlayer.Backpack:FindFirstChild("Voodoo").Parent = game.Players.LocalPlayer.Character
+end
+if _G.VoodooMastery == "Farm Voodoo" then
+local players = game.Players:GetChildren()
+local RandomPlayer = players[math.random(1, #players)]
+if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
+if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character:FindFirstChild("Mirage") == nil and RandomPlayer.Character.Humanoid.Health ~= 0 then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+task.wait(2.5)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+repeat task.wait() until _G.AutoVoodooMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 6
+task.wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+task.wait(0.2)
+for i = 1, 3 do
+gloveHits["All"]:FireServer(RandomPlayer.Character:FindFirstChild("Head"))
+task.wait(0.25)
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.2)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.05)
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+wait(0.3)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+end
+end
+wait(0.4)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+elseif _G.VoodooMastery == "Voodoo Slap 20 Player" then
+local players = game.Players:GetChildren()
+local RandomPlayer = players[math.random(1, #players)]
+if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
+if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character:FindFirstChild("Mirage") == nil and RandomPlayer.Character.Humanoid.Health ~= 0 then
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+task.wait(2.5)
+game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+repeat task.wait() until _G.AutoVoodooMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 6
+task.wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+task.wait(0.2)
+for i = 1, 3 do
+gloveHits["All"]:FireServer(RandomPlayer.Character:FindFirstChild("Head"))
+task.wait(0.3)
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+task.wait(5)
+end
+end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Voodoo equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Voodoo Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Car Mastery", {
     Text = "Car Mastery",
     Values = {"Farm Exp (Clone)", "Farm Exp (Player)", "Upgrade All"},
