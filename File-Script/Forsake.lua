@@ -376,7 +376,7 @@ if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
 	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight"):Destroy()
 end
-if v.ItemRoot:FindFirstChild("Esp_Gui") and v.Head["Esp_Gui"]:FindFirstChild("TextLabel") then
+if v.ItemRoot:FindFirstChild("Esp_Gui") and v.ItemRoot["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v.ItemRoot["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and v.Name or "")..
             (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.ItemRoot.Position).Magnitude).."m)" or "")
