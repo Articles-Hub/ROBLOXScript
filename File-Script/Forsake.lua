@@ -37,20 +37,21 @@ local Window = Library:CreateWindow({
 
 Tabs = {
 	Tab = Window:AddTab("Main", "rbxassetid://7734053426"),
+	Tab2 = Window:AddTab("Anti", "rbxassetid://7734056608"),
 	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
 }
 
 local Main1Group = Tabs.Tab:AddLeftGroupbox("Main")
 
 Main1Group:AddToggle("AutoGeneral", {
-    Text = "Auto General",
+    Text = "Auto Generator",
     Default = false, 
     Callback = function(Value) 
 _G.AutoGeneral = Value
 while _G.AutoGeneral do
 if workspace.Map.Ingame:FindFirstChild("Map") then
 for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-if v.Name == "Generator" and v:FindFirstChild("Remotes") and v.Remotes:FindFirstChild("RE") then
+if v.Name == "Generator" and v:FindFirstChild("Remotes") and v.Remotes:FindFirstChild("RE") and v:FindFirstChild("Progress").Value ~= 100 then
 v.Remotes:FindFirstChild("RE"):FireServer()
 end
 end
@@ -59,6 +60,17 @@ task.wait(1.8)
 end
     end
 })
+
+Main1Group:AddButton("Teleport To Generator", function()
+if workspace.Map.Ingame:FindFirstChild("Map") then
+for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+if v.Name == "Generator" and v:FindFirstChild("Positions") and v.Positions:FindFirstChild("Center") and v:FindFirstChild("Progress").Value == 100 then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Positions:FindFirstChild("Center").CFrame
+break
+end
+end
+end
+end)
 
 Main1Group:AddToggle("Inf Stamina", {
     Text = "Inf Stamina",
@@ -98,6 +110,26 @@ while _G.NahSpeed do
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.SpeedWalk
 game.Players.LocalPlayer.Character.Humanoid:SetAttribute("BaseSpeed", _G.SpeedWalk)
+end
+task.wait()
+end
+    end
+})
+
+Main1Group:AddToggle("ItemPick", {
+    Text = "Auto PickUp Item",
+    Default = false, 
+    Callback = function(Value) 
+_G.PickupItem = Value
+while _G.PickupItem do
+if workspace.Map.Ingame:FindFirstChild("Map") then
+for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+if v:IsA("Tool") and v:FindFirstChild("ItemRoot") and v.ItemRoot:FindFirstChild("ProximityPrompt") then
+if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.ItemRoot.Position).Magnitude < 25 then
+fireproximityprompt(v.ItemRoot:FindFirstChild("ProximityPrompt"))
+end
+end
+end
 end
 task.wait()
 end
@@ -206,8 +238,8 @@ end
 if v.Head:FindFirstChild("Esp_Gui") and v.Head["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v.Head["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and v.Name or "")..
-            (_G.EspDistance == true and "\nDistance [ "..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude).." ]" or "")..
-            (_G.EspHealth == true and "\nHealth [ "..string.format("%.0f", v.Humanoid.Health).." ]" or "")
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude).."m)" or "")..
+            (_G.EspHealth == true and "\nHealth ("..string.format("%.0f", v.Humanoid.Health)..")" or "")
     v.Head["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v.Head["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -234,39 +266,13 @@ if _G.EspGui == true and v.Head:FindFirstChild("Esp_Gui") == nil then
 	v.Head:FindFirstChild("Esp_Gui"):Destroy()
 end
 end
-
-Main2Group:AddDropdown("EspPlayer", {
-    Text = "Esp Player",
-    Values = {"Killers", "Survivors"},
-    Default = "",
-    Multi = true
-})
-
-Main2Group:AddToggle("Player", {
-    Text = "Esp Player",
+Main2Group:AddToggle("Killer", {
+    Text = "Esp Killer",
     Default = false, 
     Callback = function(Value) 
-_G.EspPlayer = Value
-if _G.EspPlayer == false then
+_G.EspKiller = Value
+if _G.EspKiller == false then
 	for i, v in pairs(game.Workspace.Players:GetChildren()) do
-		if v.Name == "Killers" or v.Name == "Survivors" then
-			for y, z in pairs(v:GetChildren()) do
-				if z.Name:find("Esp_") then
-					z:Destroy()
-				end
-			end
-		end
-	end
-end
-while _G.EspPlayer do
-for i, v in pairs(game.Workspace.Players:GetChildren()) do
-	if Options.EspPlayer.Value["Killers"] and v.Name == "Killers" then
-		for y, z in pairs(v:GetChildren()) do
-			if z:FindFirstChild("HumanoidRootPart") and z:FindFirstChild("Humanoid") and z:FindFirstChild("Head") then
-				Esp_Player(z, _G.ColorLightKill or Color3.fromRGB(255, 0, 0))
-			end
-		end
-	elseif not Options.EspPlayer.Value["Killers"] then
 		if v.Name == "Killers" then
 			for y, z in pairs(v:GetChildren()) do
 				if z.Name:find("Esp_") then
@@ -275,16 +281,13 @@ for i, v in pairs(game.Workspace.Players:GetChildren()) do
 			end
 		end
 	end
-	if Options.EspPlayer.Value["Survivors"] and v.Name == "Survivors" then
+end
+while _G.EspKiller do
+for i, v in pairs(game.Workspace.Players:GetChildren()) do
+	if v.Name == "Killers" then
 		for y, z in pairs(v:GetChildren()) do
-			if z:FindFirstChild("HumanoidRootPart") and z:FindFirstChild("Humanoid") and z:FindFirstChild("Head") then
-				Esp_Player(z, _G.ColorLightSurvivors or Color3.fromRGB(0, 255, 0))
-			end
-		end
-	elseif not Options.EspPlayer.Value["Survivors"] and v.Name == "Survivors" then
-		for y, z in pairs(v:GetChildren()) do
-			if z.Name:find("Esp_") then
-				z:Destroy()
+			if z:GetAttribute("Username") ~= game.Players.LocalPlayer.Name and z:FindFirstChild("HumanoidRootPart") and z:FindFirstChild("Humanoid") and z:FindFirstChild("Head") then
+				Esp_Player(z, _G.ColorLightKill or Color3.fromRGB(255, 0, 0))
 			end
 		end
 	end
@@ -297,11 +300,117 @@ end
      Callback = function(Value)
 _G.ColorLightKill = Value
      end
+})
+
+Main2Group:AddToggle("Survivors", {
+    Text = "Esp Survivors",
+    Default = false, 
+    Callback = function(Value) 
+_G.EspSurvivors = Value
+if _G.EspSurvivors == false then
+	for i, v in pairs(game.Workspace.Players:GetChildren()) do
+		if v.Name == "Survivors" then
+			for y, z in pairs(v:GetChildren()) do
+				if z.Name:find("Esp_") then
+					z:Destroy()
+				end
+			end
+		end
+	end
+end
+while _G.EspSurvivors do
+for i, v in pairs(game.Workspace.Players:GetChildren()) do
+	if v.Name == "Survivors" then
+		for y, z in pairs(v:GetChildren()) do
+			if z:GetAttribute("Username") ~= game.Players.LocalPlayer.Name and z:FindFirstChild("HumanoidRootPart") and z:FindFirstChild("Humanoid") and z:FindFirstChild("Head") then
+				Esp_Player(z, _G.ColorLightSurvivors or Color3.fromRGB(0, 255, 0))
+			end
+		end
+	end
+end
+task.wait()
+end
+    end
 }):AddColorPicker("Color Esp2", {
      Default = Color3.new(0, 255, 0),
      Callback = function(Value)
-_G.ColorLightSurvivors= Value
+_G.ColorLightSurvivors = Value
      end
+})
+
+Main2Group:AddToggle("Item", {
+    Text = "Esp Item",
+    Default = false, 
+    Callback = function(Value) 
+_G.EspItem = Value
+if _G.EspItem == false then
+if workspace.Map.Ingame:FindFirstChild("Map") then
+for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+if v:IsA("Tool") and v:FindFirstChild("ItemRoot") then
+for c, n in ipairs(v:FindFirstChild("ItemRoot"):GetChildren()) do
+if v.Name:find("Esp_") then
+v:Destroy()
+end
+end
+end
+end
+end
+end
+while _G.EspItem do
+if workspace.Map.Ingame:FindFirstChild("Map") then
+for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+if v:IsA("Tool") and v:FindFirstChild("ItemRoot") then
+if v.ItemRoot:FindFirstChild("Esp_Highlight") then
+	v.ItemRoot:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v.ItemRoot:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v.ItemRoot:FindFirstChild("Esp_Gui") and v.Head["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v.ItemRoot["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and v.Name or "")..
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.ItemRoot.Position).Magnitude).."m)" or "")
+    v.ItemRoot["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v.ItemRoot["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v.ItemRoot:FindFirstChild("Esp_Gui") == nil then
+	GuiItemEsp = Instance.new("BillboardGui", v.ItemRoot)
+	GuiItemEsp.Adornee = v.ItemRoot
+	GuiItemEsp.Name = "Esp_Gui"
+	GuiItemEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiItemEsp.AlwaysOnTop = true
+	GuiItemEsp.StudsOffset = Vector3.new(0, 3, 0)
+	GuiItemEspText = Instance.new("TextLabel", GuiItemEsp)
+	GuiItemEspText.BackgroundTransparency = 1
+	GuiItemEspText.Font = Enum.Font.Code
+	GuiItemEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiItemEspText.TextSize = 15
+	GuiItemEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiItemEspText.TextStrokeTransparency = 0.5
+	GuiItemEspText.Text = ""
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiItemEspText
+	elseif _G.EspGui == false and v.ItemRoot:FindFirstChild("Esp_Gui") then
+	v.ItemRoot:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
+end
+task.wait()
+end
+    end
 })
 
 Main2Group:AddDivider()
@@ -372,6 +481,30 @@ Main2Group:AddToggle("Esp Health", {
     Default = false, 
     Callback = function(Value) 
 _G.EspHealth = Value
+    end
+})
+
+local Anti1Group = Tabs.Tab2:AddLeftGroupbox("Anti")
+
+Anti1Group:AddToggle("Acid", {
+    Text = "Anti Acid",
+    Default = false, 
+    Callback = function(Value) 
+_G.AntiAcid = Value
+while _G.AntiAcid do
+if workspace.Map.Ingame:FindFirstChild("Map") then
+for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+if v.Name == "AcidContainer" then
+for _, Acid in ipairs(v:GetChildren()) do
+if Acid:IsA("BasePart") then
+Acid.CanTouch = false
+end
+end
+end
+end
+end
+task.wait()
+end
     end
 })
 
