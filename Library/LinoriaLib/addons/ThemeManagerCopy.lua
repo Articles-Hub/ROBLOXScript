@@ -248,12 +248,17 @@ local ThemeManager = {} do
         groupbox:AddLabel("Accent color"):AddColorPicker("AccentColor", { Default = self.Library.Scheme.AccentColor })
         groupbox:AddLabel("Outline color"):AddColorPicker("OutlineColor", { Default = self.Library.Scheme.OutlineColor })
         groupbox:AddLabel("Font color"):AddColorPicker("FontColor", { Default = self.Library.Scheme.FontColor })
-        groupbox:AddDropdown("FontFace", {
-            Text = "Font Face",
-            Default = "Code",
-            Values = {"BuilderSans", "Code", "Fantasy", "Gotham", "Jura", "Roboto", "RobotoMono", "SourceSans"}
-        })
 
+			local fontList = {}
+			for _, font in ipairs(Enum.Font:GetEnumItems()) do
+			    table.insert(fontList, font.Name)
+			end
+			
+			groupbox:AddDropdown("FontFace", {
+			    Text = "Font Face",
+			    Default = fontList[1],
+			    Values = fontList
+			})
         
         local ThemesArray = {}
         for Name, Theme in pairs(self.BuiltInThemes) do
