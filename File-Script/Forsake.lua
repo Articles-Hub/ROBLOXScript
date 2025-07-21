@@ -56,7 +56,7 @@ v.Remotes:FindFirstChild("RE"):FireServer()
 end
 end
 end
-task.wait(1.8)
+task.wait(2)
 end
     end
 })
@@ -64,7 +64,7 @@ end
 Main1Group:AddButton("Teleport To Generator", function()
 if workspace.Map.Ingame:FindFirstChild("Map") then
 for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-if v.Name == "Generator" and v:FindFirstChild("Positions") and v.Positions:FindFirstChild("Center") and v:FindFirstChild("Progress").Value == 100 then
+if v.Name == "Generator" and v:FindFirstChild("Positions") and v.Positions:FindFirstChild("Center") and v:FindFirstChild("Progress").Value ~= 100 then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Positions:FindFirstChild("Center").CFrame
 break
 end
@@ -108,8 +108,10 @@ Main1Group:AddToggle("SetSpeed", {
 _G.NahSpeed = Value
 while _G.NahSpeed do
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.SpeedWalk
 game.Players.LocalPlayer.Character.Humanoid:SetAttribute("BaseSpeed", _G.SpeedWalk)
+if game.Players.LocalPlayer.Character.Humanoid:GetAttribute("BaseSpeed") == _G.SpeedWalk then
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.SpeedWalk
+end
 end
 task.wait()
 end
@@ -135,6 +137,22 @@ task.wait()
 end
     end
 })
+
+Main1Group:AddButton("Pick Up Item", function()
+if workspace.Map.Ingame:FindFirstChild("Map") then
+OldCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+if v:IsA("Tool") and v:FindFirstChild("ItemRoot") and v.ItemRoot:FindFirstChild("ProximityPrompt") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChild("ItemRoot").CFrame
+wait(0.3)
+fireproximityprompt(v.ItemRoot:FindFirstChild("ProximityPrompt"))
+wait(0.4)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldCFrame
+break
+end
+end
+end
+end)
 
 local Main2Group = Tabs.Tab:AddRightGroupbox("Esp")
 
