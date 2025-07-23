@@ -434,7 +434,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and "Generator ("..v.Progress.Value.."%)" or "")..
-            (_G.EspDistance == true and "\nDistance (".string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Positions.Canter.Position).Magnitude).."m)" or "")
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Positions.Canter.Position).Magnitude).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
