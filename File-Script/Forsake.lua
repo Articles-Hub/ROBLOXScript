@@ -1,3 +1,27 @@
+local Players = game:GetService("Players")
+local PFS = game:GetService("PathfindingService")
+local VIM = game:GetService("VirtualInputManager")
+local TeleportService = game:GetService("TeleportService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LP = Players.LocalPlayer
+local Spectators = {}
+local currentCharacter
+local isInGame, busy, isSprinting = false, false, false
+local stamina, counter = 100, 0
+local Killer, Survivor = false, false
+
+local function safe(pos)
+    local rayParams = RaycastParams.new()
+    rayParams.FilterDescendantsInstances = {workspace.Map.Ingame.Map}
+    rayParams.FilterType = Enum.RaycastFilterType.Include
+    local rayResult = workspace:Raycast(pos + Vector3.new(0, 5, 0), Vector3.new(0, -10, 0), rayParams)
+    if rayResult then
+        local yDiff = math.abs(rayResult.Position.Y - pos.Y)
+        return yDiff < 5 
+    end
+    return false
+end
+
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/Test.lua"))()
 local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/ThemeManagerCopy.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/SaveManagerCopy.lua"))()
@@ -65,7 +89,7 @@ Main1Group:AddButton("Teleport To Generator", function()
 if workspace.Map.Ingame:FindFirstChild("Map") then
 for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
 if v.Name == "Generator" and v:FindFirstChild("Positions") and v.Positions:FindFirstChild("Center") and v:FindFirstChild("Progress").Value ~= 100 then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Positions:FindFirstChild("Center").CFrame
+LP.Character.HumanoidRootPart.CFrame = v.Positions:FindFirstChild("Center").CFrame
 break
 end
 end
@@ -107,10 +131,10 @@ Main1Group:AddToggle("SetSpeed", {
     Callback = function(Value) 
 _G.NahSpeed = Value
 while _G.NahSpeed do
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid:SetAttribute("BaseSpeed", _G.SpeedWalk)
-if game.Players.LocalPlayer.Character.Humanoid:GetAttribute("BaseSpeed") == _G.SpeedWalk then
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.SpeedWalk
+if LP.Character:FindFirstChild("Humanoid") then
+LP.Character.Humanoid:SetAttribute("BaseSpeed", _G.SpeedWalk)
+if LP.Character.Humanoid:GetAttribute("BaseSpeed") == _G.SpeedWalk then
+LP.Character.Humanoid.WalkSpeed = _G.SpeedWalk
 end
 end
 task.wait()
@@ -127,7 +151,7 @@ while _G.PickupItem do
 if workspace.Map.Ingame:FindFirstChild("Map") then
 for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
 if v:IsA("Tool") and v:FindFirstChild("ItemRoot") and v.ItemRoot:FindFirstChild("ProximityPrompt") then
-if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.ItemRoot.Position).Magnitude < 25 then
+if (LP.Character.HumanoidRootPart.Position - v.ItemRoot.Position).Magnitude < 25 then
 fireproximityprompt(v.ItemRoot:FindFirstChild("ProximityPrompt"))
 end
 end
@@ -154,10 +178,218 @@ end
 end
 end)
 
+Main1Group:AddToggle("AutoExpMoney", {
+    Text = "Auto Farm Exp / Money",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoFarm = Value
+task.spawn(function()
+    while _G.AutoFarm do
+        Spectators = {}
+        for _, v in ipairs(workspace:WaitForChild("Players"):WaitForChild("Spectating"):GetChildren()) do
+            table.insert(Spectators, v.Name)
+        end
+        isInGame = not table.find(Spectators, LP.Name)
+        task.wait(1)
+    end
+end)
+task.spawn(function()
+    while _G.AutoFarm do
+        if isInGame and currentCharacter and currentCharacter:FindFirstChild("Humanoid") then
+            pcall(function()
+                currentCharacter.Humanoid:SetAttribute("BaseSpeed", 14)
+                local barText = LP:WaitForChild("PlayerGui"):WaitForChild("TemporaryUI"):WaitForChild("PlayerInfo").Bars.Stamina.Amount.Text
+                stamina = tonumber(string.split(barText, "/")[1]) or 100
+                local fovMult = currentCharacter:FindFirstChild("FOVMultipliers") and currentCharacter.FOVMultipliers:FindFirstChild("Sprinting")
+                if fovMult and fovMult.Value ~= 1.125 and stamina >= 70 and not busy then
+                    VIM:SendKeyEvent(true, Enum.KeyCode.LeftShift, false, game)
+                end
+            end)
+        end
+        task.wait(1)
+    end
+end)
+task.spawn(function()
+    while _G.AutoFarm do
+        if workspace:FindFirstChild("Players") then
+            local killersFolder = workspace.Players:FindFirstChild("Killers")
+            local survivorsFolder = workspace.Players:FindFirstChild("Survivors")
+            if killersFolder and survivorsFolder then
+                Killer = killersFolder:FindFirstChild(LP.Name) or table.find(killersFolder:GetChildren(), LP.Character)
+                Survivor = survivorsFolder:FindFirstChild(LP.Name) or table.find(survivorsFolder:GetChildren(), LP.Character)
+            end
+        end
+        task.wait(1)
+    end
+end)
+task.spawn(function()
+    task.wait(2)
+    local killersFolder = workspace.Players:WaitForChild("Killers")
+    local survivorsFolder = workspace.Players:WaitForChild("Survivors")
+    while _G.AutoFarm do
+        if Killer then
+            local target = nil
+            for _, survivor in ipairs(survivorsFolder:GetChildren()) do
+                if survivor:IsA("Model") and survivor:FindFirstChild("HumanoidRootPart") then
+                    target = survivor
+                    break
+                end
+            end
+            if target then
+                followingTarget = _G.AutoFarm
+                task.spawn(function()
+                    while followingTarget do
+                        local character = LP.Character
+                        if character and character:FindFirstChild("HumanoidRootPart") and target:FindFirstChild("HumanoidRootPart") then
+                            character:PivotTo(target.HumanoidRootPart.CFrame)
+                        end
+                        task.wait(0.1)
+                    end
+                end)
+                task.spawn(function()
+                    while target and target:FindFirstChild("HumanoidRootPart") and target:IsDescendantOf(survivorsFolder) do
+                        VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                        task.wait(0.05)
+                        VIM:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                        task.wait(0.1)
+                        VIM:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+                        task.wait(0.05)
+                        VIM:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+                        task.wait(0.1)
+                        VIM:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+                        task.wait(0.05)
+                        VIM:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+                        task.wait(0.1)
+                        VIM:SendKeyEvent(true, Enum.KeyCode.R, false, game)
+                        task.wait(0.05)
+                        VIM:SendKeyEvent(false, Enum.KeyCode.R, false, game)
+                        task.wait(0.8)
+                    end
+                    followingTarget = false 
+                end)
+            else
+                task.wait(1)
+            end
+        elseif Survivor then
+            if isInGame then
+                for _, surv in ipairs(survivorsFolder:GetChildren()) do
+                    if surv:GetAttribute("Username") == LP.Name then
+                        currentCharacter = surv
+                        break
+                    end
+                end
+                task.spawn(function()
+                    while _G.AutoFarm do
+                        if currentCharacter and currentCharacter:FindFirstChild("Humanoid") and currentCharacter.Humanoid.Health <= 0 then
+                            isInGame = false
+                            isSprinting = false
+                            busy = false
+                            break
+                        end
+                        task.wait(0.5)
+                    end
+                end)
+                for _, completedgen in ipairs(ReplicatedStorage.ObjectiveStorage:GetChildren()) do
+                    if not isInGame then break end
+                    local required = completedgen:GetAttribute("RequiredProgress")
+                    if completedgen.Value == required then
+                        while #killersFolder:GetChildren() >= 1 do
+                            for _, killer in ipairs(killersFolder:GetChildren()) do
+                                if currentCharacter and killer:FindFirstChild("HumanoidRootPart") and currentCharacter:FindFirstChild("HumanoidRootPart") then
+                                    local killerHRP = killer.HumanoidRootPart
+                                    local charHRP = currentCharacter.HumanoidRootPart
+                                    local dist = (killerHRP.Position - charHRP.Position).Magnitude
+                                  if dist <= 100 then
+    local fleeDistance = 50
+    local bestFleePos = nil
+    for i = 1, 10 do
+        local randomAngle = math.rad(math.random(-180, 180))
+        local cos, sin = math.cos(randomAngle), math.sin(randomAngle)
+        local randomDir = Vector3.new(cos, 0, sin).Unit
+        local potentialPos = charHRP.Position + randomDir * fleeDistance
+        if safe(potentialPos) then
+            local path = PFS:CreatePath({
+                AgentRadius = 2,
+                AgentHeight = 5,
+                AgentCanJump = true,
+            })
+            local success, err = pcall(function()
+                path:ComputeAsync(charHRP.Position, potentialPos)
+            end)
+            if success and path.Status == Enum.PathStatus.Success then
+                local waypoints = path:GetWaypoints()
+                for i = #waypoints, 1, -1 do
+                    if safe(waypoints[i].Position) then
+                        bestFleePos = waypoints[i].Position
+                        break
+                    end
+                end
+                if bestFleePos then break end
+            end
+        end
+    end
+    if bestFleePos then
+        currentCharacter:PivotTo(CFrame.new(bestFleePos + Vector3.new(0, 3, 0))) 
+    end
+end
+                                end
+                                task.wait(0.1)
+                            end
+                        end
+                    else
+                        for _, gen in ipairs(workspace.Map.Ingame:WaitForChild("Map"):GetChildren()) do
+                            if gen.Name == "Generator" and gen:FindFirstChild("Progress") and gen.Progress.Value ~= 100 then
+                                if currentCharacter and currentCharacter:FindFirstChild("HumanoidRootPart") then
+                                    local goalPos = gen:WaitForChild("Positions"):WaitForChild("Right").Position
+                                    currentCharacter:PivotTo(CFrame.new(goalPos + Vector3.new(0, 2, 0)))
+                                    task.wait(0.25)
+                                    local thing = gen:FindFirstChild("Main")
+                                    if thing then
+                                        thing = thing:FindFirstChild("Prompt")
+                                        if thing then
+                                            thing.HoldDuration = 0
+                                            thing.RequiresLineOfSight = false
+                                            thing.MaxActivationDistance = 99999
+                                            task.wait(0.1)
+                                            pcall(function()
+                                                thing:InputHoldBegin()
+                                                thing:InputHoldEnd()
+                                            end)
+                                            busy = true
+                                            counter = 0
+                                            while gen.Progress.Value ~= 100 do
+                                                pcall(function()
+                                                    thing:InputHoldBegin()
+                                                    thing:InputHoldEnd()
+                                                    if _G.AutoGeneral == false then
+	                                                    gen.Remotes.RE:FireServer()
+													end
+                                                end)
+                                                task.wait(2.5)
+                                                counter += 1
+                                                if counter >= 10 or not isInGame then break end
+                                            end
+                                            busy = false
+                                            if not isInGame then break end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(0.5)
+    end
+end)
+    end
+})
+
 local Main2Group = Tabs.Tab:AddRightGroupbox("Esp")
 
-Main2Group:AddToggle("General", {
-    Text = "Esp General",
+Main2Group:AddToggle("Generator", {
+    Text = "Esp Generator",
     Default = false, 
     Callback = function(Value) 
 _G.EspGeneral = Value
@@ -201,8 +433,8 @@ if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
 end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and "General ("..v.Progress.Value.."%)" or "")..
-            (_G.EspDistance == true and "\nDistance [ Fix ]" or "")
+	        (_G.EspName == true and "Generator ("..v.Progress.Value.."%)" or "")..
+            (_G.EspDistance == true and "\nDistance (".string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Positions.Canter.Position).Magnitude).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -292,7 +524,10 @@ _G.EspKiller = Value
 if _G.EspKiller == false then
 	for i, v in pairs(game.Workspace.Players:GetChildren()) do
 		if v.Name == "Killers" then
-			for y, z in pairs(v:GetChildren()) do
+			if v:FindFirstChild("Esp_Highlight") then
+				v:FindFirstChild("Esp_Highlight"):Destroy()
+			end
+			for y, z in pairs(v.Head:GetChildren()) do
 				if z.Name:find("Esp_") then
 					z:Destroy()
 				end
@@ -328,7 +563,10 @@ _G.EspSurvivors = Value
 if _G.EspSurvivors == false then
 	for i, v in pairs(game.Workspace.Players:GetChildren()) do
 		if v.Name == "Survivors" then
-			for y, z in pairs(v:GetChildren()) do
+			if v:FindFirstChild("Esp_Highlight") then
+				v:FindFirstChild("Esp_Highlight"):Destroy()
+			end
+			for y, z in pairs(v.Head:GetChildren()) do
 				if z.Name:find("Esp_") then
 					z:Destroy()
 				end
