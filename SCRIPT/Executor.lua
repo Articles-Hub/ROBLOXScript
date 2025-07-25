@@ -517,8 +517,8 @@ UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 UIListLayout.Parent = ScrollingFrame
 
 local function updateCanvasSize()
-    local contentWidth = UIListLayout.AbsoluteContentSize.X
-    ScrollingFrame.CanvasSize = UDim2.new(0, contentWidth + 10, 0, ScrollingFrame.AbsoluteSize.Y)
+    local contentWidth = UIListLayout.AbsoluteContentSize.X + 10
+    ScrollingFrame.CanvasSize = UDim2.new(0, contentWidth, 0, ScrollingFrame.AbsoluteSize.Y)
 end
 
 updateCanvasSize()
@@ -977,7 +977,12 @@ Button.Font = Enum.Font.Code
 Button.FontSize = "Size18"
 Button.Parent = ScrollingFrame2
 Button.MouseButton1Click:Connect(function()
-	pcall(Callback)
+	func, err = loadstring(Callback)
+	if func then
+		pcall(func)
+	else
+		print(err)
+	end
 end)
 
 local ButtonX = Instance.new("TextButton")
