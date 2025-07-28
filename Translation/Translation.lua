@@ -81,6 +81,76 @@ return {
 				["Esp Name"] = "Xem tên",
 				["Esp Distance"] = "Xem khoảng cách"
 			}
+		},
+		["Slap Battles"] = {
+			["Tab"] = {
+				["Info"] = "Thông tin",
+				["Script"] = "Kích bản",
+				["Anti"] = "Chống",
+				["Badges"] = "Hủy hiệu",
+				["Local"] = "Chính mình",
+				["Misc"] = "Lặt vặt",
+				["Gloves Optional"] = "Tùy chọn Glove",
+				["UI Settings"] = "Cài Đặt UI"
+			},
+			["Info"] = {
+				["Server"] = "Máy chủ",
+				["Your Fps"] = "Fps của bạn",
+				["Your Ping"] = "Ping của bạn",
+				["Player In Server"] = "Người chơi trong máy chủ",
+				["Server Time"] = "Giờ máy chủ",
+				["Now Time"] = "Bây giờ",
+				["Good Morning"] = "Đang buổi sáng",
+				["Good Afternoon"] = "Đang buổi chiều",
+				["Good Evening"] = "Đang buổi tối",
+				["Good Night"] = "Ban đêm",
+				["You Account Age"] = "Tuổi Acc của bạn",
+				["Pocket Room"] = "Phòng bỏ túi",
+				["Time Spawn"] = "Thời gian spawn lại",
+				["Code Keypad"] = "Bàn phím mã",
+				["Keypad Spawn"] = "Bàn phím Spawn",
+				["Player Spawn Toolbox"] = "Hộp công cụ spawn của Player"
+				["Gravestone Spawn"] = "Mộ đã spawn",
+				["Player Spawn Gift"] = "Quà spawn của Player",
+				["Golden Slapple Spawn"] = "Táo vàng đã spawn",
+				["Spawn Orb"] = "Quả cầu đã spawn",
+				["Check Null Shard"] = "Kiểm tra mảnh vỡ",
+				["Check Tournament Win"] = "Kiểm tra chiến thắng giải đấu",
+				["Check Slap"] = "Kiểm tra Tát",
+				["Much Glove"] = "bao nhiều glove",
+				["You're Using Glove"] = "bạn đang sử dụng glove",
+				["Plate Time"] = "Số địa đã ở",
+				["Gravity"] = "Trọng lượng",
+				["Position In Your"] = "Vị trí trong của bạn",
+				["Toggle Return"] = "Auto đặt lại",
+				["Copy Position"] = "Sao chép vị trí",
+				["Copied Success"] = "Sao chép thành công",
+				["Glove Badge / Slap"] = "Hủy hiệu / Glove",
+				["Player"] = "Người chơi",
+				["Player Check"] = "Kiểm tra Player",
+				["General Glove / Badge"] = "Tất cả Glove / Huy hiệu",
+				["Check Glove / Badge"] = "Kiểm tra Glove / Huy hiệu",
+				["Search Glove"] = "Tìm kiếm Glove",
+				["Glove Search"] = "Glove kiếm đc",
+				["Player Owner"] = "Player chủ sở hữu",
+				["Owner"] = "Tên sở hữu glove",
+				["Using Glove"] = "Đang dùng glove",
+				["Position"] = "Vị trí",
+			},
+			["Script"] = {
+				["Script Basic"] = "Kịch bản cơ bản",
+				["Execute | Ui Library"] = "Thực thi giao diện",
+				["Keyboard"] = "Bàn phím",
+				["Inf yield Delta"] = "Vô hạn năng suất Delta"
+				["Script"] = "Kích bản",
+				["Position Gui"] = "Vị trí Gui",
+				["Dex V2"] = "Dex phiên bản V2",
+				["Dex V3"] = "Dex phiên bản V3",
+				["Dex V4"] = "Dex phiên bản V4",
+				["Simple Spy"] = "Điệp viên đơn giản"
+			}
+			--------- Soon ----------
 		}
-	}
+	},
+	["Soon"] = {}
 }
