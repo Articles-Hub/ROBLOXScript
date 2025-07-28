@@ -39,7 +39,7 @@ return {
 				["Esp Player Hide"] = "Định vị thg trốn",
 				["Esp Player Seek"] = "Định vị thg săn",
 				["Auto Teleport Hide"] = "Auto dịch chuyển thg trốn",
-				["Teleport Hide"] = "Dịch chuyển thg trốn",
+				["Teleport Player Hide"] = "Dịch chuyển thg trốn",
 				["Teleport All Key"] = "Dịch chuyển tất cả key",
 
 				["Jump Rope"] = "Nhảy dây",
