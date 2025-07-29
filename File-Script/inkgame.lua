@@ -790,7 +790,7 @@ Misc1Group:AddSlider("Fly Bypass", {
     Rounding = 0,
     Compact = true,
     Callback = function(Value)
-_G.FlySpeed = Value
+_G.SetSpeedFly = Value
     end
 })
 
@@ -798,7 +798,7 @@ Misc1Group:AddToggle("Fly", {
     Text = Translation(MiscTab, "Fly"),
     Default = false, 
     Callback = function(Value) 
-_G.VectorFly = Value
+_G.StartFly = Value
 local ctrl = {f = 0, b = 0, l = 0, r = 0}
 local lastctrl = {f = 0, b = 0, l = 0, r = 0}
 game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
