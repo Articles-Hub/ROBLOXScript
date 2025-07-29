@@ -71,6 +71,7 @@ return {
 				["Auto Collect Flash Bang"] = "Auto nhặt đạn choáng",
 				["Auto Collect Grenade"] = "Auto nhặt đạn nổ",
 				["Anti Fling"] = "Chống thg fling",
+				["Touch Fling"] = "Chạm fling",
 				["Anti Banana"] = "Chống vỏ chuối",
 				["Anti Lag"] = "Chống Lag",
 				
@@ -109,7 +110,7 @@ return {
 				["Time Spawn"] = "Thời gian spawn lại",
 				["Code Keypad"] = "Bàn phím mã",
 				["Keypad Spawn"] = "Bàn phím Spawn",
-				["Player Spawn Toolbox"] = "Hộp công cụ spawn của Player"
+				["Player Spawn Toolbox"] = "Hộp công cụ spawn của Player",
 				["Gravestone Spawn"] = "Mộ đã spawn",
 				["Player Spawn Gift"] = "Quà spawn của Player",
 				["Golden Slapple Spawn"] = "Táo vàng đã spawn",
@@ -141,7 +142,7 @@ return {
 				["Script Basic"] = "Kịch bản cơ bản",
 				["Execute | Ui Library"] = "Thực thi giao diện",
 				["Keyboard"] = "Bàn phím",
-				["Inf yield Delta"] = "Vô hạn năng suất Delta"
+				["Inf yield Delta"] = "Vô hạn năng suất Delta",
 				["Script"] = "Kích bản",
 				["Position Gui"] = "Vị trí Gui",
 				["Dex V2"] = "Dex phiên bản V2",
