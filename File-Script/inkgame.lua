@@ -1,3 +1,8 @@
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+Translations = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Translation/Translation.lua"))()
 local Player = game.Players.LocalPlayer
 game:GetService("UserInputService").JumpRequest:connect(function()
 	if _G.InfiniteJump == true then
@@ -19,6 +24,49 @@ function CheckWall(Target)
     local Result = game.Workspace:Raycast(game.Workspace.CurrentCamera.CFrame.Position, Direction, RaycastParams)
     return Result == nil or Result.Instance:IsDescendantOf(Target)
 end
+function PartLagDe(g)
+	for i, v in pairs(_G.PartLag) do
+		if g.Name:find(v) then
+			g:Destroy()
+		end
+	end
+end
+workspace.DescendantAdded:Connect(function(v)
+	if _G.AntiLag == true then
+		if v:IsA("ForceField") or v:IsA("Sparkles") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Beam") then
+			v:Destroy()
+		end
+		if v:IsA("BasePart") then
+			v.Material = "Plastic"
+			v.Reflectance = 0
+			v.BackSurface = "SmoothNoOutlines"
+			v.BottomSurface = "SmoothNoOutlines"
+			v.FrontSurface = "SmoothNoOutlines"
+			v.LeftSurface = "SmoothNoOutlines"
+			v.RightSurface = "SmoothNoOutlines"
+			v.TopSurface = "SmoothNoOutlines"
+		elseif v:IsA("Decal") then
+			v.Transparency = 1
+		elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+			v.Lifetime = NumberRange.new(0)
+		end
+	end
+end)
+
+_G.TranslationCounter = "English"
+function Translation(Section, Text)
+	if _G.TranslationCounter == "English" or not _G.TranslationCounter then
+		return Text
+	end
+	local lang = Translations[_G.TranslationCounter]
+	if lang and lang["Ink Game"] and lang["Ink Game"][Section] and lang["Ink Game"][Section][Text] then
+		return lang["Ink Game"][Section][Text]
+	else
+		return Text
+	end
+end
+
+---- Script ----
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/Test.lua"))()
 local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/ThemeManagerCopy.lua"))()
@@ -58,21 +106,22 @@ local Window = Library:CreateWindow({
 })
 
 Tabs = {
-	Tab = Window:AddTab("Main", "rbxassetid://7734053426"),
-	Tab1 = Window:AddTab("Misc", "rbxassetid://4370318685"),
-	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+	Tab = Window:AddTab((Translation("Tab", "Main")), "rbxassetid://7734053426"),
+	Tab1 = Window:AddTab((Translation("Tab", "Misc")), "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab((Translation("Tab", "UI Settings")), "rbxassetid://7733955511")
 }
 
-local GreenGroup = Tabs.Tab:AddLeftGroupbox("Green Light, Red Light")
+local MainTab = "Main"
+local GreenGroup = Tabs.Tab:AddLeftGroupbox(Translation(MainTab, "Green Light, Red Light"))
 
-GreenGroup:AddButton("Green Light, Red Light", function()
+GreenGroup:AddButton(Translation(MainTab, "Green Light, Red Light"), function()
 if workspace:FindFirstChild("RedLightGreenLight") and workspace.RedLightGreenLight:FindFirstChild("sand") and workspace.RedLightGreenLight.sand:FindFirstChild("crossedover") then
 local pos = workspace.RedLightGreenLight.sand.crossedover.Position + Vector3.new(0, 5, 0)
 Player.Character.HumanoidRootPart.CFrame = CFrame.new(pos, pos + Vector3.new(0, 0, -1))
 end
 end)
 
-GreenGroup:AddButton("Help Player To End", function()
+GreenGroup:AddButton(Translation(MainTab, "Help Player To End"), function()
 if Loading then return end
 Loading = true
 for _, v in pairs(game.Players:GetPlayers()) do
@@ -98,7 +147,7 @@ Loading = false
 end)
 
 GreenGroup:AddToggle("Auto Help Player", {
-    Text = "Auto Help Player",
+    Text = Translation(MainTab, "Auto Help Player"),
     Default = false, 
     Callback = function(Value) 
 _G.AutoHelpPlayer = Value
@@ -126,9 +175,9 @@ end
     end
 })
 
-local DalgonaGroup = Tabs.Tab:AddRightGroupbox("Dalgona")
+local DalgonaGroup = Tabs.Tab:AddRightGroupbox(Translation(MainTab, "Dalgona"))
 
-DalgonaGroup:AddButton("Complete Dalgona", function()
+DalgonaGroup:AddButton(Translation(MainTab, "Complete Dalgona"), function()
 local DalgonaClientModule = game.ReplicatedStorage.Modules.Games.DalgonaClient
 for i, v in pairs(getreg()) do
     if typeof(v) == "function" and islclosure(v) then
@@ -141,10 +190,10 @@ for i, v in pairs(getreg()) do
 end
 end)
 
-local TugwarGroup = Tabs.Tab:AddLeftGroupbox("Tug Of War / Hide & Seek")
+local TugwarGroup = Tabs.Tab:AddLeftGroupbox(Translation(MainTab, "Tug Of War / Hide & Seek"))
 
 TugwarGroup:AddToggle("AutoTug of War", {
-    Text = "Auto Tug of War",
+    Text = Translation(MainTab, "Auto Tug of War"),
     Default = false, 
     Callback = function(Value) 
 _G.TugOfWar = Value
@@ -158,7 +207,7 @@ end
 TugwarGroup:AddDivider()
 
 TugwarGroup:AddToggle("Esp DoorExit", {
-    Text = "Esp Door Exit",
+    Text = Translation(MainTab, "Esp Door Exit"),
     Default = false, 
     Callback = function(Value) 
 _G.DoorExit = Value
@@ -249,7 +298,7 @@ end
 })
 
 TugwarGroup:AddToggle("Esp Key", {
-    Text = "Esp Key",
+    Text = Translation(MainTab, "Esp Key"),
     Default = false, 
     Callback = function(Value) 
 _G.DoorKey = Value
@@ -320,7 +369,7 @@ end
 })
 
 TugwarGroup:AddToggle("Hide", {
-    Text = "Esp Player Hide",
+    Text = Translation(MainTab, "Esp Player Hide"),
     Default = false, 
     Callback = function(Value) 
 _G.HidePlayer = Value
@@ -401,7 +450,7 @@ end
 })
 
 TugwarGroup:AddToggle("Hide", {
-    Text = "Esp Player Seek",
+    Text = Translation(MainTab, "Esp Player Seek"),
     Default = false, 
     Callback = function(Value) 
 _G.SeekPlayer = Value
@@ -483,7 +532,7 @@ end
 TugwarGroup:AddDivider()
 
 TugwarGroup:AddToggle("Auto Teleport Hide", {
-    Text = "Auto Teleport Hide",
+    Text = Translation(MainTab, "Auto Teleport Hide"),
     Default = false, 
     Callback = function(Value) 
 _G.AutoTeleportHide = Value
@@ -505,7 +554,7 @@ end
     end
 })
 
-TugwarGroup:AddButton("Teleport Player Hide", function()
+TugwarGroup:AddButton(Translation(MainTab, "Teleport Player Hide"), function()
 for i, v in pairs(game.Players:GetChildren()) do
 if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
 if v:GetAttribute("IsHider") and v.Character.Humanoid.Health > 0 then
@@ -516,7 +565,7 @@ end
 end
 end)
 
-TugwarGroup:AddButton("Teleport All Key", function()
+TugwarGroup:AddButton(Translation(MainTab, "Teleport All Key"), function()
 local OldCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 for _, a in pairs(workspace.Effects:GetChildren()) do
 if a.Name:find("DroppedKey") and a:FindFirstChild("Handle") then
@@ -533,18 +582,18 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldCFrame
 end
 end)
 
-local JumpropeGroup = Tabs.Tab:AddLeftGroupbox("Jump Rope")
+local JumpropeGroup = Tabs.Tab:AddLeftGroupbox(Translation(MainTab, "Jump Rope"))
 
-JumpropeGroup:AddButton("Complete Jump Rope", function()
+JumpropeGroup:AddButton(Translation(MainTab, "Complete Jump Rope"), function()
 if workspace:WaitForChild("JumpRope") then
 local pos = workspace.JumpRope.Important.Model.LEGS.Position
 Player.Character.HumanoidRootPart.CFrame = CFrame.new(pos, pos + Vector3.new(0, 0, -1))
 end
 end)
 
-local GlassBridgeGroup = Tabs.Tab:AddRightGroupbox("Glass Bridge")
+local GlassBridgeGroup = Tabs.Tab:AddRightGroupbox(Translation(MainTab, "Glass Bridge"))
 
-GlassBridgeGroup:AddButton("Glass Bridge Vision", function()
+GlassBridgeGroup:AddButton(Translation(MainTab, "Glass Bridge Vision"), function()
 local GlassHolder = workspace:WaitForChild("GlassBridge"):WaitForChild("GlassHolder")
 for i, v in pairs(GlassHolder:GetChildren()) do
     for k, j in pairs(v:GetChildren()) do
@@ -558,17 +607,17 @@ for i, v in pairs(GlassHolder:GetChildren()) do
 end
 end)
 
-GlassBridgeGroup:AddButton("Complete Glass Bridge", function()
+GlassBridgeGroup:AddButton(Translation(MainTab, "Complete Glass Bridge"), function()
 if workspace:WaitForChild("GlassBridge") then
 local pos = workspace.GlassBridge.End.PrimaryPart.Position + Vector3.new(0, 8, 0)
 Player.Character.HumanoidRootPart.CFrame = CFrame.new(pos, pos + Vector3.new(0, 0, -1))
 end
 end)
 
-local MingleGroup = Tabs.Tab:AddLeftGroupbox("Mingle")
+local MingleGroup = Tabs.Tab:AddLeftGroupbox(Translation(MainTab, "Mingle"))
 
 MingleGroup:AddToggle("AutoMingle", {
-    Text = "Auto Mingle",
+    Text = Translation(MainTab, "Auto Mingle"),
     Default = false, 
     Callback = function(Value) 
 _G.AutoMingle = Value
@@ -583,10 +632,10 @@ end
     end
 })
 
-local RebelGroup = Tabs.Tab:AddRightGroupbox("Rebel")
+local RebelGroup = Tabs.Tab:AddRightGroupbox(Translation("Tab", "Rebel"))
 
 RebelGroup:AddToggle("WallCheck", {
-    Text = "WallCheck",
+    Text = Translation(MainTab, "WallCheck"),
     Default = false, 
     Callback = function(Value) 
 _G.WallCheck = Value
@@ -594,7 +643,7 @@ _G.WallCheck = Value
 })
 
 RebelGroup:AddToggle("Aimbot Guard", {
-    Text = "Aimbot Guard",
+    Text = Translation(MainTab, "Aimbot Guard"),
     Default = false, 
     Callback = function(Value) 
 _G.Aimbot = Value
@@ -624,7 +673,7 @@ end
 })
 
 RebelGroup:AddToggle("Bring Guard", {
-    Text = "Bring Guard",
+    Text = Translation(MainTab, "Bring Guard"),
     Default = false, 
     Callback = function(Value) 
 _G.Bring = Value
@@ -642,7 +691,7 @@ end
 })
 
 RebelGroup:AddToggle("Inf Ammo", {
-    Text = "Inf Ammo",
+    Text = Translation(MainTab, "Inf Ammo"),
     Default = false, 
     Callback = function(Value) 
 _G.InfAmmo = Value
@@ -657,10 +706,11 @@ end
     end
 })
 
-local Misc1Group = Tabs.Tab1:AddLeftGroupbox("Misc")
+local MiscTab = "Misc"
+local Misc1Group = Tabs.Tab1:AddLeftGroupbox(Translation(MiscTab, "Misc"))
 
 Misc1Group:AddToggle("AutoSkip", {
-    Text = "Auto Skip",
+    Text = Translation(MiscTab, "Auto Skip"),
     Default = false, 
     Callback = function(Value) 
 _G.AutoSkip = Value
@@ -673,7 +723,7 @@ end
 })
 
 Misc1Group:AddSlider("WalkSpeed", {
-    Text = "Speed",
+    Text = Translation(MiscTab, "Speed"),
     Default = 20,
     Min = 20,
     Max = 1000,
@@ -687,7 +737,7 @@ _G.Speed = Value
 Misc1Group:AddInput("WalkSpeed1", {
     Default = "20",
     Numeric = false,
-    Text = "Speed",
+    Text = Translation(MiscTab, "Speed"),
     Placeholder = "UserSpeed",
     Callback = function(Value)
 _G.Speed = Value
@@ -695,7 +745,7 @@ _G.Speed = Value
 })
 
 Misc1Group:AddToggle("SetSpeed", {
-    Text = "Auto Speed",
+    Text = Translation(MiscTab, "Auto Speed"),
     Default = false, 
     Callback = function(Value) 
 _G.AutoSpeed = Value
@@ -706,7 +756,7 @@ end
 })
 
 Misc1Group:AddToggle("No Cooldown Proximity", {
-    Text = "No Cooldown Proximity",
+    Text = Translation(MiscTab, "No Cooldown Proximity"),
     Default = false, 
     Callback = function(Value) 
 _G.NoCooldownProximity = Value
@@ -732,8 +782,127 @@ end)
     end
 })
 
+Misc1Group:AddSlider("Fly Bypass", {
+    Text = Translation(MiscTab, "Fly Speed"),
+    Default = 20,
+    Min = 20,
+    Max = 500,
+    Rounding = 0,
+    Compact = true,
+    Callback = function(Value)
+_G.FlySpeed = Value
+    end
+})
+
+Misc1Group:AddToggle("Fly", {
+    Text = Translation(MiscTab, "Fly"),
+    Default = false, 
+    Callback = function(Value) 
+_G.VectorFly = Value
+local ctrl = {f = 0, b = 0, l = 0, r = 0}
+local lastctrl = {f = 0, b = 0, l = 0, r = 0}
+game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
+    if _G.StartFly == true then
+        if key:lower() == "w" then
+            ctrl.f = 1 
+        elseif key:lower() == "s" then 
+            ctrl.b = -1 
+        elseif key:lower() == "a" then 
+            ctrl.l = -1 
+        elseif key:lower() == "d" then 
+            ctrl.r = 1 
+        end 
+    end
+end) 
+game.Players.LocalPlayer:GetMouse().KeyUp:Connect(function(key) 
+    if key:lower() == "w" then 
+        ctrl.f = 0 
+    elseif key:lower() == "s" then 
+        ctrl.b = 0 
+    elseif key:lower() == "a" then 
+        ctrl.l = 0 
+    elseif key:lower() == "d" then 
+        ctrl.r = 0 
+    end 
+end)
+while _G.StartFly do
+    if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+        if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyGyro") == nil then
+            local bg = Instance.new("BodyGyro", game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"))
+            bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+            bg.P = 9e4
+            bg.CFrame = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+        end
+        if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") == nil then
+            local bv = Instance.new("BodyVelocity", game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"))
+            bv.Velocity = Vector3.new(0, 0, 0)
+            bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+        end
+        if not MobileOn then
+            if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
+                _G.SetSpeedFly = _G.SetSpeedFly + 0.5 + (_G.SetSpeedFly / MaxSpeed)
+                if _G.SetSpeedFly > MaxSpeed then
+                    _G.SetSpeedFly = MaxSpeed
+                end
+            elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) then
+                _G.SetSpeedFly = _G.SetSpeedFly - 1
+                if _G.SetSpeedFly < 0 then
+                    _G.SetSpeedFly = 0
+                end
+            end
+            if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then
+                game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity").Velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f + ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l + ctrl.r, (ctrl.f + ctrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * _G.SetSpeedFly
+                lastctrl = {f = ctrl.f, b = ctrl.b, l= ctrl.l, r = ctrl.r}
+            elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 then
+                game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity").Velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f + lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l + lastctrl.r, (lastctrl.f + lastctrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * _G.SetSpeedFly
+            else
+                game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity").Velocity = Vector3.new(0,0,0)
+            end
+            game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyGyro").CFrame = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f + ctrl.b) * 50 * _G.SetSpeedFly/MaxSpeed), 0, 0)
+        else
+            local MoveflyPE = require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector()
+            if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyGyro") then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.MaxForce = Vector3.new(9e9,9e9,9e9)
+                game.Players.LocalPlayer.Character.HumanoidRootPart.BodyGyro.MaxTorque = Vector3.new(9e9,9e9,9e9)
+                game.Players.LocalPlayer.Character.HumanoidRootPart.BodyGyro.CFrame = game.Workspace.CurrentCamera.CoordinateFrame
+                game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.Velocity = Vector3.new()
+                if MoveflyPE.X > 0 then
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (MoveflyPE.X * _G.SetSpeedFly)
+                end
+                if MoveflyPE.X < 0 then
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (MoveflyPE.X * _G.SetSpeedFly)
+                end
+                if MoveflyPE.Z > 0 then
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (MoveflyPE.Z * _G.SetSpeedFly)
+                end
+                if MoveflyPE.Z < 0 then
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.BodyVelocity.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (MoveflyPE.Z * _G.SetSpeedFly)
+                end
+            end
+        end
+    end
+    task.wait()
+end
+local ctrl = {f = 0, b = 0, l = 0, r = 0}
+local lastctrl = {f = 0, b = 0, l = 0, r = 0}
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+    if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyGyro") then
+        game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyGyro"):Destroy()
+    end
+    if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
+        game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity"):Destroy()
+    end
+end
+	end
+}):AddKeyPicker("Fly", {
+   Default = "R",
+   Text = "Fly",
+   Mode = "Toggle",
+   SyncToggleState = true
+})
+
 Misc1Group:AddToggle("Noclip", {
-    Text = "Noclip",
+    Text = Translation(MiscTab, "Noclip"),
     Default = false, 
     Callback = function(Value) 
 _G.NoclipCharacter = Value
@@ -759,39 +928,39 @@ end
     end
 }):AddKeyPicker("NoclipCharacter", {
    Default = "G",
-   Text = "Noclip",
+   Text = Translation(MiscTab, "Noclip"),
    Mode = "Toggle",
    SyncToggleState = true
 })
 
 Misc1Group:AddToggle("Inf Jump", {
-    Text = "Inf Jump",
+    Text = Translation(MiscTab, "Inf Jump"),
     Default = false, 
     Callback = function(Value) 
 _G.InfiniteJump = Value
     end
 }):AddKeyPicker("InfJump", {
    Default = "J",
-   Text = "Inf Jump",
+   Text = Translation(MiscTab, "Inf Jump"),
    Mode = "Toggle",
    SyncToggleState = true
 })
 
 Misc1Group:AddToggle("Tp", {
-    Text = "Teleport Player",
+    Text = Translation(MiscTab, "Teleport Player"),
     Default = false, 
     Callback = function(Value) 
 _G.TeleportPlayerAuto = Value
     end
 }):AddKeyPicker("TpPlr", {
    Default = "G",
-   Text = "Teleport Player",
+   Text = Translation(MiscTab, "Teleport Player"),
    Mode = "Toggle",
    SyncToggleState = true
 })
 
 Misc1Group:AddToggle("Camlock", {
-    Text = "Camlock Player / TP",
+    Text = Translation(MiscTab, "Camlock Player / TP"),
     Default = false, 
     Callback = function(Value) 
 _G.CamlockPlayer = Value
@@ -828,7 +997,7 @@ end
     end
 }):AddKeyPicker("CamlockPlr", {
    Default = "K",
-   Text = "Camlock Player / TP",
+   Text = Translation(MiscTab, "Camlock Player / TP"),
    Mode = "Toggle",
    SyncToggleState = true
 })
@@ -847,7 +1016,7 @@ function HasTool(tool)
 	return false
 end
 Misc1Group:AddToggle("Bandage", {
-	Text = "Auto Collect Bandage",
+	Text = Translation(MiscTab, "Auto Collect Bandage"),
 	Default = false,
 	Callback = function(Value)
 _G.CollectBandage = Value
@@ -873,7 +1042,7 @@ end
 })
 
 Misc1Group:AddToggle("FlashBang", {
-	Text = "Auto Collect Flash Bang",
+	Text = Translation(MiscTab, "Auto Collect Flash Bang"),
 	Default = false,
 	Callback = function(Value)
 _G.CollectFlashbang = Value
@@ -899,7 +1068,7 @@ end
 })
 
 Misc1Group:AddToggle("Grenade", {
-	Text = "Auto Collect Grenade",
+	Text = Translation(MiscTab, "Auto Collect Grenade"),
 	Default = false,
 	Callback = function(Value)
 _G.CollectGrenade = Value
@@ -925,7 +1094,7 @@ end
 })
 
 Misc1Group:AddToggle("Anti Fling", {
-    Text = "Anti Fling",
+    Text = Translation(MiscTab, "Anti Fling"),
     Default = false, 
     Callback = function(Value) 
 _G.AntiFling = Value
@@ -945,7 +1114,7 @@ end
 })
 
 Misc1Group:AddToggle("Anti Banana", {
-    Text = "Anti Banana",
+    Text = Translation(MiscTab, "Anti Banana"),
     Default = false, 
     Callback = function(Value) 
 _G.AntiBanana = Value
@@ -962,69 +1131,65 @@ end
     end
 })
 
+
 _G.PartLag = {"FootstepEffect", "BulletHole", "GroundSmokeDIFFERENT", "ARshell", "effect debris", "effect", "DroppedMP5"}
-Misc1Group:AddButton("Anti Lag", function()
-function PartLagDe(g)
-	for i, v in pairs(_G.PartLag) do
-		if g.Name:find(v) then
-			g:Destroy()
-		end
+Misc1Group:AddToggle("Anti Lag", {
+    Text = Translation(MiscTab, "Anti Lag"),
+    Default = false, 
+    Callback = function(Value) 
+_G.AntiLag = Value
+if _G.AntiLag == true then
+local Terrain = workspace:FindFirstChildOfClass("Terrain")
+Terrain.WaterWaveSize = 0
+Terrain.WaterWaveSpeed = 0
+Terrain.WaterReflectance = 0
+Terrain.WaterTransparency = 1
+game.Lighting.GlobalShadows = false
+game.Lighting.FogEnd = 9e9
+game.Lighting.FogStart = 9e9
+for i,v in pairs(game:GetDescendants()) do
+	if v:IsA("BasePart") then
+		v.Material = "Plastic"
+		v.Reflectance = 0
+		v.BackSurface = "SmoothNoOutlines"
+		v.BottomSurface = "SmoothNoOutlines"
+		v.FrontSurface = "SmoothNoOutlines"
+		v.LeftSurface = "SmoothNoOutlines"
+		v.RightSurface = "SmoothNoOutlines"
+		v.TopSurface = "SmoothNoOutlines"
+	elseif v:IsA("Decal") then
+		v.Transparency = 1
+	elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+		v.Lifetime = NumberRange.new(0)
 	end
 end
-local Terrain = workspace:FindFirstChildOfClass("Terrain")
-	Terrain.WaterWaveSize = 0
-	Terrain.WaterWaveSpeed = 0
-	Terrain.WaterReflectance = 0
-	Terrain.WaterTransparency = 1
-    game.Lighting.GlobalShadows = false
-	game.Lighting.FogEnd = 9e9
-	game.Lighting.FogStart = 9e9
-	for i,v in pairs(game:GetDescendants()) do
-		if v:IsA("BasePart") then
-			v.Material = "Plastic"
-			v.Reflectance = 0
-			v.BackSurface = "SmoothNoOutlines"
-			v.BottomSurface = "SmoothNoOutlines"
-			v.FrontSurface = "SmoothNoOutlines"
-			v.LeftSurface = "SmoothNoOutlines"
-			v.RightSurface = "SmoothNoOutlines"
-			v.TopSurface = "SmoothNoOutlines"
-		elseif v:IsA("Decal") then
-			v.Transparency = 1
-		elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-			v.Lifetime = NumberRange.new(0)
-		end
+for i,v in pairs(game.Lighting:GetDescendants()) do
+	if v:IsA("PostEffect") then
+		v.Enabled = false
 	end
-	for i,v in pairs(game.Lighting:GetDescendants()) do
-		if v:IsA("PostEffect") then
-			v.Enabled = false
-		end
+end
+for i,v in pairs(game.Workspace:GetDescendants()) do
+	if v:IsA("ForceField") or v:IsA("Sparkles") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Beam") then
+		v:Destroy()
 	end
-	workspace.DescendantAdded:Connect(function(child)
-		task.spawn(function()
-			if child:IsA("ForceField") or child:IsA("Sparkles") or child:IsA("Smoke") or child:IsA("Fire") or child:IsA("Beam") then
-				child:Destroy()
-			end
-		end)
-	end)
+end
+end
+while _G.AntiLag do
 	for i, v in pairs(workspace:FindFirstChild("Effects"):GetChildren()) do
-		task.spawn(function()
-			PartLagDe(v)
-		end)
-	end
-	while true do
-		for i, v in pairs(workspace:FindFirstChild("Effects"):GetChildren()) do
+		if _G.AntiLag == true then
 			PartLagDe(v)
 		end
-		task.wait()
 	end
-end)
+	task.wait()
+end
+    end
+})
 
-local Misc2Group = Tabs.Tab1:AddRightGroupbox("Settings Gui")
+local Misc2Group = Tabs.Tab1:AddRightGroupbox(Translation(MiscTab, "Settings Gui"))
 
 _G.EspHighlight = false
 Misc2Group:AddToggle("Esp Hight Light", {
-    Text = "Esp Hight Light",
+    Text = Translation(MiscTab, "Esp Hight Light"),
     Default = false, 
     Callback = function(Value) 
 _G.EspHighlight = Value
@@ -1038,7 +1203,7 @@ _G.ColorLight = Value
 
 _G.EspGui = false
 Misc2Group:AddToggle("Esp Gui", {
-    Text = "Esp Gui",
+    Text = Translation(MiscTab, "Esp Gui"),
     Default = false, 
     Callback = function(Value) 
 _G.EspGui = Value
@@ -1051,7 +1216,7 @@ _G.EspGuiTextColor = Value
 })
 
 Misc2Group:AddSlider("Text Size", {
-    Text = "Text Size [ Gui ]",
+    Text = Translation(MiscTab, "Text Size [ Gui ]"),
     Default = 7,
     Min = 7,
     Max = 50,
@@ -1066,7 +1231,7 @@ Misc2Group:AddDivider()
 
 _G.EspName = false
 Misc2Group:AddToggle("Esp Name", {
-    Text = "Esp Name",
+    Text = Translation(MiscTab, "Esp Name"),
     Default = false, 
     Callback = function(Value) 
 _G.EspName = Value
@@ -1075,7 +1240,7 @@ _G.EspName = Value
 
 _G.EspDistance = false
 Misc2Group:AddToggle("Esp Distance", {
-    Text = "Esp Distance",
+    Text = Translation(MiscTab, "Esp Distance"),
     Default = false, 
     Callback = function(Value) 
 _G.EspDistance = Value
