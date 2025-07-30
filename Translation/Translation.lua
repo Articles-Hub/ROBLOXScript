@@ -211,7 +211,7 @@ return {
 			["Main 2"] = {
 				["Esp"] = "ESP",
 				["Esp Item"] = "ESP de Itens",
-				["Esp Monsters"] = "ESP de Monstros"
+				["Esp Monsters"] = "ESP de Monstros",
 				
 				["Esp Hight Light"] = "Destaque Brilhante",
 				["Esp Gui"] = "Interface ESP Remota",
