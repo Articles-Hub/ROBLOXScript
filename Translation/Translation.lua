@@ -310,6 +310,6 @@ return {
 				["Esp Distance"] = "显示距离"
 			}
 		}
-	}
+	},
 	["Soon"] = {}
 }
