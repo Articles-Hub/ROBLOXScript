@@ -2,7 +2,14 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
+getgenv().TranslationCounter = nil
 Translations = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Translation/Translation.lua"))()
+loadstring(game:HttpGet("https://pastefy.app/yavAjgX3/raw"))()
+repeat task.wait() until TranslationCounter
+if game.CoreGui:FindFirstChild("Country") then
+game.CoreGui:FindFirstChild("Country"):Destroy()
+end
+wait(0.3)
 local Player = game.Players.LocalPlayer
 game:GetService("UserInputService").JumpRequest:connect(function()
 	if _G.InfiniteJump == true then
@@ -53,14 +60,14 @@ workspace.DescendantAdded:Connect(function(v)
 	end
 end)
 
-_G.TranslationCounter = "English"
+local Name = "Ink Game"
 function Translation(Section, Text)
-	if _G.TranslationCounter == "English" or not _G.TranslationCounter then
+	if TranslationCounter == "English" then
 		return Text
 	end
-	local lang = Translations[_G.TranslationCounter]
-	if lang and lang["Ink Game"] and lang["Ink Game"][Section] and lang["Ink Game"][Section][Text] then
-		return lang["Ink Game"][Section][Text]
+	local lang = Translations[TranslationCounter]
+	if lang and lang[Name] and lang[Name][Section] and lang[Name][Section][Text] then
+		return lang[Name][Section][Text]
 	else
 		return Text
 	end
@@ -686,7 +693,7 @@ end
     end
 })
 
-local RebelGroup = Tabs.Tab:AddRightGroupbox(Translation("Tab", "Rebel"))
+local RebelGroup = Tabs.Tab:AddRightGroupbox(Translation(MainTab, "Rebel"))
 
 RebelGroup:AddToggle("WallCheck", {
     Text = Translation(MainTab, "WallCheck"),
@@ -761,7 +768,7 @@ end
 })
 
 local MiscTab = "Misc"
-local Misc1Group = Tabs.Tab1:AddLeftGroupbox(Translation(MiscTab, "Misc"))
+local Misc1Group = Tabs.Tab1:AddLeftGroupbox(Translation("Tab", "Misc"))
 
 Misc1Group:AddToggle("AutoSkip", {
     Text = Translation(MiscTab, "Auto Skip"),
@@ -982,7 +989,7 @@ if TargetPlayer then
 repeat task.wait()
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and TargetPlayer:FindFirstChild("HumanoidRootPart") and TargetPlayer:FindFirstChild("Humanoid") then
 if _G.TeleportPlayerAuto == true then
-if TargetPlayer:FindFirstChild("Humanoid") and TargetPlayer.Humanoid.MoveDirection.Magnitude > 0 then
+if TargetPlayer:FindFirstChild("Humanoid") and TargetPlayer.Humanoid.MoveDirection.Magnitude > 5 then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = TargetPlayer:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0, 0, -7)
 else
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = TargetPlayer:FindFirstChild("HumanoidRootPart").CFrame
