@@ -1,11 +1,11 @@
 return {
 	["Việt Nam"] = {
+		----------- Rainbow Friends ------------ 
 		["Rainbow Friends"] = {
 			["Tab"] = {
 				["Main"] = "Chủ yếu",
 				["UI Settings"] = "Cài Đặt UI"
 			},
-			----------- Tab ------------ 
 			["Main 1"] = {
 				["Main"] = "Chủ yếu",
 				["Auto PickUp item"] = "Auto Nhặt Vặt phẩm",
@@ -14,7 +14,15 @@ return {
 			["Main 2"] = {
 				["Esp"] = "Định vị",
 				["Esp Item"] = "Định vị vật phẩm",
-				["Esp Monsters"] = "Định vị quái vật"
+				["Esp Monsters"] = "Định vị quái vật",
+				
+				["Esp Hight Light"] = "Công tác ánh sáng",
+				["Esp Gui"] = "Công tác nhìn từ xa",
+				["Text Size [ Gui ]"] = "Kích thước văn bản [ nhìn từ xa ]",
+
+				["Esp Name"] = "Xem tên",
+				["Esp Distance"] = "Xem khoảng cách",
+				["Esp Health"] = "Xem sức khỏe"
 			}
 		},
 		----------- Ink Game ------------ 
@@ -86,141 +94,6 @@ return {
 				["Esp Name"] = "Xem tên",
 				["Esp Distance"] = "Xem khoảng cách"
 			}
-		},
-		["Slap Battles"] = {
-			["Tab"] = {
-				["Info"] = "Thông tin",
-				["Script"] = "Kích bản",
-				["Anti"] = "Chống",
-				["Badges"] = "Hủy hiệu",
-				["Local"] = "Chính mình",
-				["Misc"] = "Lặt vặt",
-				["Gloves Optional"] = "Tùy chọn Glove",
-				["UI Settings"] = "Cài Đặt UI"
-			},
-			["Info"] = {
-				["Server"] = "Máy chủ",
-				["Your Fps"] = "Fps của bạn",
-				["Your Ping"] = "Ping của bạn",
-				["Player In Server"] = "Người chơi trong máy chủ",
-				["Server Time"] = "Giờ máy chủ",
-				["Now Time"] = "Bây giờ",
-				["Good Morning"] = "Đang buổi sáng",
-				["Good Afternoon"] = "Đang buổi chiều",
-				["Good Evening"] = "Đang buổi tối",
-				["Good Night"] = "Ban đêm",
-				["You Account Age"] = "Tuổi Acc của bạn",
-				["Pocket Room"] = "Phòng bỏ túi",
-				["Time Spawn"] = "Thời gian spawn lại",
-				["Code Keypad"] = "Bàn phím mã",
-				["Keypad Spawn"] = "Bàn phím Spawn",
-				["Player Spawn Toolbox"] = "Hộp công cụ spawn của Player",
-				["Gravestone Spawn"] = "Mộ đã spawn",
-				["Player Spawn Gift"] = "Quà spawn của Player",
-				["Golden Slapple Spawn"] = "Táo vàng đã spawn",
-				["Spawn Orb"] = "Quả cầu đã spawn",
-				["Check Null Shard"] = "Kiểm tra mảnh vỡ",
-				["Check Tournament Win"] = "Kiểm tra chiến thắng giải đấu",
-				["Check Slap"] = "Kiểm tra Tát",
-				["Much Glove"] = "bao nhiều glove",
-				["You're Using Glove"] = "bạn đang sử dụng glove",
-				["Plate Time"] = "Số địa đã ở",
-				["Gravity"] = "Trọng lượng",
-				["Position In Your"] = "Vị trí trong của bạn",
-				["Toggle Return"] = "Auto đặt lại",
-				["Copy Position"] = "Sao chép vị trí",
-				["Copied Success"] = "Sao chép thành công",
-				["Glove Badge / Slap"] = "Hủy hiệu / Glove",
-				["Player"] = "Người chơi",
-				["Player Check"] = "Kiểm tra Player",
-				["General Glove / Badge"] = "Tất cả Glove / Huy hiệu",
-				["Check Glove / Badge"] = "Kiểm tra Glove / Huy hiệu",
-				["Search Glove"] = "Tìm kiếm Glove",
-				["Glove Search"] = "Glove kiếm đc",
-				["Player Owner"] = "Player chủ sở hữu",
-				["Owner"] = "Tên sở hữu glove",
-				["Using Glove"] = "Đang dùng glove",
-				["Position"] = "Vị trí",
-			},
-			["Script"] = {
-				["Script Basic"] = "Kịch bản cơ bản",
-				["Execute | Ui Library"] = "Thực thi giao diện",
-				["Keyboard"] = "Bàn phím",
-				["Inf yield Delta"] = "Vô hạn năng suất Delta",
-				["Script"] = "Kích bản",
-				["Position Gui"] = "Vị trí Gui",
-				["Dex V2"] = "Dex phiên bản V2",
-				["Dex V3"] = "Dex phiên bản V3",
-				["Dex V4"] = "Dex phiên bản V4",
-				["Simple Spy"] = "Điệp viên đơn giản"
-			},
-			["Anti"] = {
-				["Toggle All"] = "Nút tất cả",
-				["Toggle Anti"] = "Nút chống",
-				["Anti"] = "Chống",
-				
-				["Anti Void"] = "Chống hư không",
-				["Anti Portal"] = "Chống cổng thừa",
-				["Anti Admin"] = "Chống Quản trị viên",
-				["Anti Kick"] = "Chống Đá",
-				["Anti Afk"] = "Chống Afk",
-				["Anti Obby"] = "Chống Obby",
-				["Anti Megarock | Custom"] = "Chống siêu đá",
-				["Anti Cherry"] = "Chống Nhân đôi",
-				["Anti Join Boss Guide"] = "Chống vào chùm Guide",
-				["Anti Snowball"] = "Chống quả cầu tuyết",
-				["Anti Ball Baller"] = "Chống bóng baller",
-				["Anti Venom Infected"] = "Chống nhiễm độc",
-				["Anti Ghost Player"] = "Chống Ma Player",
-				["Anti Trap"] = "Chống Bẫy",
-				["Anti Lure"] = "Chống cá mập",
-				["Anti Mail"] = "Chống gửi thư",
-				["Anti Water"] = "Chống nước",
-				["Anti Jail Admin"] = "Chống Nhà tù",
-				["Anti Mitten Blind"] = "Chống Mitten che mắt",
-				["Anti Knockoff"] = "Chống mất đầu",
-				["Anti Hallow - Jack"] = "Chống Hallow",
-				["Anti Booster"] = "Chống Booster",
-				["Anti Squid"] = "Chống mực",
-				["Anti Lamp"] = "Chống chói",
-				["Anti Pie"] = "Chống Pie",
-				["Anti Conveyor"] = "Chống bangw tải",
-				["Anti Ice"] = "Chống đá",
-				["Anti Time Stop"] = "Chống thời gian dừng",
-				["Anti Null"] = "Chống Null",
-				["Anti Run"] = "Chống chạy",
-				["Anti Record"] = "Chống ghi hình",
-				["Anti [REDACTED]"] = "Chống bắt cóc",
-				["Anti Brazil"] = "Chống cửa vào OOG",
-				["Anti Za Hando"] = "Chống Kéo",
-				["Anti Bob"] = "Chống Bob",
-				["Anti Fort"] = "Chống tường",
-				["Anti Pusher"] = "Chống Đẩy",
-				["Anti Defend"] = "Chống bảo vệ",
-				["Anti Bubble"] = "Chống bóng",
-				["Anti Stun"] = "Chống làm choáng",
-				["Anti Cube Of Death"] = "Chống Cube",
-				["Anti Death Barriers"] = "Chống chỗ die",
-				["Anti Ragdoll"] = "Chống Ragdoll"
-			},
-			["Badges"] = {
-			    ["Auto Get Boxing"] = "Auto lấy đấm bốc",
-			    ["Auto Get Bind"] = "Auto lấy Bind",
-			    ["Auto Get FrostBite"] = "Auto lấy FrostBite",
-			    ["Auto Get Plunger"] = "Auto lấy Pít",
-			    ["Auto Get Admin"] = "Auto lấy Admin (Glove nha)",
-			    ["Auto Get Chain"] = "Auto lấy Xích",
-			    ["Get Counter + Elude"] = "Auto lấy phản công + trốn tránh",
-			    ["Get Swordfighter"] = "Auto lấy Kiếm sĩ",
-			    ["Get Reflect"] = "Auto lấy Phản ánh",
-			    ["Get Fight Guide"] = "Auto lấy Guide Chiến đấu",
-			
-				["Bruh, Not only executor you autoexe"] = "Vaiz, cái executor ko có autoexe",
-				["You don't have 1000 slap."] = "Bạn ko có 1000 slap",
-				["You have complete 4 quest hitman (2 quest easy, 2 quest hard)"] = "Hoàn thành 4 nhiệm vụ của Hitman (T nghĩ là mày làm 2 cái dễ, còn đâu thì 2 cái khó)",
-				["You don't have Stun equipped, or you aren't in the arena"] = "Ban ko dùng Stun, hoặc bạn ko vào arena",
-				["You wait time [ 10 second ]."] = "Đợi 10 giây"
-			}
 		}
 	},
 	------ China -------
@@ -239,7 +112,16 @@ return {
 			["Main 2"] = {
 				["Esp"] = "透视",
 				["Esp Item"] = "透视物品",
-				["Esp Monsters"] = "透视怪物"
+				["Esp Monsters"] = "透视怪物",
+				
+				["Esp Hight Light"] = "高亮显示",
+				["Esp Gui"] = "远程界面显示",
+				["Text Size [ Gui ]"] = "文字大小 [界面]",
+				
+				
+				["Esp Name"] = "显示名称",
+				["Esp Distance"] = "显示距离",
+				["Esp Health"] = "显示生命值"
 			}
 		},
 		----------- Ink Game ------------ 
@@ -303,6 +185,7 @@ return {
 				["Fly"] = "飞行",
 				["Fly Speed"] = "飞行速度",
 	
+				["Settings Gui"] = "界面设置",
 				["Esp Hight Light"] = "高亮显示",
 				["Esp Gui"] = "远程可视化",
 				["Text Size [ Gui ]"] = "文字大小 [ 可视化 ]",
@@ -312,5 +195,102 @@ return {
 			}
 		}
 	},
-	["Soon"] = {}
+	------- Brazil --------
+	["Brazil"] = {
+		["Rainbow Friends"] = {
+			["Tab"] = {
+				["Main"] = "Principal",
+				["UI Settings"] = "Configurações da Interface"
+			},
+			----------- Tab ------------ 
+			["Main 1"] = {
+				["Main"] = "Principal",
+				["Auto PickUp item"] = "Pegar Itens Automaticamente",
+				["Teleport Build Structures"] = "Teleportar para Estruturas"
+			},
+			["Main 2"] = {
+				["Esp"] = "ESP",
+				["Esp Item"] = "ESP de Itens",
+				["Esp Monsters"] = "ESP de Monstros"
+				
+				["Esp Hight Light"] = "Destaque Brilhante",
+				["Esp Gui"] = "Interface ESP Remota",
+				["Text Size [ Gui ]"] = "Tamanho do Texto [ Interface ]",
+				
+				["Esp Name"] = "Mostrar Nome",
+				["Esp Distance"] = "Mostrar Distância",
+				["Esp Health"] = "Mostrar Vida"
+			}
+		},
+		----------- Ink Game ------------ 
+		["Ink Game"] = {
+			["Tab"] = {
+				["Main"] = "Principal",
+				["Misc"] = "Diversos",
+				["UI Settings"] = "Configurações da Interface"
+			},
+			["Main"] = {
+				["Green Light, Red Light"] = "Luz Verde, Luz Vermelha",
+				["Help Player To End"] = "Ajudar Jogador até o Fim",
+				["Auto Help Player"] = "Ajudar Jogador Automaticamente",
+				["Troll Player"] = "Zoar Jogador",
+				["Auto Troll Player"] = "Zoar Jogador Automaticamente",
+	
+				["Dalgona"] = "Doce Dalgona",
+				["Complete Dalgona"] = "Completar Dalgona",
+	
+				["Tug Of War / Hide & Seek"] = "Cabo de Guerra / Esconde-Esconde",
+				["Auto Tug of War"] = "Cabo de Guerra Automático",
+				["Esp Door Exit"] = "ESP de Saída",
+				["Esp Key"] = "ESP de Chave",
+				["Esp Player Hide"] = "ESP Jogador Escondido",
+				["Esp Player Seek"] = "ESP Jogador Caçador",
+				["Auto Teleport Hide"] = "Teleportar Autom. Escondido",
+				["Teleport Player Hide"] = "Teleportar para Escondido",
+				["Teleport All Key"] = "Teleportar Todas as Chaves",
+	
+				["Jump Rope"] = "Pular Corda",
+				["Complete Jump Rope"] = "Completar Pular Corda",
+	
+				["Glass Bridge"] = "Ponte de Vidro",
+				["Glass Bridge Vision"] = "Ver Vidro Real ou Falso",
+				["Complete Glass Bridge"] = "Completar Ponte de Vidro",
+	
+				["Mingle"] = "Misturar",
+				["Auto Mingle"] = "Misturar Automaticamente",
+	
+				["Rebel"] = "Rebelde",
+				["WallCheck"] = "Verificar Parede",
+				["Aimbot Guard"] = "Mira Automática no Guarda",
+				["Bring Guard"] = "Puxar Guarda",
+				["Inf Ammo"] = "Munição Infinita"
+			},
+			["Misc"] = {
+				["Auto Skip"] = "Pular Automaticamente",
+				["Speed"] = "Velocidade",
+				["Auto Speed"] = "Ajustar Velocidade Automática",
+				["No Cooldown Proximity"] = "Sem Recarga de Proximidade",
+				["Noclip"] = "Sem Colisão",
+				["Inf Jump"] = "Pulo Infinito",
+				["Teleport Player"] = "Teleportar para Jogador",
+				["Camlock Player / TP"] = "Travar Câmera / Teleportar",
+				["Auto Collect Bandage"] = "Coletar Curativos Automaticamente",
+				["Auto Collect Flash Bang"] = "Coletar Granada de Luz Automaticamente",
+				["Auto Collect Grenade"] = "Coletar Granada Automaticamente",
+				["Anti Fling"] = "Anti Arremesso",
+				["Anti Banana"] = "Anti Banana",
+				["Anti Lag"] = "Anti Lag",
+				["Fly"] = "Voar",
+				["Fly Speed"] = "Velocidade de Voo",
+				
+				["Settings Gui"] = "Configurações da Interface",
+				["Esp Hight Light"] = "Iluminação ESP",
+				["Esp Gui"] = "Interface ESP",
+				["Text Size [ Gui ]"] = "Tamanho do Texto [ Interface ]",
+	
+				["Esp Name"] = "Mostrar Nome",
+				["Esp Distance"] = "Mostrar Distância"
+			}
+		}
+	}
 }
