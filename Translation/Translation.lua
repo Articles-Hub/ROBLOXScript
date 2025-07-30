@@ -78,6 +78,7 @@ return {
 				["Fly"] = "Bay",
 				["Fly Speed"] = "Tốc độ Bay",
 				
+				["Settings Gui"] = "Cài Đặt Gui"
 				["Esp Hight Light"] = "Công tác ánh sáng",
 				["Esp Gui"] = "Công tác nhìn từ xa",
 				["Text Size [ Gui ]"] = "Kích thước văn bản [ nhìn từ xa ]",
