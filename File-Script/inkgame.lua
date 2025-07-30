@@ -989,7 +989,7 @@ if TargetPlayer then
 repeat task.wait()
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and TargetPlayer:FindFirstChild("HumanoidRootPart") and TargetPlayer:FindFirstChild("Humanoid") then
 if _G.TeleportPlayerAuto == true then
-if TargetPlayer:FindFirstChild("Humanoid") and TargetPlayer.Humanoid.MoveDirection.Magnitude > 5 then
+if TargetPlayer:FindFirstChild("Humanoid") and TargetPlayer.Humanoid.MoveDirection.Magnitude > 0 then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = TargetPlayer:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0, 0, -7)
 else
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = TargetPlayer:FindFirstChild("HumanoidRootPart").CFrame
