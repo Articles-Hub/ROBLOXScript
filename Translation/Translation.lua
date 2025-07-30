@@ -27,7 +27,9 @@ return {
 			["Main"] = {
 				["Green Light, Red Light"] = "Đèn Xanh và Đỏ",
 				["Help Player To End"] = "Cứu player về end",
-				["Auto Help Player"] = "Tự động Cứu Player",
+				["Auto Help Player"] = "Auto Cứu Player",
+				["Troll Player"] = "Trêu Player",
+				["Auto Troll Player"] = "Auto Trêu Player",
 
 				["Dalgona"] = "Tách kẹo",
 				["Complete Dalgona"] = "Hoàn thành tách kẹo",
@@ -71,9 +73,10 @@ return {
 				["Auto Collect Flash Bang"] = "Auto nhặt đạn choáng",
 				["Auto Collect Grenade"] = "Auto nhặt đạn nổ",
 				["Anti Fling"] = "Chống thg fling",
-				["Touch Fling"] = "Chạm fling",
 				["Anti Banana"] = "Chống vỏ chuối",
 				["Anti Lag"] = "Chống Lag",
+				["Fly"] = "Bay",
+				["Fly Speed"] = "Tốc độ Bay",
 				
 				["Esp Hight Light"] = "Công tác ánh sáng",
 				["Esp Gui"] = "Công tác nhìn từ xa",
@@ -149,9 +152,164 @@ return {
 				["Dex V3"] = "Dex phiên bản V3",
 				["Dex V4"] = "Dex phiên bản V4",
 				["Simple Spy"] = "Điệp viên đơn giản"
+			},
+			["Anti"] = {
+				["Toggle All"] = "Nút tất cả",
+				["Toggle Anti"] = "Nút chống",
+				["Anti"] = "Chống",
+				
+				["Anti Void"] = "Chống hư không",
+				["Anti Portal"] = "Chống cổng thừa",
+				["Anti Admin"] = "Chống Quản trị viên",
+				["Anti Kick"] = "Chống Đá",
+				["Anti Afk"] = "Chống Afk",
+				["Anti Obby"] = "Chống Obby",
+				["Anti Megarock | Custom"] = "Chống siêu đá",
+				["Anti Cherry"] = "Chống Nhân đôi",
+				["Anti Join Boss Guide"] = "Chống vào chùm Guide",
+				["Anti Snowball"] = "Chống quả cầu tuyết",
+				["Anti Ball Baller"] = "Chống bóng baller",
+				["Anti Venom Infected"] = "Chống nhiễm độc",
+				["Anti Ghost Player"] = "Chống Ma Player",
+				["Anti Trap"] = "Chống Bẫy",
+				["Anti Lure"] = "Chống cá mập",
+				["Anti Mail"] = "Chống gửi thư",
+				["Anti Water"] = "Chống nước",
+				["Anti Jail Admin"] = "Chống Nhà tù",
+				["Anti Mitten Blind"] = "Chống Mitten che mắt",
+				["Anti Knockoff"] = "Chống mất đầu",
+				["Anti Hallow - Jack"] = "Chống Hallow",
+				["Anti Booster"] = "Chống Booster",
+				["Anti Squid"] = "Chống mực",
+				["Anti Lamp"] = "Chống chói",
+				["Anti Pie"] = "Chống Pie",
+				["Anti Conveyor"] = "Chống bangw tải",
+				["Anti Ice"] = "Chống đá",
+				["Anti Time Stop"] = "Chống thời gian dừng",
+				["Anti Null"] = "Chống Null",
+				["Anti Run"] = "Chống chạy",
+				["Anti Record"] = "Chống ghi hình",
+				["Anti [REDACTED]"] = "Chống bắt cóc",
+				["Anti Brazil"] = "Chống cửa vào OOG",
+				["Anti Za Hando"] = "Chống Kéo",
+				["Anti Bob"] = "Chống Bob",
+				["Anti Fort"] = "Chống tường",
+				["Anti Pusher"] = "Chống Đẩy",
+				["Anti Defend"] = "Chống bảo vệ",
+				["Anti Bubble"] = "Chống bóng",
+				["Anti Stun"] = "Chống làm choáng",
+				["Anti Cube Of Death"] = "Chống Cube",
+				["Anti Death Barriers"] = "Chống chỗ die",
+				["Anti Ragdoll"] = "Chống Ragdoll"
+			},
+			["Badges"] = {
+			    ["Auto Get Boxing"] = "Auto lấy đấm bốc",
+			    ["Auto Get Bind"] = "Auto lấy Bind",
+			    ["Auto Get FrostBite"] = "Auto lấy FrostBite",
+			    ["Auto Get Plunger"] = "Auto lấy Pít",
+			    ["Auto Get Admin"] = "Auto lấy Admin (Glove nha)",
+			    ["Auto Get Chain"] = "Auto lấy Xích",
+			    ["Get Counter + Elude"] = "Auto lấy phản công + trốn tránh",
+			    ["Get Swordfighter"] = "Auto lấy Kiếm sĩ",
+			    ["Get Reflect"] = "Auto lấy Phản ánh",
+			    ["Get Fight Guide"] = "Auto lấy Guide Chiến đấu",
+			
+				["Bruh, Not only executor you autoexe"] = "Vaiz, cái executor ko có autoexe",
+				["You don't have 1000 slap."] = "Bạn ko có 1000 slap",
+				["You have complete 4 quest hitman (2 quest easy, 2 quest hard)"] = "Hoàn thành 4 nhiệm vụ của Hitman (T nghĩ là mày làm 2 cái dễ, còn đâu thì 2 cái khó)",
+				["You don't have Stun equipped, or you aren't in the arena"] = "Ban ko dùng Stun, hoặc bạn ko vào arena",
+				["You wait time [ 10 second ]."] = "Đợi 10 giây"
 			}
-			--------- Soon ----------
 		}
 	},
+	------ China -------
+	["China"] = {
+		["Rainbow Friends"] = {
+			["Tab"] = {
+				["Main"] = "主要",
+				["UI Settings"] = "界面设置"
+			},
+			----------- Tab ------------ 
+			["Main 1"] = {
+				["Main"] = "主要",
+				["Auto PickUp item"] = "自动拾取物品",
+				["Teleport Build Structures"] = "传送到结构"
+			},
+			["Main 2"] = {
+				["Esp"] = "透视",
+				["Esp Item"] = "透视物品",
+				["Esp Monsters"] = "透视怪物"
+			}
+		},
+		----------- Ink Game ------------ 
+		["Ink Game"] = {
+			["Tab"] = {
+				["Main"] = "主要",
+				["Misc"] = "杂项",
+				["UI Settings"] = "界面设置"
+			},
+			["Main"] = {
+				["Green Light, Red Light"] = "红绿灯",
+				["Help Player To End"] = "帮助玩家到终点",
+				["Auto Help Player"] = "自动帮助玩家",
+				["Troll Player"] = "整蛊玩家",
+				["Auto Troll Player"] = "自动整蛊玩家",
+	
+				["Dalgona"] = "椪糖挑战",
+				["Complete Dalgona"] = "完成椪糖挑战",
+	
+				["Tug Of War / Hide & Seek"] = "拔河 / 捉迷藏",
+				["Auto Tug of War"] = "自动拔河",
+				["Esp Door Exit"] = "透视出口",
+				["Esp Key"] = "透视钥匙",
+				["Esp Player Hide"] = "透视藏人",
+				["Esp Player Seek"] = "透视追人",
+				["Auto Teleport Hide"] = "自动传送藏人",
+				["Teleport Player Hide"] = "传送到藏人",
+				["Teleport All Key"] = "传送所有钥匙",
+	
+				["Jump Rope"] = "跳绳",
+				["Complete Jump Rope"] = "完成跳绳",
+	
+				["Glass Bridge"] = "玻璃桥",
+				["Glass Bridge Vision"] = "可见真假玻璃",
+				["Complete Glass Bridge"] = "完成玻璃桥",
+	
+				["Mingle"] = "混战",
+				["Auto Mingle"] = "自动击杀",
+	
+				["Rebel"] = "叛徒",
+				["WallCheck"] = "检测墙壁",
+				["Aimbot Guard"] = "锁定警卫",
+				["Bring Guard"] = "带来警卫",
+				["Inf Ammo"] = "无限子弹"
+			},
+			["Misc"] = {
+				["Auto Skip"] = "自动跳过",
+				["Speed"] = "速度",
+				["Auto Speed"] = "自动设置速度",
+				["No Cooldown Proximity"] = "无冷却提示器",
+				["Noclip"] = "穿墙",
+				["Inf Jump"] = "无限跳跃",
+				["Teleport Player"] = "传送到玩家",
+				["Camlock Player / TP"] = "锁定摄像头/传送",
+				["Auto Collect Bandage"] = "自动收集绷带",
+				["Auto Collect Flash Bang"] = "自动收集闪光弹",
+				["Auto Collect Grenade"] = "自动收集手雷",
+				["Anti Fling"] = "防止弹飞",
+				["Anti Banana"] = "防止香蕉滑倒",
+				["Anti Lag"] = "防止卡顿",
+				["Fly"] = "飞行",
+				["Fly Speed"] = "飞行速度",
+	
+				["Esp Hight Light"] = "高亮显示",
+				["Esp Gui"] = "远程可视化",
+				["Text Size [ Gui ]"] = "文字大小 [ 可视化 ]",
+	
+				["Esp Name"] = "显示名称",
+				["Esp Distance"] = "显示距离"
+			}
+		}
+	}
 	["Soon"] = {}
 }
