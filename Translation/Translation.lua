@@ -54,6 +54,7 @@ return {
 
 				["Jump Rope"] = "Nhảy dây",
 				["Complete Jump Rope"] = "Hoàn thành nhảy dây",
+				["Remove Jump Rope"] = "Xóa dây nhảy",
 
 				["Glass Bridge"] = "Cầu kính",
 				["Glass Bridge Vision"] = "Nhìn là biết fake or real",
@@ -77,9 +78,8 @@ return {
 				["Inf Jump"] = "Vô cực nhảy",
 				["Teleport Player"] = "Dịch chuyển đến Player",
 				["Camlock Player / TP"] = "Khóa camera player / TP",
-				["Auto Collect Bandage"] = "Auto nhặt băng",
-				["Auto Collect Flash Bang"] = "Auto nhặt đạn choáng",
-				["Auto Collect Grenade"] = "Auto nhặt đạn nổ",
+				["Choose Collect"] = "Chọn nhặt",
+				["Auto Collect"] = "Auto nhặt bạn vừa chọn",
 				["Anti Fling"] = "Chống thg fling",
 				["Anti Banana"] = "Chống vỏ chuối",
 				["Anti Lag"] = "Chống Lag",
@@ -135,62 +135,62 @@ return {
 				["Green Light, Red Light"] = "红绿灯",
 				["Help Player To End"] = "帮助玩家到终点",
 				["Auto Help Player"] = "自动帮助玩家",
-				["Troll Player"] = "整蛊玩家",
-				["Auto Troll Player"] = "自动整蛊玩家",
-	
-				["Dalgona"] = "椪糖挑战",
+				["Troll Player"] = "捉弄玩家",
+				["Auto Troll Player"] = "自动捉弄玩家",
+		
+				["Dalgona"] = "椪糖",
 				["Complete Dalgona"] = "完成椪糖挑战",
-	
+		
 				["Tug Of War / Hide & Seek"] = "拔河 / 捉迷藏",
 				["Auto Tug of War"] = "自动拔河",
-				["Esp Door Exit"] = "透视出口",
-				["Esp Key"] = "透视钥匙",
-				["Esp Player Hide"] = "透视藏人",
-				["Esp Player Seek"] = "透视追人",
-				["Auto Teleport Hide"] = "自动传送藏人",
-				["Teleport Player Hide"] = "传送到藏人",
+				["Esp Door Exit"] = "出口定位",
+				["Esp Key"] = "钥匙定位",
+				["Esp Player Hide"] = "定位躲藏者",
+				["Esp Player Seek"] = "定位追捕者",
+				["Auto Teleport Hide"] = "自动传送躲藏者",
+				["Teleport Player Hide"] = "传送躲藏者",
 				["Teleport All Key"] = "传送所有钥匙",
-	
+		
 				["Jump Rope"] = "跳绳",
 				["Complete Jump Rope"] = "完成跳绳",
-	
+				["Remove Jump Rope"] = "移除跳绳",
+		
 				["Glass Bridge"] = "玻璃桥",
-				["Glass Bridge Vision"] = "可见真假玻璃",
+				["Glass Bridge Vision"] = "识别真假玻璃",
 				["Complete Glass Bridge"] = "完成玻璃桥",
-	
-				["Mingle"] = "混战",
-				["Auto Mingle"] = "自动击杀",
-	
-				["Rebel"] = "叛徒",
-				["WallCheck"] = "检测墙壁",
-				["Aimbot Guard"] = "锁定警卫",
-				["Bring Guard"] = "带来警卫",
+		
+				["Mingle"] = "交际",
+				["Auto Mingle"] = "自动扭脖子",
+		
+				["Rebel"] = "反叛者",
+				["WallCheck"] = "墙壁检测",
+				["Aimbot Guard"] = "自动瞄准守卫",
+				["Bring Guard"] = "召唤守卫",
 				["Inf Ammo"] = "无限子弹"
 			},
 			["Misc"] = {
 				["Auto Skip"] = "自动跳过",
 				["Speed"] = "速度",
-				["Auto Speed"] = "自动设置速度",
-				["No Cooldown Proximity"] = "无冷却提示器",
+				["Auto Speed"] = "自动速度设定",
+				["No Cooldown Proximity"] = "无冷却范围",
 				["Noclip"] = "穿墙",
 				["Inf Jump"] = "无限跳跃",
 				["Teleport Player"] = "传送到玩家",
-				["Camlock Player / TP"] = "锁定摄像头/传送",
-				["Auto Collect Bandage"] = "自动收集绷带",
-				["Auto Collect Flash Bang"] = "自动收集闪光弹",
-				["Auto Collect Grenade"] = "自动收集手雷",
+				["Camlock Player / TP"] = "锁定摄像头 / 传送",
+				["Choose Collect"] = "选择收集",
+				["Auto Collect"] = "自动收集已选",
 				["Anti Fling"] = "防止弹飞",
-				["Anti Banana"] = "防止香蕉滑倒",
-				["Anti Lag"] = "防止卡顿",
+				["Anti Banana"] = "防香蕉皮",
+				["Anti Lag"] = "防延迟",
 				["Fly"] = "飞行",
 				["Fly Speed"] = "飞行速度",
-	
+		
 				["Settings Gui"] = "界面设置",
 				["Esp Hight Light"] = "高亮显示",
-				["Esp Gui"] = "远程可视化",
-				["Text Size [ Gui ]"] = "文字大小 [ 可视化 ]",
-	
-				["Esp Name"] = "显示名称",
+				["Esp Gui"] = "远视功能",
+				["Text Size [ Gui ]"] = "文字大小 [ 远视 ]",
+		
+				["Esp Name"] = "显示名字",
 				["Esp Distance"] = "显示距离"
 			}
 		}
@@ -231,65 +231,163 @@ return {
 			},
 			["Main"] = {
 				["Green Light, Red Light"] = "Luz Verde, Luz Vermelha",
-				["Help Player To End"] = "Ajudar Jogador até o Fim",
-				["Auto Help Player"] = "Ajudar Jogador Automaticamente",
-				["Troll Player"] = "Zoar Jogador",
-				["Auto Troll Player"] = "Zoar Jogador Automaticamente",
-	
-				["Dalgona"] = "Doce Dalgona",
+				["Help Player To End"] = "Ajudar jogador até o fim",
+				["Auto Help Player"] = "Ajudar jogador automaticamente",
+				["Troll Player"] = "Trollar jogador",
+				["Auto Troll Player"] = "Trollar automaticamente",
+		
+				["Dalgona"] = "Dalgona",
 				["Complete Dalgona"] = "Completar Dalgona",
-	
-				["Tug Of War / Hide & Seek"] = "Cabo de Guerra / Esconde-Esconde",
-				["Auto Tug of War"] = "Cabo de Guerra Automático",
-				["Esp Door Exit"] = "ESP de Saída",
-				["Esp Key"] = "ESP de Chave",
-				["Esp Player Hide"] = "ESP Jogador Escondido",
-				["Esp Player Seek"] = "ESP Jogador Caçador",
-				["Auto Teleport Hide"] = "Teleportar Autom. Escondido",
-				["Teleport Player Hide"] = "Teleportar para Escondido",
-				["Teleport All Key"] = "Teleportar Todas as Chaves",
-	
-				["Jump Rope"] = "Pular Corda",
-				["Complete Jump Rope"] = "Completar Pular Corda",
-	
+		
+				["Tug Of War / Hide & Seek"] = "Cabo de Guerra / Esconde-esconde",
+				["Auto Tug of War"] = "Cabo de Guerra automático",
+				["Esp Door Exit"] = "Localizar saída",
+				["Esp Key"] = "Localizar chave",
+				["Esp Player Hide"] = "Localizar quem se esconde",
+				["Esp Player Seek"] = "Localizar quem busca",
+				["Auto Teleport Hide"] = "Auto teleporte escondido",
+				["Teleport Player Hide"] = "Teleporte escondido",
+				["Teleport All Key"] = "Teleporte todas as chaves",
+		
+				["Jump Rope"] = "Pular corda",
+				["Complete Jump Rope"] = "Completar pulo de corda",
+				["Remove Jump Rope"] = "Remover corda",
+		
 				["Glass Bridge"] = "Ponte de Vidro",
-				["Glass Bridge Vision"] = "Ver Vidro Real ou Falso",
-				["Complete Glass Bridge"] = "Completar Ponte de Vidro",
-	
+				["Glass Bridge Vision"] = "Ver se é falso ou real",
+				["Complete Glass Bridge"] = "Completar ponte de vidro",
+		
 				["Mingle"] = "Misturar",
-				["Auto Mingle"] = "Misturar Automaticamente",
-	
+				["Auto Mingle"] = "Quebrar pescoço automático",
+		
 				["Rebel"] = "Rebelde",
-				["WallCheck"] = "Verificar Parede",
-				["Aimbot Guard"] = "Mira Automática no Guarda",
-				["Bring Guard"] = "Puxar Guarda",
+				["WallCheck"] = "Verificação de parede",
+				["Aimbot Guard"] = "Mira automática guarda",
+				["Bring Guard"] = "Trazer guarda",
 				["Inf Ammo"] = "Munição Infinita"
 			},
 			["Misc"] = {
-				["Auto Skip"] = "Pular Automaticamente",
+				["Auto Skip"] = "Pular automaticamente",
 				["Speed"] = "Velocidade",
-				["Auto Speed"] = "Ajustar Velocidade Automática",
-				["No Cooldown Proximity"] = "Sem Recarga de Proximidade",
-				["Noclip"] = "Sem Colisão",
+				["Auto Speed"] = "Definir velocidade automaticamente",
+				["No Cooldown Proximity"] = "Sem tempo de espera de proximidade",
+				["Noclip"] = "Passar por paredes",
 				["Inf Jump"] = "Pulo Infinito",
-				["Teleport Player"] = "Teleportar para Jogador",
-				["Camlock Player / TP"] = "Travar Câmera / Teleportar",
-				["Auto Collect Bandage"] = "Coletar Curativos Automaticamente",
-				["Auto Collect Flash Bang"] = "Coletar Granada de Luz Automaticamente",
-				["Auto Collect Grenade"] = "Coletar Granada Automaticamente",
-				["Anti Fling"] = "Anti Arremesso",
-				["Anti Banana"] = "Anti Banana",
-				["Anti Lag"] = "Anti Lag",
+				["Teleport Player"] = "Teleporte até jogador",
+				["Camlock Player / TP"] = "Travar câmera / TP",
+				["Choose Collect"] = "Escolher item para coletar",
+				["Auto Collect"] = "Coletar automaticamente",
+				["Anti Fling"] = "Anti arremesso",
+				["Anti Banana"] = "Anti banana",
+				["Anti Lag"] = "Anti lag",
 				["Fly"] = "Voar",
-				["Fly Speed"] = "Velocidade de Voo",
+				["Fly Speed"] = "Velocidade de voo",
+		
+				["Settings Gui"] = "Configurações GUI",
+				["Esp Hight Light"] = "Luz ESP",
+				["Esp Gui"] = "Visual ESP",
+				["Text Size [ Gui ]"] = "Tamanho do texto [ Visual ]",
+		
+				["Esp Name"] = "Mostrar nome",
+				["Esp Distance"] = "Mostrar distância"
+			}
+		}
+	},
+	------- Turkey --------
+	["Turkey"] = {
+		["Rainbow Friends"] = {
+			["Tab"] = {
+				["Main"] = "Ana",
+				["UI Settings"] = "Arayüz Ayarları"
+			},
+			----------- Tab ------------ 
+			["Main 1"] = {
+				["Main"] = "Ana",
+				["Auto PickUp item"] = "Öğeleri Otomatik Topla",
+				["Teleport Build Structures"] = "Yapılara Işınlan"
+			},
+			["Main 2"] = {
+				["Esp"] = "ESP",
+				["Esp Item"] = "ESP Öğeleri",
+				["Esp Monsters"] = "ESP Canavarlar",
 				
-				["Settings Gui"] = "Configurações da Interface",
-				["Esp Hight Light"] = "Iluminação ESP",
-				["Esp Gui"] = "Interface ESP",
-				["Text Size [ Gui ]"] = "Tamanho do Texto [ Interface ]",
+				["Esp Hight Light"] = "Parlak Vurgulama",
+				["Esp Gui"] = "Uzaktan ESP Arayüzü",
+				["Text Size [ Gui ]"] = "Metin Boyutu [ Arayüz ]",
+				
+				["Esp Name"] = "İsim Göster",
+				["Esp Distance"] = "Mesafe Göster",
+				["Esp Health"] = "Canı Göster"
+			}
+		},
+		----------- Ink Game ------------ 
+		["Ink Game"] = {
+			["Tab"] = {
+				["Main"] = "Ana",
+				["Misc"] = "Çeşitli",
+				["UI Settings"] = "Arayüz Ayarları"
+			},
+			["Main"] = {
+				["Green Light, Red Light"] = "Yeşil Işık, Kırmızı Işık",
+				["Help Player To End"] = "Oyuncuyu sona götür",
+				["Auto Help Player"] = "Otomatik Yardım Et",
+				["Troll Player"] = "Oyuncuyu Trolle",
+				["Auto Troll Player"] = "Otomatik Trolle",
 	
-				["Esp Name"] = "Mostrar Nome",
-				["Esp Distance"] = "Mostrar Distância"
+				["Dalgona"] = "Dalgona",
+				["Complete Dalgona"] = "Dalgona'yı Tamamla",
+	
+				["Tug Of War / Hide & Seek"] = "Halat Çekme / Saklambaç",
+				["Auto Tug of War"] = "Otomatik Halat Çekme",
+				["Esp Door Exit"] = "Çıkış Yerini Göster",
+				["Esp Key"] = "Anahtar Yerini Göster",
+				["Esp Player Hide"] = "Saklanan Oyuncuyu Göster",
+				["Esp Player Seek"] = "Arayan Oyuncuyu Göster",
+				["Auto Teleport Hide"] = "Saklanan Oyuncuyu Otomatik Işınla",
+				["Teleport Player Hide"] = "Saklanan Oyuncuyu Işınla",
+				["Teleport All Key"] = "Tüm Anahtarları Işınla",
+	
+				["Jump Rope"] = "İp Atlama",
+				["Complete Jump Rope"] = "İp Atlamayı Bitir",
+				["Remove Jump Rope"] = "İpi Kaldır",
+	
+				["Glass Bridge"] = "Cam Köprü",
+				["Glass Bridge Vision"] = "Gerçek mi Sahte mi Gör",
+				["Complete Glass Bridge"] = "Cam Köprüyü Bitir",
+	
+				["Mingle"] = "Karış",
+				["Auto Mingle"] = "Otomatik Boyun Kır",
+	
+				["Rebel"] = "İsyancı",
+				["WallCheck"] = "Duvar Kontrolü",
+				["Aimbot Guard"] = "Nişan Botu (Koruma)",
+				["Bring Guard"] = "Koruma Getir",
+				["Inf Ammo"] = "Sınırsız Mermi"
+			},
+			["Misc"] = {
+				["Auto Skip"] = "Otomatik Geç",
+				["Speed"] = "Hız",
+				["Auto Speed"] = "Otomatik Hız Ayarı",
+				["No Cooldown Proximity"] = "Bekleme Süresi Yok (Yakınlık)",
+				["Noclip"] = "Duvarlardan Geç",
+				["Inf Jump"] = "Sonsuz Zıplama",
+				["Teleport Player"] = "Oyuncuya Işınlan",
+				["Camlock Player / TP"] = "Kamera Kilidi / Işınlan",
+				["Choose Collect"] = "Toplanacak Öğeyi Seç",
+				["Auto Collect"] = "Otomatik Topla",
+				["Anti Fling"] = "Fırlatmaya Karşı Koruma",
+				["Anti Banana"] = "Muz Kaymasına Karşı",
+				["Anti Lag"] = "Gecikme Önleyici",
+				["Fly"] = "Uç",
+				["Fly Speed"] = "Uçuş Hızı",
+	
+				["Settings Gui"] = "GUI Ayarları",
+				["Esp Hight Light"] = "ESP Işık",
+				["Esp Gui"] = "ESP Görünümü",
+				["Text Size [ Gui ]"] = "Metin Boyutu [ Görünüm ]",
+	
+				["Esp Name"] = "İsim Göster",
+				["Esp Distance"] = "Mesafe Göster"
 			}
 		}
 	}
