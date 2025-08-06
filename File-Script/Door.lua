@@ -64,7 +64,9 @@ workspace.DescendantAdded:Connect(function(v)
 if v.Name == "ChandelierObstruction" or v.Name == "Seek_Arm" then
 if _G.NoSeek == true then
 for d, i in pairs(v:GetDescendants()) do
-if i:IsA("BasePart") then i.CanTouch = false end
+if i:IsA("BasePart") then 
+i.CanTouch = false 
+end
 end
 end
 end
@@ -167,10 +169,12 @@ Main:Toggle({
     Default = false,
     Callback = function(Value)
 _G.NoSeek = Value
-for i,v in pairs(child:GetDescendants()) do
+for i,v in pairs(workspace:GetDescendants()) do
 if v.Name == "ChandelierObstruction" or v.Name == "Seek_Arm" then
 for d, i in pairs(v:GetDescendants()) do
-if i:IsA("BasePart") then i.CanTouch = false end
+if i:IsA("BasePart") then 
+i.CanTouch = false 
+end
 end
 end
 end
