@@ -34,6 +34,10 @@ function Translation(Section, Text)
 end
 Tran = {"Main", "Misc", "Esp", "Information"}
 
+------ Script --------
+
+local EntityModules = game.ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("EntityModules")
+
 function Distance(pos)
 	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 		return (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - pos).Magnitude
@@ -59,18 +63,6 @@ old = hookmetamethod(game, "__namecall", newcclosure(function(self,...)
     end
     return old(self,...)
 end))
-
-workspace.DescendantAdded:Connect(function(v)
-if v.Name == "ChandelierObstruction" or v.Name == "Seek_Arm" then
-if _G.NoSeek == true then
-for d, i in pairs(v:GetDescendants()) do
-if i:IsA("BasePart") then 
-i.CanTouch = false 
-end
-end
-end
-end
-end)
 
 ---- Script ----
 
@@ -164,19 +156,27 @@ end
 })
 
 Main:Toggle({
-    Title = Translation(MainTran, "Anti Seek"),
+    Title = Translation(MainTran, "Anti Halt"),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
-_G.NoSeek = Value
-for i,v in pairs(workspace:GetDescendants()) do
-if v.Name == "ChandelierObstruction" or v.Name == "Seek_Arm" then
-for d, i in pairs(v:GetDescendants()) do
-if i:IsA("BasePart") then 
-i.CanTouch = false 
+_G.NoScreech = Value
+local HaltShade = EntityModules:FindFirstChild("Shade") or EntityModules:FindFirstChild("_Shade")
+if HaltShade then
+    HaltShade.Name = _G.NoScreech and "_Shade" or "Shade"
 end
-end
-end
+    end
+})
+
+Main:Button({
+    Title = "Remove Seek",
+    Callback = function()
+for k, c in pairs(game.Workspace:FindFirstChild("CurrentRooms"):GetDescendants()) do
+	if c.Name == "ChandelierObstruction" then
+	    for i,v in pairs(c:GetDescendants()) do
+            if v:IsA("BasePart") then v.CanTouch = false end
+        end
+	end
 end
     end
 })
@@ -185,7 +185,7 @@ local Misc = Tabs.Tab1
 local MiscTr = "Misc"
 local EntityGet = Misc:Dropdown({
     Title = Translation(MiscTr, "Choose Entity"),
-    Values = {"Rush", "Seek", "Figure", "Sally", "Eyes", "Window", "LookMan", "BackdoorRush", "Giggle", "GloombatSwarm", "Ambush", "A-60", "A-120"},
+    Values = {"Rush", "Seek", "Eyes", "Window", "LookMan", "BackdoorRush", "Giggle", "GloombatSwarm", "Ambush", "A-60", "A-120"},
     Value = {"Rush"},
     Multi = true,
     AllowNone = true,
@@ -365,7 +365,7 @@ Misc:Slider({
     Step = 1,
     Value = {
         Min = 16,
-        Max = 21,
+        Max = 25,
         Default = 16,
     },
     Callback = function(Value)
