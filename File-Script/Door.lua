@@ -53,6 +53,7 @@ _G.GetOldBright = {
 }
 
 AntiScreech = false
+NoEyes = false
 local old
 old = hookmetamethod(game, "__namecall", newcclosure(function(self,...)
     local args = {...}
@@ -168,15 +169,23 @@ end
     end
 })
 
-Main:Button({
-    Title = "Remove Seek",
-    Callback = function()
-for k, c in pairs(game.Workspace:FindFirstChild("CurrentRooms"):GetDescendants()) do
-	if c.Name == "ChandelierObstruction" then
-	    for i,v in pairs(c:GetDescendants()) do
-            if v:IsA("BasePart") then v.CanTouch = false end
-        end
-	end
+Main:Toggle({
+    Title = Translation(MainTran, "Anti Eyes / BackdoorLookman"),
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.NoEyes = Value
+while _G.NoEyes do
+if workspace:FindFirstChild("Eyes") then
+if game:GetService("ReplicatedStorage"):FindFirstChild("RemotesFolder") then
+game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder"):WaitForChild("MotorReplication"):FireServer(-649)
+end
+elseif workspace:FindFirstChild("BackdoorLookman") then
+if game:GetService("ReplicatedStorage"):FindFirstChild("EntityInfo") then
+game:GetService("ReplicatedStorage"):WaitForChild("EntityInfo"):WaitForChild("MotorReplication"):FireServer(0, -90, 0, false)
+end
+end
+task.wait()
 end
     end
 })
@@ -251,6 +260,10 @@ local function CheckTab(v)
     elseif v.Name:find("Key") and v:FindFirstChild("ModulePrompt") and v:FindFirstChild("Hitbox") then
         return true
     elseif v.Name == "LiveHintBook" and v:FindFirstChildOfClass("ProximityPrompt") then
+        return true
+    elseif v.Name == "LeverForGate" and v:FindFirstChild("ActivateEventPrompt") then
+        return true
+    elseif v.Name == "LiveBreakerPolePickup" and v:FindFirstChild("ActivateEventPrompt") then
         return true
     elseif v.Name == "Handle" and v.Parent:FindFirstChildOfClass("ProximityPrompt") then
         return true
@@ -345,6 +358,22 @@ for i, v in pairs(lootables) do
 	                end
 				end
 			end
+		elseif v.Name == "LiveBreakerPolePickup" then
+			if v:FindFirstChildOfClass("ProximityPrompt") then
+				if v.PrimaryPart then
+	                if Distance(v.PrimaryPart.Position) <= 12 then
+	                    fireproximityprompt(v:FindFirstChildOfClass("ProximityPrompt"))
+	                end
+				end
+			end
+		elseif v.Name == "LeverForGate" then
+			if v:FindFirstChildOfClass("ProximityPrompt") then
+				if v.PrimaryPart then
+	                if Distance(v.PrimaryPart.Position) <= 12 then
+	                    fireproximityprompt(v:FindFirstChildOfClass("ProximityPrompt"))
+	                end
+				end
+			end
 	    end
 	end
 	if v.Name == "Handle" then
@@ -365,7 +394,7 @@ Misc:Slider({
     Step = 1,
     Value = {
         Min = 16,
-        Max = 25,
+        Max = 21,
         Default = 16,
     },
     Callback = function(Value)
@@ -392,7 +421,7 @@ local Esp = Tabs.Tab2
 local EspTr = "Esp"
 
 Esp:Toggle({
-    Title = Translation(EspTr, "Esp Key"),
+    Title = Translation(EspTr, "Esp Key / Lever"),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -408,7 +437,7 @@ KeyRemove:Disconnect()
 KeyRemove = nil
 end
 for _, v in pairs(workspace:GetDescendants()) do 
-if v.Name:find("Key") and v:FindFirstChild("Hitbox") then
+if v.Name:find("Key") or v.Name == "LeverForGate" then
 for i, z in pairs(v:GetChildren()) do
 if z.Name:find("Esp_") then
 z:Destroy()
@@ -418,7 +447,7 @@ end
 end
 else
 function Keys(v)
-if v.Name:find("Key") and v:FindFirstChild("Hitbox") then
+if (v.Name:find("Key") and v:FindFirstChild("Hitbox")) or (v.Name == "LeverForGate" and v.PrimaryPart) then
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -437,8 +466,8 @@ if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
 end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and "Key" or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.Hitbox.Position)).."m)" or "")
+	        (_G.EspName == true and ((v.Name == "LeverForGate" and "Lever") or (v.Name:find("Key") and "Key")) or "")..
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance((v.Name == "LeverForGate" and v.PrimaryPart.Position) or (v.Name:find("Key") and v.Hitbox.Position))).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -466,7 +495,7 @@ end
 end
 end
 local function CheckKey(v)
-    if not table.find(_G.KeyAdd, v) and v.Name:find("Key") and v:FindFirstChild("ModulePrompt") and v:FindFirstChild("Hitbox") then
+    if not table.find(_G.KeyAdd, v) and (v.Name:find("Key") and v:FindFirstChild("Hitbox")) or (v.Name == "LeverForGate" and v.PrimaryPart) then
         table.insert(_G.KeyAdd, v)
     end
 end
@@ -665,6 +694,126 @@ while _G.EspBook do
 for i, v in pairs(_G.BookAdd) do
 if v:IsA("Model") then
 Books(v)
+end
+end
+task.wait()
+end
+    end
+})
+
+Esp:Toggle({
+    Title = Translation(EspTr, "Esp Item"),
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspItem = Value
+if _G.EspItem == false then
+_G.ItemAdd = {}
+if ItemSpawn then
+ItemSpawn:Disconnect()
+ItemSpawn = nil
+end
+if ItemRemove then
+ItemRemove:Disconnect()
+ItemRemove = nil
+end
+for _, v in pairs(workspace:GetDescendants()) do 
+if v.Name:find("Handle") then
+for i, z in pairs(v:GetChildren()) do
+if z.Name:find("Esp_") then
+z:Destroy()
+end
+end
+end
+end
+else
+function Items(v)
+if v.Name == "Handle" then
+if v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v.Parent
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and v.Parent.Name or "")..
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.Position)).."m)" or "")
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
+	GuiEsp = Instance.new("BillboardGui", v)
+	GuiEsp.Adornee = v.Parent
+	GuiEsp.Name = "Esp_Gui"
+	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiEsp.AlwaysOnTop = true
+	GuiEspText = Instance.new("TextLabel", GuiEsp)
+	GuiEspText.BackgroundTransparency = 1
+	GuiEspText.Font = Enum.Font.Code
+	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiEspText.TextSize = 15
+	GuiEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiEspText.TextStrokeTransparency = 0.5
+	GuiEspText.Text = ""
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiEspText
+	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+	v:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
+local function CheckItem(v)
+    if not table.find(_G.ItemAdd, v) and v.Name == "Handle" then
+        table.insert(_G.ItemAdd, v)
+    end
+end
+local function ItemCh(v)
+if v:IsA("Tool") and v.Name == _G.ItemAdd[i] then
+	for i, z in pairs(v:GetChildren()) do
+		if z.Name:find("Esp_") then
+			z:Destroy()
+		end
+	end
+end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckItem(v)
+end
+ItemSpawn = workspace.DescendantAdded:Connect(function(v)
+    CheckItem(v)
+end)
+ItemRemove = workspace.DescendantRemoving:Connect(function(v)
+for i = #_G.ItemAdd, 1, -1 do
+    if _G.ItemAdd[i] == v then
+	    for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+			ItemCh(v)
+		end
+		for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+			ItemCh(v)
+		end
+        table.remove(_G.ItemAdd, i)
+        break
+    end
+end
+end)
+end
+while _G.EspItem do
+for i, v in pairs(_G.ItemAdd) do
+if v.Name == "Handle" then
+Items(v)
 end
 end
 task.wait()
