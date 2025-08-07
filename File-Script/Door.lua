@@ -34,18 +34,6 @@ function Translation(Section, Text)
 end
 Tran = {"Main", "Misc", "Esp", "Information"}
 
-AntiScreech = false
-local old
-old = hookmetamethod(game, "__namecall", newcclosure(function(self,...)
-    local args = {...}
-    local method = getnamecallmethod()
-    if tostring(self) == "Screech" and method == "FireServer" and AntiScreech == true then
-        args[1] = true
-        return old(self, unpack(args))
-    end
-    return old(self,...)
-end))
-
 ------ Script --------
 
 local EntityModules = game.ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("EntityModules")
@@ -143,16 +131,18 @@ end
 Main:Section({Title = Translation(MainTran, "Anti"), TextXAlignment = "Left", TextSize = 17})
 
 Main:Toggle({
-    Title = Translation(MainTran, "Anti Screech"),
+    Title = Translation(MainTran, "Camlock Screech"),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
-AntiScreech = Value
-while AntiScreech do
-for i, v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "Screech" then
-    v:Destroy()
-end
+_G.AntiScreech = Value
+while _G.AntiScreech do
+for i, v in pairs(workspace.CurrentCamera:GetChildren()) do
+	if v.Name == "Screech" then
+		if game.Workspace.CurrentCamera then
+		   game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (v:GetPivot().Position - game.Workspace.CurrentCamera.CFrame.Position).unit)
+		end
+	end
 end
 task.wait()
 end
@@ -301,7 +291,7 @@ end
 end
 while _G.AutoLoot do
 for i, v in pairs(lootables) do
-	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) then
+	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) and (v:GetAttribute("Interactions") == nil or v:GetAttribute("Interactions") <= 2) then
 		if Distance(v.Parent:GetPivot().Position) <= 12 then
 			fireproximityprompt(v)
 		end
@@ -770,6 +760,7 @@ EntityRemove = nil
 end
 for _, v in pairs(workspace:GetDescendants()) do 
 if v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving" then
+v.PrimaryPart.Transparency = 1
 for i, z in pairs(v:GetChildren()) do
 if z.Name:find("Esp_") then
 z:Destroy()
@@ -801,6 +792,7 @@ end
 while _G.EspEntity do
 for i, v in pairs(_G.EntityAdd) do
 if (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") and v.PrimaryPart then
+v.PrimaryPart.Transparency = 0
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
