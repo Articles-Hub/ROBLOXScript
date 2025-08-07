@@ -1,7 +1,7 @@
 if game.Players.LocalPlayer.PlayerGui:FindFirstChild("LoadingUI") and game.Players.LocalPlayer.PlayerGui.LoadingUI.Enabled == true then
 repeat task.wait() until game.Players.LocalPlayer.PlayerGui.LoadingUI.Enabled == false
 end
-
+wait(0.5)
 getgenv().TranslationCounter = nil
 Name = "Door"
 local success, result = pcall(function()
@@ -34,9 +34,26 @@ function Translation(Section, Text)
 end
 Tran = {"Main", "Misc", "Esp", "Information"}
 
+AntiScreech = false
+local old
+old = hookmetamethod(game, "__namecall", newcclosure(function(self,...)
+    local args = {...}
+    local method = getnamecallmethod()
+    if tostring(self) == "Screech" and method == "FireServer" and AntiScreech == true then
+        args[1] = true
+        return old(self, unpack(args))
+    end
+    return old(self,...)
+end))
+
 ------ Script --------
 
 local EntityModules = game.ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("EntityModules")
+local gameData = game.ReplicatedStorage:WaitForChild("GameData")
+local floor = gameData:WaitForChild("Floor")
+local isMines = floor.Value == "Mines"
+local isHotel = floor.Value == "Hotel"
+local isBackdoor = floor.Value == "Backdoor"
 
 function Distance(pos)
 	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -51,19 +68,6 @@ _G.GetOldBright = {
 	GlobalShadows = game.Lighting.GlobalShadows,
 	OutdoorAmbient = game.Lighting.OutdoorAmbient
 }
-
-AntiScreech = false
-NoEyes = false
-local old
-old = hookmetamethod(game, "__namecall", newcclosure(function(self,...)
-    local args = {...}
-    local method = getnamecallmethod()
-    if tostring(self) == "Screech" and method == "FireServer" and AntiScreech == true then
-        args[1] = true
-        return old(self, unpack(args))
-    end
-    return old(self,...)
-end))
 
 ---- Script ----
 
@@ -143,13 +147,12 @@ Main:Toggle({
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
-_G.NoScreech = Value
 AntiScreech = Value
-while _G.NoScreech do
-for i, v in pairs(workspace.CurrentCamera:GetChildren()) do
-	if v.Name == "Screech" then
-	   v:Destroy()
-	end
+while AntiScreech do
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == "Screech" then
+    v:Destroy()
+end
 end
 task.wait()
 end
@@ -161,10 +164,10 @@ Main:Toggle({
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
-_G.NoScreech = Value
+_G.NoHalt = Value
 local HaltShade = EntityModules:FindFirstChild("Shade") or EntityModules:FindFirstChild("_Shade")
 if HaltShade then
-    HaltShade.Name = _G.NoScreech and "_Shade" or "Shade"
+    HaltShade.Name = _G.NoHalt and "_Shade" or "Shade"
 end
     end
 })
@@ -241,6 +244,20 @@ _G.NotifyEntityChat = Value
     end
 })
 
+_G.Aura = {
+    "ActivateEventPrompt",
+    "AwesomePrompt",
+    "FusesPrompt",
+    "HerbPrompt",
+    "LeverPrompt",
+    "LootPrompt",
+    "ModulePrompt",
+    "SkullPrompt",
+    "UnlockPrompt",
+    "ValvePrompt",
+    "PropPrompt",
+}
+
 Misc:Toggle({
     Title = Translation(MiscTr, "Auto Loot"),
     Type = "Toggle",
@@ -248,42 +265,21 @@ Misc:Toggle({
     Callback = function(Value)
 _G.AutoLoot = Value
 if _G.AutoLoot then
-local function CheckTab(v)
-    if v.Name == "DrawerContainer" and v:FindFirstChild("Knobs") then
-        return true
-    elseif v.Name:find("Pile") and v:FindFirstChild("LootPrompt") then
-        return true
-    elseif v.Name == "ChestBox" and v:FindFirstChild("ActivateEventPrompt") then
-        return true
-    elseif v.Name == "RolltopContainer" and v:FindFirstChild("ActivateEventPrompt") then
-        return true
-    elseif v.Name:find("Key") and v:FindFirstChild("ModulePrompt") and v:FindFirstChild("Hitbox") then
-        return true
-    elseif v.Name == "LiveHintBook" and v:FindFirstChildOfClass("ProximityPrompt") then
-        return true
-    elseif v.Name == "LeverForGate" and v:FindFirstChild("ActivateEventPrompt") then
-        return true
-    elseif v.Name == "LiveBreakerPolePickup" and v:FindFirstChild("ActivateEventPrompt") then
-        return true
-    elseif v.Name == "Handle" and v.Parent:FindFirstChildOfClass("ProximityPrompt") then
-        return true
-    end
-    return false
-end
 lootables = {}
-local ChildAllNext
-local RemoveChild
-
 local function LootCheck(v)
-    if not table.find(lootables, v) and CheckTab(v) then
+    if not table.find(lootables, v) and v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) then
         table.insert(lootables, v)
     end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
+if v:IsA("ProximityPrompt") then
 	LootCheck(v)
 end
+end
 ChildAllNext = workspace.DescendantAdded:Connect(function(v)
-    LootCheck(v)
+if v:IsA("ProximityPrompt") then
+	LootCheck(v)
+end
 end)
 RemoveChild = workspace.DescendantRemoving:Connect(function(v)
     for i = #lootables, 1, -1 do
@@ -305,82 +301,9 @@ end
 end
 while _G.AutoLoot do
 for i, v in pairs(lootables) do
-	if v:IsA("Model") then
-		if v.Name == "DrawerContainer" then
-		    local knob
-	        if v:FindFirstChild("Knobs") then
-		        knob = v.Knobs
-	        end
-	        if knob then
-				if knob:FindFirstChild("ActivateEventPrompt") and not knob.ActivateEventPrompt:GetAttribute("Interactions") then
-	                if Distance(knob.Position) <= 12 then
-	                    fireproximityprompt(knob.ActivateEventPrompt)
-	                end
-		        end
-	        end
-	    elseif v.Name:find("Pile") then
-	        if v:FindFirstChild("LootPrompt") and v.LootPrompt:GetAttribute("Interactions") == nil then
-	            if v.PrimaryPart then
-				    if Distance(v.PrimaryPart.Position) <= 12 then
-				        fireproximityprompt(v.LootPrompt)
-				    end
-				end
-	        end
-	    elseif v.Name == "ChestBox" then
-	        if v:FindFirstChild("ActivateEventPrompt") and v.ActivateEventPrompt:GetAttribute("Interactions") == nil then
-	            if v.PrimaryPart then
-				    if Distance(v.PrimaryPart.Position) <= 12 then
-				        fireproximityprompt(v.ActivateEventPrompt)
-				    end
-				end
-	        end
-	    elseif v.Name == "RolltopContainer" then
-	        if v:FindFirstChild("ActivateEventPrompt") and v.ActivateEventPrompt:GetAttribute("Interactions") == nil then
-	            if v.PrimaryPart then
-				    if Distance(v.PrimaryPart.Position) <= 12 then
-				        fireproximityprompt(v.ActivateEventPrompt)
-				    end
-				end
-	        end
-	    elseif v.Name:find("Key") then
-			if v:FindFirstChild("ModulePrompt") and v:FindFirstChild("Hitbox") then
-				if game.Players.LocalPlayer.Character:FindFirstChild("Key") == nil and game.Players.LocalPlayer.Backpack:FindFirstChild("Key") == nil then
-					if Distance(v.Hitbox.Position) <= 12 then
-	                    fireproximityprompt(v.ModulePrompt)
-	                end
-				end
-			end
-		elseif v.Name == "LiveHintBook" then
-			if v:FindFirstChildOfClass("ProximityPrompt") then
-				if v.PrimaryPart then
-	                if Distance(v.PrimaryPart.Position) <= 12 then
-	                    fireproximityprompt(v:FindFirstChildOfClass("ProximityPrompt"))
-	                end
-				end
-			end
-		elseif v.Name == "LiveBreakerPolePickup" then
-			if v:FindFirstChildOfClass("ProximityPrompt") then
-				if v.PrimaryPart then
-	                if Distance(v.PrimaryPart.Position) <= 12 then
-	                    fireproximityprompt(v:FindFirstChildOfClass("ProximityPrompt"))
-	                end
-				end
-			end
-		elseif v.Name == "LeverForGate" then
-			if v:FindFirstChildOfClass("ProximityPrompt") then
-				if v.PrimaryPart then
-	                if Distance(v.PrimaryPart.Position) <= 12 then
-	                    fireproximityprompt(v:FindFirstChildOfClass("ProximityPrompt"))
-	                end
-				end
-			end
-	    end
-	end
-	if v.Name == "Handle" then
-		if v.Parent:FindFirstChildOfClass("ProximityPrompt") then
-			if Distance(v.Position) <= 12 then
-	            fireproximityprompt(v.Parent:FindFirstChildOfClass("ProximityPrompt"))
-	        end
+	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) then
+		if Distance(v.Parent:GetPivot().Position) <= 12 then
+			fireproximityprompt(v)
 		end
 	end
 end
@@ -421,7 +344,7 @@ local Esp = Tabs.Tab2
 local EspTr = "Esp"
 
 Esp:Toggle({
-    Title = Translation(EspTr, "Esp Key / Lever"),
+    Title = Translation(EspTr, (isHotel and "Esp Key / Lever") or (isMines and "Esp Fuse")),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -437,7 +360,7 @@ KeyRemove:Disconnect()
 KeyRemove = nil
 end
 for _, v in pairs(workspace:GetDescendants()) do 
-if v.Name:find("Key") or v.Name == "LeverForGate" then
+if v.Name:find("Key") or v.Name == "LeverForGate" or v.Name:find("FuseObtain") then
 for i, z in pairs(v:GetChildren()) do
 if z.Name:find("Esp_") then
 z:Destroy()
@@ -447,7 +370,7 @@ end
 end
 else
 function Keys(v)
-if (v.Name:find("Key") and v:FindFirstChild("Hitbox")) or (v.Name == "LeverForGate" and v.PrimaryPart) then
+if ((v.Name:find("Key") or v.Name:find("FuseObtain")) and v:FindFirstChild("Hitbox")) or (v.Name == "LeverForGate" and v.PrimaryPart) then
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -466,8 +389,8 @@ if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
 end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and ((v.Name == "LeverForGate" and "Lever") or (v.Name:find("Key") and "Key")) or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance((v.Name == "LeverForGate" and v.PrimaryPart.Position) or (v.Name:find("Key") and v.Hitbox.Position))).."m)" or "")
+	        (_G.EspName == true and ((v.Name == "LeverForGate" and "Lever") or (v.Name:find("Key") and "Key") or (v.Name:find("FuseObtain") and "Fuse")) or "")..
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance((v.Name == "LeverForGate" and v.PrimaryPart.Position) or ((v.Name:find("Key") or v.Name:find("FuseObtain")) and v.Hitbox.Position))).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -495,7 +418,7 @@ end
 end
 end
 local function CheckKey(v)
-    if not table.find(_G.KeyAdd, v) and (v.Name:find("Key") and v:FindFirstChild("Hitbox")) or (v.Name == "LeverForGate" and v.PrimaryPart) then
+    if not table.find(_G.KeyAdd, v) and ((v.Name:find("Key") or v.Name:find("FuseObtain")) and v:FindFirstChild("Hitbox")) or (v.Name == "LeverForGate" and v.PrimaryPart) then
         table.insert(_G.KeyAdd, v)
     end
 end
@@ -596,6 +519,7 @@ end
     end
 })
 
+if isHotel then
 Esp:Toggle({
     Title = Translation(EspTr, "Esp Book"),
     Type = "Toggle",
@@ -700,6 +624,7 @@ task.wait()
 end
     end
 })
+end
 
 Esp:Toggle({
     Title = Translation(EspTr, "Esp Item"),
@@ -728,7 +653,7 @@ end
 end
 else
 function Items(v)
-if v.Name == "Handle" then
+if v.Name == "Handle" and v.Parent:FindFirstChildOfClass("ProximityPrompt") then
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -780,15 +705,6 @@ local function CheckItem(v)
         table.insert(_G.ItemAdd, v)
     end
 end
-local function ItemCh(v)
-if v:IsA("Tool") and v.Name == _G.ItemAdd[i] then
-	for i, z in pairs(v:GetChildren()) do
-		if z.Name:find("Esp_") then
-			z:Destroy()
-		end
-	end
-end
-end
 for _, v in ipairs(workspace:GetDescendants()) do
 	CheckItem(v)
 end
@@ -798,12 +714,6 @@ end)
 ItemRemove = workspace.DescendantRemoving:Connect(function(v)
 for i = #_G.ItemAdd, 1, -1 do
     if _G.ItemAdd[i] == v then
-	    for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-			ItemCh(v)
-		end
-		for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-			ItemCh(v)
-		end
         table.remove(_G.ItemAdd, i)
         break
     end
@@ -811,9 +721,130 @@ end
 end)
 end
 while _G.EspItem do
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+	if v:IsA("Tool") then
+		for i, z in pairs(v:GetChildren()) do
+			if z.Name:find("Esp_") then
+				z:Destroy()
+			end
+		end
+	end
+end
 for i, v in pairs(_G.ItemAdd) do
 if v.Name == "Handle" then
 Items(v)
+end
+end
+task.wait()
+end
+    end
+})
+
+_G.EspEntityNameDis = {
+	["FigureRig"] = "Figure",
+	["SallyMoving"] = "Window",
+	["RushMoving"] = "Rush",
+	["Eyes"] = "Eyes",
+	["SeekMovingNewClone"] = "Seek",
+	["BackdoorLookman"] = "Lookman",
+	["BackdoorRush"] = "Blitz",
+	["GloombatSwarm"] = "Gloombat",
+	["GiggleCeiling"] = "Giggle",
+	["AmbushMoving"] = "Ambush"
+}
+Esp:Toggle({
+    Title = Translation(EspTr, "Esp Entity"),
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspEntity = Value
+if _G.EspEntity == false then
+_G.EntityAdd = {}
+if EntitySpawn then
+EntitySpawn:Disconnect()
+EntitySpawn = nil
+end
+if EntityRemove then
+EntityRemove:Disconnect()
+EntityRemove = nil
+end
+for _, v in pairs(workspace:GetDescendants()) do 
+if v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving" then
+for i, z in pairs(v:GetChildren()) do
+if z.Name:find("Esp_") then
+z:Destroy()
+end
+end
+end
+end
+else
+local function CheckEntity(v)
+    if not table.find(_G.EntityAdd, v) and (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") then
+        table.insert(_G.EntityAdd, v)
+    end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckEntity(v)
+end
+EntitySpawn = workspace.DescendantAdded:Connect(function(v)
+    CheckEntity(v)
+end)
+EntityRemove = workspace.DescendantRemoving:Connect(function(v)
+for i = #_G.EntityAdd, 1, -1 do
+    if _G.EntityAdd[i] == v then
+        table.remove(_G.EntityAdd, i)
+        break
+    end
+end
+end)
+end
+while _G.EspEntity do
+for i, v in pairs(_G.EntityAdd) do
+if (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") and v.PrimaryPart then
+if v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and _G.EspEntityNameDis[v.Name] or "")..
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
+	GuiEsp = Instance.new("BillboardGui", v)
+	GuiEsp.Adornee = v
+	GuiEsp.Name = "Esp_Gui"
+	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiEsp.AlwaysOnTop = true
+	GuiEspText = Instance.new("TextLabel", GuiEsp)
+	GuiEspText.BackgroundTransparency = 1
+	GuiEspText.Font = Enum.Font.Code
+	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiEspText.TextSize = 15
+	GuiEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiEspText.TextStrokeTransparency = 0.5
+	GuiEspText.Text = ""
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiEspText
+	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+	v:FindFirstChild("Esp_Gui"):Destroy()
+end
 end
 end
 task.wait()
@@ -919,6 +950,79 @@ while _G.EspHiding do
 for i, v in pairs(_G.HidingAdd) do
 if v:IsA("Model") then
 Hidings(v)
+end
+end
+task.wait()
+end
+    end
+})
+
+Esp:Toggle({
+    Title = Translation(EspTr, "Esp Player"),
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspPlayer = Value
+if _G.EspPlayer == false then
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
+		for x, b in pairs(v.Character:GetChildren()) do
+			if b.Name:find("Esp_") then
+				b:Destroy()
+			end
+		end
+	end
+end
+end
+while _G.EspPlayer do
+for i, v in pairs(game.Players:GetChildren()) do
+if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
+if v.Character:FindFirstChild("Esp_Highlight") then
+	v.Character:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.new(255, 255, 255)
+	v.Character:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.new(255, 255, 255)
+end
+if _G.EspHighlight == true and v.Character:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v.Character
+	Highlight.Parent = v.Character
+	elseif _G.EspHighlight == false and v.Character:FindFirstChild("Esp_Highlight") then
+	v.Character:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v.Character:FindFirstChild("Esp_Gui") and v.Character["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v.Character["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and v.Name or "")..
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.Character.HumanoidRootPart.Position)).."m)" or "")..
+            (_G.EspHealth == true and "\nHealth [ "..(v.Character.Humanoid.Health <= 0 and "Dead" or string.format("%.0f", (v.Character.Humanoid.Health))).." ]" or "")
+    v.Character["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v.Character["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v.Character:FindFirstChild("Esp_Gui") == nil then
+	GuiPlayerEsp = Instance.new("BillboardGui", v.Character)
+	GuiPlayerEsp.Adornee = v.Character.Head
+	GuiPlayerEsp.Name = "Esp_Gui"
+	GuiPlayerEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiPlayerEsp.AlwaysOnTop = true
+	GuiPlayerEsp.StudsOffset = Vector3.new(0, 3, 0)
+	GuiPlayerEspText = Instance.new("TextLabel", GuiPlayerEsp)
+	GuiPlayerEspText.BackgroundTransparency = 1
+	GuiPlayerEspText.Font = Enum.Font.Code
+	GuiPlayerEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiPlayerEspText.TextSize = 15
+	GuiPlayerEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiPlayerEspText.TextStrokeTransparency = 0.5
+	GuiPlayerEspText.Text = ""
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiPlayerEspText
+	elseif _G.EspGui == false and v.Character:FindFirstChild("Esp_Gui") then
+	v.Character:FindFirstChild("Esp_Gui"):Destroy()
+end
 end
 end
 task.wait()
