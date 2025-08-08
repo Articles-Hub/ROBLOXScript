@@ -34,6 +34,29 @@ function Translation(Section, Text)
 end
 Tran = {"Main", "Misc", "Esp", "Information"}
 
+Screech = false
+ClutchHeart = false
+local old
+old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
+    local args = {...}
+    local method = getnamecallmethod()
+    if tostring(self) == "Screech" and method == "FireServer" and Screech == true then
+        args[1] = true
+        return old(self,unpack(args))
+    end
+    if tostring(self) == "ClutchHeartbeat" and method == "FireServer" and ClutchHeart == true then
+        args[2] = true
+        return old(self,unpack(args))
+    end
+    return old(self,...)
+end))
+
+workspace.DescendantAdded:Connect(function(v)
+if v:IsA("Model") and v.Name == "Screech" then
+v:Destroy()
+end
+end)
+
 ------ Script --------
 
 local EntityModules = game.ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("EntityModules")
@@ -68,7 +91,6 @@ local win = ui:CreateWindow({
     Transparent = true,
     Theme = "Dark",
     SideBarWidth = 200,
-    Background = "",
 })
 
 Tabs = {
@@ -131,21 +153,21 @@ end
 Main:Section({Title = Translation(MainTran, "Anti"), TextXAlignment = "Left", TextSize = 17})
 
 Main:Toggle({
-    Title = Translation(MainTran, "Camlock Screech"),
+    Title = Translation(MainTran, "Anti Screech"),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
 _G.AntiScreech = Value
-while _G.AntiScreech do
-for i, v in pairs(workspace.CurrentCamera:GetChildren()) do
-	if v.Name == "Screech" then
-		if game.Workspace.CurrentCamera then
-		   game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (v:GetPivot().Position - game.Workspace.CurrentCamera.CFrame.Position).unit)
-		end
-	end
-end
-task.wait()
-end
+Screech = Value
+    end
+})
+
+Main:Toggle({
+    Title = Translation(MainTran, "Auto Clutch Heart Win"),
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+ClutchHeart = Value
     end
 })
 
@@ -210,7 +232,14 @@ for _, v in ipairs(_G.EntityChoose) do
 	    if child:IsDescendantOf(workspace) then
 			ui:Notify({Title = v..Translation(MiscTr, " Spawn!!"), Duration = 5})
 			if _G.NotifyEntityChat then
-				game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(v..Translation(MiscTr, " Spawn!!"))
+				if not _G.ChatNotify then
+					TextChat = ""
+				else
+					TextChat = _G.ChatNotify
+				end
+				if TextChat then
+					game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat..v..Translation(MiscTr, " Spawn!!"))
+				end
 			end
 		end
     end
@@ -225,8 +254,69 @@ end
     end
 })
 
+Misc:Button({
+    Title = "Get Code Library",
+    Callback = function()
+local function Deciphercode(v)
+local Hints = game.Players.LocalPlayer.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
+
+local code = {[1] = "_",[2] = "_", [3] = "_", [4] = "_", [5] = "_"}
+    for i, v in pairs(v:WaitForChild("UI"):GetChildren()) do
+        if v:IsA("ImageLabel") and v.Name ~= "Image" then
+            for b, n in pairs(Hints:GetChildren()) do
+                if n:IsA("ImageLabel") and n.Visible and v.ImageRectOffset == n.ImageRectOffset then
+                    code[tonumber(v.Name)] = n:FindFirstChild("TextLabel").Text 
+                end
+            end
+        end
+    end 
+    return code
+end
+local function CodeAll(v)
+	if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
+        local code = table.concat(Deciphercode(v))
+        if code then
+	        ui:Notify({Title = Translation(MiscTr, "Code: ")..code, Duration = 5})
+			if _G.NotifyEntityChat then
+				if not _G.ChatNotify then
+					TextChat = ""
+				else
+					TextChat = _G.ChatNotify
+				end
+				if TextChat then
+					game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat..code)
+				end
+			end
+	        if workspace:FindFirstChild("Padlock") and Distance(workspace.Padlock:GetPivot().Position) <= 30 then
+				if game:GetService("ReplicatedStorage"):FindFirstChild("RemotesFolder") then
+					game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder"):WaitForChild("LP"):FireServer(code)
+				end
+			end
+		end
+    end
+end
+for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+	CodeAll(v)
+end
+for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+	CodeAll(v)
+end
+    end
+})
+
+Misc:Input({
+    Title = Translation(MiscTr, "Input Chat"),
+    Value = "",
+    InputIcon = "speaker",
+    Type = "Input",
+    Placeholder = "Your Chat...",
+    Callback = function(Value) 
+_G.ChatNotify = Value
+    end
+})
+
 Misc:Toggle({
-    Title = Translation(MiscTr, "Notification Entity Chat"),
+    Title = Translation(MiscTr, "Notification Chat"),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -245,7 +335,6 @@ _G.Aura = {
     "SkullPrompt",
     "UnlockPrompt",
     "ValvePrompt",
-    "PropPrompt",
 }
 
 Misc:Toggle({
@@ -297,7 +386,7 @@ for i, v in pairs(lootables) do
 		end
 	end
 end
-task.wait()
+task.wait(0.1)
 end
     end
 })
@@ -614,6 +703,111 @@ task.wait()
 end
     end
 })
+
+Esp:Toggle({
+    Title = Translation(EspTr, "Esp Breaker"),
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspBreaker = Value
+if _G.EspBreaker == false then
+_G.BreakerAdd = {}
+if BreakerSpawn then
+BreakerSpawn:Disconnect()
+BreakerSpawn = nil
+end
+if BreakerRemove then
+BreakerRemove:Disconnect()
+BreakerRemove = nil
+end
+for _, v in pairs(workspace:GetDescendants()) do 
+if v.Name:find("LiveBreakerPolePickup") then
+for i, z in pairs(v:GetChildren()) do
+if z.Name:find("Esp_") then
+z:Destroy()
+end
+end
+end
+end
+else
+function Breakers(v)
+if v.Name == "LiveBreakerPolePickup" and v:FindFirstChildOfClass("ProximityPrompt") then
+if v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and "Breaker" or "")..
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
+	GuiEsp = Instance.new("BillboardGui", v)
+	GuiEsp.Adornee = v
+	GuiEsp.Name = "Esp_Gui"
+	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiEsp.AlwaysOnTop = true
+	GuiEspText = Instance.new("TextLabel", GuiEsp)
+	GuiEspText.BackgroundTransparency = 1
+	GuiEspText.Font = Enum.Font.Code
+	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiEspText.TextSize = 15
+	GuiEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiEspText.TextStrokeTransparency = 0.5
+	GuiEspText.Text = ""
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiEspText
+	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+	v:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
+local function CheckBreaker(v)
+    if not table.find(_G.BreakerAdd, v) and v.Name == "LiveBreakerPolePickup" then
+        table.insert(_G.BreakerAdd, v)
+    end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckBreaker(v)
+end
+BreakerSpawn = workspace.DescendantAdded:Connect(function(v)
+    CheckBreaker(v)
+end)
+BreakerRemove = workspace.DescendantRemoving:Connect(function(v)
+for i = #_G.BreakerAdd, 1, -1 do
+    if _G.BreakerAdd[i] == v then
+        table.remove(_G.BreakerAdd, i)
+        break
+    end
+end
+end)
+end
+while _G.EspBreaker do
+for i, v in pairs(_G.BreakerAdd) do
+if v.Name == "LiveBreakerPolePickup" then
+Breakers(v)
+end
+end
+task.wait()
+end
+    end
+})
 end
 
 Esp:Toggle({
@@ -759,8 +953,10 @@ EntityRemove:Disconnect()
 EntityRemove = nil
 end
 for _, v in pairs(workspace:GetDescendants()) do 
-if v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving" then
+if v:IsA("Model") and (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") then
+if v.PrimaryPart then
 v.PrimaryPart.Transparency = 1
+end
 for i, z in pairs(v:GetChildren()) do
 if z.Name:find("Esp_") then
 z:Destroy()
@@ -770,7 +966,7 @@ end
 end
 else
 local function CheckEntity(v)
-    if not table.find(_G.EntityAdd, v) and (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") then
+    if not table.find(_G.EntityAdd, v) and v:IsA("Model") and (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") then
         table.insert(_G.EntityAdd, v)
     end
 end
@@ -791,8 +987,10 @@ end)
 end
 while _G.EspEntity do
 for i, v in pairs(_G.EntityAdd) do
-if (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") and v.PrimaryPart then
-v.PrimaryPart.Transparency = 0
+if v:IsA("Model") and (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") then
+if v.PrimaryPart then
+v.PrimaryPart.Transparency = 0.99
+end
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -1125,8 +1323,8 @@ local function LoadDiscordInfo()
     if success and result and result.guild then
         local DiscordInfo = Info:Paragraph({
             Title = result.guild.name,
-            Desc = ' <font color="#52525b">•</font> Member Count : ' .. tostring(result.approximate_member_count) ..
-                '\n <font color="#16a34a">•</font> Online Count : ' .. tostring(result.approximate_presence_count),
+            Desc = ' <font color="#52525b">�</font> Member Count : ' .. tostring(result.approximate_member_count) ..
+                '\n <font color="#16a34a">�</font> Online Count : ' .. tostring(result.approximate_presence_count),
             Image = "https://cdn.discordapp.com/icons/" .. result.guild.id .. "/" .. result.guild.icon .. ".png?size=1024",
             ImageSize = 42,
         })
@@ -1143,8 +1341,8 @@ local function LoadDiscordInfo()
 
                 if updated and updatedResult and updatedResult.guild then
                     DiscordInfo:SetDesc(
-                        ' <font color="#52525b">•</font> Member Count : ' .. tostring(updatedResult.approximate_member_count) ..
-                        '\n <font color="#16a34a">•</font> Online Count : ' .. tostring(updatedResult.approximate_presence_count)
+                        ' <font color="#52525b">�</font> Member Count : ' .. tostring(updatedResult.approximate_member_count) ..
+                        '\n <font color="#16a34a">�</font> Online Count : ' .. tostring(updatedResult.approximate_presence_count)
                     )
                 end
             end
@@ -1177,7 +1375,7 @@ Info:Section({
 })
 Info:Divider()
 local Owner = Info:Paragraph({
-    Title = "Nova Hoang (Nguyn Ngô Tn Hoàng)",
+    Title = "Nova Hoang (Nguyn Ng� Tn Ho�ng)",
     Desc = "Owner Of Article Hub and Nihahaha Hub",
     Image = "rbxassetid://77933782593847",
     ImageSize = 30,
