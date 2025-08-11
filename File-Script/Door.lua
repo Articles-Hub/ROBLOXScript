@@ -246,31 +246,25 @@ Misc:Toggle({
     Callback = function(Value)
 _G.NotifyEntity = Value
 if _G.NotifyEntity then
-EntityChild = workspace.DescendantAdded:Connect(function(child)
-for _, v in ipairs(_G.EntityChoose) do
-    if child:IsA("Model") and child.Name:find(v) then
-    repeat task.wait() until game.Players.LocalPlayer:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
-	    if child:IsDescendantOf(workspace) then
-			ui:Notify({Title = v.." Spawn!!", Duration = 5})
-			if _G.NotifyEntityChat then
-				if not _G.ChatNotify then
-					TextChat = ""
-				else
-					TextChat = _G.ChatNotify
-				end
-				if TextChat then
-					game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat..v.." Spawn!!")
-				end
-			end
-		end
-    end
-end
-end)
+    EntityChild = workspace.DescendantAdded:Connect(function(child)
+        for _, v in ipairs(_G.EntityChoose) do
+            if child:IsA("Model") and child.Name == v then
+                repeat task.wait() until not child:IsDescendantOf(workspace) or (game.Players.LocalPlayer:DistanceFromCharacter(child:GetPivot().Position) < 1000)
+                if child:IsDescendantOf(workspace) then
+                    ui:Notify({Title = v.." Spawn!!", Duration = 5})
+                    if _G.NotifyEntityChat then
+                        local text = _G.ChatNotify or ""
+                        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(text..v.." Spawn!!")
+                    end
+                end
+            end
+        end
+    end)
 else
-if EntityChild then
-EntityChild:Disconnect()
-EntityChild = nil
-end
+    if EntityChild then
+        EntityChild:Disconnect()
+        EntityChild = nil
+    end
 end
     end
 })
