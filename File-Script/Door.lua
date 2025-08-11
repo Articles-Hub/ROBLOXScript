@@ -1,38 +1,6 @@
 if game.Players.LocalPlayer.PlayerGui:FindFirstChild("LoadingUI") and game.Players.LocalPlayer.PlayerGui.LoadingUI.Enabled == true then
 repeat task.wait() until game.Players.LocalPlayer.PlayerGui.LoadingUI.Enabled == false
 end
-wait(0.5)
-getgenv().TranslationCounter = nil
-Name = "Door"
-local success, result = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Translation/Translation.lua"))()
-end)
-
-if success then
-    Translations = result
-else
-    TranslationCounter = "English"
-end
-if Translations["English"] and Translations["English"][Name] then
-loadstring(game:HttpGet("https://pastefy.app/yavAjgX3/raw"))()
-repeat task.wait() until TranslationCounter
-if game.CoreGui:FindFirstChild("Country") then
-game.CoreGui.Country:Destroy()
-end
-end
-
-function Translation(Section, Text)
-	if TranslationCounter == "English" then
-		return Text
-	end
-	local lang = Translations[TranslationCounter]
-	if lang and lang[Name] and lang[Name][Section] and lang[Name][Section][Text] then
-		return lang[Name][Section][Text]
-	else
-		return Text
-	end
-end
-Tran = {"Main", "Misc", "Esp", "Information"}
 
 Screech = false
 ClutchHeart = false
@@ -57,9 +25,22 @@ v:Destroy()
 end
 end)
 
+_G.EspEntityNameDis = {
+	["FigureRig"] = "Figure",
+	["SallyMoving"] = "Window",
+	["RushMoving"] = "Rush",
+	["Eyes"] = "Eyes",
+	["SeekMovingNewClone"] = "Seek",
+	["BackdoorLookman"] = "Lookman",
+	["BackdoorRush"] = "Blitz",
+	["GloombatSwarm"] = "Gloombat",
+	["GiggleCeiling"] = "Giggle",
+	["AmbushMoving"] = "Ambush"
+}
+
 ------ Script --------
 
-local EntityModules = game.ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("EntityModules")
+local EntityModules = game:GetService("ReplicatedStorage").ModulesClient.EntityModules
 local gameData = game.ReplicatedStorage:WaitForChild("GameData")
 local floor = gameData:WaitForChild("Floor")
 local isMines = floor.Value == "Mines"
@@ -94,16 +75,15 @@ local win = ui:CreateWindow({
 })
 
 Tabs = {
-    Tab = win:Tab({Title = Translation(Tran[1], "Main")}),
-    Tab1 = win:Tab({Title = Translation(Tran[2], "Misc")}),
-    Tab2 = win:Tab({Title = Translation(Tran[3], "Esp")}),
-    ["Info"] = win:Tab({Title = Translation(Tran[4], "Information")}),
+    Tab = win:Tab({Title = "Main"}),
+    Tab1 = win:Tab({Title = "Misc"}),
+    Tab2 = win:Tab({Title = "Esp"}),
+    ["Info"] = win:Tab({Title = "Information"}),
 }
 
 local Main = Tabs.Tab
-local MainTran = "Main" 
 Main:Toggle({
-    Title = Translation(MainTran, "Fullbright"),
+    Title = "Fullbright",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -123,7 +103,7 @@ end
 })
 
 Main:Toggle({
-    Title = Translation(MainTran, "Instant Prompt"),
+    Title = "Instant Prompt",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -150,10 +130,10 @@ end
     end
 })
 
-Main:Section({Title = Translation(MainTran, "Anti"), TextXAlignment = "Left", TextSize = 17})
+Main:Section({Title = "Anti", TextXAlignment = "Left", TextSize = 17})
 
 Main:Toggle({
-    Title = Translation(MainTran, "Anti Screech"),
+    Title = "Anti Screech",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -163,7 +143,7 @@ Screech = Value
 })
 
 Main:Toggle({
-    Title = Translation(MainTran, "Auto Clutch Heart Win"),
+    Title = "Auto Clutch Heart Win",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -172,7 +152,7 @@ ClutchHeart = Value
 })
 
 Main:Toggle({
-    Title = Translation(MainTran, "Anti Halt"),
+    Title = "Anti Halt",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -185,7 +165,7 @@ end
 })
 
 Main:Toggle({
-    Title = Translation(MainTran, "Anti Eyes / BackdoorLookman"),
+    Title = "Anti Eyes / BackdoorLookman",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -206,9 +186,8 @@ end
 })
 
 local Misc = Tabs.Tab1
-local MiscTr = "Misc"
 local EntityGet = Misc:Dropdown({
-    Title = Translation(MiscTr, "Choose Entity"),
+    Title = "Choose Entity",
     Values = {"Rush", "Seek", "Eyes", "Window", "LookMan", "BackdoorRush", "Giggle", "GloombatSwarm", "Ambush", "A-60", "A-120"},
     Value = {"Rush"},
     Multi = true,
@@ -219,18 +198,18 @@ _G.EntityChoose = Value
 })
 
 Misc:Toggle({
-    Title = Translation(MiscTr, "Notification Entity"),
+    Title = "Notification Entity",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
 _G.NotifyEntity = Value
 if _G.NotifyEntity then
-EntityChild = workspace.ChildAdded:Connect(function(child)
+EntityChild = workspace.DescendantAdded:Connect(function(child)
 for _, v in ipairs(_G.EntityChoose) do
-    if child.Name:find(v) then
+    if child:IsA("Model") and child.Name:find(v) then
     repeat task.wait() until game.Players.LocalPlayer:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
 	    if child:IsDescendantOf(workspace) then
-			ui:Notify({Title = v..Translation(MiscTr, " Spawn!!"), Duration = 5})
+			ui:Notify({Title = v.." Spawn!!", Duration = 5})
 			if _G.NotifyEntityChat then
 				if not _G.ChatNotify then
 					TextChat = ""
@@ -238,7 +217,7 @@ for _, v in ipairs(_G.EntityChoose) do
 					TextChat = _G.ChatNotify
 				end
 				if TextChat then
-					game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat..v..Translation(MiscTr, " Spawn!!"))
+					game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat..v.." Spawn!!")
 				end
 			end
 		end
@@ -254,9 +233,14 @@ end
     end
 })
 
-Misc:Button({
-    Title = "Get Code Library",
-    Callback = function()
+if isHotel then
+Misc:Toggle({
+    Title = "Auto Get Code Library",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.NotifyEntity = Value
+if _G.NotifyEntity then
 local function Deciphercode(v)
 local Hints = game.Players.LocalPlayer.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
 
@@ -276,7 +260,7 @@ local function CodeAll(v)
 	if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
         local code = table.concat(Deciphercode(v))
         if code then
-	        ui:Notify({Title = Translation(MiscTr, "Code: ")..code, Duration = 5})
+	        ui:Notify({Title = "Code: "..code, Duration = 5})
 			if _G.NotifyEntityChat then
 				if not _G.ChatNotify then
 					TextChat = ""
@@ -295,17 +279,21 @@ local function CodeAll(v)
 		end
     end
 end
-for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-	CodeAll(v)
+Getpaper = game.Players.LocalPlayer.Character.ChildAdded:Connect(function(v)
+CodeAll(v)
+end)
+else
+if Getpaper then
+Getpaper:Disconnect()
+Getpaper = nil
 end
-for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-	CodeAll(v)
 end
     end
 })
+end
 
 Misc:Input({
-    Title = Translation(MiscTr, "Input Chat"),
+    Title = "Input Chat",
     Value = "",
     InputIcon = "speaker",
     Type = "Input",
@@ -316,11 +304,62 @@ _G.ChatNotify = Value
 })
 
 Misc:Toggle({
-    Title = Translation(MiscTr, "Notification Chat"),
+    Title = "Notification Chat",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
 _G.NotifyEntityChat = Value
+    end
+})
+
+Misc:Slider({
+    Title = "Hiding Transparency",
+    Step = 0.1,
+    Value = {
+        Min = 0,
+        Max = 1,
+        Default = 0.5,
+    },
+    Callback = function(Value)
+_G.TransparencyHide = Value
+    end
+})
+
+Misc:Toggle({
+    Title = "Transparency Hiding",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.HidingTransparency = Value
+while _G.HidingTransparency do
+if game.Players.LocalPlayer.Character:GetAttribute("Hiding") then
+	for _, v in pairs(workspace.CurrentRooms:GetDescendants()) do
+		if v:IsA("ObjectValue") and v.Name == "HiddenPlayer" then
+			if v.Value == game.Players.LocalPlayer.Character then
+                local hidePart = {}
+                for _, i in pairs(v.Parent:GetChildren()) do
+                    if i:IsA("BasePart") then
+		                i.Transparency = _G.TransparencyHide or 0.5
+		                table.insert(hidePart, i)
+		            end
+		        end
+            repeat task.wait()
+                for _, h in pairs(hidePart) do
+                    h.Transparency = _G.TransparencyHide or 0.5
+                    task.wait()
+                end
+            until not game.Players.LocalPlayer.Character:GetAttribute("Hiding") or not _G.HidingTransparency
+            for _, n in pairs(hidePart) do
+                n.Transparency = 0
+                task.wait()
+            end
+            break
+		end
+	end
+end
+end
+task.wait()
+end
     end
 })
 
@@ -338,7 +377,7 @@ _G.Aura = {
 }
 
 Misc:Toggle({
-    Title = Translation(MiscTr, "Auto Loot"),
+    Title = "Auto Loot",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -392,7 +431,7 @@ end
 })
 
 Misc:Slider({
-    Title = Translation(MiscTr, "Walkspeed"),
+    Title = "Walkspeed",
     Step = 1,
     Value = {
         Min = 16,
@@ -405,7 +444,7 @@ _G.WalkSpeedTp = Value
 })
 
 Misc:Toggle({
-    Title = Translation(MiscTr, "WalkSpeed"),
+    Title = "WalkSpeed",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -423,7 +462,7 @@ local Esp = Tabs.Tab2
 local EspTr = "Esp"
 
 Esp:Toggle({
-    Title = Translation(EspTr, (isHotel and "Esp Key / Lever") or (isMines and "Esp Fuse")),
+    Title = (((isHotel or Backdoor) and "Esp Key / Lever") or (isMines and "Esp Fuse")),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -528,7 +567,7 @@ end
 })
 
 Esp:Toggle({
-    Title = Translation(EspTr, "Esp Door"),
+    Title = "Esp Door",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -600,7 +639,7 @@ end
 
 if isHotel then
 Esp:Toggle({
-    Title = Translation(EspTr, "Esp Book"),
+    Title = "Esp Book",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -705,7 +744,7 @@ end
 })
 
 Esp:Toggle({
-    Title = Translation(EspTr, "Esp Breaker"),
+    Title = "Esp Breaker",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -811,7 +850,7 @@ end
 end
 
 Esp:Toggle({
-    Title = Translation(EspTr, "Esp Item"),
+    Title = "Esp Item",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -924,20 +963,8 @@ end
     end
 })
 
-_G.EspEntityNameDis = {
-	["FigureRig"] = "Figure",
-	["SallyMoving"] = "Window",
-	["RushMoving"] = "Rush",
-	["Eyes"] = "Eyes",
-	["SeekMovingNewClone"] = "Seek",
-	["BackdoorLookman"] = "Lookman",
-	["BackdoorRush"] = "Blitz",
-	["GloombatSwarm"] = "Gloombat",
-	["GiggleCeiling"] = "Giggle",
-	["AmbushMoving"] = "Ambush"
-}
 Esp:Toggle({
-    Title = Translation(EspTr, "Esp Entity"),
+    Title = "Esp Entity",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -989,7 +1016,7 @@ while _G.EspEntity do
 for i, v in pairs(_G.EntityAdd) do
 if v:IsA("Model") and (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") then
 if v.PrimaryPart then
-v.PrimaryPart.Transparency = 0.99
+v.PrimaryPart.Transparency = 0.7
 end
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -1043,7 +1070,7 @@ end
 })
 
 Esp:Toggle({
-    Title = Translation(EspTr, "Esp Hiding Spots"),
+    Title = "Esp Hiding Spots",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -1148,7 +1175,7 @@ end
 })
 
 Esp:Toggle({
-    Title = Translation(EspTr, "Esp Player"),
+    Title = "Esp Player",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -1220,10 +1247,10 @@ end
     end
 })
 
-Esp:Section({Title = Translation(EspTr, "Settings Esp"), TextXAlignment = "Left", TextSize = 17})
+Esp:Section({Title = "Settings Esp", TextXAlignment = "Left", TextSize = 17})
 
 Esp:Toggle({
-    Title = Translation(MiscTr, "Esp Gui"),
+    Title = "Esp Gui",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -1232,7 +1259,7 @@ _G.EspGui = Value
 })
 
 Esp:Toggle({
-    Title = Translation(MiscTr, "Esp HightLight"),
+    Title = "Esp HightLight",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -1240,10 +1267,10 @@ _G.EspHighlight = Value
     end
 })
 
-Esp:Section({Title = Translation(EspTr, "Settings Color"), TextXAlignment = "Left", TextSize = 17})
+Esp:Section({Title = "Settings Color", TextXAlignment = "Left", TextSize = 17})
 
 Esp:Colorpicker({
-    Title = Translation(EspTr, "Color Gui"),
+    Title = "Color Gui",
     Default = Color3.fromRGB(255, 255, 255),
     Transparency = 0,
     Locked = false,
@@ -1253,7 +1280,7 @@ _G.EspGuiTextColor = Value
 })
 
 Esp:Colorpicker({
-    Title = Translation(EspTr, "Color HightLight"),
+    Title = "Color HightLight",
     Default = Color3.fromRGB(255, 255, 255),
     Transparency = 0,
     Locked = false,
@@ -1263,7 +1290,7 @@ _G.ColorLight = Value
 })
 
 Esp:Slider({
-    Title = Translation(EspTr, "Text Size [ Gui ]"),
+    Title = "Text Size [ Gui ]",
     Step = 1,
     Value = {
         Min = 5,
@@ -1275,10 +1302,10 @@ _G.EspGuiTextSize = Value
     end
 })
 
-Esp:Section({Title = Translation(EspTr, "Settings Text"), TextXAlignment = "Left", TextSize = 17})
+Esp:Section({Title = "Settings Text", TextXAlignment = "Left", TextSize = 17})
 
 Esp:Toggle({
-    Title = Translation(MiscTr, "Esp Name"),
+    Title = "Esp Name",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -1287,7 +1314,7 @@ _G.EspName = Value
 })
 
 Esp:Toggle({
-    Title = Translation(MiscTr, "Esp Distance"),
+    Title = "Esp Distance",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -1296,7 +1323,7 @@ _G.EspDistance = Value
 })
 
 Esp:Toggle({
-    Title = Translation(MiscTr, "Esp Health"),
+    Title = "Esp Health",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -1375,7 +1402,7 @@ Info:Section({
 })
 Info:Divider()
 local Owner = Info:Paragraph({
-    Title = "Nova Hoang (Nguyn Ng� Tn Ho�ng)",
+    Title = "Nova Hoang (Nguyn Nguyễn Tn Hoàng)",
     Desc = "Owner Of Article Hub and Nihahaha Hub",
     Image = "rbxassetid://77933782593847",
     ImageSize = 30,
