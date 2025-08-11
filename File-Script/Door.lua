@@ -230,7 +230,7 @@ end
 local Misc = Tabs.Tab1
 local EntityGet = Misc:Dropdown({
     Title = "Choose Entity",
-    Values = {"Rush", "Seek", "Eyes", "Window", "LookMan", "BackdoorRush", "Giggle", "GloombatSwarm", "Ambush", "A-60", "A-120"},
+    Values = {"Rush", "Seek", "Eyes", "Window", "LookMan", "Giggle", "GloombatSwarm", "Ambush", "A-60", "A-120"},
     Value = {"Rush"},
     Multi = true,
     AllowNone = true,
@@ -706,7 +706,7 @@ end
 end
 end
 else
-function Books(v)
+function LeverTimes(v)
 if v.Name:find("TimerLever") and v.PrimaryPart then
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -754,30 +754,30 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 end
 end
 end
-local function CheckBook(v)
-    if not table.find(_G.BookAdd, v) and v.Name == "LiveHintBook" then
-        table.insert(_G.BookAdd, v)
+local function CheckTimeLever(v)
+    if not table.find(_G.TimeLeverAdd, v) and v.Name == "TimerLever" then
+        table.insert(_G.TimeLeverAdd, v)
     end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
-	CheckBook(v)
+	CheckTimeLever(v)
 end
-BookSpawn = workspace.DescendantAdded:Connect(function(v)
-    CheckBook(v)
+TimeLeverSpawn = workspace.DescendantAdded:Connect(function(v)
+    CheckTimeLever(v)
 end)
-BookRemove = workspace.DescendantRemoving:Connect(function(v)
-    for i = #_G.BookAdd, 1, -1 do
-        if _G.BookAdd[i] == v then
-            table.remove(_G.BookAdd, i)
+TimeLeverRemove = workspace.DescendantRemoving:Connect(function(v)
+    for i = #_G.TimeLeverAdd, 1, -1 do
+        if _G.TimeLeverAdd[i] == v then
+            table.remove(_G.TimeLeverAdd, i)
             break
         end
     end
 end)
 end
-while _G.EspBook do
-for i, v in pairs(_G.BookAdd) do
+while _G.EspLeverTime do
+for i, v in pairs(_G.TimeLeverAdd) do
 if v:IsA("Model") then
-Books(v)
+LeverTimes(v)
 end
 end
 task.wait()
