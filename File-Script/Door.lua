@@ -246,9 +246,9 @@ Misc:Toggle({
     Callback = function(Value)
 _G.NotifyEntity = Value
 if _G.NotifyEntity then
-    EntityChild = workspace.DescendantAdded:Connect(function(child)
+    EntityChild = workspace.ChildAdded:Connect(function(child)
         for _, v in ipairs(_G.EntityChoose) do
-            if child:IsA("Model") and child.Name == v then
+            if child:IsA("Model") and child.Name:find(v) then
                 repeat task.wait() until not child:IsDescendantOf(workspace) or (game.Players.LocalPlayer:DistanceFromCharacter(child:GetPivot().Position) < 1000)
                 if child:IsDescendantOf(workspace) then
                     ui:Notify({Title = v.." Spawn!!", Duration = 5})
