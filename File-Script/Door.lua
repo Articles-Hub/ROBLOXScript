@@ -103,6 +103,34 @@ end
 })
 
 Main:Toggle({
+    Title = "No Fog",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.Nofog = Value
+while _G.Nofog do
+game:GetService("Lighting").FogStart = 100000
+game:GetService("Lighting").FogEnd = 200000
+for i, v in pairs(game:GetService("Lighting"):GetChildren()) do
+if v.ClassName == "Atmosphere" then
+v.Density = 0
+v.Haze = 0
+end
+end
+task.wait()
+end
+game:GetService("Lighting").FogStart = 0
+game:GetService("Lighting").FogEnd = 1000
+for i, v in pairs(game:GetService("Lighting"):GetChildren()) do
+if v.ClassName == "Atmosphere" then
+v.Density = 0.3
+v.Haze = 1
+end
+end
+    end
+})
+
+Main:Toggle({
     Title = "Instant Prompt",
     Type = "Toggle",
     Default = false,
@@ -171,16 +199,30 @@ Main:Toggle({
     Callback = function(Value)
 _G.NoEyes = Value
 while _G.NoEyes do
-if workspace:FindFirstChild("Eyes") then
+if workspace:FindFirstChild("Eyes") or workspace:FindFirstChild("BackdoorLookman") then
 if game:GetService("ReplicatedStorage"):FindFirstChild("RemotesFolder") then
 game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder"):WaitForChild("MotorReplication"):FireServer(-649)
 end
-elseif workspace:FindFirstChild("BackdoorLookman") then
-if game:GetService("ReplicatedStorage"):FindFirstChild("EntityInfo") then
-game:GetService("ReplicatedStorage"):WaitForChild("EntityInfo"):WaitForChild("MotorReplication"):FireServer(0, -90, 0, false)
-end
 end
 task.wait()
+end
+    end
+})
+
+Main:Toggle({
+    Title = "Inf Oxygen",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.ActiveInfOxygen = Value 
+while _G.ActiveInfOxygen do 
+if game.Players.LocalPlayer.Character:GetAttribute("Oxygen") then
+game.Players.LocalPlayer.Character:SetAttribute("Oxygen",99999)
+end
+task.wait()
+end 
+if game.Players.LocalPlayer.Character:GetAttribute("Oxygen") then
+game.Players.LocalPlayer.Character:SetAttribute("Oxygen",100)
 end
     end
 })
@@ -462,7 +504,7 @@ local Esp = Tabs.Tab2
 local EspTr = "Esp"
 
 Esp:Toggle({
-    Title = (((isHotel or Backdoor) and "Esp Key / Lever") or (isMines and "Esp Fuse")),
+    Title = (((isHotel or isBackdoor) and "Esp Key / Lever") or (isMines and "Esp Fuse")),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -636,6 +678,113 @@ task.wait()
 end
     end
 })
+
+if isBackdoor then
+Esp:Toggle({
+    Title = "Esp Time Lever",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspLeverTime = Value
+if _G.EspLeverTime == false then
+_G.TimeLeverAdd = {}
+if TimeLeverSpawn then
+TimeLeverSpawn:Disconnect()
+TimeLeverSpawn = nil
+end
+if TimeLeverRemove then
+TimeLeverRemove:Disconnect()
+TimeLeverRemove = nil
+end
+for _, v in pairs(workspace:GetDescendants()) do 
+if v.Name:find("TimerLever") then
+for i, z in pairs(v:GetChildren()) do
+if z.Name:find("Esp_") then
+z:Destroy()
+end
+end
+end
+end
+else
+function Books(v)
+if v.Name:find("TimerLever") and v.PrimaryPart then
+if v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and "Lever Time" or "")..
+            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
+	GuiEsp = Instance.new("BillboardGui", v)
+	GuiEsp.Adornee = v
+	GuiEsp.Name = "Esp_Gui"
+	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiEsp.AlwaysOnTop = true
+	GuiEspText = Instance.new("TextLabel", GuiEsp)
+	GuiEspText.BackgroundTransparency = 1
+	GuiEspText.Font = Enum.Font.Code
+	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiEspText.TextSize = 15
+	GuiEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiEspText.TextStrokeTransparency = 0.5
+	GuiEspText.Text = ""
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiEspText
+	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+	v:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
+local function CheckBook(v)
+    if not table.find(_G.BookAdd, v) and v.Name == "LiveHintBook" then
+        table.insert(_G.BookAdd, v)
+    end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckBook(v)
+end
+BookSpawn = workspace.DescendantAdded:Connect(function(v)
+    CheckBook(v)
+end)
+BookRemove = workspace.DescendantRemoving:Connect(function(v)
+    for i = #_G.BookAdd, 1, -1 do
+        if _G.BookAdd[i] == v then
+            table.remove(_G.BookAdd, i)
+            break
+        end
+    end
+end)
+end
+while _G.EspBook do
+for i, v in pairs(_G.BookAdd) do
+if v:IsA("Model") then
+Books(v)
+end
+end
+task.wait()
+end
+    end
+})
+end
 
 if isHotel then
 Esp:Toggle({
