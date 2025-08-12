@@ -12726,7 +12726,7 @@ Tabs = {
 local Misc1Group = Tabs.Tab:AddLeftGroupbox("Round 1")
 
 Misc1Group:AddToggle("Auto Slap Mortis", {
-    Text = "Auto Slap Mortis",
+    Text = "Auto Slap Snoob",
     Default = false, 
     Callback = function(Value) 
 _G.AutoSlapMortis = Value
@@ -12752,7 +12752,6 @@ if v:IsA("Tool") and v.Name:find("Key") and v:FindFirstChild("Handle") and v:Fin
 repeat task.wait()
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Handle.CFrame
 until not v:IsDescendantOf(workspace)
-break
 end
 end
 wait(0.1)
@@ -12862,23 +12861,44 @@ end
 	end
 })
 
+Boss1Group:AddToggle("Tied", {
+    Text = "Anti Touch Head",
+    Default = false, 
+    Callback = function(Value) 
+_G.AntiHead = Value
+while _G.AntiHead do
+if workspace:FindFirstChild("bossStorage") and workspace.bossStorage:FindFirstChild("head") then
+workspace.bossStorage.head.CanTouch = false
+end
+task.wait()
+end
+if workspace:FindFirstChild("bossStorage") and workspace.bossStorage:FindFirstChild("head") then
+workspace.bossStorage.head.CanTouch = true
+end
+	end
+})
+
 Boss1Group:AddToggle("Handleft", {
     Text = "Auto Slap Left Hand",
     Default = false, 
     Callback = function(Value) 
 _G.AutoSlap = Value
+spawn(function()
 while _G.AutoSlap do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Lantern") then
 if workspace:FindFirstChild("bossStorage") and workspace.bossStorage:FindFirstChild("leftHand") and workspace.bossStorage.leftHand:FindFirstChild("PointerMimic") and workspace.bossStorage.leftHand.PointerMimic:FindFirstChild("TouchInterest") then
 game:GetService("Players").LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
 game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = workspace.bossStorage.leftHand.PointerMimic.CFrame * CFrame.new(0, 0, 6.5)
-game:GetService("Players").LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
 end
 end
 end
 task.wait()
 end
+end)
+if NotificationUnSh then return end
+NotificationUnSh = true
+Notification("You have turn off Shiftlock and but you have to stand still for it to work but you have to dodge the attack hand", 10)
 	end
 })
 
@@ -12890,21 +12910,8 @@ Boss1Group:AddToggle("Nail", {
 _G.NailSlap = Value
 while _G.NailSlap do
 _G.TeleportSafe = false
-if CloneHead == true then
 if workspace:FindFirstChild("bossStorage") and workspace.bossStorage:FindFirstChild("head") then
-if workspace:FindFirstChild("Head Boss Clone") == nil then
-local S = Instance.new("Part")
-S.Name = "Head Boss Clone"
-S.Anchored = true
-S.Transparency = 0.5
-S.Position = workspace.bossStorage:FindFirstChild("head").Position
-S.Size = workspace.bossStorage:FindFirstChild("head").Size
-S.Parent = workspace
-end
-repeat task.wait() until workspace:FindFirstChild("Head Boss Clone")
-wait(0.3)
-workspace.bossStorage:FindFirstChild("head"):Destroy()
-end
+workspace.bossStorage.head.CanTouch = false
 end
 if workspace:FindFirstChild("BossfightCore") and workspace.BossfightCore:FindFirstChild("BossTargetArea") then
 AreaBoss = workspace.BossfightCore.BossTargetArea
@@ -12912,8 +12919,7 @@ end
 if workspace:FindFirstChild("bossStorage") then
 for i, v in pairs(workspace:WaitForChild("bossStorage"):GetChildren()) do
 if (v.Name:find("thicc") or v.Name == "nail") and v:FindFirstChild("object") then
-CloneHead = true
-if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Lantern") then
+if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Lantern") and v:FindFirstChild("AnimationController") and v.AnimationController:FindFirstChild("Animator") and #v.AnimationController.Animator:GetPlayingAnimationTracks() == 0 then
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v:FindFirstChild("object").CFrame * CFrame.new(0, -10, 0)
 game:GetService("Players").LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
@@ -12943,11 +12949,18 @@ end
 end
 task.wait()
 end
+if workspace:FindFirstChild("bossStorage") and workspace.bossStorage:FindFirstChild("head") then
+workspace.bossStorage.head.CanTouch = _G.AntiHead
+end
+if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BVFreeze") then
+game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BVFreeze"):Destroy()
+end
 	end
 })
 
 Boss1Group:AddButton("PickUp C4", function()
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+oldCF = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 for i, v in pairs(workspace:GetChildren()) do
 if v.Name == "C4" then
 game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v.CFrame
@@ -12955,6 +12968,8 @@ wait(0.4)
 fireproximityprompt(v:FindFirstChildOfClass("ProximityPrompt"))
 end
 end
+wait(0.4)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = oldCF
 end
 end)
 
@@ -12970,11 +12985,11 @@ wait(0.3)
 game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v.CFrame
 wait(0.4)
 fireproximityprompt(v:FindFirstChildOfClass("ProximityPrompt"))
-break
-end
-end
-wait(0.4)
+wait(0.3)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = oldCF
+wait(0.5)
+end
+end
 end
 end)
 
