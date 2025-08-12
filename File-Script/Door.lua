@@ -25,19 +25,6 @@ v:Destroy()
 end
 end)
 
-_G.EspEntityNameDis = {
-	["FigureRig"] = "Figure",
-	["SallyMoving"] = "Window",
-	["RushMoving"] = "Rush",
-	["Eyes"] = "Eyes",
-	["SeekMovingNewClone"] = "Seek",
-	["BackdoorLookman"] = "Lookman",
-	["BackdoorRush"] = "Blitz",
-	["GloombatSwarm"] = "Gloombat",
-	["GiggleCeiling"] = "Giggle",
-	["AmbushMoving"] = "Ambush"
-}
-
 ------ Script --------
 
 local EntityModules = game:GetService("ReplicatedStorage").ModulesClient.EntityModules
@@ -46,6 +33,7 @@ local floor = gameData:WaitForChild("Floor")
 local isMines = floor.Value == "Mines"
 local isHotel = floor.Value == "Hotel"
 local isBackdoor = floor.Value == "Backdoor"
+local isGarden = floor.Value == "Garden"
 
 function Distance(pos)
 	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -193,7 +181,7 @@ end
 })
 
 Main:Toggle({
-    Title = "Anti Eyes / BackdoorLookman",
+    Title = "Anti Eyes / Lookman",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -421,7 +409,7 @@ _G.AutoLoot = Value
 if _G.AutoLoot then
 lootables = {}
 local function LootCheck(v)
-    if not table.find(lootables, v) and v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) then
+    if not table.find(lootables, v) and v.Name ~= "Groundskeeper" and v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) then
         table.insert(lootables, v)
     end
 end
@@ -497,6 +485,7 @@ end
 local Esp = Tabs.Tab2
 local EspTr = "Esp"
 
+if not isGarden then
 Esp:Toggle({
     Title = (((isHotel or isBackdoor) and "Esp Key / Lever") or (isMines and "Esp Fuse")),
     Type = "Toggle",
@@ -601,6 +590,7 @@ task.wait()
 end
     end
 })
+end
 
 Esp:Toggle({
     Title = "Esp Door",
@@ -1106,6 +1096,20 @@ end
     end
 })
 
+_G.EspEntityNameDis = {
+	["FigureRig"] = "Figure",
+	["SallyMoving"] = "Window",
+	["RushMoving"] = "Rush",
+	["Eyes"] = "Eyes",
+	["Groundskeeper"] = "Skeeper",
+	["BackdoorLookman"] = "Lookman",
+	["BackdoorRush"] = "Blitz",
+	["MandrakeLive"] = "Mandrake",
+	["GloombatSwarm"] = "Gloombat",
+	["GiggleCeiling"] = "Giggle",
+	["AmbushMoving"] = "Ambush"
+}
+
 Esp:Toggle({
     Title = "Esp Entity",
     Type = "Toggle",
@@ -1123,7 +1127,8 @@ EntityRemove:Disconnect()
 EntityRemove = nil
 end
 for _, v in pairs(workspace:GetDescendants()) do 
-if v:IsA("Model") and (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") then
+for x, z in pairs(_G.EspEntityNameDis) do
+if v:IsA("Model") and (v.Name == x) then
 if v.PrimaryPart then
 v.PrimaryPart.Transparency = 1
 end
@@ -1134,11 +1139,16 @@ end
 end
 end
 end
+end
 else
 local function CheckEntity(v)
-    if not table.find(_G.EntityAdd, v) and v:IsA("Model") and (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") then
-        table.insert(_G.EntityAdd, v)
-    end
+	for x, z in pairs(_G.EspEntityNameDis) do
+		if v:IsA("Model") and (v.Name == x) then
+		    if not table.find(_G.EntityAdd, v) then
+		        table.insert(_G.EntityAdd, v)
+		    end
+		end
+	end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
 	CheckEntity(v)
@@ -1157,9 +1167,10 @@ end)
 end
 while _G.EspEntity do
 for i, v in pairs(_G.EntityAdd) do
-if v:IsA("Model") and (v.Name == "FigureRig" or v.Name == "SallyMoving" or v.Name == "RushMoving" or v.Name == "Eyes" or v.Name == "SeekMovingNewClone" or v.Name == "BackdoorLookman" or v.Name == "BackdoorRush" or v.Name == "GloombatSwarm" or v.Name == "GiggleCeiling" or v.Name == "AmbushMoving") then
+for x, z in pairs(_G.EspEntityNameDis) do
+if v:IsA("Model") and (v.Name == x) then
 if v.PrimaryPart then
-v.PrimaryPart.Transparency = 0.7
+v.PrimaryPart.Transparency = 0
 end
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -1204,6 +1215,7 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	UIStroke.Parent = GuiEspText
 	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
 	v:FindFirstChild("Esp_Gui"):Destroy()
+end
 end
 end
 end
