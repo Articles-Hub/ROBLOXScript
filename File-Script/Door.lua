@@ -2,8 +2,7 @@ if game.Players.LocalPlayer.PlayerGui:FindFirstChild("LoadingUI") and game.Playe
 repeat task.wait() until game.Players.LocalPlayer.PlayerGui.LoadingUI.Enabled == false
 end
 
-Screech = false
-ClutchHeart = false
+Screech, ClutchHeart, AutoUseCrouch = false, false, false
 local old
 old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
     local args = {...}
@@ -14,6 +13,10 @@ old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
     end
     if tostring(self) == "ClutchHeartbeat" and method == "FireServer" and ClutchHeart == true then
         args[2] = true
+        return old(self,unpack(args))
+    end
+    if self.Name == "Crouch" and method == "FireServer" and AutoUseCrouch == true then
+        args[1] = true
         return old(self,unpack(args))
     end
     return old(self,...)
@@ -53,7 +56,7 @@ _G.GetOldBright = {
 
 local ui = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local win = ui:CreateWindow({
-    Title = "Door",
+    Title = "Doors",
     Icon = "door-open",
     Folder = "Article Hub",
     Size = UDim2.fromOffset(700, 320),
@@ -146,7 +149,7 @@ end
     end
 })
 
-Main:Section({Title = "Anti", TextXAlignment = "Left", TextSize = 17})
+Main:Section({Title = "Misc Main", TextXAlignment = "Left", TextSize = 17})
 
 Main:Toggle({
     Title = "Anti Screech",
@@ -197,6 +200,56 @@ end
     end
 })
 
+if isMines then
+Main:Toggle({
+    Title = "Anti Egg Gloom",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AntiEggGloom = Value
+while _G.AntiEggGloom do
+for i, v in pairs(workspace.CurrentRooms:GetChildren()) do
+	if v:IsA("Model") then
+		for _, v1 in pairs(v:GetChildren()) do
+			if v1.Name:find("GloomPile") and v1:FindFirstChild("GloomEgg") and v1.GloomEgg:FindFirstChild("Egg") then
+				v1.GloomEgg.Egg.CanTouch = false
+			end
+		end
+	end
+end
+task.wait()
+end
+    end
+})
+end
+
+Main:Toggle({
+    Title = "Auto Use Crouch",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+AutoUseCrouch = Value
+    end
+})
+
+Main:Toggle({
+    Title = "Get Jump Button",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.JumpButton = Value
+while _G.JumpButton do
+if game.Players.LocalPlayer.Character:GetAttribute("CanJump") then
+game.Players.LocalPlayer.Character:SetAttribute("CanJump", true)
+end
+task.wait()
+end 
+if game.Players.LocalPlayer.Character:GetAttribute("CanJump") then
+game.Players.LocalPlayer.Character:SetAttribute("CanJump", false)
+end
+    end
+})
+
 Main:Toggle({
     Title = "Inf Oxygen",
     Type = "Toggle",
@@ -218,7 +271,7 @@ end
 local Misc = Tabs.Tab1
 local EntityGet = Misc:Dropdown({
     Title = "Choose Entity",
-    Values = {"Rush", "Seek", "Eyes", "Window", "LookMan", "Giggle", "GloombatSwarm", "Ambush", "A-60", "A-120"},
+    Values = {"Rush", "Seek", "Eyes", "Window", "LookMan", "Gloombat", "Ambush", "A-60", "A-120"},
     Value = {"Rush"},
     Multi = true,
     AllowNone = true,
@@ -284,7 +337,7 @@ local function CodeAll(v)
 	if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
         local code = table.concat(Deciphercode(v))
         if code then
-	        ui:Notify({Title = "Code: "..code, Duration = 5})
+	        ui:Notify({Title = "Code: "..code, Duration = 15})
 			if _G.NotifyEntityChat then
 				if not _G.ChatNotify then
 					TextChat = ""
@@ -293,11 +346,6 @@ local function CodeAll(v)
 				end
 				if TextChat then
 					game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat..code)
-				end
-			end
-	        if workspace:FindFirstChild("Padlock") and Distance(workspace.Padlock:GetPivot().Position) <= 30 then
-				if game:GetService("ReplicatedStorage"):FindFirstChild("RemotesFolder") then
-					game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder"):WaitForChild("LP"):FireServer(code)
 				end
 			end
 		end
@@ -409,19 +457,15 @@ _G.AutoLoot = Value
 if _G.AutoLoot then
 lootables = {}
 local function LootCheck(v)
-    if not table.find(lootables, v) and v.Name ~= "Groundskeeper" and v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) then
-        table.insert(lootables, v)
-    end
+	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) then
+	    table.insert(lootables, v)
+	end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
-if v:IsA("ProximityPrompt") then
 	LootCheck(v)
-end
 end
 ChildAllNext = workspace.DescendantAdded:Connect(function(v)
-if v:IsA("ProximityPrompt") then
 	LootCheck(v)
-end
 end)
 RemoveChild = workspace.DescendantRemoving:Connect(function(v)
     for i = #lootables, 1, -1 do
@@ -443,7 +487,8 @@ end
 end
 while _G.AutoLoot do
 for i, v in pairs(lootables) do
-	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) and (v:GetAttribute("Interactions") == nil or v:GetAttribute("Interactions") <= 2) then
+	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) and v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) == nil then
+		if v.Parent.Name:find("Mandrake") then return end
 		if Distance(v.Parent:GetPivot().Position) <= 12 then
 			fireproximityprompt(v)
 		end
@@ -1105,7 +1150,9 @@ _G.EspEntityNameDis = {
 	["BackdoorLookman"] = "Lookman",
 	["BackdoorRush"] = "Blitz",
 	["MandrakeLive"] = "Mandrake",
-	["GloombatSwarm"] = "Gloombat",
+	["GloomPile"] = "Egg",
+	["Snare"] = "Snare",
+	["GrumbleRig"] = "Grumble",
 	["GiggleCeiling"] = "Giggle",
 	["AmbushMoving"] = "Ambush"
 }
@@ -1144,9 +1191,12 @@ else
 local function CheckEntity(v)
 	for x, z in pairs(_G.EspEntityNameDis) do
 		if v:IsA("Model") and (v.Name == x) then
-		    if not table.find(_G.EntityAdd, v) then
-		        table.insert(_G.EntityAdd, v)
-		    end
+			if v.Name == "Snare" and v.Parent and v.Parent:IsA("Model") and v.Parent.Name == "Snare" then
+				return
+			end			
+			if not table.find(_G.EntityAdd, v) then
+				table.insert(_G.EntityAdd, v)
+			end
 		end
 	end
 end
@@ -1169,8 +1219,17 @@ while _G.EspEntity do
 for i, v in pairs(_G.EntityAdd) do
 for x, z in pairs(_G.EspEntityNameDis) do
 if v:IsA("Model") and (v.Name == x) then
-if v.PrimaryPart then
-v.PrimaryPart.Transparency = 0
+local AllTransparent = true
+for _, v3 in ipairs(v:GetChildren()) do
+    if v3:IsA("BasePart") and v3.Transparency < 1 then
+        AllTransparent = false
+        break
+    end
+end
+if AllTransparent then
+    if v.PrimaryPart then
+		v.PrimaryPart.Transparency = 1
+	end
 end
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
