@@ -2,30 +2,97 @@ if game.Players.LocalPlayer.PlayerGui:FindFirstChild("LoadingUI") and game.Playe
 repeat task.wait() until game.Players.LocalPlayer.PlayerGui.LoadingUI.Enabled == false
 end
 
+_G.GetOldBright = {
+	["Old"] = {
+		Brightness = game.Lighting.Brightness,
+		ClockTime = game.Lighting.ClockTime,
+		FogEnd = game.Lighting.FogEnd,
+		FogStart = game.Lighting.FogStart,
+		GlobalShadows = game.Lighting.GlobalShadows,
+		OutdoorAmbient = game.Lighting.OutdoorAmbient
+	},
+	["New"] = {
+		Brightness = 2,
+		ClockTime = 14,
+		FogEnd = 200000,
+		FogStart = 100000,
+		GlobalShadows = false,
+		OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+	}
+}
+
+for i, v in pairs(_G.GetOldBright.New) do
+game.Lighting:GetPropertyChangedSignal(i):Connect(function()
+	if _G.FullBright then
+		game.Lighting[i] = v
+	end
+end)
+end
+
 Screech, ClutchHeart, AutoUseCrouch = false, false, false
+if not old then
 local old
 old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
     local args = {...}
     local method = getnamecallmethod()
-    if tostring(self) == "Screech" and method == "FireServer" and Screech == true then
-        args[1] = true
-        return old(self,unpack(args))
-    end
-    if tostring(self) == "ClutchHeartbeat" and method == "FireServer" and ClutchHeart == true then
-        args[2] = true
-        return old(self,unpack(args))
-    end
-    if self.Name == "Crouch" and method == "FireServer" and AutoUseCrouch == true then
-        args[1] = true
-        return old(self,unpack(args))
+    if method == "FireServer" then
+	    if tostring(self) == "Screech" and Screech == true then
+	        args[1] = true
+	        return old(self,unpack(args))
+	    end
+	    if tostring(self) == "ClutchHeartbeat" and ClutchHeart == true then
+	        args[2] = true
+	        return old(self,unpack(args))
+	    end
+	    if tostring(self) == "Crouch" and AutoUseCrouch == true then
+	        args[1] = true
+	        return old(self,unpack(args))
+	    end
     end
     return old(self,...)
 end))
-
-workspace.DescendantAdded:Connect(function(v)
-if v:IsA("Model") and v.Name == "Screech" then
-v:Destroy()
 end
+
+_G.RemoveLag = {"Leaves", "Rock", "HidingShrub", "Flowers"}
+function RemoveLagTo(v)
+	if _G.AntiLag == true then
+		local Terrain = workspace:FindFirstChildOfClass("Terrain")
+		Terrain.WaterWaveSize = 0
+		Terrain.WaterWaveSpeed = 0
+		Terrain.WaterReflectance = 0
+		Terrain.WaterTransparency = 1
+		game.Lighting.GlobalShadows = false
+		game.Lighting.FogEnd = 9e9
+		game.Lighting.FogStart = 9e9
+		if v:IsA("ForceField") or v:IsA("Sparkles") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Beam") then
+			v:Destroy()
+		end
+		for i, n in pairs(_G.RemoveLag) do
+			if v.Name == n or v.Name:find("grass") then
+				v:Destroy()
+			end
+		end
+		if v:IsA("PostEffect") then
+			v.Enabled = false
+		end
+		if v:IsA("BasePart") then
+			v.Material = "Plastic"
+			v.Reflectance = 0
+			v.BackSurface = "SmoothNoOutlines"
+			v.BottomSurface = "SmoothNoOutlines"
+			v.FrontSurface = "SmoothNoOutlines"
+			v.LeftSurface = "SmoothNoOutlines"
+			v.RightSurface = "SmoothNoOutlines"
+			v.TopSurface = "SmoothNoOutlines"
+		elseif v:IsA("Decal") then
+			v.Transparency = 1
+		elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+			v.Lifetime = NumberRange.new(0)
+		end
+	end
+end
+workspace.DescendantAdded:Connect(function(v)
+	RemoveLagTo(v)
 end)
 
 ------ Script --------
@@ -43,14 +110,6 @@ function Distance(pos)
 		return (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - pos).Magnitude
 	end
 end
-
-_G.GetOldBright = {
-	Brightness = game.Lighting.Brightness,
-	ClockTime = game.Lighting.ClockTime,
-	FogEnd = game.Lighting.FogEnd,
-	GlobalShadows = game.Lighting.GlobalShadows,
-	OutdoorAmbient = game.Lighting.OutdoorAmbient
-}
 
 ---- Script ----
 
@@ -79,16 +138,14 @@ Main:Toggle({
     Default = false,
     Callback = function(Value)
 _G.FullBright = Value
-while _G.FullBright do
-game.Lighting.Brightness = 2
-game.Lighting.ClockTime = 14
-game.Lighting.FogEnd = 100000
-game.Lighting.GlobalShadows = false
-game.Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-task.wait()
-end
-for i, v in pairs(_G.GetOldBright) do
+if _G.FullBright then
+for i, v in pairs(_G.GetOldBright.New) do
 game.Lighting[i] = v
+end
+else
+for i, v in pairs(_G.GetOldBright.Old) do
+game.Lighting[i] = v
+end
 end
     end
 })
@@ -100,8 +157,6 @@ Main:Toggle({
     Callback = function(Value)
 _G.Nofog = Value
 while _G.Nofog do
-game:GetService("Lighting").FogStart = 100000
-game:GetService("Lighting").FogEnd = 200000
 for i, v in pairs(game:GetService("Lighting"):GetChildren()) do
 if v.ClassName == "Atmosphere" then
 v.Density = 0
@@ -110,8 +165,6 @@ end
 end
 task.wait()
 end
-game:GetService("Lighting").FogStart = 0
-game:GetService("Lighting").FogEnd = 1000
 for i, v in pairs(game:GetService("Lighting"):GetChildren()) do
 if v.ClassName == "Atmosphere" then
 v.Density = 0.3
@@ -158,6 +211,24 @@ Main:Toggle({
     Callback = function(Value)
 _G.AntiScreech = Value
 Screech = Value
+if _G.AntiScreech then
+local function CheckSreech(v)
+if v:IsA("Model") and v.Name == "Screech" then
+v:Destroy()
+end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckSreech(v)
+end
+RemoveScreech = workspace.DescendantAdded:Connect(function(v)
+	CheckSreech(v)
+end)
+elseif not _G.AntiScreech then
+if RemoveScreech then
+RemoveScreech:Disconnect()
+RemoveScreech = nil
+end
+end
     end
 })
 
@@ -200,6 +271,35 @@ end
     end
 })
 
+Main:Toggle({
+    Title = "Anti Snare",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.NoSnare = Value
+if _G.NoSnare then
+local function CheckSnare(v)
+	if v:IsA("Model") and v.Name == "Snare" then
+		if v:FindFirstChild("Hitbox") then
+			v.Hitbox:Destroy()
+		end
+	end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckSnare(v)
+end
+RemoveSnare = workspace.DescendantAdded:Connect(function(v)
+	CheckSnare(v)
+end)
+elseif not _G.NoSnare then
+if RemoveSnare then
+RemoveSnare:Disconnect()
+RemoveSnare = nil
+end
+end
+    end
+})
+
 if isMines then
 Main:Toggle({
     Title = "Anti Egg Gloom",
@@ -233,24 +333,6 @@ AutoUseCrouch = Value
 })
 
 Main:Toggle({
-    Title = "Get Jump Button",
-    Type = "Toggle",
-    Default = false,
-    Callback = function(Value)
-_G.JumpButton = Value
-while _G.JumpButton do
-if game.Players.LocalPlayer.Character:GetAttribute("CanJump") then
-game.Players.LocalPlayer.Character:SetAttribute("CanJump", true)
-end
-task.wait()
-end 
-if game.Players.LocalPlayer.Character:GetAttribute("CanJump") then
-game.Players.LocalPlayer.Character:SetAttribute("CanJump", false)
-end
-    end
-})
-
-Main:Toggle({
     Title = "Inf Oxygen",
     Type = "Toggle",
     Default = false,
@@ -271,7 +353,7 @@ end
 local Misc = Tabs.Tab1
 local EntityGet = Misc:Dropdown({
     Title = "Choose Entity",
-    Values = {"Rush", "Seek", "Eyes", "Window", "LookMan", "Gloombat", "Ambush", "A-60", "A-120"},
+    Values = {"Rush", "Seek", "Eyes", "Window", "LookMan", "Gloombat", "Ambush", "A-60", "A-120", "Monument"},
     Value = {"Rush"},
     Multi = true,
     AllowNone = true,
@@ -488,9 +570,10 @@ end
 while _G.AutoLoot do
 for i, v in pairs(lootables) do
 	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) and v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) == nil then
-		if v.Parent.Name:find("Mandrake") then return end
 		if Distance(v.Parent:GetPivot().Position) <= 12 then
-			fireproximityprompt(v)
+			if v.Parent.Name ~= "Mandrake" then
+				fireproximityprompt(v)
+			end
 		end
 	end
 end
@@ -504,7 +587,7 @@ Misc:Slider({
     Step = 1,
     Value = {
         Min = 16,
-        Max = 21,
+        Max = 25,
         Default = 16,
     },
     Callback = function(Value)
@@ -527,9 +610,21 @@ end
     end
 })
 
-local Esp = Tabs.Tab2
-local EspTr = "Esp"
+Misc:Toggle({
+    Title = "Anti Lag",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AntiLag = Value
+if _G.AntiLag == true then
+for i,v in pairs(game:GetDescendants()) do
+	RemoveLagTo(v)
+end
+end
+    end
+})
 
+local Esp = Tabs.Tab2
 if not isGarden then
 Esp:Toggle({
     Title = (((isHotel or isBackdoor) and "Esp Key / Lever") or (isMines and "Esp Fuse")),
@@ -1152,6 +1247,7 @@ _G.EspEntityNameDis = {
 	["MandrakeLive"] = "Mandrake",
 	["GloomPile"] = "Egg",
 	["Snare"] = "Snare",
+	["MonumentEntity"] = "Monument",
 	["GrumbleRig"] = "Grumble",
 	["GiggleCeiling"] = "Giggle",
 	["AmbushMoving"] = "Ambush"
@@ -1300,7 +1396,7 @@ HidingRemove:Disconnect()
 HidingRemove = nil
 end
 for _, v in pairs(workspace:GetDescendants()) do 
-if v.Name == "Bed" or v.Name == "Wardrobe" or v.Name == "Backdoor_Wardrobe" or v.Name == "Locker_Large" or v.Name == "Rooms_Locker" then
+if v.Name == "Bed" or v.Name == "Wardrobe" or v.Name == "Backdoor_Wardrobe" or v.Name == "Locker_Large" or v.Name == "Rooms_Locker" or v.Name == "Toolshed" then
 for i, z in pairs(v:GetChildren()) do
 if z.Name:find("Esp_") then
 z:Destroy()
@@ -1310,7 +1406,7 @@ end
 end
 else
 function Hidings(v)
-if (v.Name == "Bed" or v.Name == "Wardrobe" or v.Name == "Backdoor_Wardrobe" or v.Name == "Locker_Large" or v.Name == "Rooms_Locker") and v.PrimaryPart then
+if (v.Name == "Bed" or v.Name == "Wardrobe" or v.Name == "Backdoor_Wardrobe" or v.Name == "Locker_Large" or v.Name == "Rooms_Locker" or v.Name == "Toolshed") and v.PrimaryPart then
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -1564,8 +1660,8 @@ local function LoadDiscordInfo()
     if success and result and result.guild then
         local DiscordInfo = Info:Paragraph({
             Title = result.guild.name,
-            Desc = ' <font color="#52525b">�</font> Member Count : ' .. tostring(result.approximate_member_count) ..
-                '\n <font color="#16a34a">�</font> Online Count : ' .. tostring(result.approximate_presence_count),
+            Desc = ' <font color="#52525b">•</font> Member Count : ' .. tostring(result.approximate_member_count) ..
+                '\n <font color="#16a34a">•</font> Online Count : ' .. tostring(result.approximate_presence_count),
             Image = "https://cdn.discordapp.com/icons/" .. result.guild.id .. "/" .. result.guild.icon .. ".png?size=1024",
             ImageSize = 42,
         })
@@ -1616,7 +1712,7 @@ Info:Section({
 })
 Info:Divider()
 local Owner = Info:Paragraph({
-    Title = "Nova Hoang (Nguyn Nguyễn Tn Hoàng)",
+    Title = "Nova Hoang (Nguyễn Tn Hoàng)",
     Desc = "Owner Of Article Hub and Nihahaha Hub",
     Image = "rbxassetid://77933782593847",
     ImageSize = 30,
