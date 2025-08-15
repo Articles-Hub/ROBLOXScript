@@ -53,7 +53,25 @@ old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
 end))
 end
 
-_G.RemoveLag = {"Leaves", "Rock", "HidingShrub", "Flowers"}
+------ Script --------
+
+local HttpService = game:GetService("HttpService")
+local EntityModules = game:GetService("ReplicatedStorage").ModulesClient.EntityModules
+local gameData = game.ReplicatedStorage:WaitForChild("GameData")
+local floor = gameData:WaitForChild("Floor")
+local isMines = floor.Value == "Mines"
+local isHotel = floor.Value == "Hotel"
+local isBackdoor = floor.Value == "Backdoor"
+local isGarden = floor.Value == "Garden"
+
+function Distance(pos)
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		return (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - pos).Magnitude
+	end
+end
+
+if isGarden then
+_G.RemoveLag = {"Leaves", "HidingShrub", "Flowers"}
 function RemoveLagTo(v)
 	if _G.AntiLag == true then
 		local Terrain = workspace:FindFirstChildOfClass("Terrain")
@@ -94,35 +112,141 @@ end
 workspace.DescendantAdded:Connect(function(v)
 	RemoveLagTo(v)
 end)
-
------- Script --------
-
-local EntityModules = game:GetService("ReplicatedStorage").ModulesClient.EntityModules
-local gameData = game.ReplicatedStorage:WaitForChild("GameData")
-local floor = gameData:WaitForChild("Floor")
-local isMines = floor.Value == "Mines"
-local isHotel = floor.Value == "Hotel"
-local isBackdoor = floor.Value == "Backdoor"
-local isGarden = floor.Value == "Garden"
-
-function Distance(pos)
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-		return (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - pos).Magnitude
-	end
 end
 
----- Script ----
+---- UiLib ----
 
 local ui = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local win = ui:CreateWindow({
-    Title = "Doors",
-    Icon = "door-open",
-    Folder = "Article Hub",
+    Title = "Nihahaha Hub",
+    Icon = "rbxassetid://134430677550422",
+    Author = "by tanhoangvn and gianghub",
+    Folder = "Nihahaha Hub",
     Size = UDim2.fromOffset(700, 320),
     Transparent = true,
     Theme = "Dark",
+    Resizable = true,
     SideBarWidth = 200,
+    Background = "rbxassetid://114042572350233",
+    BackgroundImageTransparency = 0,
+    HideSearchBar = true,
+    ScrollBarEnabled = false,
+    User = {
+        Enabled = true,
+        Anonymous = true,
+        Callback = function()
+            print("clicked")
+        end,
+    },
 })
+
+win:EditOpenButton({
+    Title = "Nihahaha Hub",
+    Icon = "rbxassetid://134430677550422",
+    CornerRadius = UDim.new(2,0),
+    StrokeThickness = 2.0,
+    Color = ColorSequence.new(
+        Color3.fromHex("#FF00B0"), 
+        Color3.fromHex("#DBCCD5")
+    ),
+    OnlyMobile = false,
+    Enabled = true,
+    Draggable = true,
+})
+win:Tag({
+    Title = "Beta - PreRelease",
+    Color = Color3.fromHex("#EEFF00")
+})
+win:Tag({
+    Title = "Assistant Arona AI",
+    Color = Color3.fromHex("#00F3FF")
+})
+
+function Notification(notifyFu)
+ui:Notify({
+    Title = notifyFu.title or "",
+    Content = notifyFu.content or "",
+    Duration = notifyFu.duration or 3,
+    Icon = ("rbxassetid://"..notifyFu.icon) or "",
+    Background = ("rbxassetid://"..notifyFu.background) or "0"
+})
+local sound = Instance.new("Sound", workspace)
+sound.SoundId = "rbxassetid://4590662766"
+sound.Volume = 2
+sound.PlayOnRemove = true
+sound:Destroy()
+end
+
+--// Floder Path \\--
+local folderPath = "Nihahaha Hub"
+local autoConfigFile = folderPath .. "/Auto.txt"
+
+if not isfolder(folderPath) then makefolder(folderPath) end
+
+local function getPath(name)
+	return folderPath .. "/" .. name .. ".json"
+end
+
+function SaveConfig(name, data)
+	writefile(getPath(name), HttpService:JSONEncode(data))
+	writefile(autoConfigFile, HttpService:JSONEncode({
+		NameFileSelected = name,
+		Auto = true
+	}))
+end
+
+function LoadConfig(name)
+	local path = getPath(name)
+	if isfile(path) then
+		local success, result = pcall(function()
+			return HttpService:JSONDecode(readfile(path))
+		end)
+		if success then return result end
+	end
+end
+
+function AutoLoadConfig()
+	if isfile(autoConfigFile) then
+		local success, auto = pcall(function()
+			return HttpService:JSONDecode(readfile(autoConfigFile))
+		end)
+		if success and auto.Auto and auto.NameFileSelected then
+			return LoadConfig(auto.NameFileSelected)
+		end
+	end
+end
+
+function readAuto()
+	if isfile(autoConfigFile) then
+		local success, result = pcall(function()
+			return HttpService:JSONDecode(readfile(autoConfigFile))
+		end)
+		if success then return result end
+	end
+	return { NameFileSelected = "Default", Auto = false }
+end
+
+function writeAuto(state)
+	local current = readAuto()
+	current.Auto = state
+	writefile(autoConfigFile, HttpService:JSONEncode(current))
+end
+
+function ListFiles()
+	local files = {}
+	for _, file in ipairs(listfiles(folderPath)) do
+		local name = file:match("([^/\\]+)%.json$")
+		if name then
+			table.insert(files, name)
+		end
+	end
+	return files
+end
+
+local themeValues = {}
+for name,_ in pairs(ui:GetThemes()) do
+    themeValues[#themeValues+1] = name
+end
 
 Tabs = {
     Tab = win:Tab({Title = "Main"}),
@@ -300,6 +424,29 @@ end
     end
 })
 
+if isGarden then
+Main:Toggle({
+    Title = "Anti Monument",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.NoMonument = Value
+while _G.NoMonument do
+for i, v in pairs(game.Workspace:GetChildren()) do
+	if v.Name == "MonumentEntity" and v:FindFirstChild("Top") then
+		for _, x in pairs(v.Top:GetChildren()) do
+			if x.Name:find("Hitbox") then
+				x:Destroy()
+			end
+		end
+	end
+end
+task.wait()
+end
+    end
+})
+end
+
 if isMines then
 Main:Toggle({
     Title = "Anti Egg Gloom",
@@ -329,6 +476,24 @@ Main:Toggle({
     Default = false,
     Callback = function(Value)
 AutoUseCrouch = Value
+    end
+})
+
+Main:Toggle({
+    Title = "Use Jump",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.ButtonJump = Value 
+while _G.ButtonJump do 
+if game.Players.LocalPlayer.Character then
+game.Players.LocalPlayer.Character:SetAttribute("CanJump", true)
+end
+task.wait()
+end 
+if game.Players.LocalPlayer.Character then
+game.Players.LocalPlayer.Character:SetAttribute("CanJump", false)
+end
     end
 })
 
@@ -374,7 +539,7 @@ if _G.NotifyEntity then
             if child:IsA("Model") and child.Name:find(v) then
                 repeat task.wait() until not child:IsDescendantOf(workspace) or (game.Players.LocalPlayer:DistanceFromCharacter(child:GetPivot().Position) < 1000)
                 if child:IsDescendantOf(workspace) then
-                    ui:Notify({Title = v.." Spawn!!", Duration = 5})
+                    Notification({title = "Arona", content = v.." Spawn!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
                     if _G.NotifyEntityChat then
                         local text = _G.ChatNotify or ""
                         game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(text..v.." Spawn!!")
@@ -419,13 +584,9 @@ local function CodeAll(v)
 	if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
         local code = table.concat(Deciphercode(v))
         if code then
-	        ui:Notify({Title = "Code: "..code, Duration = 15})
+	        Notification({title = "Arona", content = "Code: "..code, duration = 15, icon = "82357489459031", background = "119839538905938"})
 			if _G.NotifyEntityChat then
-				if not _G.ChatNotify then
-					TextChat = ""
-				else
-					TextChat = _G.ChatNotify
-				end
+				TextChat = _G.ChatNotify or ""
 				if TextChat then
 					game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat..code)
 				end
@@ -595,6 +756,15 @@ _G.WalkSpeedTp = Value
     end
 })
 
+Misc:Dropdown({
+    Title = "WalkSpeed",
+    Values = {"Vitamin", "Speed Hack"},
+    Value = "Vitamin",
+    Callback = function(Value) 
+_G.WalkSpeedChose = Value
+    end
+})
+
 Misc:Toggle({
     Title = "WalkSpeed",
     Type = "Toggle",
@@ -602,14 +772,26 @@ Misc:Toggle({
     Callback = function(Value)
 _G.SpeedWalk = Value
 while _G.SpeedWalk do
+if _G.WalkSpeedChose == "Speed Hack" then
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.WalkSpeedTp
 end
+elseif _G.WalkSpeedChose == "Vitamin" then
+if game.Players.LocalPlayer.Character then
+game.Players.LocalPlayer.Character:SetAttribute("SpeedBoost", 6.8)
+end
+end
 task.wait()
+end
+if _G.WalkSpeedChose == "Vitamin" then
+if game.Players.LocalPlayer.Character then
+game.Players.LocalPlayer.Character:SetAttribute("SpeedBoost", 0)
+end
 end
     end
 })
 
+if isGarden then
 Misc:Toggle({
     Title = "Anti Lag",
     Type = "Toggle",
@@ -623,6 +805,7 @@ end
 end
     end
 })
+end
 
 local Esp = Tabs.Tab2
 if not isGarden then
@@ -1248,6 +1431,7 @@ _G.EspEntityNameDis = {
 	["GloomPile"] = "Egg",
 	["Snare"] = "Snare",
 	["MonumentEntity"] = "Monument",
+	["LiveEntityBramble"] = "Bramble",
 	["GrumbleRig"] = "Grumble",
 	["GiggleCeiling"] = "Giggle",
 	["AmbushMoving"] = "Ambush"
@@ -1396,8 +1580,8 @@ HidingRemove:Disconnect()
 HidingRemove = nil
 end
 for _, v in pairs(workspace:GetDescendants()) do 
-if v.Name == "Bed" or v.Name == "Wardrobe" or v.Name == "Backdoor_Wardrobe" or v.Name == "Locker_Large" or v.Name == "Rooms_Locker" or v.Name == "Toolshed" then
-for i, z in pairs(v:GetChildren()) do
+if v:IsA("ObjectValue") and v.Name == "HiddenPlayer" then
+for i, z in pairs(v.Parent:GetChildren()) do
 if z.Name:find("Esp_") then
 z:Destroy()
 end
@@ -1405,8 +1589,29 @@ end
 end
 end
 else
-function Hidings(v)
-if (v.Name == "Bed" or v.Name == "Wardrobe" or v.Name == "Backdoor_Wardrobe" or v.Name == "Locker_Large" or v.Name == "Rooms_Locker" or v.Name == "Toolshed") and v.PrimaryPart then
+local function CheckHiding(v)
+    if not table.find(_G.HidingAdd, v) and v:IsA("ObjectValue") and v.Name == "HiddenPlayer" then
+        table.insert(_G.HidingAdd, v.Parent)
+    end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckHiding(v)
+end
+BookSpawn = workspace.DescendantAdded:Connect(function(v)
+    CheckHiding(v)
+end)
+BookRemove = workspace.DescendantRemoving:Connect(function(v)
+    for i = #_G.HidingAdd, 1, -1 do
+        if _G.HidingAdd[i] == v then
+            table.remove(_G.HidingAdd, i)
+            break
+        end
+    end
+end)
+end
+while _G.EspHiding do
+for i, v in pairs(_G.HidingAdd) do
+if v:IsA("Model") and v.PrimaryPart then
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -1425,7 +1630,7 @@ if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
 end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and v.Name or "")..
+	        (_G.EspName == true and v.Name.." (Hide)" or "")..
             (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
@@ -1451,32 +1656,6 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
 	v:FindFirstChild("Esp_Gui"):Destroy()
 end
-end
-end
-local function CheckHiding(v)
-    if not table.find(_G.HidingAdd, v) and v.Name == "Bed" or v.Name == "Wardrobe" or v.Name == "Backdoor_Wardrobe" or v.Name == "Locker_Large" or v.Name == "Rooms_Locker" then
-        table.insert(_G.HidingAdd, v)
-    end
-end
-for _, v in ipairs(workspace:GetDescendants()) do
-	CheckHiding(v)
-end
-BookSpawn = workspace.DescendantAdded:Connect(function(v)
-    CheckHiding(v)
-end)
-BookRemove = workspace.DescendantRemoving:Connect(function(v)
-    for i = #_G.HidingAdd, 1, -1 do
-        if _G.HidingAdd[i] == v then
-            table.remove(_G.HidingAdd, i)
-            break
-        end
-    end
-end)
-end
-while _G.EspHiding do
-for i, v in pairs(_G.HidingAdd) do
-if v:IsA("Model") then
-Hidings(v)
 end
 end
 task.wait()
@@ -1688,6 +1867,7 @@ local function LoadDiscordInfo()
         Info:Button({
             Title = "Copy Discord Invite",
             Callback = function()
+	            Notification({title = "Arona", content = "Copy Success", duration = 5, icon = "82357489459031", background = "119839538905938"})
                 setclipboard("https://discord.gg/" .. InviteCode)
             end
         })
@@ -1730,3 +1910,206 @@ local CoOwner = Info:Paragraph({
     ThumbnailSize = 0,
     Locked = false,
 })
+
+--// setting \\--
+
+settings = Tabs["Info"]
+settings:Section({ 
+    Title = "Theme",
+    TextXAlignment = "Center",
+    TextSize = 14,
+})
+
+local ThemeSelect
+ThemeSelect = settings:Dropdown({
+    Title = "Select Theme",
+    Values = themeValues,
+    Value = themeValues[1],
+    Callback = function(option)
+        _G.ThemeSelect = option
+    end
+})
+
+settings:Button({
+    Title = "Apply Theme",
+    Desc = "Apply Theme Selected",
+    Locked = false,
+    Callback = function()
+        if _G.ThemeSelect then
+            ui:SetTheme(_G.ThemeSelect)
+        end
+    end
+})
+settings:Section({ 
+    Title = "Background",
+    TextXAlignment = "Center",
+    TextSize = 14,
+})
+
+_G.BVaildSelect = {
+    {"Miyako Winter L2d", "rbxassetid://135163165559760"},
+    {"Hoshino L2d", "rbxassetid://103851438259846"},
+    {"Hoshino Battle L2d", "rbxassetid://75926776642023"},
+    {"Hoshino Swimsuit", "rbxassetid://74106641546392"},
+    {"Koyuki L2d", "rbxassetid://103762147211543"},
+    {"Nozomi L2d", "rbxassetid://85859359097457"},
+    {"Hikari L2d", "rbxassetid://119414088930558"},
+    {"Hina L2d", "rbxassetid://112066327222887"},
+    {"Hina Swimsuit L2d", "rbxassetid://132997118288263"},
+    {"Hina Dress L2d", "rbxassetid://87969100647163"},
+    {"Iroha L2d", "rbxassetid://108978317263049"},
+    {"Ibuki L2d", "rbxassetid://93610279036015"},
+    {"Kuroko L2d", "rbxassetid://83965863962182"},
+    {"Shiroko L2d", "rbxassetid://112249533991911"},
+    {"Mika L2d", "rbxassetid://103641747937298"},
+    {"Momoi L2d", "rbxassetid://92208907380304"},
+    {"Midori L2d", "rbxassetid://96245685520202"},
+    {"Nonomi L2d", "rbxassetid://121480067706078"},
+    {"Hoshino Frist Year L2d", "rbxassetid://110606960925136"},
+    {"Yume L2d", "rbxassetid://115200865502040"},
+    {"No Background", "rbxassetid://0"},
+}
+
+_G.ImageGet = {}
+for i, v in ipairs(_G.BVaildSelect) do
+    table.insert(_G.ImageGet, v[1])
+end
+
+local SBA = settings:Dropdown({
+    Title = "Select Available Background",
+    Values = _G.ImageGet,
+    Value = "Miyako Winter L2d",
+    Callback = function(option)
+for _, v in ipairs(_G.BVaildSelect) do
+    if v[1] == option then
+        Setbackground = v[2]
+        break
+    end
+end
+if Setbackground then
+win:SetBackgroundImage(Setbackground)
+end
+    end
+})
+
+local CustomBackground = settings:Input({
+    Title = "Put You Background ID Here",
+    Desc = "Dont Try Put Link Image Is Doesn't, Use Id instant",
+    Value = "",
+    Type = "Input",
+    Placeholder = "135163165559760",
+    Callback = function(input)
+    if not input == "" then
+    _G.BackgroundImage = "rbxassetid://" ..input
+        win:SetBackgroundImage(_G.BackgroundImage)
+        end
+    end
+})
+
+settings:Section({ 
+    Title = "Config",
+    TextXAlignment = "Center",
+    TextSize = 14,
+})
+
+_G.ConfigName = ""
+local savedFiles = ListFiles()
+local auto = readAuto()
+_G.ConfigName = auto.NameFileSelected
+
+settings:Input({
+	Title = "Name Config",
+	Desc = "Input name to save/load config",
+	Value = _G.ConfigName,
+	InputIcon = "file",
+	Type = "Input",
+	Placeholder = "Config1",
+	Callback = function(text)
+		_G.ConfigName = text
+	end
+})
+
+local filesDropdown = settings:Dropdown({
+	Title = "Select Config File",
+	Multi = false,
+	AllowNone = true,
+	Values = savedFiles,
+	Value = _G.ConfigName ~= "" and _G.ConfigName or savedFiles[1],
+	Callback = function(file)
+		_G.ConfigName = file
+	end
+})
+
+settings:Button({
+	Title = "Save Config",
+	Desc = "Save current UI config",
+	Callback = function()
+		if _G.ConfigName and _G.ConfigName ~= "" then
+			SaveConfig(_G.ConfigName, {
+				Theme = ui:GetCurrentTheme(),
+				BackgroundImage = _G.BackgroundImage
+			})
+			writeAuto(readAuto().Auto)
+			Notification({title = "Saved", content = "Config saved as " .. _G.ConfigName, duration = 5, icon = "82357489459031", background = "103762147211543"})
+		end
+	end
+})
+
+settings:Button({
+	Title = "Load Config",
+	Desc = "Load selected config",
+	Callback = function()
+		if _G.ConfigName and _G.ConfigName ~= "" then
+			local data = LoadConfig(_G.ConfigName)
+			if data then
+				if data.Theme then ui:SetTheme(data.Theme) end
+				if data.BackgroundImage then win:SetBackgroundImage(data.BackgroundImage) end
+				Notification({title = "Loaded", content = "Config loaded from " .. _G.ConfigName, duration = 5, icon = "82357489459031", background = "103762147211543"})
+			end
+		end
+	end
+})
+
+settings:Button({
+	Title = "Overwrite Config",
+	Desc = "Replace file with current config",
+	Callback = function()
+		if _G.ConfigName and _G.ConfigName ~= "" then
+			SaveConfig(_G.ConfigName, {
+				Theme = ui:GetCurrentTheme(),
+				BackgroundImage = _G.BackgroundImage
+			})
+			Notification({title = "Overwritten", content = "File " .. _G.ConfigName .. " updated", duration = 5, icon = "82357489459031", background = "103762147211543"})
+		end
+	end
+})
+
+settings:Button({
+	Title = "Refresh Config List",
+	Callback = function()
+		filesDropdown:Refresh(ListFiles())
+	end
+})
+
+local AutoLoadConfigToggle = settings:Toggle({
+	Title = "Auto Load Config",
+	Desc = "Automatically load when script starts",
+	Default = readAuto().Auto,
+	Callback = function(state)
+	task.wait(3)
+		writeAuto(state)
+	end
+})
+AutoLoadConfigToggle:Set(readAuto().Auto)
+
+local autoData = readAuto()
+if autoData and autoData.Auto and autoData.NameFileSelected and autoData.NameFileSelected ~= "" then
+	local data = LoadConfig(autoData.NameFileSelected)
+	if data then
+		if data.Theme then ui:SetTheme(data.Theme) end
+		if data.BackgroundImage then
+			win:SetBackgroundImage(data.BackgroundImage)
+			_G.BackgroundImage = data.BackgroundImage
+		end
+	end
+end
