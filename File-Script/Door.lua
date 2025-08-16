@@ -33,7 +33,7 @@ Screech, ClutchHeart, AutoUseCrouch = false, false, false
 if not old then
 local old
 old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
-    local args = {...}
+	local args = {...}
     local method = getnamecallmethod()
     if method == "FireServer" then
 	    if tostring(self) == "Screech" and Screech == true then
@@ -64,14 +64,40 @@ local isHotel = floor.Value == "Hotel"
 local isBackdoor = floor.Value == "Backdoor"
 local isGarden = floor.Value == "Garden"
 
+for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
+	if v.Name == "MainUI" and v:FindFirstChild("Initiator") and v.Initiator:FindFirstChild("Main_Game") then
+		requireGui = require(v.Initiator.Main_Game)
+	end
+end
+game:GetService("Players").LocalPlayer.PlayerGui.ChildAdded:Connect(function()
+	if v.Name == "MainUI" and v:FindFirstChild("Initiator") and v.Initiator:FindFirstChild("Main_Game") then
+		requireGui = require(v.Initiator.Main_Game)
+	end
+end)
+
+game:GetService("Workspace").Camera:GetPropertyChangedSignal("CFrame"):Connect(function()
+if _G.ThirdCamera and requireGui then
+	if game:GetService("Workspace"):FindFirstChild("Camera") then
+		game:GetService("Workspace").Camera.CFrame = requireGui.finalCamCFrame * CFrame.new(1.5, -0.5, 6.5)
+	end
+end
+end)
+game:GetService("Workspace").Camera:GetPropertyChangedSignal("FieldOfView"):Connect(function()
+if _G.FovOPCamera then
+	if game:GetService("Workspace"):FindFirstChild("Camera") then
+		game:GetService("Workspace").Camera.FieldOfView = _G.FovOP or 71
+	end
+end
+end)
+
 function Distance(pos)
 	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 		return (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - pos).Magnitude
 	end
 end
 
-if isGarden then
-_G.RemoveLag = {"Leaves", "HidingShrub", "Flowers"}
+if not isHotel then
+_G.RemoveLag = {"Leaves", "Rock", "HidingShrub", "Flowers"}
 function RemoveLagTo(v)
 	if _G.AntiLag == true then
 		local Terrain = workspace:FindFirstChildOfClass("Terrain")
@@ -127,16 +153,13 @@ local win = ui:CreateWindow({
     Theme = "Dark",
     Resizable = true,
     SideBarWidth = 200,
-    Background = "rbxassetid://114042572350233",
-    BackgroundImageTransparency = 0,
+    Background = "rbxassetid://0",
+    BackgroundImageTransparency = 0.42,
     HideSearchBar = true,
     ScrollBarEnabled = false,
     User = {
         Enabled = true,
-        Anonymous = true,
-        Callback = function()
-            print("clicked")
-        end,
+        Anonymous = true
     },
 })
 
@@ -249,10 +272,10 @@ for name,_ in pairs(ui:GetThemes()) do
 end
 
 Tabs = {
-    Tab = win:Tab({Title = "Main"}),
-    Tab1 = win:Tab({Title = "Misc"}),
-    Tab2 = win:Tab({Title = "Esp"}),
-    ["Info"] = win:Tab({Title = "Information"}),
+    Tab = win:Tab({Title = "Main", Icon = "house"}),
+    Tab1 = win:Tab({Title = "Misc", Icon = "layout-list"}),
+    Tab2 = win:Tab({Title = "Esp", Icon = "house-plus"}),
+    ["Info"] = win:Tab({Title = "Information", Icon = "cog"}),
 }
 
 local Main = Tabs.Tab
@@ -322,6 +345,40 @@ if CooldownProximity then
 CooldownProximity:Disconnect()
 CooldownProximity = nil
 end
+end
+    end
+})
+
+Main:Toggle({
+    Title = "Third Camera",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.ThirdCamera = Value
+    end
+})
+
+Main:Slider({
+    Title = "FOV Camera",
+    Step = 1,
+    Value = {
+        Min = 71,
+        Max = 150,
+        Default = 80,
+    },
+    Callback = function(Value)
+_G.FovOP = Value
+    end
+})
+
+Main:Toggle({
+    Title = "FOV Camera",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.FovOPCamera = Value
+if game:GetService("Workspace"):FindFirstChild("Camera") then
+	game:GetService("Workspace").Camera.FieldOfView = 71
 end
     end
 })
@@ -470,6 +527,22 @@ end
 })
 end
 
+if not isHotel then
+Main:Toggle({
+    Title = "Anti Lag",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AntiLag = Value
+if _G.AntiLag == true then
+for i,v in pairs(game:GetDescendants()) do
+	RemoveLagTo(v)
+end
+end
+    end
+})
+end
+
 Main:Toggle({
     Title = "Auto Use Crouch",
     Type = "Toggle",
@@ -556,6 +629,51 @@ else
 end
     end
 })
+
+if isGarden then
+Misc:Toggle({
+    Title = "Notification Bramble Light",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.BrambleLight = Value
+if _G.BrambleLight then
+function BrambleLight(v)
+	if v.Name == "LiveEntityBramble" and v:FindFirstChild("Head") and v.Head:FindFirstChild("LanternNeon") then
+		for i, x in pairs(v.Head.LanternNeon:GetChildren()) do
+			if x.Name == "Attachment" and x:FindFirstChild("PointLight") then
+				LightningNotifyBr = x:FindFirstChild("PointLight"):GetPropertyChangedSignal("Enabled"):Connect(function()
+					Notification({title = "Arona", content = "Bramble Light ("..v.Enabled and "ON" or "OFF"..")", duration = 15, icon = "82357489459031", background = "119839538905938"})
+					if _G.NotifyEntityChat then
+						TextChat = _G.ChatNotify or ""
+						if TextChat then
+							game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat.."Bramble Light ("..v.Enabled and "ON" or "OFF"..")")
+						end
+					end
+				end)
+			end
+		end
+	end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	BrambleLight(v)
+end
+BrambleSpawn = workspace.DescendantAdded:Connect(function(v)
+	BrambleLight(v)
+end)
+else
+if LightningNotifyBr then
+LightningNotifyBr:Disconnect()
+LightningNotifyBr = nil
+end
+if BrambleSpawn then
+BrambleSpawn:Disconnect()
+BrambleSpawn = nil
+end
+end
+    end
+})
+end
 
 if isHotel then
 Misc:Toggle({
@@ -690,7 +808,6 @@ _G.Aura = {
     "UnlockPrompt",
     "ValvePrompt",
 }
-
 Misc:Toggle({
     Title = "Auto Loot",
     Type = "Toggle",
@@ -699,6 +816,7 @@ Misc:Toggle({
 _G.AutoLoot = Value
 if _G.AutoLoot then
 lootables = {}
+_G.Connectlootables = {}
 local function LootCheck(v)
 	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) then
 	    table.insert(lootables, v)
@@ -707,26 +825,24 @@ end
 for _, v in ipairs(workspace:GetDescendants()) do
 	LootCheck(v)
 end
-ChildAllNext = workspace.DescendantAdded:Connect(function(v)
+table.insert(_G.Connectlootables, workspace.DescendantAdded:Connect(function(v)
 	LootCheck(v)
-end)
-RemoveChild = workspace.DescendantRemoving:Connect(function(v)
+end))
+table.insert(_G.Connectlootables, workspace.DescendantRemoving:Connect(function(v)
     for i = #lootables, 1, -1 do
         if lootables[i] == v then
             table.remove(lootables, i)
             break
         end
     end
-end)
+end))
 else
-if ChildAllNext then
-ChildAllNext:Disconnect()
-ChildAllNext = nil
+if _G.Connectlootables then
+for i, v in pairs(_G.Connectlootables) do
+v:Disconnect()
 end
-if RemoveChild then
-RemoveChild:Disconnect()
-RemoveChild = nil
 end
+_G.Connectlootables = {}
 end
 while _G.AutoLoot do
 for i, v in pairs(lootables) do
@@ -759,7 +875,7 @@ _G.WalkSpeedTp = Value
 Misc:Dropdown({
     Title = "WalkSpeed",
     Values = {"Vitamin", "Speed Hack"},
-    Value = "Vitamin",
+    Value = "",
     Callback = function(Value) 
 _G.WalkSpeedChose = Value
     end
@@ -791,22 +907,6 @@ end
     end
 })
 
-if isGarden then
-Misc:Toggle({
-    Title = "Anti Lag",
-    Type = "Toggle",
-    Default = false,
-    Callback = function(Value)
-_G.AntiLag = Value
-if _G.AntiLag == true then
-for i,v in pairs(game:GetDescendants()) do
-	RemoveLagTo(v)
-end
-end
-    end
-})
-end
-
 local Esp = Tabs.Tab2
 if not isGarden then
 Esp:Toggle({
@@ -817,14 +917,12 @@ Esp:Toggle({
 _G.EspKey = Value
 if _G.EspKey == false then
 _G.KeyAdd = {}
-if KeySpawn then
-KeySpawn:Disconnect()
-KeySpawn = nil
+if _G.ConnectKey then
+for i, v in pairs(_G.ConnectKey) do
+v:Disconnect()
 end
-if KeyRemove then
-KeyRemove:Disconnect()
-KeyRemove = nil
 end
+_G.ConnectKey = {}
 for _, v in pairs(workspace:GetDescendants()) do 
 if v.Name:find("Key") or v.Name == "LeverForGate" or v.Name:find("FuseObtain") then
 for i, z in pairs(v:GetChildren()) do
@@ -856,7 +954,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and ((v.Name == "LeverForGate" and "Lever") or (v.Name:find("Key") and "Key") or (v.Name:find("FuseObtain") and "Fuse")) or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance((v.Name == "LeverForGate" and v.PrimaryPart.Position) or ((v.Name:find("Key") or v.Name:find("FuseObtain")) and v.Hitbox.Position))).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance((v.Name == "LeverForGate" and v.PrimaryPart.Position) or ((v.Name:find("Key") or v.Name:find("FuseObtain")) and v.Hitbox.Position))).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -891,20 +989,125 @@ end
 for _, v in ipairs(workspace:GetDescendants()) do
 	CheckKey(v)
 end
-KeySpawn = workspace.DescendantAdded:Connect(function(v)
+table.insert(_G.ConnectKey, workspace.DescendantAdded:Connect(function(v)
     CheckKey(v)
-end)
-KeyRemove = workspace.DescendantRemoving:Connect(function(v)
+end))
+table.insert(_G.ConnectKey, workspace.DescendantRemoving:Connect(function(v)
     for i = #_G.KeyAdd, 1, -1 do
         if _G.KeyAdd[i] == v then
             table.remove(_G.KeyAdd, i)
             break
         end
     end
-end)
+end))
 end
 while _G.EspKey do
 for i, v in pairs(_G.KeyAdd) do
+if v:IsA("Model") then
+Keys(v)
+end
+end
+task.wait()
+end
+    end
+})
+end
+
+if isGarden then
+Esp:Toggle({
+    Title = "Esp Guillotine",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspGuillotine = Value
+if _G.EspGuillotine == false then
+_G.GuillotinedAdd = {}
+if _G.ConnectGuillotine then
+for i, v in pairs(_G.ConnectGuillotine) do
+v:Disconnect()
+end
+end
+_G.ConnectGuillotine = {}
+for _, v in pairs(workspace:GetDescendants()) do 
+if v.Name == "VineGuillotine" then
+for i, z in pairs(v:GetChildren()) do
+if z.Name:find("Esp_") then
+z:Destroy()
+end
+end
+end
+end
+else
+function Guillotined(v)
+if v.Name == "VineGuillotine" and v.PrimaryPart then
+if v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and "Guillotineor" or "")..
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart)).."m)" or "")
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
+	GuiEsp = Instance.new("BillboardGui", v)
+	GuiEsp.Adornee = v
+	GuiEsp.Name = "Esp_Gui"
+	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiEsp.AlwaysOnTop = true
+	GuiEspText = Instance.new("TextLabel", GuiEsp)
+	GuiEspText.BackgroundTransparency = 1
+	GuiEspText.Font = Enum.Font.Code
+	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiEspText.TextSize = 15
+	GuiEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiEspText.TextStrokeTransparency = 0.5
+	GuiEspText.Text = ""
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiEspText
+	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+	v:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
+local function CheckGuillotined(v)
+    if not table.find(_G.GuillotinedAdd, v) and v.Name == "VineGuillotine" then
+        table.insert(_G.GuillotinedAdd, v)
+    end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckGuillotined(v)
+end
+table.insert(_G.ConnectGuillotine, workspace.DescendantAdded:Connect(function(v)
+    CheckGuillotined(v)
+end))
+table.insert(_G.ConnectGuillotine, workspace.DescendantRemoving:Connect(function(v)
+    for i = #_G.GuillotinedAdd, 1, -1 do
+        if _G.GuillotinedAdd[i] == v then
+            table.remove(_G.GuillotinedAdd, i)
+            break
+        end
+    end
+end))
+end
+while _G.EspGuillotine do
+for i, v in pairs(_G.GuillotinedAdd) do
 if v:IsA("Model") then
 Keys(v)
 end
@@ -954,7 +1157,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and "Door "..((v.Door:FindFirstChild("Sign") and v.Door.Sign:FindFirstChild("Stinker") and v.Door.Sign.Stinker.Text) or (v.Door.Sign:FindFirstChild("SignText") and v.Door.Sign.SignText.Text)):gsub("^0+", "")..(v.Door:FindFirstChild("Lock") and " (lock)" or "") or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.Door.Door.Position)).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.Door.Door.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -995,14 +1198,12 @@ Esp:Toggle({
 _G.EspLeverTime = Value
 if _G.EspLeverTime == false then
 _G.TimeLeverAdd = {}
-if TimeLeverSpawn then
-TimeLeverSpawn:Disconnect()
-TimeLeverSpawn = nil
+if _G.ConnectTimeLever then
+for i, v in pairs(_G.ConnectTimeLever) do
+v:Disconnect()
 end
-if TimeLeverRemove then
-TimeLeverRemove:Disconnect()
-TimeLeverRemove = nil
 end
+_G.ConnectTimeLever = {}
 for _, v in pairs(workspace:GetDescendants()) do 
 if v.Name:find("TimerLever") then
 for i, z in pairs(v:GetChildren()) do
@@ -1034,7 +1235,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and "Lever Time" or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -1069,17 +1270,17 @@ end
 for _, v in ipairs(workspace:GetDescendants()) do
 	CheckTimeLever(v)
 end
-TimeLeverSpawn = workspace.DescendantAdded:Connect(function(v)
+table.insert(_G.ConnectTimeLever, workspace.DescendantAdded:Connect(function(v)
     CheckTimeLever(v)
-end)
-TimeLeverRemove = workspace.DescendantRemoving:Connect(function(v)
+end))
+table.insert(_G.ConnectTimeLever, workspace.DescendantRemoving:Connect(function(v)
     for i = #_G.TimeLeverAdd, 1, -1 do
         if _G.TimeLeverAdd[i] == v then
             table.remove(_G.TimeLeverAdd, i)
             break
         end
     end
-end)
+end))
 end
 while _G.EspLeverTime do
 for i, v in pairs(_G.TimeLeverAdd) do
@@ -1102,14 +1303,12 @@ Esp:Toggle({
 _G.EspBook = Value
 if _G.EspBook == false then
 _G.BookAdd = {}
-if BookSpawn then
-BookSpawn:Disconnect()
-BookSpawn = nil
+if _G.ConnectBook then
+for i, v in pairs(_G.ConnectBook) do
+v:Disconnect()
 end
-if BookRemove then
-BookRemove:Disconnect()
-BookRemove = nil
 end
+_G.ConnectBook = {}
 for _, v in pairs(workspace:GetDescendants()) do 
 if v.Name:find("LiveHintBook") then
 for i, z in pairs(v:GetChildren()) do
@@ -1141,7 +1340,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and "Book" or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -1176,17 +1375,17 @@ end
 for _, v in ipairs(workspace:GetDescendants()) do
 	CheckBook(v)
 end
-BookSpawn = workspace.DescendantAdded:Connect(function(v)
+table.insert(_G.ConnectBook, workspace.DescendantAdded:Connect(function(v)
     CheckBook(v)
-end)
-BookRemove = workspace.DescendantRemoving:Connect(function(v)
+end))
+table.insert(_G.ConnectBook, workspace.DescendantRemoving:Connect(function(v)
     for i = #_G.BookAdd, 1, -1 do
         if _G.BookAdd[i] == v then
             table.remove(_G.BookAdd, i)
             break
         end
     end
-end)
+end))
 end
 while _G.EspBook do
 for i, v in pairs(_G.BookAdd) do
@@ -1207,14 +1406,12 @@ Esp:Toggle({
 _G.EspBreaker = Value
 if _G.EspBreaker == false then
 _G.BreakerAdd = {}
-if BreakerSpawn then
-BreakerSpawn:Disconnect()
-BreakerSpawn = nil
+if _G.ConnectBreaker then
+for i, v in pairs(_G.ConnectBreaker) do
+v:Disconnect()
 end
-if BreakerRemove then
-BreakerRemove:Disconnect()
-BreakerRemove = nil
 end
+_G.ConnectBreaker = {}
 for _, v in pairs(workspace:GetDescendants()) do 
 if v.Name:find("LiveBreakerPolePickup") then
 for i, z in pairs(v:GetChildren()) do
@@ -1246,7 +1443,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and "Breaker" or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -1281,17 +1478,17 @@ end
 for _, v in ipairs(workspace:GetDescendants()) do
 	CheckBreaker(v)
 end
-BreakerSpawn = workspace.DescendantAdded:Connect(function(v)
+table.insert(_G.ConnectBreaker, workspace.DescendantAdded:Connect(function(v)
     CheckBreaker(v)
-end)
-BreakerRemove = workspace.DescendantRemoving:Connect(function(v)
+end))
+table.insert(_G.ConnectBreaker, workspace.DescendantRemoving:Connect(function(v)
 for i = #_G.BreakerAdd, 1, -1 do
     if _G.BreakerAdd[i] == v then
         table.remove(_G.BreakerAdd, i)
         break
     end
 end
-end)
+end))
 end
 while _G.EspBreaker do
 for i, v in pairs(_G.BreakerAdd) do
@@ -1313,14 +1510,12 @@ Esp:Toggle({
 _G.EspItem = Value
 if _G.EspItem == false then
 _G.ItemAdd = {}
-if ItemSpawn then
-ItemSpawn:Disconnect()
-ItemSpawn = nil
+if _G.ConnectItem then
+for i, v in pairs(_G.ConnectItem) do
+v:Disconnect()
 end
-if ItemRemove then
-ItemRemove:Disconnect()
-ItemRemove = nil
 end
+_G.ConnectItem = {}
 for _, v in pairs(workspace:GetDescendants()) do 
 if v.Name:find("Handle") then
 for i, z in pairs(v:GetChildren()) do
@@ -1352,7 +1547,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and v.Parent.Name or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.Position)).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -1387,17 +1582,17 @@ end
 for _, v in ipairs(workspace:GetDescendants()) do
 	CheckItem(v)
 end
-ItemSpawn = workspace.DescendantAdded:Connect(function(v)
+table.insert(_G.ConnectItem, workspace.DescendantAdded:Connect(function(v)
     CheckItem(v)
-end)
-ItemRemove = workspace.DescendantRemoving:Connect(function(v)
+end))
+table.insert(_G.ConnectItem, workspace.DescendantRemoving:Connect(function(v)
 for i = #_G.ItemAdd, 1, -1 do
     if _G.ItemAdd[i] == v then
         table.remove(_G.ItemAdd, i)
         break
     end
 end
-end)
+end))
 end
 while _G.EspItem do
 for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
@@ -1445,14 +1640,12 @@ Esp:Toggle({
 _G.EspEntity = Value
 if _G.EspEntity == false then
 _G.EntityAdd = {}
-if EntitySpawn then
-EntitySpawn:Disconnect()
-EntitySpawn = nil
+if _G.ConnectEntity then
+for i, v in pairs(_G.ConnectEntity) do
+v:Disconnect()
 end
-if EntityRemove then
-EntityRemove:Disconnect()
-EntityRemove = nil
 end
+_G.ConnectEntity = {}
 for _, v in pairs(workspace:GetDescendants()) do 
 for x, z in pairs(_G.EspEntityNameDis) do
 if v:IsA("Model") and (v.Name == x) then
@@ -1483,17 +1676,17 @@ end
 for _, v in ipairs(workspace:GetDescendants()) do
 	CheckEntity(v)
 end
-EntitySpawn = workspace.DescendantAdded:Connect(function(v)
+table.insert(_G.ConnectEntity, workspace.DescendantAdded:Connect(function(v)
     CheckEntity(v)
-end)
-EntityRemove = workspace.DescendantRemoving:Connect(function(v)
+end))
+table.insert(_G.ConnectEntity, workspace.DescendantRemoving:Connect(function(v)
 for i = #_G.EntityAdd, 1, -1 do
     if _G.EntityAdd[i] == v then
         table.remove(_G.EntityAdd, i)
         break
     end
 end
-end)
+end))
 end
 while _G.EspEntity do
 for i, v in pairs(_G.EntityAdd) do
@@ -1530,7 +1723,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and _G.EspEntityNameDis[v.Name] or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -1571,14 +1764,12 @@ Esp:Toggle({
 _G.EspHiding = Value
 if _G.EspHiding == false then
 _G.HidingAdd = {}
-if HidingSpawn then
-HidingSpawn:Disconnect()
-HidingSpawn = nil
+if _G.ConnectHiding then
+for i, v in pairs(_G.ConnectHiding) do
+v:Disconnect()
 end
-if HidingRemove then
-HidingRemove:Disconnect()
-HidingRemove = nil
 end
+_G.ConnectHiding = {}
 for _, v in pairs(workspace:GetDescendants()) do 
 if v:IsA("ObjectValue") and v.Name == "HiddenPlayer" then
 for i, z in pairs(v.Parent:GetChildren()) do
@@ -1597,17 +1788,17 @@ end
 for _, v in ipairs(workspace:GetDescendants()) do
 	CheckHiding(v)
 end
-BookSpawn = workspace.DescendantAdded:Connect(function(v)
+table.insert(_G.ConnectHiding, workspace.DescendantAdded:Connect(function(v)
     CheckHiding(v)
-end)
-BookRemove = workspace.DescendantRemoving:Connect(function(v)
+end))
+table.insert(_G.ConnectHiding, workspace.DescendantRemoving:Connect(function(v)
     for i = #_G.HidingAdd, 1, -1 do
         if _G.HidingAdd[i] == v then
             table.remove(_G.HidingAdd, i)
             break
         end
     end
-end)
+end))
 end
 while _G.EspHiding do
 for i, v in pairs(_G.HidingAdd) do
@@ -1631,7 +1822,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and v.Name.." (Hide)" or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -1702,8 +1893,8 @@ end
 if v.Character:FindFirstChild("Esp_Gui") and v.Character["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v.Character["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and v.Name or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", Distance(v.Character.HumanoidRootPart.Position)).."m)" or "")..
-            (_G.EspHealth == true and "\nHealth [ "..(v.Character.Humanoid.Health <= 0 and "Dead" or string.format("%.0f", (v.Character.Humanoid.Health))).." ]" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.Character.HumanoidRootPart.Position)).."m)" or "")..
+            (_G.EspHealth == true and "\nHealth ("..(v.Character.Humanoid.Health <= 0 and "Dead" or string.format("%.0f", (v.Character.Humanoid.Health)))..")" or "")
     v.Character["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v.Character["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
