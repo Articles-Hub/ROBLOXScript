@@ -796,7 +796,7 @@ InfoServer2Group:AddToggle("Toggle Set", {
     Default = false,
     Callback = function(Value)
 _G.AutoSetInfo = Value
-if _G.AutoSetInfo == true then
+if _G.AutoSetInfo then
 AutoSetInfoServer = game:GetService("RunService").RenderStepped:Connect(function()
 if _G.AutoSetInfo == true then
 CanYouFps:SetText("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]")
@@ -878,12 +878,10 @@ GravityYou:SetText("Gravity [ "..game.Workspace.Gravity.." ]", true)
 PositionYou:SetText("Position In Your [ "..tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)).." ]")
 end
 end)
-end
-if _G.AutoSetInfo == false then
+else
 if AutoSetInfoServer then
 AutoSetInfoServer:Disconnect()
 AutoSetInfoServer = nil
-return AutoSetInfoServer
 end
 end
     end
@@ -12704,6 +12702,33 @@ Notification("Done, Get Badge (Glove, but Hitman kill)", 5)
 end
 end)
 elseif game.PlaceId == 80420091630966 then
+_G.GetOldBright = {
+	["Old"] = {
+		Brightness = game.Lighting.Brightness,
+		ClockTime = game.Lighting.ClockTime,
+		FogEnd = game.Lighting.FogEnd,
+		FogStart = game.Lighting.FogStart,
+		GlobalShadows = game.Lighting.GlobalShadows,
+		OutdoorAmbient = game.Lighting.OutdoorAmbient
+	},
+	["New"] = {
+		Brightness = 2,
+		ClockTime = 14,
+		FogEnd = 200000,
+		FogStart = 100000,
+		GlobalShadows = false,
+		OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+	}
+}
+
+for i, v in pairs(_G.GetOldBright.New) do
+game.Lighting:GetPropertyChangedSignal(i):Connect(function()
+	if _G.FullBright then
+		game.Lighting[i] = v
+	end
+end)
+end
+
 local Window = Library:CreateWindow({
     Title = "Boss Mortis ⚔️",
     Center = true,
@@ -12889,7 +12914,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Lantern") then
 if workspace:FindFirstChild("bossStorage") and workspace.bossStorage:FindFirstChild("leftHand") and workspace.bossStorage.leftHand:FindFirstChild("PointerMimic") and workspace.bossStorage.leftHand.PointerMimic:FindFirstChild("TouchInterest") then
 game:GetService("Players").LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
-game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = workspace.bossStorage.leftHand.PointerMimic.CFrame * CFrame.new(0, 0, 6.5)
+game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = workspace.bossStorage.leftHand.PointerMimic.CFrame * CFrame.new(0, 0, 6.8)
 end
 end
 end
@@ -12950,7 +12975,7 @@ end
 task.wait()
 end
 if workspace:FindFirstChild("bossStorage") and workspace.bossStorage:FindFirstChild("head") then
-workspace.bossStorage.head.CanTouch = _G.AntiHead
+workspace.bossStorage.head.CanTouch = _G.AntiHead or false
 end
 if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BVFreeze") then
 game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BVFreeze"):Destroy()
@@ -13157,28 +13182,19 @@ end
    SyncToggleState = true
 })
 
-_G.GetOldBright = {
-	Brightness = game.Lighting.Brightness,
-	ClockTime = game.Lighting.ClockTime,
-	FogEnd = game.Lighting.FogEnd,
-	GlobalShadows = game.Lighting.GlobalShadows,
-	OutdoorAmbient = game.Lighting.OutdoorAmbient
-}
 Misc4Group:AddToggle("Full Bright", {
     Text = "Full Bright",
     Default = false, 
     Callback = function(Value) 
 _G.FullBright = Value
-while _G.FullBright do
-game.Lighting.Brightness = 2
-game.Lighting.ClockTime = 14
-game.Lighting.FogEnd = 100000
-game.Lighting.GlobalShadows = false
-game.Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-task.wait()
+if not _G.FullBright then
+for i, v in pairs(_G.GetOldBright.Old) do
+game:GetService("Lighting")[i] = v
 end
-for i, v in pairs(_G.GetOldBright) do
-game.Lighting[i] = v
+else
+for i, v in pairs(_G.GetOldBright.New) do
+game:GetService("Lighting")[i] = v
+end
 end
     end
 })
@@ -13189,8 +13205,6 @@ Misc4Group:AddToggle("No Fog", {
     Callback = function(Value) 
 _G.Nofog = Value
 while _G.Nofog do
-game:GetService("Lighting").FogStart = 100000
-game:GetService("Lighting").FogEnd = 200000
 for i, v in pairs(game:GetService("Lighting"):GetChildren()) do
 if v.ClassName == "Atmosphere" then
 v.Density = 0
@@ -13199,8 +13213,6 @@ end
 end
 task.wait()
 end
-game:GetService("Lighting").FogStart = 0
-game:GetService("Lighting").FogEnd = 1000
 for i, v in pairs(game:GetService("Lighting"):GetChildren()) do
 if v.ClassName == "Atmosphere" then
 v.Density = 0.3
