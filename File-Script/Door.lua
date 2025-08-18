@@ -67,26 +67,25 @@ local isGarden = floor.Value == "Garden"
 for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
 	if v.Name == "MainUI" and v:FindFirstChild("Initiator") and v.Initiator:FindFirstChild("Main_Game") then
 		requireGui = require(v.Initiator.Main_Game)
+		MainUi = v
 	end
 end
 game:GetService("Players").LocalPlayer.PlayerGui.ChildAdded:Connect(function()
 	if v.Name == "MainUI" and v:FindFirstChild("Initiator") and v.Initiator:FindFirstChild("Main_Game") then
 		requireGui = require(v.Initiator.Main_Game)
+		MainUi = v
 	end
 end)
 
-game:GetService("Workspace").Camera:GetPropertyChangedSignal("CFrame"):Connect(function()
+game:GetService("RunService").RenderStepped:Connect(function()
+if game:GetService("Workspace"):FindFirstChild("Camera") then
+local CAM = game:GetService("Workspace").Camera
 if _G.ThirdCamera and requireGui then
-	if game:GetService("Workspace"):FindFirstChild("Camera") then
-		game:GetService("Workspace").Camera.CFrame = requireGui.finalCamCFrame * CFrame.new(1.5, -0.5, 6.5)
-	end
+	CAM.CFrame = requireGui.finalCamCFrame * CFrame.new(1.5, -0.5, 6.5)
 end
-end)
-game:GetService("Workspace").Camera:GetPropertyChangedSignal("FieldOfView"):Connect(function()
 if _G.FovOPCamera then
-	if game:GetService("Workspace"):FindFirstChild("Camera") then
-		game:GetService("Workspace").Camera.FieldOfView = _G.FovOP or 71
-	end
+	CAM.FieldOfView = _G.FovOP or 71
+end
 end
 end)
 
@@ -362,7 +361,7 @@ Main:Slider({
     Title = "FOV Camera",
     Step = 1,
     Value = {
-        Min = 71,
+        Min = 70,
         Max = 150,
         Default = 80,
     },
@@ -377,9 +376,6 @@ Main:Toggle({
     Default = false,
     Callback = function(Value)
 _G.FovOPCamera = Value
-if game:GetService("Workspace"):FindFirstChild("Camera") then
-	game:GetService("Workspace").Camera.FieldOfView = 71
-end
     end
 })
 
@@ -511,17 +507,92 @@ Main:Toggle({
     Default = false,
     Callback = function(Value)
 _G.AntiEggGloom = Value
-while _G.AntiEggGloom do
-for i, v in pairs(workspace.CurrentRooms:GetChildren()) do
-	if v:IsA("Model") then
-		for _, v1 in pairs(v:GetChildren()) do
-			if v1.Name:find("GloomPile") and v1:FindFirstChild("GloomEgg") and v1.GloomEgg:FindFirstChild("Egg") then
-				v1.GloomEgg.Egg.CanTouch = false
+if _G.AntiEggGloom then
+local function EggGlooms(v)
+	if v.Name == "GloomPile" then
+		for i, z in pairs(v:GetDescendants()) do
+			if z.Name == "Egg" then
+				z.CanTouch = false
 			end
 		end
 	end
 end
-task.wait()
+for _, v in ipairs(workspace:GetDescendants()) do
+	EggGlooms(v)
+end
+AntiEggGloom = workspace.DescendantAdded:Connect(function(v)
+	EggGlooms(v)
+end)
+else
+if AntiEggGloom then
+AntiEggGloom:Disconnect()
+AntiEggGloom = nil
+end
+end
+    end
+})
+
+Main:Toggle({
+    Title = "Anti Egg Giggle",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AntiGiggle = Value
+if _G.AntiGiggle then
+local function GiggleCeilings(v)
+	if v.Name == "GiggleCeiling" and v:FindFirstChild("Hitbox") then
+		v.Hitbox.CanTouch = false
+	end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	GiggleCeilings(v)
+end
+AntiGiggle = workspace.DescendantAdded:Connect(function(v)
+	GiggleCeilings(v)
+end)
+else
+if AntiGiggle then
+AntiGiggle:Disconnect()
+AntiGiggle = nil
+end
+end
+    end
+})
+
+Main:Toggle({
+    Title = "Anti Fall Barrier",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AntiFall = Value
+if _G.AntiFall then
+local function Falls(v)
+	if v.Name == "PlayerBarrier" and v.Size.Y == 2.75 and (v.Rotation.X == 0 or v.Rotation.X == 180) then
+		local CLONEBARRIER = v:Clone()
+		CLONEBARRIER.CFrame = CLONEBARRIER.CFrame * CFrame.new(0, 0, -5)
+		CLONEBARRIER.Color = Color3.new(1, 1, 1)
+		CLONEBARRIER.Name = "CLONEBARRIER_ANTI"
+		CLONEBARRIER.Size = Vector3.new(CLONEBARRIER.Size.X, CLONEBARRIER.Size.Y, 11)
+        CLONEBARRIER.Transparency = 0
+        CLONEBARRIER.Parent = v.Parent
+	end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	Falls(v)
+end
+AntiFallReal = workspace.DescendantAdded:Connect(function(v)
+	Falls(v)
+end)
+else
+if AntiFallReal then
+AntiFallReal:Disconnect()
+AntiFallReal = nil
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	if v.Name == "CLONEBARRIER_ANTI" then
+		v:Destroy()
+	end
+end
 end
     end
 })
@@ -638,16 +709,16 @@ Misc:Toggle({
     Callback = function(Value)
 _G.BrambleLight = Value
 if _G.BrambleLight then
-function BrambleLight(v)
+local function BrambleLight(v)
 	if v.Name == "LiveEntityBramble" and v:FindFirstChild("Head") and v.Head:FindFirstChild("LanternNeon") then
 		for i, x in pairs(v.Head.LanternNeon:GetChildren()) do
 			if x.Name == "Attachment" and x:FindFirstChild("PointLight") then
 				LightningNotifyBr = x:FindFirstChild("PointLight"):GetPropertyChangedSignal("Enabled"):Connect(function()
-					Notification({title = "Arona", content = "Bramble Light ("..v.Enabled and "ON" or "OFF"..")", duration = 15, icon = "82357489459031", background = "119839538905938"})
+					Notification({title = "Arona", content = "Bramble Light ("..x.Enabled and "ON" or "OFF"..")", duration = 15, icon = "82357489459031", background = "119839538905938"})
 					if _G.NotifyEntityChat then
 						TextChat = _G.ChatNotify or ""
 						if TextChat then
-							game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat.."Bramble Light ("..v.Enabled and "ON" or "OFF"..")")
+							game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat.." Bramble Light ("..v.Enabled and "ON" or "OFF"..")")
 						end
 					end
 				end)
@@ -670,6 +741,63 @@ if BrambleSpawn then
 BrambleSpawn:Disconnect()
 BrambleSpawn = nil
 end
+end
+    end
+})
+end
+
+if isMines then
+Misc:Toggle({
+    Title = "Auto Mines Anchor",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.MinesAnchorOh = Value
+if _G.MinesAnchorOh then
+_G.MinesAnchorOhTablet = {}
+_G.ConnectMinesAn = {}
+local function DeciphercodeMine(v)
+	if not table.find(_G.MinesAnchorOhTablet, v) and v.Name == "MinesAnchor" and v:FindFirstChild("AnchorRemote") then
+		table.insert(_G.MinesAnchorOhTablet, v)
+	end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	DeciphercodeMine(v)
+end
+table.insert(_G.ConnectMinesAn, workspace.DescendantAdded:Connect(function(v)
+    DeciphercodeMine(v)
+end))
+table.insert(_G.ConnectMinesAn, workspace.DescendantRemoving:Connect(function(v)
+    for i = #_G.MinesAnchorOhTablet, 1, -1 do
+        if _G.MinesAnchorOhTablet[i] == v then
+            table.remove(_G.MinesAnchorOhTablet, i)
+            break
+        end
+    end
+end))
+else
+if _G.ConnectMinesAn then
+for i, v in pairs(_G.ConnectMinesAn) do
+v:Disconnect()
+end
+end
+_G.ConnectMinesAn = {}
+end
+while _G.MinesAnchorOh do
+if MainUi:FindFirstChild("MainFrame") and MainUi.MainFrame:FindFirstChild("AnchorHintFrame") then
+AnchorCodeSuc = {
+    DesignatedAnchor = MainUi.MainFrame.AnchorHintFrame:FindFirstChild("AnchorCode").Text,
+    AnchorCode = MainUi.MainFrame.AnchorHintFrame:FindFirstChild("Code").Text
+}
+end
+for i, v in pairs(_G.MinesAnchorOhTablet) do
+if v.Name == "MinesAnchor" and v:FindFirstChild("AnchorRemote") and Distance(v:GetPivot().Position) <= 10 then
+if AnchorCodeSuc.AnchorCode then
+v.AnchorRemote:InvokeServer(AnchorCodeSuc.AnchorCode)
+end
+end
+end
+task.wait()
 end
     end
 })
@@ -1110,6 +1238,111 @@ while _G.EspGuillotine do
 for i, v in pairs(_G.GuillotinedAdd) do
 if v:IsA("Model") then
 Keys(v)
+end
+end
+task.wait()
+end
+    end
+})
+end
+
+if isMines then
+Esp:Toggle({
+    Title = "Esp Anchor Mines",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspAnchorMines = Value
+if _G.EspAnchorMines == false then
+_G.EspAnchorMinesAdd = {}
+if _G.ConnectAnchorMines then
+for i, v in pairs(_G.ConnectAnchorMines) do
+v:Disconnect()
+end
+end
+_G.ConnectAnchorMines = {}
+for _, v in pairs(workspace:GetDescendants()) do 
+if v.Name == "MinesAnchor" then
+for i, z in pairs(v:GetChildren()) do
+if z.Name:find("Esp_") then
+z:Destroy()
+end
+end
+end
+end
+else
+function MinesAnchors(v)
+if v.Name == "MinesAnchor" and v.PrimaryPart then
+if v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and "Anchor Mines" or "")..
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart)).."m)" or "")
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
+	GuiEsp = Instance.new("BillboardGui", v)
+	GuiEsp.Adornee = v
+	GuiEsp.Name = "Esp_Gui"
+	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiEsp.AlwaysOnTop = true
+	GuiEspText = Instance.new("TextLabel", GuiEsp)
+	GuiEspText.BackgroundTransparency = 1
+	GuiEspText.Font = Enum.Font.Code
+	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiEspText.TextSize = 15
+	GuiEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiEspText.TextStrokeTransparency = 0.5
+	GuiEspText.Text = ""
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiEspText
+	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+	v:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
+local function CheckMinesAnchors(v)
+    if not table.find(_G.EspAnchorMinesAdd, v) and v.Name == "MinesAnchor" then
+        table.insert(_G.EspAnchorMinesAdd, v)
+    end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckMinesAnchors(v)
+end
+table.insert(_G.ConnectAnchorMines, workspace.DescendantAdded:Connect(function(v)
+    CheckMinesAnchors(v)
+end))
+table.insert(_G.ConnectAnchorMines, workspace.DescendantRemoving:Connect(function(v)
+    for i = #_G.EspAnchorMinesAdd, 1, -1 do
+        if _G.EspAnchorMinesAdd[i] == v then
+            table.remove(_G.EspAnchorMinesAdd, i)
+            break
+        end
+    end
+end))
+end
+while _G.EspAnchorMines do
+for i, v in pairs(_G.EspAnchorMinesAdd) do
+if v:IsA("Model") then
+MinesAnchors(v)
 end
 end
 task.wait()
