@@ -533,7 +533,7 @@ end
 })
 
 Main:Toggle({
-    Title = "Anti Egg Giggle",
+    Title = "Anti Giggle",
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
