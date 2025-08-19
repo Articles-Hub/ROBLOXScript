@@ -140,20 +140,6 @@ _G.GetPotion = {
 
 ---GetSome---
 
-if game.Workspace:FindFirstChild("NametagChanged") == nil then
-local NametagChanged = Instance.new("StringValue", workspace)
-NametagChanged.Name = "NametagChanged"
-NametagChanged.Value = ""
-
-local SlapChanged = Instance.new("StringValue", NametagChanged)
-SlapChanged.Name = "SlapChanged"
-SlapChanged.Value = ""
-
-local GloveChanged = Instance.new("StringValue", NametagChanged)
-GloveChanged.Name = "GloveChanged"
-GloveChanged.Value = ""
-end
-
 function CheckUnlockGlove(Value)
 	return game.Players.LocalPlayer:FindFirstChild("_unlockedGloves") and game.Players.LocalPlayer._unlockedGloves:FindFirstChild(Value)
 end
@@ -161,6 +147,25 @@ end
 function CheckGlove()
 	return game.Players.LocalPlayer:FindFirstChild("leaderstats") and game.Players.LocalPlayer.leaderstats:FindFirstChild("Glove") and game.Players.LocalPlayer.leaderstats.Glove.Value
 end
+
+if hookmetamethod and getnamecallmethod then
+if not Hit then
+MethodGlove, EquipGlove = false, "Default"
+local Hit
+Hit = hookmetamethod(game, "__namecall", function(method, ...) 
+	local args = {...}
+	local methodcall = getnamecallmethod()
+    if methodcall == "FireServer" then
+	    if ((tostring(method) == "GoldenHit" and EquipGlove == "Golden") or (tostring(method) == "GeneralHit" and EquipGlove == "Glovel")) and MethodGlove == true then
+			args[2] = true
+			return Hit(method, unpack(args))
+		end
+    end
+	return Hit(method, ...)
+end)
+end
+end
+
 
 ---SafeSpotBox---
 
@@ -3355,7 +3360,7 @@ while _G.MATERIALIZEfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "MATERIALIZEOrb" then
-			v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
         end
     end
 end
@@ -3378,7 +3383,7 @@ while _G.Siphonfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "SiphonOrb" then
-			v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
         end
     end
 end
@@ -5717,6 +5722,51 @@ end
    SyncToggleState = true
 })
 
+Misc1Basic:AddDropdown("Notify Workspace", {
+    Text = "Notify",
+    Values = {"Orb", "Toolbox", "Gravestone", "Gift", "Keypad"},
+    Default = "",
+    Multi = true
+})
+
+Misc1Basic:AddToggle("Notify Real", {
+    Text = "Notify Choose",
+    Default = false, 
+    Callback = function(Value) 
+_G.NotifyThank = Value
+if _G.NotifyThank then
+local function WorkspaceChild(v)
+	if Options["Notify Workspace"].Value["Orb"] and (v.Name == "JetOrb" or v.Name == "PhaseOrb" or v.Name == "SiphonOrb" or v.Name == "MATERIALIZEOrb") then
+		Notification("[Notify]: "..v.Name:gsub("Orb", " Orb").." Spawn", _G.TimeNotify)
+	end
+	if Options["Notify Workspace"].Value["Toolbox"] and v.Name == "Toolbox" then
+		Notification("[Notify]: Toolbox Spawn", _G.TimeNotify)
+	end
+	if Options["Notify Workspace"].Value["Gravestone"] and v.Name == "Gravestone" then
+		Notification("[Notify]: Gravestone Spawn", _G.TimeNotify)
+	end
+	if Options["Notify Workspace"].Value["Gift"] and v.Name == "Gift" then
+		Notification("[Notify]: Gift Spawn", _G.TimeNotify)
+	end
+	if Options["Notify Workspace"].Value["Keypad"] and v.Name == "Keypad" then
+		Notification("[Notify]: Keypad Spawn", _G.TimeNotify)
+	end
+end
+for i, v in pairs(workspace:GetChildren()) do
+	WorkspaceChild(v)
+end
+Child = workspace.ChildAdded:Connect(function(child)
+	WorkspaceChild(child)
+end)
+else
+if Child then
+Child:Disconnect()
+Child = nil
+end
+end
+    end
+})
+
 Misc1Basic:AddButton({
     Text = "Auto Keypad",
     DoubleClick = true,
@@ -6213,9 +6263,11 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer(game:GetService("
 wait(3.1)
 end
 while _G.OnAbility and CheckGlove() == "Coil" do
+if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Coil") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(game:GetService("Players").LocalPlayer.Character.Coil)
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Walkspeed
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 21
 wait(3.1)
+end
 end
 while _G.OnAbility and CheckGlove() == "Diamond" do
 game:GetService("ReplicatedStorage"):WaitForChild("Rockmode"):FireServer()
@@ -6231,7 +6283,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("ExcavatorCancel"):FireServer(
 wait(7.3)
 end
 while _G.OnAbility and CheckGlove() == "Thor" do
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 game:GetService("ReplicatedStorage").ThorAbility:FireServer(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame)
+end
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Meteor" do
@@ -6297,8 +6351,10 @@ game:GetService("ReplicatedStorage").Blink:FireServer("OutOfBody", {["dir"] = Ve
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Joust" do
+if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer("Start")
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 40
+end
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Slapstick" do
@@ -6463,22 +6519,7 @@ while _G.OnAbility and CheckGlove() == "Tank" do
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 task.wait()
 end
-    end
-}):AddKeyPicker("SpamAbility", {
-   Default = "B",
-   Text = "Auto Spam Ability",
-   Mode = "Toggle",
-   SyncToggleState = true
-})
-
-Misc1Basic:AddToggle("Spam Stun Untitled Tag", {
-    Text = "Spam Stun Untitled Tag",
-    Default = false, 
-    Callback = function(Value) 
-_G.SpamStunUntitledTag = Value
-if CheckGlove() == "Untitled Tag Glove" then
-while _G.SpamStunUntitledTag do
-if CheckGlove() == "Untitled Tag Glove" then
+while _G.OnAbility and CheckGlove() == "Untitled Tag Glove" do
 game:GetService("ReplicatedStorage").UTGGeneric:FireServer("enableRunMode")
 for i,v in pairs(game.Players:GetChildren()) do
 if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
@@ -6489,18 +6530,17 @@ end
 end
 end
 end
-end
 task.wait()
 end
-elseif Value == true then
-Notification("You don't have Untitled Tag Glove equipped", _G.TimeNotify)
-wait(0.05)
-Toggles["Spam Stun Untitled Tag"]:SetValue(false)
-end
     end
+}):AddKeyPicker("SpamAbility", {
+   Default = "B",
+   Text = "Auto Spam Ability",
+   Mode = "Toggle",
+   SyncToggleState = true
 })
 
- Misc1Basic:AddToggle("Spam Ability 250 Kill", {
+Misc1Basic:AddToggle("Spam Ability 250 Kill", {
     Text = "Spam Ability 250 Kill",
     Default = false, 
     Callback = function(Value) 
@@ -6519,7 +6559,22 @@ end
     end
 })
 
- Misc1Basic:AddToggle("Infinite Rhythm", {
+Misc1Basic:AddToggle("Method Glove", {
+    Text = "Method Glovel / Golden",
+    Default = false, 
+    Callback = function(Value) 
+_G.MethodGlove = Value
+MethodGlove = Value
+while _G.MethodGlove do
+if EquipGlove ~= CheckGlove() then
+EquipGlove = CheckGlove()
+end
+task.wait()
+end
+    end
+})
+
+Misc1Basic:AddToggle("Infinite Rhythm", {
     Text = "Infinite Rhythm",
     Default = false, 
     Callback = function(Value) 
@@ -6737,7 +6792,6 @@ else
 Notification("You aren't in the lobby.", _G.TimeNotify)
 end
 elseif _G.GloveEquipHehe == "Tournament" or _G.GloveEquipHehe == "Old Glove + Tournament" then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
 if _G.GloveEquipHehe == "Tournament" then
 fireclickdetector(workspace.Lobby[_G.EquipGlove].ClickDetector)
 end
@@ -6754,9 +6808,6 @@ if workspace:FindFirstChild("TournamentIsland") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.TournamentIsland.Spawns.Part.CFrame * CFrame.new(0,2,0)
 else
 Notification("Tournament Island don't not spawn.", _G.TimeNotify)
-end
-else
-Notification("you are in Tournament not equip, 1 you use it.", _G.TimeNotify)
 end
 end
 end)
@@ -7148,12 +7199,12 @@ end
 })
 
  Misc1Basic:AddInput("Auto Change Nametag", {
-    Default = "Auto Change Nametag",
+    Default = "Change Nametag...",
     Numeric = false,
-    Text = "",
+    Text = "Change Name",
     Placeholder = "Change",
     Callback = function(Value)
-game.Workspace.NametagChanged.Value = Value
+_G.FakeName = Value
     end
 })
 
@@ -7163,10 +7214,14 @@ game.Workspace.NametagChanged.Value = Value
     Callback = function(Value) 
 _G.AutoSetNameTag = Value
 while _G.AutoSetNameTag do
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Head") and game.Players.LocalPlayer.Character.Head:FindFirstChild("Nametag") then
-if game.Players.LocalPlayer.Character.Head.Nametag:FindFirstChild("TextLabel") and game.Players.LocalPlayer.Character.Head.Nametag.TextLabel.Text ~= game.Workspace.NametagChanged.Value then
-game.Players.LocalPlayer.Character.Head.Nametag.TextLabel.Text = game.Workspace.NametagChanged.Value
-end
+if game.Players.LocalPlayer.Character:FindFirstChild("Head") and game.Players.LocalPlayer.Character.Head:FindFirstChild("Nametag") then
+	if game.Players.LocalPlayer.Character.Head.Nametag:FindFirstChild("Labels") then
+		for i, v in pairs(game.Players.LocalPlayer.Character.Head.Nametag.Labels:GetChildren()) do
+			if v:IsA("TextLabel") then
+				v.Text = _G.FakeName
+			end
+		end
+	end
 end
 task.wait()
 end
@@ -7174,12 +7229,12 @@ end
 })
 
  Misc1Basic:AddInput("Auto Change Slap", {
-    Default = "Auto Change Slap",
+    Default = "Change Slap...",
     Numeric = false,
-    Text = "",
+    Text = "Change Slap",
     Placeholder = "Change",
     Callback = function(Value)
-game.Workspace.NametagChanged.SlapChanged.Value = Value
+_G.FakeSlap = Value
     end
 })
 
@@ -7189,8 +7244,8 @@ game.Workspace.NametagChanged.SlapChanged.Value = Value
     Callback = function(Value) 
 _G.AutoChangeSlapFake = Value
 while _G.AutoChangeSlapFake do
-if game.Players.LocalPlayer.leaderstats.Slaps.Value ~= game.Workspace.NametagChanged.SlapChanged.Value then
-game.Players.LocalPlayer.leaderstats.Slaps.Value = game.Workspace.NametagChanged.SlapChanged.Value
+if game.Players.LocalPlayer.leaderstats.Slaps.Value ~= _G.FakeSlap then
+game.Players.LocalPlayer.leaderstats.Slaps.Value = _G.FakeSlap
 end
 task.wait()
 end
@@ -7198,12 +7253,12 @@ end
 })
 
 Misc1Basic:AddInput("Auto Change Glove", {
-    Default = "Auto Change Glove",
+    Default = "Change Glove...",
     Numeric = false,
-    Text = "",
+    Text = "Change Glove",
     Placeholder = "Change",
     Callback = function(Value)
-game.Workspace.NametagChanged.GloveChanged.Value = Value
+_G.FakeGlove = Value
     end
 })
 
@@ -7213,8 +7268,8 @@ game.Workspace.NametagChanged.GloveChanged.Value = Value
     Callback = function(Value) 
 _G.AutoChangeSlapFake = Value
 while _G.AutoChangeSlapFake do
-if game.Players.LocalPlayer.leaderstats.Glove.Value ~= game.Workspace.NametagChanged.GloveChanged.Value then
-game.Players.LocalPlayer.leaderstats.Glove.Value = game.Workspace.NametagChanged.GloveChanged.Value
+if game.Players.LocalPlayer.leaderstats.Glove.Value ~= _G.FakeGlove then
+game.Players.LocalPlayer.leaderstats.Glove.Value = _G.FakeGlove
 end
 task.wait()
 end
