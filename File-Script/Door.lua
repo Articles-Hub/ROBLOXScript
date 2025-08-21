@@ -21,14 +21,6 @@ _G.GetOldBright = {
 	}
 }
 
-for i, v in pairs(_G.GetOldBright.New) do
-game.Lighting:GetPropertyChangedSignal(i):Connect(function()
-	if _G.FullBright then
-		game.Lighting[i] = v
-	end
-end)
-end
-
 Screech, ClutchHeart, AutoUseCrouch = false, false, false
 if not old then
 local old
@@ -53,16 +45,24 @@ old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
 end))
 end
 
+function Distance(pos)
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		return (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - pos).Magnitude
+	end
+end
+
 ------ Script --------
 
 local HttpService = game:GetService("HttpService")
+local PFS = game:GetService("PathfindingService")
 local EntityModules = game:GetService("ReplicatedStorage").ModulesClient.EntityModules
-local gameData = game.ReplicatedStorage:WaitForChild("GameData")
+gameData = game.ReplicatedStorage:WaitForChild("GameData")
 local floor = gameData:WaitForChild("Floor")
 local isMines = floor.Value == "Mines"
 local isHotel = floor.Value == "Hotel"
 local isBackdoor = floor.Value == "Backdoor"
 local isGarden = floor.Value == "Garden"
+local isRoom = floor.Value == "Rooms"
 
 for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
 	if v.Name == "MainUI" and v:FindFirstChild("Initiator") and v.Initiator:FindFirstChild("Main_Game") then
@@ -78,6 +78,11 @@ game:GetService("Players").LocalPlayer.PlayerGui.ChildAdded:Connect(function()
 end)
 
 game:GetService("RunService").RenderStepped:Connect(function()
+for i, v in pairs(_G.GetOldBright.New) do
+	if _G.FullBright then
+		game.Lighting[i] = v
+	end
+end
 if game:GetService("Workspace"):FindFirstChild("Camera") then
 local CAM = game:GetService("Workspace").Camera
 if _G.ThirdCamera and requireGui then
@@ -89,14 +94,8 @@ end
 end
 end)
 
-function Distance(pos)
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-		return (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - pos).Magnitude
-	end
-end
-
 if not isHotel then
-_G.RemoveLag = {"Leaves", "Rock", "HidingShrub", "Flowers"}
+_G.RemoveLag = {"Leaves", "HidingShrub", "Flowers"}
 function RemoveLagTo(v)
 	if _G.AntiLag == true then
 		local Terrain = workspace:FindFirstChildOfClass("Terrain")
@@ -395,10 +394,10 @@ v:Destroy()
 end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
-	CheckSreech(v)
+        CheckSreech(v)
 end
 RemoveScreech = workspace.DescendantAdded:Connect(function(v)
-	CheckSreech(v)
+        CheckSreech(v)
 end)
 elseif not _G.AntiScreech then
 if RemoveScreech then
@@ -456,17 +455,17 @@ Main:Toggle({
 _G.NoSnare = Value
 if _G.NoSnare then
 local function CheckSnare(v)
-	if v:IsA("Model") and v.Name == "Snare" then
-		if v:FindFirstChild("Hitbox") then
-			v.Hitbox:Destroy()
-		end
-	end
+        if v:IsA("Model") and v.Name == "Snare" then
+                if v:FindFirstChild("Hitbox") then
+                        v.Hitbox:Destroy()
+                end
+        end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
-	CheckSnare(v)
+        CheckSnare(v)
 end
 RemoveSnare = workspace.DescendantAdded:Connect(function(v)
-	CheckSnare(v)
+        CheckSnare(v)
 end)
 elseif not _G.NoSnare then
 if RemoveSnare then
@@ -486,15 +485,32 @@ Main:Toggle({
 _G.NoMonument = Value
 while _G.NoMonument do
 for i, v in pairs(game.Workspace:GetChildren()) do
-	if v.Name == "MonumentEntity" and v:FindFirstChild("Top") then
-		for _, x in pairs(v.Top:GetChildren()) do
-			if x.Name:find("Hitbox") then
-				x:Destroy()
-			end
-		end
-	end
+        if v.Name == "MonumentEntity" and v:FindFirstChild("Top") then
+                for _, x in pairs(v.Top:GetChildren()) do
+                        if x.Name:find("Hitbox") then
+                                x:Destroy()
+                        end
+                end
+        end
 end
 task.wait()
+end
+    end
+})
+end
+
+if isRoom then
+Main:Toggle({
+    Title = "Anti A-90",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.NoA90 = Value
+if MainUi:FindFirstChild("Initiator") and MainUi.Initiator:FindFirstChild("Main_Game") and MainUi.Initiator.Main_Game:FindFirstChild("RemoteListener") and MainUi.Initiator.Main_Game.RemoteListener:FindFirstChild("Modules") then
+	local A90Script = MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90") or MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
+	if A90Script then
+	    A90Script.Name = _G.NoA90 and "_A90" or "A90"
+	end
 end
     end
 })
@@ -509,19 +525,19 @@ Main:Toggle({
 _G.AntiEggGloom = Value
 if _G.AntiEggGloom then
 local function EggGlooms(v)
-	if v.Name == "GloomPile" then
-		for i, z in pairs(v:GetDescendants()) do
-			if z.Name == "Egg" then
-				z.CanTouch = false
-			end
-		end
-	end
+        if v.Name == "GloomPile" then
+                for i, z in pairs(v:GetDescendants()) do
+                        if z.Name == "Egg" then
+                                z.CanTouch = false
+                        end
+                end
+        end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
-	EggGlooms(v)
+        EggGlooms(v)
 end
 AntiEggGloom = workspace.DescendantAdded:Connect(function(v)
-	EggGlooms(v)
+        EggGlooms(v)
 end)
 else
 if AntiEggGloom then
@@ -540,15 +556,15 @@ Main:Toggle({
 _G.AntiGiggle = Value
 if _G.AntiGiggle then
 local function GiggleCeilings(v)
-	if v.Name == "GiggleCeiling" and v:FindFirstChild("Hitbox") then
-		v.Hitbox.CanTouch = false
-	end
+        if v.Name == "GiggleCeiling" and v:FindFirstChild("Hitbox") then
+                v.Hitbox.CanTouch = false
+        end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
-	GiggleCeilings(v)
+        GiggleCeilings(v)
 end
 AntiGiggle = workspace.DescendantAdded:Connect(function(v)
-	GiggleCeilings(v)
+        GiggleCeilings(v)
 end)
 else
 if AntiGiggle then
@@ -567,21 +583,21 @@ Main:Toggle({
 _G.AntiFall = Value
 if _G.AntiFall then
 local function Falls(v)
-	if v.Name == "PlayerBarrier" and v.Size.Y == 2.75 and (v.Rotation.X == 0 or v.Rotation.X == 180) then
-		local CLONEBARRIER = v:Clone()
-		CLONEBARRIER.CFrame = CLONEBARRIER.CFrame * CFrame.new(0, 0, -5)
-		CLONEBARRIER.Color = Color3.new(1, 1, 1)
-		CLONEBARRIER.Name = "CLONEBARRIER_ANTI"
-		CLONEBARRIER.Size = Vector3.new(CLONEBARRIER.Size.X, CLONEBARRIER.Size.Y, 11)
-        CLONEBARRIER.Transparency = 0
-        CLONEBARRIER.Parent = v.Parent
-	end
+        if v.Name == "PlayerBarrier" and v.Size.Y == 2.75 and (v.Rotation.X == 0 or v.Rotation.X == 180) then
+                local CLONEBARRIER = v:Clone()
+                CLONEBARRIER.CFrame = CLONEBARRIER.CFrame * CFrame.new(0, 0, -5)
+                CLONEBARRIER.Color = Color3.new(1, 1, 1)
+                CLONEBARRIER.Name = "CLONEBARRIER_ANTI"
+                CLONEBARRIER.Size = Vector3.new(CLONEBARRIER.Size.X, CLONEBARRIER.Size.Y, 11)
+			    CLONEBARRIER.Transparency = 0
+			    CLONEBARRIER.Parent = v.Parent
+        end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
-	Falls(v)
+        Falls(v)
 end
 AntiFallReal = workspace.DescendantAdded:Connect(function(v)
-	Falls(v)
+        Falls(v)
 end)
 else
 if AntiFallReal then
@@ -589,9 +605,9 @@ AntiFallReal:Disconnect()
 AntiFallReal = nil
 end
 for _, v in ipairs(workspace:GetDescendants()) do
-	if v.Name == "CLONEBARRIER_ANTI" then
-		v:Destroy()
-	end
+        if v.Name == "CLONEBARRIER_ANTI" then
+                v:Destroy()
+        end
 end
 end
     end
@@ -683,6 +699,17 @@ if _G.NotifyEntity then
             if child:IsA("Model") and child.Name:find(v) then
                 repeat task.wait() until not child:IsDescendantOf(workspace) or (game.Players.LocalPlayer:DistanceFromCharacter(child:GetPivot().Position) < 1000)
                 if child:IsDescendantOf(workspace) then
+	                if _G.GoodbyeBro then
+						child.AncestryChanged:Connect(function()
+						  if not child.Parent then
+						    Notification({title = "Arona", content = "Goodbye "..v.."!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
+			                if _G.NotifyEntityChat then
+			                    local text = _G.ChatNotify or ""
+			                    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(text.." Goodbye "..v.."!!")
+			                end
+						  end
+						end)
+					end
                     Notification({title = "Arona", content = v.." Spawn!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
                     if _G.NotifyEntityChat then
                         local text = _G.ChatNotify or ""
@@ -701,6 +728,15 @@ end
     end
 })
 
+Misc:Toggle({
+    Title = "Notification Goodbye",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.GoodbyeBro = Value
+    end
+})
+
 if isGarden then
 Misc:Toggle({
     Title = "Notification Bramble Light",
@@ -713,12 +749,13 @@ local function BrambleLight(v)
 	if v.Name == "LiveEntityBramble" and v:FindFirstChild("Head") and v.Head:FindFirstChild("LanternNeon") then
 		for i, x in pairs(v.Head.LanternNeon:GetChildren()) do
 			if x.Name == "Attachment" and x:FindFirstChild("PointLight") then
-				LightningNotifyBr = x:FindFirstChild("PointLight"):GetPropertyChangedSignal("Enabled"):Connect(function()
-					Notification({title = "Arona", content = "Bramble Light ("..x.Enabled and "ON" or "OFF"..")", duration = 15, icon = "82357489459031", background = "119839538905938"})
+				LightningNotifyBr = x.PointLight:GetPropertyChangedSignal("Enabled"):Connect(function()
+					if x.PointLight.Enabled then turn = "ON" else turn = "OFF" end
+					Notification({title = "Arona", content = "Bramble Light ("..turn..")", duration = 3, icon = "82357489459031", background = "119839538905938"})
 					if _G.NotifyEntityChat then
 						TextChat = _G.ChatNotify or ""
 						if TextChat then
-							game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat.." Bramble Light ("..v.Enabled and "ON" or "OFF"..")")
+							game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat.." Bramble Light ("..turn..")")
 						end
 					end
 				end)
@@ -784,16 +821,10 @@ end
 _G.ConnectMinesAn = {}
 end
 while _G.MinesAnchorOh do
-if MainUi:FindFirstChild("MainFrame") and MainUi.MainFrame:FindFirstChild("AnchorHintFrame") then
-AnchorCodeSuc = {
-    DesignatedAnchor = MainUi.MainFrame.AnchorHintFrame:FindFirstChild("AnchorCode").Text,
-    AnchorCode = MainUi.MainFrame.AnchorHintFrame:FindFirstChild("Code").Text
-}
-end
+if MainUi:FindFirstChild("AnchorHintFrame") and MainUi.AnchorHintFrame:FindFirstChild("Code") then
 for i, v in pairs(_G.MinesAnchorOhTablet) do
 if v.Name == "MinesAnchor" and v:FindFirstChild("AnchorRemote") and Distance(v:GetPivot().Position) <= 10 then
-if AnchorCodeSuc.AnchorCode then
-v.AnchorRemote:InvokeServer(AnchorCodeSuc.AnchorCode)
+v.AnchorRemote:InvokeServer(MainUi.AnchorHintFrame.Code.Text)
 end
 end
 end
@@ -1000,12 +1031,30 @@ _G.WalkSpeedTp = Value
     end
 })
 
+Misc:Slider({
+    Title = "Vitamin Speed",
+    Step = 0.1,
+    Value = {
+        Min = 1,
+        Max = 7,
+        Default = 0.6,
+    },
+    Callback = function(Value)
+_G.VitaminSpeed = Value
+    end
+})
+
 Misc:Dropdown({
     Title = "WalkSpeed",
     Values = {"Vitamin", "Speed Hack"},
     Value = "",
     Callback = function(Value) 
 _G.WalkSpeedChose = Value
+if Value ~= "Vitamin" then
+if game.Players.LocalPlayer.Character then
+game.Players.LocalPlayer.Character:SetAttribute("SpeedBoost", 0)
+end
+end
     end
 })
 
@@ -1022,23 +1071,21 @@ game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.WalkSpeedTp
 end
 elseif _G.WalkSpeedChose == "Vitamin" then
 if game.Players.LocalPlayer.Character then
-game.Players.LocalPlayer.Character:SetAttribute("SpeedBoost", 6.8)
+game.Players.LocalPlayer.Character:SetAttribute("SpeedBoost", _G.VitaminSpeed)
 end
 end
 task.wait()
 end
-if _G.WalkSpeedChose == "Vitamin" then
 if game.Players.LocalPlayer.Character then
 game.Players.LocalPlayer.Character:SetAttribute("SpeedBoost", 0)
-end
 end
     end
 })
 
 local Esp = Tabs.Tab2
-if not isGarden then
+if not isGarden and not isRoom then
 Esp:Toggle({
-    Title = (((isHotel or isBackdoor) and "Esp Key / Lever") or (isMines and "Esp Fuse")),
+    Title = "Esp "..(((isHotel or isBackdoor) and " Key / Lever") or (isMines and " Fuse")),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -1100,6 +1147,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -1166,8 +1215,8 @@ end
 end
 end
 else
-function Guillotined(v)
-if v.Name == "VineGuillotine" and v.PrimaryPart then
+function Guillotineds(v)
+if v.Name == "VineGuillotine" then
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -1187,7 +1236,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and "Guillotineor" or "")..
-            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart)).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v:GetPivot().Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -1205,6 +1254,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -1237,7 +1288,7 @@ end
 while _G.EspGuillotine do
 for i, v in pairs(_G.GuillotinedAdd) do
 if v:IsA("Model") then
-Keys(v)
+Guillotineds(v)
 end
 end
 task.wait()
@@ -1310,6 +1361,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -1352,7 +1405,7 @@ end
 end
 
 Esp:Toggle({
-    Title = "Esp Door",
+    Title = "Esp "..(isRoom and "Room" or "Door"),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
@@ -1389,7 +1442,7 @@ if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
 end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and "Door "..((v.Door:FindFirstChild("Sign") and v.Door.Sign:FindFirstChild("Stinker") and v.Door.Sign.Stinker.Text) or (v.Door.Sign:FindFirstChild("SignText") and v.Door.Sign.SignText.Text)):gsub("^0+", "")..(v.Door:FindFirstChild("Lock") and " (lock)" or "") or "")..
+	        (_G.EspName == true and (isRoom and "Room " or "Door ")..((v.Door:FindFirstChild("Sign") and v.Door.Sign:FindFirstChild("Stinker") and v.Door.Sign.Stinker.Text) or (v.Door.Sign:FindFirstChild("SignText") and v.Door.Sign.SignText.Text)):gsub("^0+", "")..(v.Door:FindFirstChild("Lock") and " (lock)" or "") or "")..
             (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.Door.Door.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
@@ -1408,6 +1461,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -1486,6 +1541,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -1591,6 +1648,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -1694,6 +1753,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -1798,6 +1859,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -1862,7 +1925,9 @@ _G.EspEntityNameDis = {
 	["LiveEntityBramble"] = "Bramble",
 	["GrumbleRig"] = "Grumble",
 	["GiggleCeiling"] = "Giggle",
-	["AmbushMoving"] = "Ambush"
+	["AmbushMoving"] = "Ambush",
+	["A60"] = "A-60",
+	["A120"] = "A-120"
 }
 
 Esp:Toggle({
@@ -1925,7 +1990,7 @@ while _G.EspEntity do
 for i, v in pairs(_G.EntityAdd) do
 for x, z in pairs(_G.EspEntityNameDis) do
 if v:IsA("Model") and (v.Name == x) then
-local AllTransparent = true
+AllTransparent = true
 for _, v3 in ipairs(v:GetChildren()) do
     if v3:IsA("BasePart") and v3.Transparency < 1 then
         AllTransparent = false
@@ -1974,6 +2039,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -2073,6 +2140,8 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	GuiEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiEspText.TextStrokeTransparency = 0.5
 	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
@@ -2146,6 +2215,8 @@ if _G.EspGui == true and v.Character:FindFirstChild("Esp_Gui") == nil then
 	GuiPlayerEspText.TextColor3 = Color3.new(0,0,0) 
 	GuiPlayerEspText.TextStrokeTransparency = 0.5
 	GuiPlayerEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiPlayerEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Color = Color3.new(0, 0, 0)
 	UIStroke.Thickness = 1.5
