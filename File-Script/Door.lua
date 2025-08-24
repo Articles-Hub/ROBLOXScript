@@ -138,6 +138,12 @@ workspace.DescendantAdded:Connect(function(v)
 end)
 end
 
+if workspace:FindFirstChild("PathFindPartsFolder") == nil then
+    local Folder = Instance.new("Folder")
+    Folder.Parent = workspace
+    Folder.Name = "PathFindPartsFolder"
+end
+
 ---- UiLib ----
 
 local ui = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
@@ -524,20 +530,15 @@ Main:Toggle({
     Callback = function(Value)
 _G.AntiEggGloom = Value
 if _G.AntiEggGloom then
-local function EggGlooms(v)
-        if v.Name == "GloomPile" then
-                for i, z in pairs(v:GetDescendants()) do
-                        if z.Name == "Egg" then
-                                z.CanTouch = false
-                        end
-                end
-        end
-end
 for _, v in ipairs(workspace:GetDescendants()) do
-        EggGlooms(v)
+    if v.Name == "Egg" then
+		v.CanTouch = false
+	end
 end
 AntiEggGloom = workspace.DescendantAdded:Connect(function(v)
-        EggGlooms(v)
+	if v.Name == "Egg" then
+		v.CanTouch = false
+	end
 end)
 else
 if AntiEggGloom then
@@ -556,9 +557,13 @@ Main:Toggle({
 _G.AntiGiggle = Value
 if _G.AntiGiggle then
 local function GiggleCeilings(v)
-        if v.Name == "GiggleCeiling" and v:FindFirstChild("Hitbox") then
-                v.Hitbox.CanTouch = false
-        end
+	if v:IsA("Model") and v.Name == "GiggleCeiling" then
+		repeat task.wait() until v:FindFirstChild("Hitbox") == nil
+		wait(0.1)
+		if v:FindFirstChild("Hitbox") then
+			v.Hitbox:Destroy()
+		end
+	end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
         GiggleCeilings(v)
@@ -699,17 +704,17 @@ if _G.NotifyEntity then
             if child:IsA("Model") and child.Name:find(v) then
                 repeat task.wait() until not child:IsDescendantOf(workspace) or (game.Players.LocalPlayer:DistanceFromCharacter(child:GetPivot().Position) < 1000)
                 if child:IsDescendantOf(workspace) then
-	                if _G.GoodbyeBro then
-						child.AncestryChanged:Connect(function()
-						  if not child.Parent then
+					child.AncestryChanged:Connect(function()
+					  if not child.Parent then
+						if _G.GoodbyeBro then
 						    Notification({title = "Arona", content = "Goodbye "..v.."!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
 			                if _G.NotifyEntityChat then
 			                    local text = _G.ChatNotify or ""
 			                    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(text.." Goodbye "..v.."!!")
 			                end
-						  end
-						end)
-					end
+						end
+					  end
+					end)
                     Notification({title = "Arona", content = v.." Spawn!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
                     if _G.NotifyEntityChat then
                         local text = _G.ChatNotify or ""
@@ -859,13 +864,24 @@ local code = {[1] = "_",[2] = "_", [3] = "_", [4] = "_", [5] = "_"}
 end
 local function CodeAll(v)
 	if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
-        local code = table.concat(Deciphercode(v))
+        code = table.concat(Deciphercode(v))
         if code then
 	        Notification({title = "Arona", content = "Code: "..code, duration = 15, icon = "82357489459031", background = "119839538905938"})
 			if _G.NotifyEntityChat then
 				TextChat = _G.ChatNotify or ""
 				if TextChat then
 					game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(TextChat..code)
+				end
+			end
+			if _G.AutoUnlockPadlock then
+				for i, b in pairs(workspace.CurrentRooms:GetChildren()) do
+					if b:IsA("Model") and b:FindFirstChild("Door") and b.Door:FindFirstChild("Padlock") then
+						for _, z in pairs(b.Door:FindFirstChild("Padlock"):GetChildren()) do
+							if z:FindFirstChild("Main") and Distance(z.Main.Position) <= 10 and not code:find("_") then
+								game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder"):WaitForChild("PL"):FireServer(code)
+							end
+						end
+					end
 				end
 			end
 		end
@@ -880,6 +896,15 @@ Getpaper:Disconnect()
 Getpaper = nil
 end
 end
+    end
+})
+
+Misc:Toggle({
+    Title = "Auto Unlock Padlock",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AutoUnlockPadlock = Value
     end
 })
 end
@@ -1005,7 +1030,7 @@ _G.Connectlootables = {}
 end
 while _G.AutoLoot do
 for i, v in pairs(lootables) do
-	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) and v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) == nil then
+	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) and v.Enabled == true and v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) == nil then
 		if Distance(v.Parent:GetPivot().Position) <= 12 then
 			if v.Parent.Name ~= "Mandrake" then
 				fireproximityprompt(v)
@@ -1299,6 +1324,111 @@ end
 
 if isMines then
 Esp:Toggle({
+    Title = "Esp Generator",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspGenerator = Value
+if _G.EspGenerator == false then
+_G.EspGeneratorAdd = {}
+if _G.ConnectGen then
+for i, v in pairs(_G.ConnectGen) do
+v:Disconnect()
+end
+end
+_G.ConnectGen = {}
+for _, v in pairs(workspace:GetDescendants()) do 
+if v.Name == "MinesGenerator" then
+for i, z in pairs(v:GetChildren()) do
+if z.Name:find("Esp_") then
+z:Destroy()
+end
+end
+end
+end
+else
+function Gens(v)
+if v.Name == "MinesGenerator" and v.PrimaryPart then
+if v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and "Generator" or "")..
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart)).."m)" or "")
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
+	GuiEsp = Instance.new("BillboardGui", v)
+	GuiEsp.Adornee = v
+	GuiEsp.Name = "Esp_Gui"
+	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiEsp.AlwaysOnTop = true
+	GuiEspText = Instance.new("TextLabel", GuiEsp)
+	GuiEspText.BackgroundTransparency = 1
+	GuiEspText.Font = Enum.Font.Code
+	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiEspText.TextSize = 15
+	GuiEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiEspText.TextStrokeTransparency = 0.5
+	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiEspText
+	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+	v:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
+local function CheckGens(v)
+    if not table.find(_G.EspGeneratorAdd, v) and v.Name == "MinesGenerator" then
+        table.insert(_G.EspGeneratorAdd, v)
+    end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckGens(v)
+end
+table.insert(_G.ConnectGen, workspace.DescendantAdded:Connect(function(v)
+    CheckGens(v)
+end))
+table.insert(_G.ConnectGen, workspace.DescendantRemoving:Connect(function(v)
+    for i = #_G.EspGeneratorAdd, 1, -1 do
+        if _G.EspGeneratorAdd[i] == v then
+            table.remove(_G.EspGeneratorAdd, i)
+            break
+        end
+    end
+end))
+end
+while _G.EspGenerator do
+for i, v in pairs(_G.EspGeneratorAdd) do
+if v:IsA("Model") then
+Gens(v)
+end
+end
+task.wait()
+end
+    end
+})
+
+Esp:Toggle({
     Title = "Esp Anchor Mines",
     Type = "Toggle",
     Default = false,
@@ -1342,7 +1472,7 @@ if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
 end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and "Anchor Mines" or "")..
+	        (_G.EspName == true and "Anchor Mines ("..(v:FindFirstChild("Sign") and v.Sign:FindFirstChild("TextLabel") and v.Sign.TextLabel.Text)..")" or "")..
             (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
@@ -1424,6 +1554,7 @@ end
 while _G.EspDoor do
 for i, v in pairs(game.Workspace:FindFirstChild("CurrentRooms"):GetChildren()) do
 if v:IsA("Model") and v:FindFirstChild("Door") and v.Door:FindFirstChild("Door") then
+if not v.Door:GetAttribute("Opened") then
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -1469,6 +1600,13 @@ if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
 	UIStroke.Parent = GuiEspText
 	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
 	v:FindFirstChild("Esp_Gui"):Destroy()
+end
+elseif v.Door:GetAttribute("Opened") then
+for i, z in pairs(v:GetChildren()) do
+	if z.Name:find("Esp_") then
+		z:Destroy()
+	end
+end
 end
 end
 end
@@ -2595,6 +2733,7 @@ local AutoLoadConfigToggle = settings:Toggle({
 		writeAuto(state)
 	end
 })
+
 AutoLoadConfigToggle:Set(readAuto().Auto)
 
 local autoData = readAuto()
