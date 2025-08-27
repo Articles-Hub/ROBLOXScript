@@ -51,12 +51,111 @@ function Distance(pos)
 	end
 end
 
+function Deciphercode(v)
+local Hints = game.Players.LocalPlayer.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
+local code = {[1] = "_",[2] = "_", [3] = "_", [4] = "_", [5] = "_"}
+    for i, v in pairs(v:WaitForChild("UI"):GetChildren()) do
+        if v:IsA("ImageLabel") and v.Name ~= "Image" then
+            for b, n in pairs(Hints:GetChildren()) do
+                if n:IsA("ImageLabel") and n.Visible and v.ImageRectOffset == n.ImageRectOffset then
+                    code[tonumber(v.Name)] = n:FindFirstChild("TextLabel").Text 
+                end
+            end
+        end
+    end 
+    return code
+end
+
+if game.CoreGui:FindFirstChild("Gui Track") == nil then
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "Gui Track"
+gui.Enabled = false
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0.2, 0, 0.1, 0)
+Frame.Position = UDim2.new(0.02, 0, 0.87, 0)
+Frame.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame.BorderColor3 = Color3.new(0, 0, 0)
+Frame.BorderSizePixel = 1
+Frame.Active = true
+Frame.BackgroundTransparency = 0 
+Frame.Parent = gui
+
+local UICorner = Instance.new("UIStroke")
+UICorner.Color = Color3.new(0, 0, 0)
+UICorner.Thickness = 2.5
+UICorner.Parent = Frame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = Frame
+
+local Frame1 = Instance.new("Frame")
+Frame1.Size = UDim2.new(1, 0, 1, 0)
+Frame1.Position = UDim2.new(0, 0, 0, 0)
+Frame1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Frame1.BorderColor3 = Color3.new(0, 0, 0)
+Frame1.BorderSizePixel = 1
+Frame1.Active = true
+Frame1.BackgroundTransparency = 0.3
+Frame1.Parent = Frame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = Frame1
+
+local Frame2 = Instance.new("Frame")
+Frame2.Name = "Frame1"
+Frame2.Size = UDim2.new(1, 0, 1, 0)
+Frame2.Position = UDim2.new(0, 0, 0, 0)
+Frame2.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+Frame2.BorderColor3 = Color3.new(0, 0, 0)
+Frame2.BorderSizePixel = 1
+Frame2.Active = true
+Frame2.BackgroundTransparency = 0.15
+Frame2.Parent = Frame1
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = Frame2
+
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Size = UDim2.new(1, 0, 1, 0)
+TextLabel.Position = UDim2.new(0, 0, 0, 0)
+TextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+TextLabel.BorderColor3 = Color3.new(0, 0, 0)
+TextLabel.BorderSizePixel = 1
+TextLabel.Text = ""
+TextLabel.TextSize = 16
+TextLabel.BackgroundTransparency = 1
+TextLabel.TextColor3 = Color3.new(0, 0, 0)
+TextLabel.Font = Enum.Font.Code
+TextLabel.TextWrapped = true
+TextLabel.Parent = Frame
+
+local UITextSizeConstraint = Instance.new("UITextSizeConstraint", TextLabel)
+UITextSizeConstraint.MaxTextSize = 35
+end
+
+function UpdateTrack(enabled, update)
+update.Name = update.Name or "Bruh"
+update.Size = update.Size or 1
+if game.CoreGui:FindFirstChild("Gui Track") then
+game.CoreGui["Gui Track"].Enabled = enabled or false
+game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = update.Name
+local TweenService = game:GetService("TweenService")
+local TweenBar = TweenService:Create(game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1"), TweenInfo.new(2), {Size = UDim2.new(update.Size, 0, 1, 0)})
+TweenBar:Play()
+end
+end
+
 ------ Script --------
 
 local HttpService = game:GetService("HttpService")
 local PFS = game:GetService("PathfindingService")
 local EntityModules = game:GetService("ReplicatedStorage").ModulesClient.EntityModules
 gameData = game.ReplicatedStorage:WaitForChild("GameData")
+local RoomLate = gameData.LatestRoom
 local floor = gameData:WaitForChild("Floor")
 local isMines = floor.Value == "Mines"
 local isHotel = floor.Value == "Hotel"
@@ -82,6 +181,9 @@ for i, v in pairs(_G.GetOldBright.New) do
 	if _G.FullBright then
 		game.Lighting[i] = v
 	end
+end
+if _G.AntiCheatBruh and game.Players.LocalPlayer.Character then
+game.Players.LocalPlayer.Character:PivotTo(game.Players.LocalPlayer.Character:GetPivot() * CFrame.new(0, 0, 1000))
 end
 if game:GetService("Workspace"):FindFirstChild("Camera") then
 local CAM = game:GetService("Workspace").Camera
@@ -138,10 +240,12 @@ workspace.DescendantAdded:Connect(function(v)
 end)
 end
 
-if workspace:FindFirstChild("PathFindPartsFolder") == nil then
-    local Folder = Instance.new("Folder")
-    Folder.Parent = workspace
-    Folder.Name = "PathFindPartsFolder"
+if isRoom then
+	if workspace:FindFirstChild("PathFindPartsFolder") == nil then
+	    local Folder = Instance.new("Folder")
+	    Folder.Parent = workspace
+	    Folder.Name = "PathFindPartsFolder"
+	end
 end
 
 ---- UiLib ----
@@ -558,7 +662,7 @@ _G.AntiGiggle = Value
 if _G.AntiGiggle then
 local function GiggleCeilings(v)
 	if v:IsA("Model") and v.Name == "GiggleCeiling" then
-		repeat task.wait() until v:FindFirstChild("Hitbox") == nil
+		repeat task.wait() until v:FindFirstChild("Hitbox")
 		wait(0.1)
 		if v:FindFirstChild("Hitbox") then
 			v.Hitbox:Destroy()
@@ -663,19 +767,48 @@ end
 })
 
 Main:Toggle({
-    Title = "Inf Oxygen",
+    Title = "Check "..(isBackdoor and "Haste Clock" or "Oxygen"),
     Type = "Toggle",
     Default = false,
     Callback = function(Value)
-_G.ActiveInfOxygen = Value 
-while _G.ActiveInfOxygen do 
-if game.Players.LocalPlayer.Character:GetAttribute("Oxygen") then
-game.Players.LocalPlayer.Character:SetAttribute("Oxygen",99999)
+_G.ActiveCheck = Value
+if _G.ActiveCheck then
+if isBackdoor then
+	if game:GetService("ReplicatedStorage"):FindFirstChild("FloorReplicated") and game:GetService("ReplicatedStorage").FloorReplicated:FindFirstChild("DigitalTimer") and game:GetService("ReplicatedStorage").FloorReplicated:FindFirstChild("ScaryStartsNow") then
+		local function getTimeFormat(sec)
+		    local min = math.floor(sec / 60)
+		    local remSec = sec % 60
+		    return string.format("%02d:%02d", min, remSec)
+		end
+		getCheck = game:GetService("ReplicatedStorage").FloorReplicated.DigitalTimer:GetPropertyChangedSignal("Value"):Connect(function()
+		    if _G.ActiveCheck and game:GetService("ReplicatedStorage").FloorReplicated.ScaryStartsNow.Value then
+			    if game:GetService("ReplicatedStorage").FloorReplicated.DigitalTimer.Value <= 60 then
+					SizeTime = (game:GetService("ReplicatedStorage").FloorReplicated.DigitalTimer.Value / 60)
+				else
+					SizeTime = 1
+				end
+		        UpdateTrack(true, {Name = "Clock: "..getTimeFormat(game:GetService("ReplicatedStorage").FloorReplicated.DigitalTimer.Value), Size = SizeTime or 1})
+		    end
+		end)
+	end
+else
+	getCheck = game.Players.LocalPlayer.Character:GetAttributeChangedSignal("Oxygen"):Connect(function()
+		if game.Players.LocalPlayer.Character:GetAttribute("Oxygen") < 100 then
+			UpdateTrack(true, {
+				Name = string.format("Oxygen: %.1f", game.Players.LocalPlayer.Character:GetAttribute("Oxygen")),
+				Size = (game.Players.LocalPlayer.Character:GetAttribute("Oxygen") / 100)
+			})
+		else
+			UpdateTrack(false, {Name = "Oxygen: 100", Size = 1})
+		end
+	end)
 end
-task.wait()
-end 
-if game.Players.LocalPlayer.Character:GetAttribute("Oxygen") then
-game.Players.LocalPlayer.Character:SetAttribute("Oxygen",100)
+else
+if getCheck then
+	getCheck:Disconnect()
+	getCheck = nil
+end
+UpdateTrack(false, {Name = "Ok", Size = 1})
 end
     end
 })
@@ -799,7 +932,7 @@ if _G.MinesAnchorOh then
 _G.MinesAnchorOhTablet = {}
 _G.ConnectMinesAn = {}
 local function DeciphercodeMine(v)
-	if not table.find(_G.MinesAnchorOhTablet, v) and v.Name == "MinesAnchor" and v:FindFirstChild("AnchorRemote") then
+	if not table.find(_G.MinesAnchorOhTablet, v) and v.Name == "MinesAnchor" then
 		table.insert(_G.MinesAnchorOhTablet, v)
 	end
 end
@@ -847,21 +980,6 @@ Misc:Toggle({
     Callback = function(Value)
 _G.NotifyEntity = Value
 if _G.NotifyEntity then
-local function Deciphercode(v)
-local Hints = game.Players.LocalPlayer.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
-
-local code = {[1] = "_",[2] = "_", [3] = "_", [4] = "_", [5] = "_"}
-    for i, v in pairs(v:WaitForChild("UI"):GetChildren()) do
-        if v:IsA("ImageLabel") and v.Name ~= "Image" then
-            for b, n in pairs(Hints:GetChildren()) do
-                if n:IsA("ImageLabel") and n.Visible and v.ImageRectOffset == n.ImageRectOffset then
-                    code[tonumber(v.Name)] = n:FindFirstChild("TextLabel").Text 
-                end
-            end
-        end
-    end 
-    return code
-end
 local function CodeAll(v)
 	if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
         code = table.concat(Deciphercode(v))
@@ -874,15 +992,7 @@ local function CodeAll(v)
 				end
 			end
 			if _G.AutoUnlockPadlock then
-				for i, b in pairs(workspace.CurrentRooms:GetChildren()) do
-					if b:IsA("Model") and b:FindFirstChild("Door") and b.Door:FindFirstChild("Padlock") then
-						for _, z in pairs(b.Door:FindFirstChild("Padlock"):GetChildren()) do
-							if z:FindFirstChild("Main") and Distance(z.Main.Position) <= 10 and not code:find("_") then
-								game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder"):WaitForChild("PL"):FireServer(code)
-							end
-						end
-					end
-				end
+				game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder"):WaitForChild("PL"):FireServer(code)
 			end
 		end
     end
@@ -980,6 +1090,128 @@ end
     end
 })
 
+Misc:Toggle({
+    Title = "Anticheat Manipulation",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AntiCheatBruh = Value
+    end
+})
+
+if isRoom then
+Misc:Toggle({
+    Title = "Auto Room",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AutoRoom = Value
+if _G.AutoRoom then
+	_G.ConnectRooms = {}
+	if MainUi:FindFirstChild("Initiator") and MainUi.Initiator:FindFirstChild("Main_Game") and MainUi.Initiator.Main_Game:FindFirstChild("RemoteListener") and MainUi.Initiator.Main_Game.RemoteListener:FindFirstChild("Modules") then
+		local A90Script = MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
+		if A90Script then
+		    A90Script.Name = "_A90"
+		end
+	end
+	function Locker()
+		local LockerRooms
+		for i,v in pairs(workspace.CurrentRooms:GetDescendants()) do
+	        if v.Name:find("Rooms_Locker") then
+	            if v:FindFirstChild("Door") and v:FindFirstChild("HiddenPlayer") then
+	                if v.HiddenPlayer.Value == nil and v.Door.Position.Y > -3 then
+                        if LockerRooms == nil then
+                            LockerRooms = v.Door
+                        else
+                            if Distance(v.Door.Position) < (LockerRooms.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude then
+                                LockerRooms = v.Door
+                            end
+                        end
+	                end
+	            end
+	        end
+	    end
+		return LockerRooms
+	end
+	function getPathRooms()
+	    local Part
+	    local Entity = (workspace:FindFirstChild("A60") or workspace:FindFirstChild("A120"))
+	    if Entity and Entity.Main.Position.Y > -6.5 then
+	        Part = Locker()
+	    else
+			if game.Players.LocalPlayer.Character:GetAttribute("Hiding") then
+	           game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder"):WaitForChild("CamLock"):FireServer()	
+			end
+	        Part = workspace.CurrentRooms[RoomLate.Value].Door.Door
+	    end
+	    return Part
+	end
+	function getHide()
+		local Path = getPathRooms()
+	    local Entity = (workspace:FindFirstChild("A60") or workspace:FindFirstChild("A120"))
+	    if Entity then
+	        if Path then
+	            if Path.Parent.Name:find("Rooms_Locker") and Entity:FindFirstChild("Main") and Entity.Main.Position.Y > -6.5 then
+                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Path.Position).Magnitude <= 30 then
+                        if not game.Players.LocalPlayer.Character:GetAttribute("Hiding") then
+                            fireproximityprompt(Path.Parent:FindFirstChild("HidePrompt"))
+                        end
+                    end
+	            end
+	        end
+		end
+	end
+end
+spawn(function()
+while _G.AutoRoom do getHide(); _G.SpeedWalk = false; task.wait() end
+end)
+while _G.AutoRoom do 
+	game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 21.3
+	Destination = getPathRooms()
+	path = PFS:CreatePath({WaypointSpacing = 0.3, AgentRadius = 0.1, AgentCanJump = false})
+	path:ComputeAsync(game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 2.5, 0), Destination.Position)
+	if path and path.Status == Enum.PathStatus.Success then
+		local Waypoints = path:GetWaypoints()
+	    workspace:FindFirstChild("PathFindPartsFolder"):ClearAllChildren()
+	    for _, Waypoint in pairs(Waypoints) do
+	        local part = Instance.new("Part")
+	        part.Size = Vector3.new(0.5, 0.5, 0.5)
+	        part.Position = Waypoint.Position
+	        part.Shape = "Cylinder"
+	        part.Material = "SmoothPlastic"
+			part.Shape = Enum.PartType.Ball
+	        part.Anchored = true
+	        part.CanCollide = false
+	        part.Parent = workspace:FindFirstChild("PathFindPartsFolder")
+	    end
+	    for _, Waypoint in pairs(Waypoints) do
+	        if game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored == false then
+	            game.Players.LocalPlayer.Character.Humanoid:MoveTo(Waypoint.Position)
+	            game.Players.LocalPlayer.Character.Humanoid.MoveToFinished:Wait()
+	        end
+	    end
+	end
+end
+function moveToCleanup()
+	workspace:FindFirstChild("PathFindPartsFolder"):ClearAllChildren()
+	if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+		game.Players.LocalPlayer.Character.Humanoid:MoveTo(game.Players.LocalPlayer.Character.HumanoidRootPart.Position)
+	end
+end
+moveToCleanup()
+    end
+})
+end
+
+Misc:Dropdown({
+    Title = "Auto Loot",
+    Values = {"Interactions", "Not Interactions"},
+    Value = "Interactions",
+    Callback = function(Value) 
+_G.InteractionsLoot = Value
+    end
+})
+
 _G.Aura = {
     "ActivateEventPrompt",
     "AwesomePrompt",
@@ -992,6 +1224,7 @@ _G.Aura = {
     "UnlockPrompt",
     "ValvePrompt",
 }
+_G.InteractionsLoot = "Interactions"
 Misc:Toggle({
     Title = "Auto Loot",
     Type = "Toggle",
@@ -1030,10 +1263,12 @@ _G.Connectlootables = {}
 end
 while _G.AutoLoot do
 for i, v in pairs(lootables) do
-	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) and v.Enabled == true and v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) == nil then
-		if Distance(v.Parent:GetPivot().Position) <= 12 then
-			if v.Parent.Name ~= "Mandrake" then
-				fireproximityprompt(v)
+	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) and v.Enabled == true then
+		if _G.InteractionsLoot == "Interactions" and not v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) or _G.InteractionsLoot == "Not Interactions" then
+			if Distance(v.Parent:GetPivot().Position) <= 12 then
+				if v.Parent.Name ~= "Mandrake" then
+					fireproximityprompt(v)
+				end
 			end
 		end
 	end
@@ -1055,6 +1290,21 @@ Misc:Slider({
 _G.WalkSpeedTp = Value
     end
 })
+
+if isMines then
+Misc:Slider({
+    Title = "Ladder Speed",
+    Step = 1,
+    Value = {
+        Min = 16,
+        Max = 75,
+        Default = 30,
+    },
+    Callback = function(Value)
+_G.LadderSpeed = Value
+    end
+})
+end
 
 Misc:Slider({
     Title = "Vitamin Speed",
@@ -1092,7 +1342,7 @@ _G.SpeedWalk = Value
 while _G.SpeedWalk do
 if _G.WalkSpeedChose == "Speed Hack" then
 if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.WalkSpeedTp
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (game.Players.LocalPlayer.Character:GetAttribute("Climbing") and (_G.LadderSpeed or 30) or _G.WalkSpeedTp)
 end
 elseif _G.WalkSpeedChose == "Vitamin" then
 if game.Players.LocalPlayer.Character then
