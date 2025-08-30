@@ -156,8 +156,8 @@ Hit = hookmetamethod(game, "__namecall", function(method, ...)
 	local args = {...}
 	local methodcall = getnamecallmethod()
     if methodcall == "FireServer" then
-	    if ((tostring(method) == "GoldenHit" and EquipGlove == "Golden") or (tostring(method) == "GeneralHit" and EquipGlove == "Glovel")) and MethodGlove == true then
-			args[2] = true
+	    if ((tostring(method) == "GoldenHit" and EquipGlove == "Golden") or (tostring(method) == "GeneralHit" and (EquipGlove == "Glovel" or EquipGlove == "Mace"))) and MethodGlove == true then
+			args[2] = (EquipGlove == "Mace" and 200 or true)
 			return Hit(method, unpack(args))
 		end
     end
@@ -165,7 +165,6 @@ Hit = hookmetamethod(game, "__namecall", function(method, ...)
 end)
 end
 end
-
 
 ---SafeSpotBox---
 
@@ -1399,13 +1398,13 @@ end
 })
 
 Anti2Group:AddToggle("Anti Venom Infected", {
-    Text = "Anti Venom Infected",
+    Text = "Anti Is Ice",
     Default = false,
     Callback = function(Value)
 _G.AntiVenomInfected = Value
 while _G.AntiVenomInfected do
 for i, v in pairs(game.Workspace:GetChildren()) do
-    if v.Name == "is_ice" and v.Color == Color3.fromRGB(177, 229, 166) then
+    if v.Name == "is_ice" then
         v.CanTouch = false
     end
 end
@@ -2158,13 +2157,13 @@ local teleportFunc = queueonteleport or queue_on_teleport
                 game.Loaded:Wait()
             end
             repeat wait() until game.Players.LocalPlayer
+repeat task.wait() until game.Workspace:FindFirstChild("Orb") and game.Workspace.Orb:FindFirstChild("Meshes/rock chain glove_defaultglove_cell.001")
+wait(0.5)
+if game.Workspace:FindFirstChild("Orb") and game.Workspace.Orb:FindFirstChild("Meshes/rock chain glove_defaultglove_cell.001") then
 if fireclickdetector then
-if game.Workspace:FindFirstChild("Orb") then
 fireclickdetector(game.Workspace.Orb.ClickDetector, 0)
 fireclickdetector(game.Workspace.Orb.ClickDetector, 1)
-end
 elseif not fireclickdetector then
-if game.Workspace:FindFirstChild("Orb") and game.Workspace.Orb:FindFirstChild("Meshes/rock chain glove_defaultglove_cell.001") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Orb["Meshes/rock chain glove_defaultglove_cell.001"].CFrame
 end
 end
@@ -3337,7 +3336,8 @@ while _G.PhaseOrJetfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "JetOrb" or v.Name == "PhaseOrb" then
-			v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 0)
+			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 1)
         end
     end
 end
@@ -3360,7 +3360,8 @@ while _G.MATERIALIZEfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "MATERIALIZEOrb" then
-			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 0)
+			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 1)
         end
     end
 end
@@ -3383,7 +3384,8 @@ while _G.Siphonfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "SiphonOrb" then
-			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 0)
+			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 1)
         end
     end
 end
@@ -3429,7 +3431,8 @@ while _G.Giftfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "Gift" then
-			v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 0)
+			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 1)
         end
     end
 end
@@ -5574,13 +5577,13 @@ local lastctrl = {f = 0, b = 0, l = 0, r = 0}
 game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
     if _G.StartFly == true then
         if key:lower() == "w" then
-            ctrl.f = 1 
+            Ctrl.f = _G.SetSpeedFlyCloud 
         elseif key:lower() == "s" then 
-            ctrl.b = -1 
+            Ctrl.b = -_G.SetSpeedFlyCloud
         elseif key:lower() == "a" then 
-            ctrl.l = -1 
+            Ctrl.l = -_G.SetSpeedFlyCloud
         elseif key:lower() == "d" then 
-            ctrl.r = 1 
+            Ctrl.r = _G.SetSpeedFlyCloud
         end 
     end
 end) 
@@ -5979,19 +5982,31 @@ game:GetService("ReplicatedStorage").HomeRun:FireServer({["finished"] = true})
 task.wait(4.1)
 end
 while _G.OnAbility and CheckGlove() == "🗿" do
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer(game.Players.LocalPlayer.Character.Head.CFrame * CFrame.new(0, -2, -10))
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		table.insert(players, v)
+	end
+end
+if #players ~= 0 then
+local target = players[math.random(#players)]
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer(CFrame.new(target.Character.HumanoidRootPart.CFrame.X, -5.6, target.Character.HumanoidRootPart.CFrame.Z + 5))
+end
 wait(3.1)
 end
 while _G.OnAbility and CheckGlove() == "Shukuchi" do
-local players = game.Players:GetChildren()
-local RandomPlayer = players[math.random(1, #players)]
-repeat RandomPlayer = players[math.random(1, #players)] until RandomPlayer ~= game.Players.LocalPlayer and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Head:FindFirstChild("UnoReverseCard") == nil
-Target = RandomPlayer
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.Head:FindFirstChild("RedEye") == nil then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Target.Character.HumanoidRootPart.CFrame
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		table.insert(players, v)
+	end
 end
+if #players ~= 0 then
+local target = players[math.random(#players)]
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
 wait(0.09)
 game:GetService("ReplicatedStorage").SM:FireServer(Target)
+end
 wait(0.8)
 end
 while _G.OnAbility and CheckGlove() == "Slicer" do
@@ -6011,13 +6026,9 @@ while _G.OnAbility and CheckGlove() == "bob" do
 game:GetService("ReplicatedStorage").bob:FireServer()
 wait(9)
 end
-while _G.OnAbility and CheckGlove() == "Kraken" do
+while _G.OnAbility and (CheckGlove() == "Kraken" or CheckGlove() == "Sbeve") do
 game:GetService("ReplicatedStorage").KrakenArm:FireServer()
 wait(5)
-end
-while _G.OnAbility and CheckGlove() == "Sbeve" do
-game:GetService("ReplicatedStorage").KrakenArm:FireServer()
-task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Psycho" do
 game:GetService("ReplicatedStorage").Psychokinesis:InvokeServer({["grabEnabled"] = true})
@@ -6032,12 +6043,19 @@ game:GetService("ReplicatedStorage").busmoment:FireServer()
 wait(5.1)
 end
 while _G.OnAbility and CheckGlove() == "Mitten" do
-game:GetService("ReplicatedStorage").MittenA:FireServer()
+game.ReplicatedStorage.MittenA:FireServer(true)
+wait(1.55)
+game.ReplicatedStorage.MittenA:FireServer(false)
 wait(5.1)
 end
 while _G.OnAbility and CheckGlove() == "Defense" do
 game:GetService("ReplicatedStorage").Barrier:FireServer()
 wait(0.25)
+end
+while _G.OnAbility and CheckGlove() == "Swashbuckler" do
+game.ReplicatedStorage.Events.Swashbuckler_coins:FireServer()
+game.ReplicatedStorage.Events.Swashbuckler:FireServer()
+task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Bomb" do
 game:GetService("ReplicatedStorage").BombThrow:FireServer()
@@ -6054,11 +6072,19 @@ game:GetService("ReplicatedStorage").PusherWall:FireServer()
 wait(5.1)
 end
 while _G.OnAbility and CheckGlove() == "Jet" do
-local players = game.Players:GetChildren()
-local RandomPlayer = players[math.random(1, #players)]
-repeat RandomPlayer = players[math.random(1, #players)] until RandomPlayer ~= game.Players.LocalPlayer and RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("rock") == nil
-Target = RandomPlayer
-game:GetService("ReplicatedStorage").AirStrike:FireServer(Target.Character)
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		local Magnitude = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+		if Magnitude < 100 then
+			table.insert(players, v)
+		end
+	end
+end
+if #players ~= 0 then
+	local target = players[math.random(#players)]
+	game.ReplicatedStorage.AirStrike:FireServer(target.Character)
+end
 wait(5.1)
 end
 while _G.OnAbility and CheckGlove() == "Tableflip" do
@@ -6092,8 +6118,10 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 wait(5.34)
 end
 while _G.OnAbility and CheckGlove() == "Stun" do
+if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Stun") then
 game:GetService("ReplicatedStorage").StunR:FireServer(game:GetService("Players").LocalPlayer.Character.Stun)
 wait(10.1)
+end
 end
 while _G.OnAbility and CheckGlove() == "STOP" do
 game:GetService("ReplicatedStorage").STOP:FireServer(true)
@@ -6105,11 +6133,19 @@ game:GetService("ReplicatedStorage"):WaitForChild("QuakeQuake"):FireServer({["fi
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Track" do
-local players = game.Players:GetChildren()
-local RandomPlayer = players[math.random(1, #players)]
-repeat RandomPlayer = players[math.random(1, #players)] until RandomPlayer ~= game.Players.LocalPlayer and RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("rock") == nil
-Target = RandomPlayer
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer(Target.Character)
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		local Magnitude = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+		if Magnitude < 100 then
+			table.insert(players, v)
+		end
+	end
+end
+if #players ~= 0 then
+	local target = players[math.random(#players)]
+	game:GetService("ReplicatedStorage").GeneralAbility:FireServer(target.Character)
+end
 wait(10.1)
 end
 while _G.OnAbility and CheckGlove() == "Mail" do
@@ -6325,13 +6361,20 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer("Ability1")
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Ferryman" do
-local players = game.Players:GetChildren()
-local randomPlayer = players[math.random(1, #players)]
-repeat randomPlayer = players[math.random(1, #players)] until randomPlayer ~= game.Players.LocalPlayer and randomPlayer.Character:FindFirstChild("entered") and randomPlayer.Character:FindFirstChild("ded") == nil and randomPlayer.Character:FindFirstChild("InLabyrinth") == nil and randomPlayer.Character:FindFirstChild("rock") == nil
-Target = randomPlayer
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		table.insert(players, v)
+	end
+end
+if #players ~= 0 then
+local target = players[math.random(#players)]
+if game.Players.LocalPlayer.Character:FindFirstChild("FerrymanStaff") and game.Players.LocalPlayer.Character.FerrymanStaff:FindFirstChild("StaffConfig") and game.Players.LocalPlayer.Character.FerrymanStaff.StaffConfig:FindFirstChild("AbilityEvent") then
 game.Players.LocalPlayer.Character.FerrymanStaff.StaffConfig.AbilityEvent:FireServer("Leap")
 wait(1.85)
-game.Players.LocalPlayer.Character.FerrymanStaff.StaffConfig.AbilityEvent:FireServer("FinishLeap",Target.Character.HumanoidRootPart.Position)
+game.Players.LocalPlayer.Character.FerrymanStaff.StaffConfig.AbilityEvent:FireServer("FinishLeap",target.Character.HumanoidRootPart.Position)
+end
+end
 task.wait(5)
 end
 while _G.OnAbility and CheckGlove() == "Scythe" do
@@ -6390,8 +6433,17 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Spoonful" do
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer({["state"] = "vfx",["origin"] = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(-3.141592502593994, 1.0475832223892212, 3.141592502593994),["vfx"] = "jumptween",["sendplr"] = game:GetService("Players").LocalPlayer})
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer({["state"] = "vfx",["cf"] = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(-2.1319260597229004, 0.651054859161377, 2.3744168281555176),["vfx"] = "crash"})
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		table.insert(players, v)
+	end
+end
+if #players ~= 0 then
+local target = players[math.random(#players)]
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer({["state"] = "vfx",["origin"] = target.Character.HumanoidRootPart.CFrame * CFrame.Angles(-3.141592502593994, 1.0475832223892212, 3.141592502593994),["vfx"] = "jumptween",["sendplr"] = game:GetService("Players").LocalPlayer})
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer({["state"] = "vfx",["cf"] = target.Character.HumanoidRootPart.CFrame * CFrame.Angles(-2.1319260597229004, 0.651054859161377, 2.3744168281555176),["vfx"] = "crash"})
+end
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "el gato" do
@@ -6448,11 +6500,16 @@ game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Bind" do
-local players = game.Players:GetChildren()
-local randomPlayer = players[math.random(1, #players)]
-repeat randomPlayer = players[math.random(1, #players)] until randomPlayer ~= game.Players.LocalPlayer and randomPlayer.Character:FindFirstChild("entered") and randomPlayer.Character:FindFirstChild("ded") == nil and randomPlayer.Character:FindFirstChild("InLabyrinth") == nil and randomPlayer.Character:FindFirstChild("rock") == nil
-Target = randomPlayer
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer("default", {["goal"] = Target.Character.HumanoidRootPart.CFrame, ["origin"] = Target.Character.Head.CFrame})
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		table.insert(players, v)
+	end
+end
+if #players ~= 0 then
+local target = players[math.random(#players)]
+game:GetService("ReplicatedStorage").GeneralAbility:FireServer("default", {["goal"] = target.Character.HumanoidRootPart.CFrame, ["origin"] = target.Character.Head.CFrame})
+end
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Poltergeist" do
@@ -6482,7 +6539,9 @@ end
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Jerry" do
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(-3, 0, -3))
+end
 task.wait()
 end
 while _G.OnAbility and CheckGlove() == "Snowroller" do
@@ -6560,7 +6619,7 @@ end
 })
 
 Misc1Basic:AddToggle("Method Glove", {
-    Text = "Method Glovel / Golden",
+    Text = "Method Glove One Hit",
     Default = false, 
     Callback = function(Value) 
 _G.MethodGlove = Value
@@ -7688,36 +7747,6 @@ end
 end)
 
 local Glove1Group = Tabs.Tab6:AddLeftGroupbox("Glove")
-
-Glove1Group:AddDropdown("Prop", {
-    Text = "Prop Ability",
-    Values = {"Barrel", "Bench", "Brick", "Bush 1", "Bush 2", "Cauldron", "Diamond", "Frenzy Bot", "Gift", "GoldenSlapple", "Imp", "Jet Orb", "Larry", "MEGAROCK", "Moai Head", "Obby 1", "Obby 2", "Obby 3", "Obby 4", "Obby 5", "Orange", "Oven", "Phase Heart", "Phase Orb", "Rock 1", "Rock 2", "Rock 3", "Sentry", "Slapple", "Snow Peep", "Snow Turret", "bob", "rob","Sbeve"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-PropAbility = Value
-    end
-})
-
-Glove1Group:AddToggle("Spam Prop", {
-    Text = "Auto Ability Prop",
-    Default = false, 
-    Callback = function(Value) 
-_G.PropSpam = Value
-if CheckGlove() == "Prop" then
-while _G.PropSpam do
-if game.Workspace:FindFirstChild("PropModel_"..game.Players.LocalPlayer.Name) == nil then
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer(PropAbility)
-end
-task.wait()
-end
-elseif _G.PropSpam == true then
-Notification("You don't have Prop equipped", _G.TimeNotify)
-wait(0.05)
-Toggles["Spam Prop"]:SetValue(false)
-end
-    end
-})
 
 Glove1Group:AddDropdown("Santa", {
     Text = "Santa Ability",
@@ -9176,7 +9205,7 @@ _G.SetSpeedFlyCloud = Value
     end
 })
 
-MaxSpeedCl = 200
+MaxSpeedCl = 9e9
 Glove2Group:AddToggle("Cloud Speed", {
     Text = "Cloud Speed",
     Default = false, 
@@ -9186,15 +9215,15 @@ if CheckGlove() == "Cloud" then
 local Ctrl = {f = 0, b = 0, l = 0, r = 0}
 local Lastctrl = {f = 0, b = 0, l = 0, r = 0}
 game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
-    if _G.StartFly == true then
+    if _G.CloudSpeed == true then
         if key:lower() == "w" then
-            Ctrl.f = 1 
+            Ctrl.f = _G.SetSpeedFlyCloud 
         elseif key:lower() == "s" then 
-            Ctrl.b = -1 
+            Ctrl.b = -_G.SetSpeedFlyCloud
         elseif key:lower() == "a" then 
-            Ctrl.l = -1 
+            Ctrl.l = -_G.SetSpeedFlyCloud
         elseif key:lower() == "d" then 
-            Ctrl.r = 1 
+            Ctrl.r = _G.SetSpeedFlyCloud
         end 
     end
 end) 
@@ -13347,6 +13376,7 @@ _G.TimeNotify = Value
 
 MenuGroup:AddToggle("KeybindMenuOpen", {Default = false, Text = "Open Keybind Menu", Callback = function(Value) Library.KeybindFrame.Visible = Value end})
 MenuGroup:AddToggle("ShowCustomCursor", {Text = "Custom Cursor", Default = true, Callback = function(Value) Library.ShowCustomCursor = Value end})
+MenuGroup:AddToggle("ExecuteOnTeleport", {Default = true, Text = "Execute On Teleport"})
 MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
 _G.LinkJoin = loadstring(game:HttpGet("https://pastefy.app/2LKQlhQM/raw"))()
@@ -13418,7 +13448,8 @@ SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
 SaveManager:BuildConfigSection(Tabs["UI Settings"])
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
-SaveManager:LoadAutoloadConfig() 
+SaveManager:LoadAutoloadConfig()
+
 ------------------------------------------------------------------------
 _G.BackpackV2Loop = true
 if _G.Backpack == nil then
@@ -13615,6 +13646,20 @@ end
 game:GetService("CoreGui").RobloxGui.Backpack.Inventory.ScrollingFrame.UIGridFrame.ChildAdded:Connect(function(v)
 if v:IsA("TextButton") then
 BackpackV2(v)
+end
+end)
+------------------------------------------------------------------------
+game.Players.LocalPlayer.OnTeleport:Connect(function()
+if not Toggles["ExecuteOnTeleport"].Value then return end
+ExecuteNowTP = queueonteleport or queue_on_teleport
+if ExecuteNowTP then
+ExecuteNowTP([[
+    if not game:IsLoaded() then
+        game.Loaded:Wait()
+    end
+    repeat wait() until game.Players.LocalPlayer
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/File-Script/Slap_Battles.lua"))()
+]])
 end
 end)
 ------------------------------------------------------------------------
