@@ -21,20 +21,15 @@ _G.GetOldBright = {
 	}
 }
 
-Screech, ClutchHeart, AutoUseCrouch = false, false, false
+ClutchHeart, AutoUseCrouch = false, false
 if not old then
 local old
 old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
 	local args = {...}
     local method = getnamecallmethod()
     if method == "FireServer" then
-	    if tostring(self) == "Screech" and Screech == true then
-	        args[1] = true
-	        return old(self,unpack(args))
-	    end
 	    if tostring(self) == "ClutchHeartbeat" and ClutchHeart == true then
-	        args[2] = true
-	        return old(self,unpack(args))
+	        return
 	    end
 	    if tostring(self) == "Crouch" and AutoUseCrouch == true then
 	        args[1] = true
@@ -144,7 +139,7 @@ if game.CoreGui:FindFirstChild("Gui Track") then
 game.CoreGui["Gui Track"].Enabled = enabled or false
 game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = update.Name
 local TweenService = game:GetService("TweenService")
-local TweenBar = TweenService:Create(game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1"), TweenInfo.new(2), {Size = UDim2.new(update.Size, 0, 1, 0)})
+local TweenBar = TweenService:Create(game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1"), TweenInfo.new(1.5), {Size = UDim2.new(update.Size, 0, 1, 0)})
 TweenBar:Play()
 end
 end
@@ -187,11 +182,24 @@ game.Players.LocalPlayer.Character:PivotTo(game.Players.LocalPlayer.Character:Ge
 end
 if game:GetService("Workspace"):FindFirstChild("Camera") then
 local CAM = game:GetService("Workspace").Camera
-if _G.ThirdCamera and requireGui then
-	CAM.CFrame = requireGui.finalCamCFrame * CFrame.new(1.5, -0.5, 6.5)
+if requireGui then
+	if _G.ThirdCamera then
+		CAM.CFrame = requireGui.finalCamCFrame * CFrame.new(1.5, -0.5, 6.5)
+	end
+	if _G.NoShake then
+		requireGui.csgo = CFrame.new()
+	end
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("Head") and not (requireGui and requireGui.stopcam or game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored and not game.Players.LocalPlayer.Character:GetAttribute("Hiding")) then
+    game.Players.LocalPlayer.Character:SetAttribute("ShowInFirstPerson", _G.ThirdCamera)
+    game.Players.LocalPlayer.Character.Head.LocalTransparencyModifier = _G.ThirdCamera and 0 or 1
 end
 if _G.FovOPCamera then
-	CAM.FieldOfView = _G.FovOP or 71
+	if not requireGui then
+		CAM.FieldOfView = _G.FovOP or 71
+	else
+		requireGui.fovtarget = _G.FovOP or 70
+	end
 end
 end
 end)
@@ -235,7 +243,7 @@ function RemoveLagTo(v)
 		end
 	end
 end
-workspace.DescendantAdded:Connect(function(v)
+game.Workspace:FindFirstChild("CurrentRooms").DescendantAdded:Connect(function(v)
 	RemoveLagTo(v)
 end)
 end
@@ -488,6 +496,15 @@ _G.FovOPCamera = Value
     end
 })
 
+Main:Toggle({
+    Title = "No Camera Shake",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.NoShake = Value
+    end
+})
+
 Main:Section({Title = "Misc Main", TextXAlignment = "Left", TextSize = 17})
 
 Main:Toggle({
@@ -496,24 +513,11 @@ Main:Toggle({
     Default = false,
     Callback = function(Value)
 _G.AntiScreech = Value
-Screech = Value
-if _G.AntiScreech then
-local function CheckSreech(v)
-if v:IsA("Model") and v.Name == "Screech" then
-v:Destroy()
-end
-end
-for _, v in ipairs(workspace:GetDescendants()) do
-        CheckSreech(v)
-end
-RemoveScreech = workspace.DescendantAdded:Connect(function(v)
-        CheckSreech(v)
-end)
-elseif not _G.AntiScreech then
-if RemoveScreech then
-RemoveScreech:Disconnect()
-RemoveScreech = nil
-end
+if MainUi:FindFirstChild("Initiator") and MainUi.Initiator:FindFirstChild("Main_Game") and MainUi.Initiator.Main_Game:FindFirstChild("RemoteListener") and MainUi.Initiator.Main_Game.RemoteListener:FindFirstChild("Modules") then
+	local ScreechScript = MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech") or MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("_Screech")
+	if ScreechScript then
+	    ScreechScript.Name = _G.AntiScreech and "_Screech" or "Screech"
+	end
 end
     end
 })
@@ -617,7 +621,7 @@ Main:Toggle({
     Callback = function(Value)
 _G.NoA90 = Value
 if MainUi:FindFirstChild("Initiator") and MainUi.Initiator:FindFirstChild("Main_Game") and MainUi.Initiator.Main_Game:FindFirstChild("RemoteListener") and MainUi.Initiator.Main_Game.RemoteListener:FindFirstChild("Modules") then
-	local A90Script = MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90") or MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
+	local A90Script = MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90") or MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("_A90")
 	if A90Script then
 	    A90Script.Name = _G.NoA90 and "_A90" or "A90"
 	end
@@ -685,6 +689,44 @@ end
 })
 
 Main:Toggle({
+    Title = "Anti Seek Flood",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AntiSeekFlood = Value
+if _G.AntiSeekFlood then
+local function SeekFloods(v)
+	if v.Name == "_DamHandler" then
+		repeat task.wait() until v:FindFirstChild("SeekFloodline")
+		wait(0.1)
+		if v:FindFirstChild("SeekFloodline") then
+			v.SeekFloodline.CanCollide = true
+		end
+	end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+        SeekFloods(v)
+end
+AntiSeekFloods = workspace.DescendantAdded:Connect(function(v)
+        SeekFloods(v)
+end)
+else
+if AntiSeekFloods then
+AntiSeekFloods:Disconnect()
+AntiSeekFloods = nil
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	if v.Name == "_DamHandler" then
+		if v:FindFirstChild("SeekFloodline") then
+			v.SeekFloodline.CanCollide = false
+		end
+	end
+end
+end
+    end
+})
+
+Main:Toggle({
     Title = "Anti Fall Barrier",
     Type = "Toggle",
     Default = false,
@@ -721,6 +763,65 @@ end
 end
     end
 })
+
+Main:Toggle({
+    Title = "Guide Path",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.GuideNah = Value
+if _G.GuideNah then
+local function PathLights()
+	if workspace:FindFirstChild("PathLights") then
+		local function GuideMine(v)
+			if v:IsA("Part") then
+				local CLONEGUIDE = v:Clone()
+	            CLONEGUIDE.CFrame = CLONEGUIDE.CFrame
+	            CLONEGUIDE.Color = Color3.fromRGB(0, 255, 0)
+	            CLONEGUIDE.Name = "GuideClone"
+	            CLONEGUIDE.Shape = Enum.PartType.Ball
+	            CLONEGUIDE.Size = Vector3.new(1, 1, 1)
+			    CLONEGUIDE.Transparency = 0
+			    CLONEGUIDE.Parent = v
+			end
+		end
+		for _, v in ipairs(workspace.PathLights:GetChildren()) do
+			GuideMine(v)
+		end
+		GuideMineReal = workspace.PathLights.ChildAdded:Connect(function(v)
+			GuideMine(v)
+		end)
+	end
+end
+for _, v in ipairs(workspace:GetChildren()) do
+	PathLights()
+end
+GoLightPath = workspace.ChildAdded:Connect(function(v)
+	PathLights()
+end)
+else
+if GuideMineReal then
+GuideMineReal:Disconnect()
+GuideMineReal = nil
+end
+if GoLightPath then
+GoLightPath:Disconnect()
+GoLightPath = nil
+end
+if workspace:FindFirstChild("PathLights") then
+	for i, v in pairs(workspace:FindFirstChild("PathLights"):GetChildren()) do
+		if v:IsA("Part") then
+			for _, d in pairs(v:GetChildren()) do
+				if d.Name == "GuideClone" then
+					d:Destroy()
+				end
+			end
+		end
+	end
+end
+end
+    end
+})
 end
 
 if not isHotel then
@@ -731,7 +832,7 @@ Main:Toggle({
     Callback = function(Value)
 _G.AntiLag = Value
 if _G.AntiLag == true then
-for i,v in pairs(game:GetDescendants()) do
+for i,v in pairs(workspace.CurrentRooms:GetDescendants()) do
 	RemoveLagTo(v)
 end
 end
@@ -816,7 +917,7 @@ end
 local Misc = Tabs.Tab1
 local EntityGet = Misc:Dropdown({
     Title = "Choose Entity",
-    Values = {"Rush", "Seek", "Eyes", "Window", "LookMan", "Gloombat", "Ambush", "A-60", "A-120", "Monument"},
+    Values = {"Rush", "Seek", "Eyes", "Window", "Gloombat", "Ambush", "A-60", "A-120", "Monument"},
     Value = {"Rush"},
     Multi = true,
     AllowNone = true,
@@ -842,7 +943,7 @@ if _G.NotifyEntity then
 						if _G.GoodbyeBro then
 						    Notification({title = "Arona", content = "Goodbye "..v.."!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
 			                if _G.NotifyEntityChat then
-			                    local text = _G.ChatNotify or ""
+			                    local text = _G.ChatNotifyGoodBye or ""
 			                    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(text.." Goodbye "..v.."!!")
 			                end
 						end
@@ -863,6 +964,17 @@ else
         EntityChild = nil
     end
 end
+    end
+})
+
+Misc:Input({
+    Title = "Input Chat GoodBye",
+    Value = "",
+    InputIcon = "speaker",
+    Type = "Input",
+    Placeholder = "Your Chat GoodBye...",
+    Callback = function(Value) 
+_G.ChatNotifyGoodBye = Value
     end
 })
 
@@ -1107,7 +1219,6 @@ Misc:Toggle({
     Callback = function(Value)
 _G.AutoRoom = Value
 if _G.AutoRoom then
-	_G.ConnectRooms = {}
 	if MainUi:FindFirstChild("Initiator") and MainUi.Initiator:FindFirstChild("Main_Game") and MainUi.Initiator.Main_Game:FindFirstChild("RemoteListener") and MainUi.Initiator.Main_Game.RemoteListener:FindFirstChild("Modules") then
 		local A90Script = MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
 		if A90Script then
@@ -1152,8 +1263,9 @@ if _G.AutoRoom then
 	    if Entity then
 	        if Path then
 	            if Path.Parent.Name:find("Rooms_Locker") and Entity:FindFirstChild("Main") and Entity.Main.Position.Y > -6.5 then
-                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Path.Position).Magnitude <= 30 then
+                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Path.Position).Magnitude <= 16.7 then
                         if not game.Players.LocalPlayer.Character:GetAttribute("Hiding") then
+	                        game.Players.LocalPlayer.Character:PivotTo(Path.CFrame)
                             fireproximityprompt(Path.Parent:FindFirstChild("HidePrompt"))
                         end
                     end
@@ -1161,17 +1273,19 @@ if _G.AutoRoom then
 	        end
 		end
 	end
+else
+	if LoopWalk then
+		LoopWalk:Disconnect()
+		LoopWalk = nil
+	end
 end
-spawn(function()
-while _G.AutoRoom do getHide(); _G.SpeedWalk = false; task.wait() end
-end)
+spawn(function() while _G.AutoRoom do getHide(); _G.SpeedWalk = false; task.wait() end end)
 while _G.AutoRoom do 
-	game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 21.3
 	Destination = getPathRooms()
-	path = PFS:CreatePath({WaypointSpacing = 0.3, AgentRadius = 0.1, AgentCanJump = false})
+	path = PFS:CreatePath({WaypointSpacing = 0.4, AgentRadius = 0.1, AgentCanJump = false})
 	path:ComputeAsync(game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 2.5, 0), Destination.Position)
 	if path and path.Status == Enum.PathStatus.Success then
-		local Waypoints = path:GetWaypoints()
+		Waypoints = path:GetWaypoints()
 	    workspace:FindFirstChild("PathFindPartsFolder"):ClearAllChildren()
 	    for _, Waypoint in pairs(Waypoints) do
 	        local part = Instance.new("Part")
@@ -1184,7 +1298,7 @@ while _G.AutoRoom do
 	        part.CanCollide = false
 	        part.Parent = workspace:FindFirstChild("PathFindPartsFolder")
 	    end
-	    for _, Waypoint in pairs(Waypoints) do
+		for _, Waypoint in pairs(Waypoints) do
 	        if game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored == false then
 	            game.Players.LocalPlayer.Character.Humanoid:MoveTo(Waypoint.Position)
 	            game.Players.LocalPlayer.Character.Humanoid.MoveToFinished:Wait()
@@ -1223,6 +1337,7 @@ _G.Aura = {
     "SkullPrompt",
     "UnlockPrompt",
     "ValvePrompt",
+    "LongPushPrompt"
 }
 _G.InteractionsLoot = "Interactions"
 Misc:Toggle({
@@ -1273,7 +1388,7 @@ for i, v in pairs(lootables) do
 		end
 	end
 end
-task.wait(0.1)
+task.wait(0.03)
 end
     end
 })
