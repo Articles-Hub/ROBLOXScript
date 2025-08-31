@@ -782,7 +782,11 @@ local function PathLights()
 	            CLONEGUIDE.Shape = Enum.PartType.Ball
 	            CLONEGUIDE.Size = Vector3.new(1, 1, 1)
 			    CLONEGUIDE.Transparency = 0
+				CLONEGUIDE.Anchored = true
 			    CLONEGUIDE.Parent = v
+				for i, n in pairs(CLONEGUIDE:GetChildren()) do
+					n:Destroy()
+				end
 			end
 		end
 		for _, v in ipairs(workspace.PathLights:GetChildren()) do
@@ -1263,9 +1267,8 @@ if _G.AutoRoom then
 	    if Entity then
 	        if Path then
 	            if Path.Parent.Name:find("Rooms_Locker") and Entity:FindFirstChild("Main") and Entity.Main.Position.Y > -6.5 then
-                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Path.Position).Magnitude <= 16.7 then
+                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Path.Position).Magnitude <= 30 then
                         if not game.Players.LocalPlayer.Character:GetAttribute("Hiding") then
-	                        game.Players.LocalPlayer.Character:PivotTo(Path.CFrame)
                             fireproximityprompt(Path.Parent:FindFirstChild("HidePrompt"))
                         end
                     end
@@ -1273,19 +1276,15 @@ if _G.AutoRoom then
 	        end
 		end
 	end
-else
-	if LoopWalk then
-		LoopWalk:Disconnect()
-		LoopWalk = nil
-	end
 end
 spawn(function() while _G.AutoRoom do getHide(); _G.SpeedWalk = false; task.wait() end end)
 while _G.AutoRoom do 
+	game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 21.5
 	Destination = getPathRooms()
-	path = PFS:CreatePath({WaypointSpacing = 0.4, AgentRadius = 0.1, AgentCanJump = false})
+	path = PFS:CreatePath({WaypointSpacing = 0.25, AgentRadius = 0.1, AgentCanJump = false})
 	path:ComputeAsync(game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 2.5, 0), Destination.Position)
 	if path and path.Status == Enum.PathStatus.Success then
-		Waypoints = path:GetWaypoints()
+		local Waypoints = path:GetWaypoints()
 	    workspace:FindFirstChild("PathFindPartsFolder"):ClearAllChildren()
 	    for _, Waypoint in pairs(Waypoints) do
 	        local part = Instance.new("Part")
@@ -1317,29 +1316,36 @@ moveToCleanup()
 })
 end
 
-Misc:Dropdown({
-    Title = "Auto Loot",
-    Values = {"Interactions", "Not Interactions"},
-    Value = "Interactions",
-    Callback = function(Value) 
-_G.InteractionsLoot = Value
-    end
-})
-
 _G.Aura = {
-    "ActivateEventPrompt",
-    "AwesomePrompt",
-    "FusesPrompt",
-    "HerbPrompt",
-    "LeverPrompt",
-    "LootPrompt",
-    "ModulePrompt",
-    "SkullPrompt",
-    "UnlockPrompt",
-    "ValvePrompt",
-    "LongPushPrompt"
+	["AuraPrompt"] = {
+		"ActivateEventPrompt",
+		"HerbPrompt",
+		"LootPrompt",
+		"SkullPrompt",
+		"ValvePrompt",
+		"LongPushPrompt",
+		"LeverPrompt",
+		"FusesPrompt",
+		"UnlockPrompt",
+		"AwesomePrompt",
+		"ModulePrompt"
+	},
+	["AutoLootInteractions"] = {
+		"ActivateEventPrompt",
+		"HerbPrompt",
+		"LootPrompt",
+		"SkullPrompt",
+		"ValvePrompt"
+	},
+	["AutoLootNotInter"] = {
+		"LongPushPrompt",
+		"LeverPrompt",
+		"FusesPrompt",
+		"UnlockPrompt",
+		"AwesomePrompt",
+		"ModulePrompt",
+	}
 }
-_G.InteractionsLoot = "Interactions"
 Misc:Toggle({
     Title = "Auto Loot",
     Type = "Toggle",
@@ -1350,7 +1356,7 @@ if _G.AutoLoot then
 lootables = {}
 _G.Connectlootables = {}
 local function LootCheck(v)
-	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) then
+	if v:IsA("ProximityPrompt") and table.find(_G.Aura["AuraPrompt"], v.Name) then
 	    table.insert(lootables, v)
 	end
 end
@@ -1378,10 +1384,13 @@ _G.Connectlootables = {}
 end
 while _G.AutoLoot do
 for i, v in pairs(lootables) do
-	if v:IsA("ProximityPrompt") and table.find(_G.Aura, v.Name) and v.Enabled == true then
-		if _G.InteractionsLoot == "Interactions" and not v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) or _G.InteractionsLoot == "Not Interactions" then
-			if Distance(v.Parent:GetPivot().Position) <= 12 then
-				if v.Parent.Name ~= "Mandrake" then
+	if v:IsA("ProximityPrompt") and v.Enabled == true then
+		if Distance(v.Parent:GetPivot().Position) <= 12 then
+			if v.Parent.Name ~= "Mandrake" then
+				if table.find(_G.Aura["AutoLootNotInter"], v.Name) then
+					fireproximityprompt(v)
+				end
+				if table.find(_G.Aura["AutoLootInteractions"], v.Name) and not v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) then
 					fireproximityprompt(v)
 				end
 			end
@@ -1713,7 +1722,7 @@ end
 end
 else
 function Gens(v)
-if v.Name == "MinesGenerator" and v.PrimaryPart then
+if v.Name == "MinesGenerator" then
 if v:FindFirstChild("Esp_Highlight") then
 	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
@@ -1733,7 +1742,7 @@ end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
 	        (_G.EspName == true and "Generator" or "")..
-            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart)).."m)" or "")
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v:GetPivot().Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
@@ -1974,6 +1983,109 @@ for i, z in pairs(v:GetChildren()) do
 end
 end
 end
+end
+task.wait()
+end
+    end
+})
+
+Esp:Toggle({
+    Title = "Esp Chest",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspChest = Value
+if _G.EspChest == false then
+_G.EspChestAdd = {}
+if _G.ConnectChest then
+for i, v in pairs(_G.ConnectChest) do
+v:Disconnect()
+end
+end
+_G.ConnectChest = {}
+for _, v in pairs(workspace.CurrentRooms:GetDescendants()) do 
+if v:GetAttribute("Storage") == "ChestBox" or v.Name == "Toolshed_Small" then
+for i, z in pairs(v:GetChildren()) do
+if z.Name:find("Esp_") then
+z:Destroy()
+end
+end
+end
+end
+else
+function ChestBoxs(v)
+if v:GetAttribute("Storage") == "ChestBox" or v.Name == "Toolshed_Small" then
+if v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
+	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and v.Name:gsub("Box", ""):gsub("_Vine", ""):gsub("_Small", ""):gsub("Locked", "")..(v:GetAttribute("Locked") and " (Locked)" or "") or "")..
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v:GetPivot().Position)).."m)" or "")
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
+	GuiEsp = Instance.new("BillboardGui", v)
+	GuiEsp.Adornee = v
+	GuiEsp.Name = "Esp_Gui"
+	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiEsp.AlwaysOnTop = true
+	GuiEspText = Instance.new("TextLabel", GuiEsp)
+	GuiEspText.BackgroundTransparency = 1
+	GuiEspText.Font = Enum.Font.Code
+	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiEspText.TextSize = 15
+	GuiEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiEspText.TextStrokeTransparency = 0.5
+	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiEspText
+	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+	v:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
+local function CheckChest(v)
+    if not table.find(_G.EspChestAdd, v) and (v:GetAttribute("Storage") == "ChestBox" or v.Name == "Toolshed_Small") then
+        table.insert(_G.EspChestAdd, v)
+    end
+end
+for _, v in ipairs(workspace.CurrentRooms:GetDescendants()) do
+	CheckChest(v)
+end
+table.insert(_G.ConnectChest, workspace.CurrentRooms.DescendantAdded:Connect(function(v)
+    CheckChest(v)
+end))
+table.insert(_G.ConnectChest, workspace.CurrentRooms.DescendantRemoving:Connect(function(v)
+    for i = #_G.EspChestAdd, 1, -1 do
+        if _G.EspChestAdd[i] == v then
+            table.remove(_G.EspChestAdd, i)
+            break
+        end
+    end
+end))
+end
+while _G.EspChest do
+for i, v in pairs(_G.EspChestAdd) do
+ChestBoxs(v)
 end
 task.wait()
 end
@@ -2624,7 +2736,7 @@ if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
 end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
 	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and v.Name.." (Hide)" or "")..
+	        (_G.EspName == true and v.Name:gsub("Room_", ""):gsub("Backdoor_", ""):gsub("Locker_", "") or "")..
             (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.PrimaryPart.Position)).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
