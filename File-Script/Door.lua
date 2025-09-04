@@ -28,10 +28,10 @@ old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
 	local args = {...}
     local method = getnamecallmethod()
     if method == "FireServer" then
-	    if tostring(self) == "ClutchHeartbeat" and ClutchHeart == true then
+	    if self.Name == "ClutchHeartbeat" and ClutchHeart == true then
 	        return
 	    end
-	    if tostring(self) == "Crouch" and AutoUseCrouch == true then
+	    if self.Name == "Crouch" and AutoUseCrouch == true then
 	        args[1] = true
 	        return old(self,unpack(args))
 	    end
@@ -147,6 +147,7 @@ end
 ------ Script --------
 
 local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
 local PFS = game:GetService("PathfindingService")
 local EntityModules = game:GetService("ReplicatedStorage").ModulesClient.EntityModules
 gameData = game.ReplicatedStorage:WaitForChild("GameData")
@@ -302,6 +303,7 @@ win:Tag({
 })
 
 function Notification(notifyFu)
+if _G.ChooseNotify == "WindUI" then
 ui:Notify({
     Title = notifyFu.title or "",
     Content = notifyFu.content or "",
@@ -309,11 +311,84 @@ ui:Notify({
     Icon = ("rbxassetid://"..notifyFu.icon) or "",
     Background = ("rbxassetid://"..notifyFu.background) or "0"
 })
+elseif _G.ChooseNotify == "Roblox" then
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = notifyFu.title,
+	Text = notifyFu.content,
+	Icon = ("rbxassetid://"..notifyFu.icon) or "",
+	Duration = notifyFu.duration or 5
+})
+elseif _G.ChooseNotify == "Door" then
+NotifyDoor({
+    Title = notifyFu.title or "",
+    Description = notifyFu.content or "",
+    Time = notifyFu.duration or 5,
+    Image = ("rbxassetid://"..notifyFu.icon) or "",
+    SoundToggle = true,
+})
+end
+if _G.ChooseNotify ~= "Door" then
 local sound = Instance.new("Sound", workspace)
 sound.SoundId = "rbxassetid://4590662766"
 sound.Volume = 2
 sound.PlayOnRemove = true
 sound:Destroy()
+end
+end
+
+function NotifyDoor(Notify)
+if MainUi:FindFirstChild("AchievementsHolder") and MainUi.AchievementsHolder:FindFirstChild("Achievement") then
+local acheivement = MainUi.AchievementsHolder.Achievement:Clone()
+acheivement.Size = UDim2.new(0, 0, 0, 0)
+acheivement.Frame.Position = UDim2.new(1.1, 0, 0, 0)
+acheivement.Name = "LiveAchievement"
+acheivement.Visible = true
+acheivement.Frame.TextLabel.Text = Notify.NotificationType or "NOTIFICATION"
+
+if Notify.Color ~= nil then
+	acheivement.Frame.TextLabel.TextColor3 = Notify.Color
+	acheivement.Frame.UIStroke.Color = Notify.Color
+	acheivement.Frame.Glow.ImageColor3 = Notify.Color
+end
+
+acheivement.Frame.Details.Desc.Text = tostring(Notify.Description)
+acheivement.Frame.Details.Title.Text = tostring(Notify.Title)
+acheivement.Frame.Details.Reason.Text = tostring(Notify.Reason or "")
+
+if Notify.Image:match("rbxthumb://") or Notify.Image:match("rbxassetid://") then
+	acheivement.Frame.ImageLabel.Image = tostring(Notify.Image or "rbxassetid://0")
+else
+	acheivement.Frame.ImageLabel.Image = "rbxassetid://" .. tostring(Notify.Image or "0")
+end
+if Notify.Image ~= nil then acheivement.Frame.ImageLabel.BackgroundTransparency = 1 end
+acheivement.Parent = MainUi.AchievementsHolder
+acheivement.Sound.SoundId = "rbxassetid://10469938989"
+acheivement.Sound.Volume = 1
+if Notify.SoundToggle then
+	acheivement.Sound:Play()
+end
+
+task.spawn(function()
+	acheivement:TweenSize(UDim2.new(1, 0, 0.2, 0), "In", "Quad", 0.8, true)
+	task.wait(0.8)
+	acheivement.Frame:TweenPosition(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.5, true)
+	TweenService:Create(acheivement.Frame.Glow, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In),{ImageTransparency = 1}):Play()
+	if Notify.Time ~= nil then
+        if typeof(Notify.Time) == "number" then
+            task.wait(Notify.Time)
+        elseif typeof(Notify.Time) == "Instance" then
+            Notify.Time.Destroying:Wait()
+        end
+    else
+        task.wait(5)
+    end
+	acheivement.Frame:TweenPosition(UDim2.new(1.1, 0, 0, 0), "In", "Quad", 0.5, true)
+	task.wait(0.5)
+	acheivement:TweenSize(UDim2.new(1, 0, -0.1, 0), "InOut", "Quad", 0.5, true)
+	task.wait(0.5)
+	acheivement:Destroy()
+end)
+end
 end
 
 --// Floder Path \\--
@@ -844,6 +919,48 @@ end
 })
 end
 
+if isHotel then
+Main:Toggle({
+    Title = "Anti Seek Obstruction",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.AntiSeekOb = Value
+if _G.AntiSeekOb then
+local function SeekObstruction(v)
+	if v.Name == "ChandelierObstruction" or v.Name == "Seek_Arm" then
+        for b, h in pairs(v:GetDescendants()) do
+            if h:IsA("BasePart") then 
+				h.CanTouch = false
+			end
+        end
+    end
+end
+for _, v in ipairs(workspace.CurrentRooms:GetDescendants()) do
+        SeekObstruction(v)
+end
+AntiSeekObstruction = workspace.CurrentRooms.DescendantAdded:Connect(function(v)
+        SeekObstruction(v)
+end)
+else
+if AntiSeekObstruction then
+AntiSeekObstruction:Disconnect()
+AntiSeekObstruction = nil
+end
+for _, v in ipairs(workspace.CurrentRooms:GetDescendants()) do
+	if v.Name == "ChandelierObstruction" or v.Name == "Seek_Arm" then
+        for b, h in pairs(v:GetDescendants()) do
+            if h:IsA("BasePart") then 
+				h.CanTouch = true
+			end
+        end
+    end
+end
+end
+    end
+})
+end
+
 Main:Toggle({
     Title = "Auto Use Crouch",
     Type = "Toggle",
@@ -945,18 +1062,18 @@ if _G.NotifyEntity then
 					child.AncestryChanged:Connect(function()
 					  if not child.Parent then
 						if _G.GoodbyeBro then
-						    Notification({title = "Arona", content = "Goodbye "..v.."!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
+						    Notification({title = "Arona", content = "Entity: Goodbye "..v.."!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
 			                if _G.NotifyEntityChat then
-			                    local text = _G.ChatNotifyGoodBye or ""
-			                    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(text.." Goodbye "..v.."!!")
+			                    local text = _G.ChatNotifyGoodBye or "Goodbye "
+			                    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(text..v)
 			                end
 						end
 					  end
 					end)
-                    Notification({title = "Arona", content = v.." Spawn!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
+                    Notification({title = "Arona", content = "Entity: "..v.." Spawn!!", duration = 5, icon = "82357489459031", background = "119839538905938"})
                     if _G.NotifyEntityChat then
-                        local text = _G.ChatNotify or ""
-                        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(text..v.." Spawn!!")
+                        local text = _G.ChatNotify or " Spawn!!"
+                        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(v..text)
                     end
                 end
             end
@@ -973,7 +1090,7 @@ end
 
 Misc:Input({
     Title = "Input Chat GoodBye",
-    Value = "",
+    Value = "Goodbye ",
     InputIcon = "speaker",
     Type = "Input",
     Placeholder = "Your Chat GoodBye...",
@@ -1077,7 +1194,7 @@ end
 while _G.MinesAnchorOh do
 if MainUi:FindFirstChild("AnchorHintFrame") and MainUi.AnchorHintFrame:FindFirstChild("Code") then
 for i, v in pairs(_G.MinesAnchorOhTablet) do
-if v.Name == "MinesAnchor" and v:FindFirstChild("AnchorRemote") and Distance(v:GetPivot().Position) <= 10 then
+if v.Name == "MinesAnchor" and v:FindFirstChild("AnchorRemote") and Distance(v:GetPivot().Position) <= 15 then
 v.AnchorRemote:InvokeServer(MainUi.AnchorHintFrame.Code.Text)
 end
 end
@@ -1281,7 +1398,7 @@ spawn(function() while _G.AutoRoom do getHide(); _G.SpeedWalk = false; task.wait
 while _G.AutoRoom do 
 	game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 21.5
 	Destination = getPathRooms()
-	path = PFS:CreatePath({WaypointSpacing = 0.25, AgentRadius = 0.1, AgentCanJump = false})
+	path = PFS:CreatePath({WaypointSpacing = 0.25, AgentRadius = 1.55, AgentCanJump = false})
 	path:ComputeAsync(game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 2.5, 0), Destination.Position)
 	if path and path.Status == Enum.PathStatus.Success then
 		local Waypoints = path:GetWaypoints()
@@ -1470,7 +1587,12 @@ game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (game.Players.LocalPlaye
 end
 elseif _G.WalkSpeedChose == "Vitamin" then
 if game.Players.LocalPlayer.Character then
+if not game.Players.LocalPlayer.Character:GetAttribute("Climbing") then
 game.Players.LocalPlayer.Character:SetAttribute("SpeedBoost", _G.VitaminSpeed)
+else
+game.Players.LocalPlayer.Character:SetAttribute("SpeedBoost", 0)
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.LadderSpeed or 30
+end
 end
 end
 task.wait()
@@ -1901,6 +2023,110 @@ for i, v in pairs(_G.EspAnchorMinesAdd) do
 if v:IsA("Model") then
 MinesAnchors(v)
 end
+end
+task.wait()
+end
+    end
+})
+
+Esp:Toggle({
+    Title = "Esp Pumps",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(Value)
+_G.EspPumps = Value
+if _G.EspPumps == false then
+_G.EspPumpsAdd = {}
+if _G.ConnectPumpsAdd then
+for i, v in pairs(_G.ConnectPumpsAdd) do
+v:Disconnect()
+end
+end
+_G.ConnectPumpsAdd = {}
+for _, v in pairs(workspace:GetDescendants()) do 
+if v.Name == "WaterPump" then
+for i, z in pairs(v:GetChildren()) do
+if z.Name:find("Esp_") then
+z:Destroy()
+end
+end
+end
+end
+else
+function Pump(v)
+if v.Name == "WaterPump" and v:FindFirstChild("Wheel") then
+if v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+end
+if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
+	local Highlight = Instance.new("Highlight")
+	Highlight.Name = "Esp_Highlight"
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.Adornee = v
+	Highlight.Parent = v
+	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+	v:FindFirstChild("Esp_Highlight"):Destroy()
+end
+if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
+	if v:FindFirstChil("ScreenUI") and v.ScreenUI:FindFirstChild("OnFrame") and v.ScreenUI.OnFrame.Visible then PumpsOnOff = "ON" elseif v:FindFirstChil("ScreenUI") and v.ScreenUI:FindFirstChild("OffFrame") and v.ScreenUI.OffFrame.Visible then PumpsOnOff = "OFF" end
+	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+	        (_G.EspName == true and "Pumps ("..(PumpsOnOff or "Nah")..")" or "")..
+            (_G.EspDistance == true and "\n("..string.format("%.0f", Distance(v.Wheel.Position)).."m)" or "")
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
+    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
+end
+if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
+	GuiEsp = Instance.new("BillboardGui", v)
+	GuiEsp.Adornee = v
+	GuiEsp.Name = "Esp_Gui"
+	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+	GuiEsp.AlwaysOnTop = true
+	GuiEspText = Instance.new("TextLabel", GuiEsp)
+	GuiEspText.BackgroundTransparency = 1
+	GuiEspText.Font = Enum.Font.Code
+	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+	GuiEspText.TextSize = 15
+	GuiEspText.TextColor3 = Color3.new(0,0,0) 
+	GuiEspText.TextStrokeTransparency = 0.5
+	GuiEspText.Text = ""
+	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+	GuiEspTextSizeConstraint.MaxTextSize = 35
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.new(0, 0, 0)
+	UIStroke.Thickness = 1.5
+	UIStroke.Parent = GuiEspText
+	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+	v:FindFirstChild("Esp_Gui"):Destroy()
+end
+end
+end
+local function CheckPumps(v)
+    if not table.find(_G.EspPumpsAdd, v) and v.Name == "WaterPump" then
+        table.insert(_G.EspPumpsAdd, v)
+    end
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	CheckPumps(v)
+end
+table.insert(_G.ConnectPumpsAdd, workspace.DescendantAdded:Connect(function(v)
+    CheckPumps(v)
+end))
+table.insert(_G.ConnectPumpsAdd, workspace.DescendantRemoving:Connect(function(v)
+    for i = #_G.EspPumpsAdd, 1, -1 do
+        if _G.EspPumpsAdd[i] == v then
+            table.remove(_G.EspPumpsAdd, i)
+            break
+        end
+    end
+end))
+end
+while _G.EspPumps do
+for i, v in pairs(_G.EspPumpsAdd) do
+	Pump(v)
 end
 task.wait()
 end
@@ -3113,6 +3339,16 @@ local CustomBackground = settings:Input({
     _G.BackgroundImage = "rbxassetid://" ..input
         win:SetBackgroundImage(_G.BackgroundImage)
         end
+    end
+})
+
+_G.ChooseNotify = "Door"
+local NotifyYeap = settings:Dropdown({
+    Title = "Choose Notify",
+    Values = {"Door", "WindUI", "Roblox"},
+    Value = "Door",
+    Callback = function(Value)
+_G.ChooseNotify = Value
     end
 })
 
