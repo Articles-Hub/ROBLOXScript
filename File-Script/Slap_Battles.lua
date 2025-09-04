@@ -2,6 +2,10 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
+local Loading = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("LoadingIndicator", true)
+if Loading and Loading.Visible then
+repeat task.wait() until Loading and Loading.Visible == false
+end
 if LoadingScriptSlap then return end
 LoadingScriptSlap = true
 function TweenTp(Part, CFnew, Body, Speed)
@@ -114,7 +118,7 @@ if game.ReplicatedStorage:FindFirstChild("WalkSpeedChanged") then
 	game.ReplicatedStorage.WalkSpeedChanged:Destroy()
 end
 
----Potion---
+--- Potion ---
 
 _G.GetPotion = {
       ["Grug"] = {"Mushroom"},
@@ -138,7 +142,7 @@ _G.GetPotion = {
       ["Lost"] = {"Blue Crystal","Elder Wood","Elder Wood","Elder Wood","Red Crystal"}
 }
 
----GetSome---
+--- Script ---
 
 function CheckUnlockGlove(Value)
 	return game.Players.LocalPlayer:FindFirstChild("_unlockedGloves") and game.Players.LocalPlayer._unlockedGloves:FindFirstChild(Value)
@@ -554,14 +558,6 @@ VoidPart.Anchored = true
 VoidPart.Transparency = 1
 VoidPart.CanCollide = false
 
-local VoidPart1 = Instance.new("Part", VoidPart)
-VoidPart1.Position = Vector3.new(0,-50026.5,0)
-VoidPart1.Name = "VoidPart1"
-VoidPart1.Size = Vector3.new(2048,70,2048)
-VoidPart1.Anchored = true
-VoidPart1.Transparency = 1
-VoidPart1.CanCollide = false
-
 local TournamentAntiVoid = Instance.new("Part", VoidPart)
 TournamentAntiVoid.Name = "TAntiVoid"
 TournamentAntiVoid.Size = Vector3.new(2048, 15, 2048)
@@ -571,24 +567,19 @@ TournamentAntiVoid.Transparency = 1
 TournamentAntiVoid.CanCollide = false
 end
 elseif game.PlaceId == 9431156611 then
-if hookmetamethod and getnamecallmethod then
-local bypass;
-     bypass = hookmetamethod(game, "__namecall", function(method, ...) 
-         if getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.Events.Ban then
-             return
-         elseif getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.Events.AdminGUI then
-             return
-         elseif getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.Events.WS then
-             return
-          elseif getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.Events.WS2 then
-            return
-       end
-          return bypass(method, ...)
-     end)
-game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Bypass Success ",Icon = "rbxassetid://7733658504",Duration = _G.TimeNotify})
-elseif not hookmetamethod and not getnamecallmethod then
-game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "You cannot bypass, you must be careful",Icon = "rbxassetid://7733658504",Duration = _G.TimeNotify})
-end
+	local Events = game.ReplicatedStorage.Events
+	if Events:FindFirstChild("Ban") then
+		Events:FindFirstChild("Ban"):Destroy()
+	end
+	if Events:FindFirstChild("AdminGUI") then
+		Events:FindFirstChild("AdminGUI"):Destroy()
+	end
+	if Events:FindFirstChild("WS") then
+		Events:FindFirstChild("WS"):Destroy()
+	end
+	if Events:FindFirstChild("WS2") then
+		Events:FindFirstChild("WS2"):Destroy()
+	end
 end
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/Test.lua"))()
@@ -3503,6 +3494,96 @@ end
 })
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
+
+Badge3Group:AddDropdown("Bonk Mastery", {
+    Text = "BONK Mastery",
+    Values = {"BONK Player", "BONK + Slap"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.BonkMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Bonk Mastery", {
+    Text = "Auto BONK Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoBonkMastery = Value
+if not _G.AutoBonkMastery then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
+	end
+end
+if CheckGlove() == "BONK" then
+while _G.AutoBonkMastery do
+if _G.BonkMastery:match("BONK") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.5)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.leaderstats.Slaps.Value >= 666 then
+	fireclickdetector(workspace.Lobby.Ghost.ClickDetector)
+	game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
+	fireclickdetector(workspace.Lobby["BONK"].ClickDetector)
+	task.wait(1)
+	for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+		if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+			v.Transparency = 0
+		end
+	end
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.35)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(6.5)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		table.insert(players, v)
+	end
+end
+if #players ~= 0 then
+	local RandomPlayer = players[math.random(#players)]
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
+		local bv = Instance.new("BodyVelocity")
+		bv.Name = "FreezeBV"
+		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+		bv.MaxForce = Vector3.new(100000, 100000, 100000)
+		bv.Velocity = Vector3.new(0, 0, 0)
+	end
+	game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+	repeat task.wait() until _G.AutoVoodooMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+	task.wait(0.25)
+	game:GetService("ReplicatedStorage"):WaitForChild("BONK"):FireServer()
+	if _G.BonkMastery == "BONK + Slap" then
+		wait(0.2)
+		for i = 1, 3 do
+			gloveHits["All"]:FireServer(RandomPlayer.Character:FindFirstChild("Head"))
+			wait(0.2)
+		end
+	end
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+	wait(0.4)
+	game:GetService("Players").LocalPlayer.Reset:FireServer()
+	wait(0.3)
+	repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+end
+end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have BONK equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Bonk Mastery"]:SetValue(false)
+end
+    end
+})
 
 Badge3Group:AddDropdown("Voodoo Mastery", {
     Text = "Voodoo Mastery",
