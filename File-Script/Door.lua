@@ -990,7 +990,7 @@ _G.FakeDoor = Value
 if _G.FakeDoor then
 local function CheckFake(v)
 	if v.Name == "DoorFake" then
-		local CollisionFake = v.Parent:FindFirstChild("Collision")
+		local CollisionFake = v:FindFirstChild("Collision")
 		local Prompt = v:FindFirstChild("UnlockPrompt", true)
 		if CollisionFake then
 			CollisionFake.CanTouch = false
