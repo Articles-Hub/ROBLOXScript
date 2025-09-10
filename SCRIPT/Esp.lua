@@ -20,12 +20,13 @@ local function Tracer()
 	return line
 end
 
-local function Highlight(Name)
+local function HighlightEsp(Name)
 	local Highlight = Instance.new("Highlight")
 	Highlight.FillTransparency = _G.Setting.FillTransparency
 	Highlight.OutlineTransparency = _G.Setting.OutlineTransparency
 	Highlight.OutlineColor = _G.Setting.OutlineColor
 	Highlight.Enabled = false
+	Highlight.Name = Name
 	return Highlight
 end
 
@@ -83,16 +84,15 @@ function ESP:Add(Esp)
 	Esp.Model = Esp.Model or nil
 	Esp.Part = Esp.Part or Esp.Model or nil
 	Esp.Color = Esp.Color or Color3.fromRGB(255, 0, 0)
-	Esp.DisplayName = Esp.DisplayName or "Esp_Gui"
 	Esp.Text = Esp.Text or ""
 	
 	if tracked[Esp.Model] then return end
 	
-	local Highlight = Highlight()
+	local Highlight = HighlightEsp("Esp_Light")
 	Highlight.Adornee = Esp.Part
 	Highlight.Parent = Esp.Model
 
-	local Billboard = Billboard(Esp.DisplayName)
+	local Billboard = Billboard("Esp_Gui")
 	Billboard.Adornee = Esp.Part
 	Billboard.Parent = Esp.Model
 	Billboard.Text = Esp.Text
