@@ -9,7 +9,6 @@ _G.Setting = {
 	Tracers = true,
 	FillTransparency = 0.5,
 	OutlineTransparency = 0,
-	OutlineColor = Color3.fromRGB(255, 255, 255),
 	DistanceCheck = false
 }
 
@@ -89,7 +88,6 @@ function ESP:Add(Esp)
 	if tracked[Esp.Model] then return end
 	
 	local Highlight = Highlight()
-	Highlight.FillColor = Esp.Color or Color3.fromRGB(255, 0, 0)
 	Highlight.Adornee = Esp.Part
 	Highlight.Parent = Esp.Model
 
@@ -124,6 +122,32 @@ function ESP:Clear()
 	end
 end
 
+function ESP:Update(Gui)
+	Gui.Text = Gui.Text or ""
+	Gui.Color = Gui.Color or Color3.new(0,0,0) 
+	
+	local v = tracked[model]
+	if v then
+		if v.highlight then
+			if not _G.Setting.Rainbow then
+				v.highlight.OutlineColor = Gui.Color
+				v.highlight.FillColor = Gui.Color
+			end
+		end
+		if v.tracer then
+			if not _G.Setting.Rainbow then
+				v.tracer.Color = Gui.Color
+			end
+		end
+		if v.billboard:FindFirstChild("TextLabel") then
+			v.billboard.TextLabel.Text = Gui.Text
+			if _G.Setting.Rainbow then
+				v.billboard.TextLabel.TextColor3 = Gui.Color
+			end
+		end
+	end
+end
+
 RunService.RenderStepped:Connect(function()
 	local viewportSize = Camera.ViewportSize
 	for i, v in pairs(tracked) do
@@ -132,7 +156,6 @@ RunService.RenderStepped:Connect(function()
 			ESP:Remove(i)
 			continue
 		end
-
 		local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)		
 		local fullyVisible = onScreen and
 			screenPos.Z > 0 and
@@ -146,15 +169,6 @@ RunService.RenderStepped:Connect(function()
 			if v.tracer.Visible then
 				v.tracer.From = Vector2.new(viewportSize.X / 2, viewportSize.Y)
 				v.tracer.To = Vector2.new(screenPos.X, screenPos.Y)
-			end
-		end
-
-		if fullyVisible and _G.Setting.DistanceCheck and v.billboard:FindFirstChild("TextLabel") then
-			local dist = (Camera.CFrame.Position - part.Position).Magnitude
-			v.billboard.TextLabel.Text = "\n[" .. math.floor(dist) .. "]"
-		else
-			if v.billboard:FindFirstChild("TextLabel") then
-				v.billboard.TextLabel.Text = ""
 			end
 		end
 
