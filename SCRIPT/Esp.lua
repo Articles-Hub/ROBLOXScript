@@ -83,7 +83,8 @@ function ESP:Add(Esp)
 	Esp.Model = Esp.Model or nil
 	Esp.Part = Esp.Part or Esp.Model or nil
 	Esp.Color = Esp.Color or Color3.fromRGB(255, 0, 0)
-	Esp.DisplayName = Esp.DisplayName or Esp.Model.Name
+	Esp.DisplayName = Esp.DisplayName or "Esp_Gui"
+	Esp.Text = Esp.Text or ""
 	
 	if tracked[Esp.Model] then return end
 	
@@ -94,6 +95,7 @@ function ESP:Add(Esp)
 	local Billboard = Billboard(Esp.DisplayName)
 	Billboard.Adornee = Esp.Part
 	Billboard.Parent = Esp.Model
+	Billboard.Text = Esp.Text
 
 	local tracer = createTracer()
 
