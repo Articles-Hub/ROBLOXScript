@@ -1604,10 +1604,6 @@ if MoveConnection then MoveConnection:Disconnect(); MoveConnection = nil end
     end
 })
 end
--- workspace.CurrentRooms["43"].Assets.Paintings.Slots:GetChildren()[Slot].Prop
--- workspace.CurrentRooms["43"].Assets.Paintings.Slots:GetChildren()[Slot]
--- Hint
- --- workspace.CurrentRooms["57"].JeffShop_Hotel.PurchasableItem1.SkeletonKey.ModulePrompt
 
 _G.Aura = {
 	["AuraPrompt"] = {
