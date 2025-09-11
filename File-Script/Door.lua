@@ -7,6 +7,7 @@ local TweenService = game:GetService("TweenService")
 local PFS = game:GetService("PathfindingService")
 local Storage = game:GetService("ReplicatedStorage")
 local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
 
 local player = game.Players.LocalPlayer
 local playergui = player:WaitForChild("PlayerGui")
@@ -55,6 +56,11 @@ end
 function Distance(pos)
 	if root then
 		return (root.Position - pos).Magnitude
+	end
+end
+function Distance2(pos)
+	if root then
+		return (pos - root.Position).Magnitude
 	end
 end
 
@@ -276,6 +282,8 @@ if isRoom then
 	end
 end
 
+Toggles = {}
+
 ---- UiLib ----
 
 local ui = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
@@ -291,8 +299,8 @@ local win = ui:CreateWindow({
     SideBarWidth = 200,
     Background = "rbxassetid://0",
     BackgroundImageTransparency = 0.42,
-    HideSearchBar = true,
-    ScrollBarEnabled = false,
+    HideSearchBar = false,
+    ScrollBarEnabled = true,
     User = {
         Enabled = true,
         Anonymous = true
@@ -302,8 +310,8 @@ local win = ui:CreateWindow({
 win:EditOpenButton({
     Title = "Nihahaha Hub",
     Icon = "rbxassetid://134430677550422",
-    CornerRadius = UDim.new(2,0),
-    StrokeThickness = 2.0,
+    CornerRadius = UDim.new(0, 0.6),
+    StrokeThickness = 2.5,
     Color = ColorSequence.new(
         Color3.fromHex("#FF00B0"), 
         Color3.fromHex("#DBCCD5")
@@ -990,7 +998,7 @@ _G.FakeDoor = Value
 if _G.FakeDoor then
 local function CheckFake(v)
 	if v.Name == "DoorFake" then
-		local CollisionFake = v:FindFirstChild("Collision")
+		local CollisionFake = v:FindFirstChild("Hidden", true)
 		local Prompt = v:FindFirstChild("UnlockPrompt", true)
 		if CollisionFake then
 			CollisionFake.CanTouch = false
@@ -1013,7 +1021,7 @@ AntiFake = nil
 end
 for _, v in ipairs(workspace:GetDescendants()) do
 	if v.Name == "DoorFake" then
-		local CollisionFake = v:FindFirstChild("Collision", true)
+		local CollisionFake = v:FindFirstChild("Hidden", true)
 		if CollisionFake then
 			CollisionFake.CanTouch = true
 		end
@@ -1401,6 +1409,15 @@ end
 end
 _G.ConnectClo = {}
 else
+function EntityFond()
+	for i, v in pairs(workspace:GetChildren()) do
+		for j, b in pairs(_G.ClosetEntity) do
+			if v.Name == j and v.PrimaryPart then
+				return v
+			end
+		end
+	end
+end
 local function CheckCl(v)
     if not table.find(_G.ClosetE, v) and v:IsA("ObjectValue") and v.Name == "HiddenPlayer" then
         table.insert(_G.ClosetE, v.Parent)
@@ -1422,32 +1439,20 @@ table.insert(_G.ConnectClo, workspace.DescendantRemoving:Connect(function(v)
 end))
 end
 while _G.AutoCloset do
-local EntityCl
-for i, v in pairs(workspace:GetChildren()) do
-	for j, b in pairs(_G.ClosetEntity) do
-		if v.Name == j and v.PrimaryPart then
-			EntityCl = v
-		end
-	end
-end
-if not EntityCl or (EntityCl.PrimaryPart and EntityCl.PrimaryPart.Position.Y < -3.8) then
-	if char:GetAttribute("Hiding") then
-		task.wait(1.4)
-		Storage:WaitForChild("RemotesFolder"):WaitForChild("CamLock"):FireServer()
-	end
-end
+local EntityCl = EntityFond()
 if EntityCl and EntityCl.PrimaryPart then
-	local distance = Distance(EntityCl.PrimaryPart.Position)
 	local distanceCloset = _G.ClosetEntity[EntityCl.Name]
+	local distance = Distance2(EntityCl.PrimaryPart.Position)
 	if distanceCloset and distance then
 		if distance <= distanceCloset then
 			if not char:GetAttribute("Hiding") then
 				for i, v in pairs(_G.ClosetE) do
-					if v:FindFirstChildWhichIsA("BasePart") and Distance(v:FindFirstChildWhichIsA("BasePart").Position) <= 20 then
-						local Pro = v:FindFirstChild("HidePrompt", true)
-						if Pro then
-							fireproximityprompt(Pro)
-							task.wait(0.5)
+					if v:FindFirstChildWhichIsA("BasePart") and v:FindFirstChild("Main") and not v.Main:FindFirstChild("HideEntityOnSpot") then
+						if Distance2(v:FindFirstChildWhichIsA("BasePart").Position) <= 20 then
+							local Pro = v:FindFirstChild("HidePrompt", true)
+							if Pro then
+								fireproximityprompt(Pro)
+							end
 						end
 					end
 				end
@@ -1481,6 +1486,8 @@ Misc:Toggle({
     Callback = function(Value)
 _G.AutoRoom = Value
 if _G.AutoRoom then
+	PathfindNumber = 0
+	BlockWaypointIdx = 1
 	if MainUi:FindFirstChild("Initiator") and MainUi.Initiator:FindFirstChild("Main_Game") and MainUi.Initiator.Main_Game:FindFirstChild("RemoteListener") and MainUi.Initiator.Main_Game.RemoteListener:FindFirstChild("Modules") then
 		local A90Script = MainUi.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
 		if A90Script then
@@ -1505,6 +1512,44 @@ if _G.AutoRoom then
 	        end
 	    end
 		return LockerRooms
+	end
+	function Pathfind(v)
+		spawn(function()
+			local path = PFS:CreatePath({WaypointSpacing = 0.6, AgentRadius = 1.56, AgentCanJump = false})
+			path:ComputeAsync(root.Position - Vector3.new(0, 2.5, 0), v.Position)
+			if path and path.Status == Enum.PathStatus.Success then
+				local Waypoints = path:GetWaypoints()
+				PathfindNumber += 1
+				local ThisPathNumber = PathfindNumber
+				local WaypointIndex = 2
+				local MoveConnection
+				workspace:FindFirstChild("PathFindPartsFolder"):ClearAllChildren()
+			    for _, Waypoint in pairs(Waypoints) do
+			        local part = Instance.new("Part")
+			        part.Size = Vector3.new(1, 1, 1)
+			        part.Position = Waypoint.Position
+			        part.Shape = "Cylinder"
+			        part.Material = "SmoothPlastic"
+					part.Shape = Enum.PartType.Ball
+			        part.Anchored = true
+			        part.CanCollide = false
+			        part.Parent = workspace:FindFirstChild("PathFindPartsFolder")
+			    end
+				MoveConnection = RunService.PreRender:Connect(function()
+					if ThisPathNumber ~= PathfindNumber then MoveConnection:Disconnect() return end
+					local Waypoint = Waypoints[WaypointIndex] or Waypoints[#Waypoints]
+					local Waypoint2D = Waypoint.Position * Vector3.new(1, 0, 1)
+					local Current2D = root.Position * Vector3.new(1, 0, 1)
+					if (Waypoint2D - Current2D).Magnitude <= 2.7 then
+						WaypointIndex += 1
+					else
+						if not char:GetAttribute("Hiding") then
+				            char.Humanoid:MoveTo(Waypoint.Position)
+				        end
+					end
+				end)
+			end
+		end)
 	end
 	function getPathRooms()
 	    local Part
@@ -1540,49 +1585,29 @@ end
 spawn(function() 
 while _G.AutoRoom do 
 	getHide()
-	_G.SpeedWalk = false
-	_G.BypassSpeed = false
-	if char:FindFirstChild("Humanoid") then
-		char.Humanoid.WalkSpeed = 21.5
-	end
-	if char:FindFirstChild("CloneCollisionPart1") then
-		char:FindFirstChild("CloneCollisionPart1"):Destroy()
-	end
-	if char:FindFirstChild("CloneCollisionPart2") then
-		char:FindFirstChild("CloneCollisionPart2"):Destroy()
+	if not _G.SpeedWalk and not _G.BypassSpeed then
+		if char:FindFirstChild("Humanoid") then
+			char.Humanoid.WalkSpeed = 21.5
+		end
 	end
 	task.wait() 
 end 
 end)
 while _G.AutoRoom do 
 	Destination = getPathRooms()
-	local path = PFS:CreatePath({WaypointSpacing = 0.25, AgentRadius = 1.55, AgentCanJump = false})
-	path:ComputeAsync(root.Position - Vector3.new(0, 2.5, 0), Destination.Position)
-	if path and path.Status == Enum.PathStatus.Success then
-		local Waypoints = path:GetWaypoints()
-	    workspace:FindFirstChild("PathFindPartsFolder"):ClearAllChildren()
-	    for _, Waypoint in pairs(Waypoints) do
-	        local part = Instance.new("Part")
-	        part.Size = Vector3.new(0.5, 0.5, 0.5)
-	        part.Position = Waypoint.Position
-	        part.Shape = "Cylinder"
-	        part.Material = "SmoothPlastic"
-			part.Shape = Enum.PartType.Ball
-	        part.Anchored = true
-	        part.CanCollide = false
-	        part.Parent = workspace:FindFirstChild("PathFindPartsFolder")
-	    end
-		for _, Waypoint in pairs(Waypoints) do
-	        if not char:GetAttribute("Hiding") then
-	            char.Humanoid:MoveTo(Waypoint.Position)
-	            char.Humanoid.MoveToFinished:Wait()
-	        end
-	    end
-	end
+	Pathfind(Destination)
+	repeat task.wait() until Distance(Destination.Position) >= 8
+	task.wait(0.2)
 end
+if PathfindNumber then PathfindNumber += -1 end
+if MoveConnection then MoveConnection:Disconnect(); MoveConnection = nil end
     end
 })
 end
+-- workspace.CurrentRooms["43"].Assets.Paintings.Slots:GetChildren()[Slot].Prop
+-- workspace.CurrentRooms["43"].Assets.Paintings.Slots:GetChildren()[Slot]
+-- Hint
+ --- workspace.CurrentRooms["57"].JeffShop_Hotel.PurchasableItem1.SkeletonKey.ModulePrompt
 
 _G.Aura = {
 	["AuraPrompt"] = {
@@ -1596,7 +1621,8 @@ _G.Aura = {
 		"FusesPrompt",
 		"UnlockPrompt",
 		"AwesomePrompt",
-		"ModulePrompt"
+		"ModulePrompt",
+		"PropPrompt"
 	},
 	["AutoLootInteractions"] = {
 		"ActivateEventPrompt",
@@ -1612,6 +1638,7 @@ _G.Aura = {
 		"UnlockPrompt",
 		"AwesomePrompt",
 		"ModulePrompt",
+		"PropPrompt"
 	}
 }
 Misc:Toggle({
@@ -1654,18 +1681,30 @@ while _G.AutoLoot do
 for i, v in pairs(lootables) do
 	if v:IsA("ProximityPrompt") and v.Enabled == true then
 		if Distance(v.Parent:GetPivot().Position) <= 12 then
-			if v.Parent.Name ~= "Mandrake" then
-				if table.find(_G.Aura["AutoLootNotInter"], v.Name) then
+			if table.find(_G.Aura["AutoLootNotInter"], v.Name) then
+				if v.Parent.Name ~= "Slot" then
 					fireproximityprompt(v)
 				end
-				if table.find(_G.Aura["AutoLootInteractions"], v.Name) and not v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) then
-					fireproximityprompt(v)
+				if v.Parent.Name == "Slot" and v.Parent:GetAttribute("Hint") then
+					local prop = v.Parent:FindFirstChild("Prop")
+					local currentHint = (char:FindFirstChild("Prop") and char.Prop:GetAttribute("Hint"))
+	                local Hint = (prop and prop:GetAttribute("Hint"))
+	                local PromptHint = v.Parent:GetAttribute("Hint")
+					if currentHint and slotHint and promptHint and prop then
+						if Hint ~= PromptHint and (currentHint == PromptHint or prop) then
+							fireproximityprompt(v)
+							task.wait(0.3)
+						end
+					end
 				end
+			end
+			if table.find(_G.Aura["AutoLootInteractions"], v.Name) and not v:GetAttribute("Interactions"..game.Players.LocalPlayer.Name) then
+				fireproximityprompt(v)
 			end
 		end
 	end
 end
-task.wait(0.03)
+task.wait()
 end
     end
 })
@@ -1703,7 +1742,7 @@ Misc:Slider({
     Step = 0.1,
     Value = {
         Min = 1,
-        Max = 7,
+        Max = 20,
         Default = 0.6,
     },
     Callback = function(Value)
@@ -1731,24 +1770,7 @@ Misc:Toggle({
     Default = false,
     Callback = function(Value)
 _G.BypassSpeed = Value
-if _G.BypassSpeed then
-	if char:FindFirstChild("CollisionPart") then
-		if not char:FindFirstChild("CloneCollisionPart1") then
-			local ClonedCollision = char.CollisionPart:Clone()
-			ClonedCollision.Parent = char
-			ClonedCollision.Name = "CloneCollisionPart1"
-			ClonedCollision.Massless = true
-			ClonedCollision.CanCollide = false
-		end
-		if not char:FindFirstChild("CloneCollisionPart2") then
-			local ClonedCollision = char.CollisionPart:Clone()
-			ClonedCollision.Parent = char
-			ClonedCollision.Name = "CloneCollisionPart2"
-			ClonedCollision.Massless = true
-			ClonedCollision.CanCollide = false
-		end
-	end
-else
+if not _G.BypassSpeed then
 	if char:FindFirstChild("CloneCollisionPart1") then
 		char:FindFirstChild("CloneCollisionPart1"):Destroy()
 	end
@@ -1757,10 +1779,28 @@ else
 	end
 end
 while _G.BypassSpeed do
+if char:FindFirstChild("CollisionPart") then
+	if not char:FindFirstChild("CloneCollisionPart1") then
+		local ClonedCollision = char.CollisionPart:Clone()
+		ClonedCollision.Parent = char
+		ClonedCollision.Name = "CloneCollisionPart1"
+		ClonedCollision.Massless = true
+		ClonedCollision.CanCollide = false
+	end
+	if not char:FindFirstChild("CloneCollisionPart2") then
+		local ClonedCollision = char.CollisionPart:Clone()
+		ClonedCollision.Parent = char
+		ClonedCollision.Name = "CloneCollisionPart2"
+		ClonedCollision.Massless = true
+		ClonedCollision.CanCollide = false
+	end
+end
 if char:FindFirstChild("HumanoidRootPart") then
 	local CloneColl = char:FindFirstChild("CloneCollisionPart1")
 	local CloneColl2 = char:FindFirstChild("CloneCollisionPart2")
 	if CloneColl and CloneColl2 then
+		CloneColl.Anchored = false
+		CloneColl2.Anchored = false
 		if root.Anchored or _G.AntiCheatBruh then
 			CloneColl.Massless = true
 			CloneColl2.Massless = true
@@ -1834,50 +1874,50 @@ else
 function Keys(v)
 if ((v.Name:find("Key") or v.Name:find("FuseObtain")) and v:FindFirstChild("Hitbox")) or (v.Name == "LeverForGate" and v.PrimaryPart) then
 if v:FindFirstChild("Esp_Highlight") then
-	v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
-	v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+    v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+    v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
 end
 if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
-	local Highlight = Instance.new("Highlight")
-	Highlight.Name = "Esp_Highlight"
-	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
-	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
-	Highlight.FillTransparency = 0.5
-	Highlight.OutlineTransparency = 0
-	Highlight.Adornee = v
-	Highlight.Parent = v
-	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
-	v:FindFirstChild("Esp_Highlight"):Destroy()
+    local Highlight = Instance.new("Highlight")
+    Highlight.Name = "Esp_Highlight"
+    Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
+    Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
+    Highlight.FillTransparency = 0.5
+    Highlight.OutlineTransparency = 0
+    Highlight.Adornee = v
+    Highlight.Parent = v
+    elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
+    v:FindFirstChild("Esp_Highlight"):Destroy()
 end
 if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
-	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and ((v.Name == "LeverForGate" and "Lever") or (v.Name:find("Key") and "Key") or (v.Name:find("FuseObtain") and "Fuse")) or "")..
+        v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
+                (_G.EspName == true and ((v.Name == "LeverForGate" and "Lever") or (v.Name:find("Key") and "Key") or (v.Name:find("FuseObtain") and "Fuse")) or "")..
             (_G.EspDistance == true and "\n("..string.format("%.0f", Distance((v.Name == "LeverForGate" and v.PrimaryPart.Position) or ((v.Name:find("Key") or v.Name:find("FuseObtain")) and v.Hitbox.Position))).."m)" or "")
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
     v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
 end
 if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
-	GuiEsp = Instance.new("BillboardGui", v)
-	GuiEsp.Adornee = v
-	GuiEsp.Name = "Esp_Gui"
-	GuiEsp.Size = UDim2.new(0, 100, 0, 150)
-	GuiEsp.AlwaysOnTop = true
-	GuiEspText = Instance.new("TextLabel", GuiEsp)
-	GuiEspText.BackgroundTransparency = 1
-	GuiEspText.Font = Enum.Font.Code
-	GuiEspText.Size = UDim2.new(0, 100, 0, 100)
-	GuiEspText.TextSize = 15
-	GuiEspText.TextColor3 = Color3.new(0,0,0) 
-	GuiEspText.TextStrokeTransparency = 0.5
-	GuiEspText.Text = ""
-	local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
-	GuiEspTextSizeConstraint.MaxTextSize = 35
-	local UIStroke = Instance.new("UIStroke")
-	UIStroke.Color = Color3.new(0, 0, 0)
-	UIStroke.Thickness = 1.5
-	UIStroke.Parent = GuiEspText
-	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
-	v:FindFirstChild("Esp_Gui"):Destroy()
+    GuiEsp = Instance.new("BillboardGui", v)
+    GuiEsp.Adornee = v
+    GuiEsp.Name = "Esp_Gui"
+    GuiEsp.Size = UDim2.new(0, 100, 0, 150)
+    GuiEsp.AlwaysOnTop = true
+    GuiEspText = Instance.new("TextLabel", GuiEsp)
+    GuiEspText.BackgroundTransparency = 1
+    GuiEspText.Font = Enum.Font.Code
+    GuiEspText.Size = UDim2.new(0, 100, 0, 100)
+    GuiEspText.TextSize = 15
+    GuiEspText.TextColor3 = Color3.new(0,0,0) 
+    GuiEspText.TextStrokeTransparency = 0.5
+    GuiEspText.Text = ""
+    local GuiEspTextSizeConstraint = Instance.new("UITextSizeConstraint", GuiEspText)
+    GuiEspTextSizeConstraint.MaxTextSize = 35
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Color = Color3.new(0, 0, 0)
+    UIStroke.Thickness = 1.5
+    UIStroke.Parent = GuiEspText
+    elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
+    v:FindFirstChild("Esp_Gui"):Destroy()
 end
 end
 end
@@ -1887,7 +1927,7 @@ local function CheckKey(v)
     end
 end
 for _, v in ipairs(workspace:GetDescendants()) do
-	CheckKey(v)
+        CheckKey(v)
 end
 table.insert(_G.ConnectKey, workspace.DescendantAdded:Connect(function(v)
     CheckKey(v)
