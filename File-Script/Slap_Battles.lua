@@ -1033,6 +1033,13 @@ loadstring(game:HttpGet("https://gist.githubusercontent.com/lxnnydev/c533c374ca4
     end
 })
 
+Script1Group:AddButton({
+    Text = "Inf yield",
+    Func = function()
+loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'),true))()
+    end
+})
+
 local Script2Group = Tabs.Tab1:AddRightGroupbox("Script")
 
 Script2Group:AddButton({
@@ -3559,6 +3566,91 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
+Badge3Group:AddDropdown("Obby Mastery", {
+    Text = "Obby Mastery",
+    Values = {"Spam Obby", "Slap Entity"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.ObbyMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Obby Mastery", {
+    Text = "Auto Obby Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoObbyMastery = Value
+ObbyAfk = false
+if CheckGlove() == "Obby" then
+while _G.AutoObbyMastery do
+if _G.ObbyMastery:match("Entity") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+wait(0.5)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport2.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.8)
+game:GetService("ReplicatedStorage").Duplicate:FireServer(true)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+wait(0.05)
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+fireclickdetector(workspace.Lobby.Obby.ClickDetector)
+wait(0.3)
+repeat task.wait() until game.Players.LocalPlayer.Character
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.2)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.5)
+game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -2.75, -5), 1)
+for i, v in pairs(game.Workspace:GetChildren()) do
+if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+if v:FindFirstChild("HumanoidRootPart") then
+	if _G.ObbyMastery == "Slap Entity" then
+		if gloveHits["All"] then
+			gloveHits["All"]:FireServer(v:FindFirstChild("HumanoidRootPart"))
+		end
+	end
+end
+until v:FindFirstChild("HumanoidRootPart") == nil or (v:FindFirstChild("Humanoid") and v.Humanoid.Health <= 0) or _G.AutoObbyMastery == false
+end
+end
+wait(0.2)
+game:GetService("Players").LocalPlayer.Reset:FireServer()
+repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+if _G.AutoShardMastery == true then
+fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+else
+fireclickdetector(workspace.Lobby.Obby.ClickDetector)
+end
+end
+elseif _G.ObbyMastery == "Spam Obby" then
+game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -2.75, -6.5), 1)
+task.wait(4.3)
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Obby equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Obby Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Bonk Mastery", {
     Text = "BONK Mastery",
     Values = {"BONK Player", "BONK + Slap"},
@@ -3670,19 +3762,6 @@ _G.AutoVoodooMastery = Value
 if CheckGlove() == "Voodoo" then
 while _G.AutoVoodooMastery do
 if _G.VoodooMastery:match("Voodoo") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-wait(0.5)
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.leaderstats.Slaps.Value >= 666 then
-	fireclickdetector(workspace.Lobby.Ghost.ClickDetector)
-	game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
-	fireclickdetector(workspace.Lobby["Voodoo"].ClickDetector)
-	task.wait(1)
-	for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-		if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-			v.Transparency = 0
-		end
-	end
-end
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	repeat task.wait()
 		firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
@@ -3693,9 +3772,6 @@ wait(0.35)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
 wait(0.3)
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
-if game.Players.LocalPlayer.Character:FindFirstChild("Voodoo") then
-game.Players.LocalPlayer.Character:FindFirstChild("Voodoo").Parent = game.Players.LocalPlayer.Backpack
-end
 wait(6.5)
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
 local players = {}
@@ -9558,7 +9634,7 @@ game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
 fireclickdetector(workspace.Lobby[OGlove].ClickDetector)
 task.wait(1)
 for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-if v.Name ~= "Humanoid" then
+if v:IsA("BasePart") and v.Name == "HumanoidRootPart" then
 v.Transparency = 0
 end
 end
