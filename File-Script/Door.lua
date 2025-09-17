@@ -1,3 +1,5 @@
+if LoadingScriptDoor then return end
+LoadingScriptDoor = true
 if game.Players.LocalPlayer.PlayerGui:FindFirstChild("LoadingUI") and game.Players.LocalPlayer.PlayerGui.LoadingUI.Enabled == true then
 repeat task.wait() until game.Players.LocalPlayer.PlayerGui.LoadingUI.Enabled == false
 end
@@ -1152,6 +1154,7 @@ end
     end
 })
 
+if not isRoom then
 Misc1:AddToggle("Auto Closet", {
     Text = "Auto Closet",
     Default = false,
@@ -1187,6 +1190,7 @@ task.wait()
 end
     end
 })
+end
 
 Misc1:AddToggle("Anticheat Manipulation", {
     Text = "Anticheat Manipulation",
@@ -1269,6 +1273,7 @@ while _G.AutoRoom do
 	getHide()
 	_G.SpeedWalk = false
 	_G.BypassSpeed = false
+	char:SetAttribute("CanJump", false)
 	if char:FindFirstChild("Humanoid") then
 		char.Humanoid.WalkSpeed = 21.5
 	end
@@ -1430,9 +1435,6 @@ if not _G.BypassSpeed then
 	if char:FindFirstChild("CloneCollisionPart1") then
 		char:FindFirstChild("CloneCollisionPart1"):Destroy()
 	end
-	if char:FindFirstChild("CloneCollisionPart2") then
-		char:FindFirstChild("CloneCollisionPart2"):Destroy()
-	end
 	Options.WS:SetMax(21)
 	Options.Vitamin:SetMax(6)
 else
@@ -1448,26 +1450,15 @@ if char:FindFirstChild("CollisionPart") then
 		ClonedCollision.Massless = true
 		ClonedCollision.CanCollide = false
 	end
-	if not char:FindFirstChild("CloneCollisionPart2") then
-		local ClonedCollision = char.CollisionPart:Clone()
-		ClonedCollision.Parent = char
-		ClonedCollision.Name = "CloneCollisionPart2"
-		ClonedCollision.Massless = true
-		ClonedCollision.CanCollide = false
-	end
 end
 if char:FindFirstChild("HumanoidRootPart") then
 	local CloneColl = char:FindFirstChild("CloneCollisionPart1")
-	local CloneColl2 = char:FindFirstChild("CloneCollisionPart2")
-	if CloneColl and CloneColl2 then
+	if CloneColl then
 		CloneColl.Anchored = false
-		CloneColl2.Anchored = false
 		if root.Anchored or _G.AntiCheatBruh then
 			CloneColl.Massless = true
-			CloneColl2.Massless = true
 		else
 			CloneColl.Massless = not CloneColl.Massless
-			CloneColl2.Massless = not CloneColl2.Massless
 			wait(0.23)
 		end
 	end
@@ -1913,7 +1904,7 @@ if not _G.EspItem then
 		end
 	end
 end
-while _G.EspMinesAnchor do
+while _G.EspItem do
 if _G.AddedEsp then
 	for i, v in pairs(_G.AddedEsp) do
 		if v.Name == "Handle" and v.Parent:FindFirstChildOfClass("ProximityPrompt") then
@@ -2027,18 +2018,16 @@ for i, v in pairs(game.Players:GetChildren()) do
 	end
 end
 while _G.EspPlayer do
-if _G.AddedEsp then
-	for i, v in pairs(game.Players:GetChildren()) do
-		if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
-			ESPLibrary:AddESP({
-				Object = v.Character,
-				Text = v.Name,
-				Color = _G.ColorEsp14 or Color3.fromRGB(1, 1, 1)
-			})
-			ESPLibrary:UpdateObjectText(v, _G.EntityTable.Entity[v.Name])
-			ESPLibrary:UpdateObjectColor(v, _G.ColorEsp14 or Color3.fromRGB(1, 1, 1))
-			ESPLibrary:SetOutlineColor(_G.ColorEsp14 or Color3.fromRGB(1, 1, 1))
-		end
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
+		ESPLibrary:AddESP({
+			Object = v.Character,
+			Text = v.Name,
+			Color = _G.ColorEsp14 or Color3.fromRGB(1, 1, 1)
+		})
+		ESPLibrary:UpdateObjectText(v.Character, v.Name)
+		ESPLibrary:UpdateObjectColor(v.Character, _G.ColorEsp14 or Color3.fromRGB(1, 1, 1))
+		ESPLibrary:SetOutlineColor(_G.ColorEsp14 or Color3.fromRGB(1, 1, 1))
 	end
 end
 task.wait()
@@ -2066,14 +2055,6 @@ Esp1:AddDropdown("Font", {
 if ESPLibrary then
 	ESPLibrary:SetFont(Value)
 end
-    end
-})
-
-Esp1:AddToggle("Show Name", {
-    Text = "Show Name",
-    Default = false,
-    Callback = function(Value)
-_G.ShowName = Value
     end
 })
 
@@ -2144,7 +2125,7 @@ end
 
 Esp1:AddSlider("SetTextSize", {
     Text = "Set TextSize",
-    Default = 3,
+    Default = 15,
     Min = 1,
     Max = 50,
     Rounding = 1,
@@ -2359,8 +2340,8 @@ local function Added(v)
 		if v:IsA("ObjectValue") and v.Name == "HiddenPlayer" then
 			table.insert(_G.AddedEsp, v)
 		end
-		if v.Name == "Handle" and v.Parent:FindFirstChildOfClass("ProximityPrompt") then
-			table.insert(_G.AddedEsp, v.Parent)
+		if v.Name == "Handle" then
+			table.insert(_G.AddedEsp, v)
 		end
 		for x, z in pairs(_G.EntityTable.Entity) do
 			if v:IsA("Model") and v.Name == x then
