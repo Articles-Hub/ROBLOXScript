@@ -49,16 +49,16 @@ _G.GetOldBright = {
 if not old then
 local old
 old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
-	local args = {...}
+    local args = {...}
     local method = getnamecallmethod()
     if method == "FireServer" then
-	    if self.Name == "ClutchHeartbeat" and Toggles["Heart Win"].Value then
-	        return
-	    end
-	    if self.Name == "Crouch" and Toggles["Auto Use Crouch"].Value then
-	        args[1] = true
-	        return old(self,unpack(args))
-	    end
+        if self.Name == "ClutchHeartbeat" and Toggles["Heart Win"].Value then
+            return
+        end
+        if self.Name == "Crouch" and Toggles["Auto Use Crouch"].Value then
+            args[1] = true
+            return old(self,unpack(args))
+        end
     end
     return old(self,...)
 end))
@@ -176,7 +176,6 @@ _G.EntityTable = {
 		GlitchRush = {"GlitchRush", "Find a hiding spot."},
 		GlitchAmbush = {"Glitch Ambush", "Find HidingSpot!"},
 		GiggleCeiling = {"Giggle", "Avoid it."},
-		BackdoorLookman = {"Lookman", "Don't look at it."},
 		Groundskeeper = {"Skeeper", "Don't touch grass"},
 		MonumentEntity = {"Monument", "You go a distance and have to look back to check."},
 		GloomPile = {"Gloom Pile", "Don't touch Gloom Pile (Egg)"}
@@ -913,9 +912,9 @@ Misc:AddToggle("Notification Entity", {
     Callback = function(Value)
 _G.NotifyEntity = Value
 if _G.NotifyEntity then
-    EntityChild = workspace.ChildAdded:Connect(function(child)
+    EntityChild = workspace.DescendantAdded:Connect(function(child)
 	    for i, v in pairs(_G.EntityTable.EntityNotify) do
-            if child:IsA("Model") and child.Name:find(i) then
+            if child:IsA("Model") and child.Name == i then
 	            repeat task.wait() until not child:IsDescendantOf(workspace) or Distance(child:GetPivot().Position) < 10000
 				local EntityName = _G.EntityTable.EntityNotify[child.Name][1]
 				local EntityWa = _G.EntityTable.EntityNotify[child.Name][2]
@@ -1196,6 +1195,15 @@ Misc1:AddToggle("Anticheat Manipulation", {
     Text = "Anticheat Manipulation",
     Default = false,
     Callback = function(Value)
+task.spawn(function()
+	if _G.BypassSpeed then
+		Toggles["Bypass Speed"]:SetValue(false)
+		wait(0.3)
+		repeat task.wait() until not _G.AntiCheatBruh
+		wait(0.33)
+		Toggles["Bypass Speed"]:SetValue(true)
+	end
+end)
 _G.AntiCheatBruh = Value
     end
 }):AddKeyPicker("AnticheatManipulation", {
@@ -1280,9 +1288,6 @@ while _G.AutoRoom do
 	if char:FindFirstChild("CloneCollisionPart1") then
 		char:FindFirstChild("CloneCollisionPart1"):Destroy()
 	end
-	if char:FindFirstChild("CloneCollisionPart2") then
-		char:FindFirstChild("CloneCollisionPart2"):Destroy()
-	end
 	task.wait() 
 end 
 end)
@@ -1317,6 +1322,12 @@ workspace:FindFirstChild("PathFindPartsFolder"):ClearAllChildren()
     end
 })
 end
+
+Misc1:AddDropdown("Auto Loot type", {
+    Text = "No Loot",
+    Multi = true,
+    Values = {"Battery", "Jeff Shop", "Heal", "Mines Anchor"}
+})
 
 _G.Aura = {
 	["AuraPrompt"] = {
@@ -1359,6 +1370,11 @@ while _G.AutoLoot do
 for i, v in pairs(_G.AddedGet) do
 	if v:IsA("ProximityPrompt") and v.Enabled == true then
 		if Distance(v.Parent:GetPivot().Position) <= 12 then
+			if Options["Auto Loot type"].Value["Jeff Shop"] and v.Parent:GetAttribute("JeffShop") then continue end
+			if Options["Auto Loot type"].Value["Battery"] and v.Parent:GetAttribute("PropType") == "Battery" and ((char:FindFirstChildOfClass("Tool") and char:FindFirstChildOfClass("Tool"):GetAttribute("RechargeProp") ~= "Battery") or char:FindFirstChildOfClass("Tool") == nil) then continue end 
+            if Options["Auto Loot type"].Value["Heal"] and v.Parent:GetAttribute("PropType") == "Heal" and char:FindFirstChild("Humanoid") and char.Humanoid.Health == char.Humanoid.MaxHealth then continue end
+            if Options["Auto Loot type"].Value["Mines Anchor"] and v.Parent.Name == "MinesAnchor" then continue end
+            
 			if table.find(_G.Aura["AutoLootNotInter"], v.Name) then
 				fireproximityprompt(v)
 			end
@@ -2167,7 +2183,6 @@ end
 
 -----------------------------------
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
-local CreditsGroup = Tabs["UI Settings"]:AddRightGroupbox("Credits")
 local Info = Tabs["UI Settings"]:AddRightGroupbox("Info")
 
 MenuGroup:AddDropdown("NotifySide", {
@@ -2253,6 +2268,8 @@ ExecuteNowTP([[
         game.Loaded:Wait()
     end
     repeat wait() until game.Players.LocalPlayer
+    if LoadingTpExe then return end
+	LoadingTpExe = true
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/File-Script/Door.lua"))()
 ]])
 end
