@@ -11,6 +11,8 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/A
 local Options = Library.Options
 local Toggles = Library.Toggles
 
+Library:SetWatermarkVisibility(true)
+
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local PFS = game:GetService("PathfindingService")
@@ -24,6 +26,7 @@ local playergui = player:WaitForChild("PlayerGui")
 local pack = player:WaitForChild("Backpack")
 local char = player.Character or player.CharacterAdded:Wait()
 local root = char:WaitForChild("HumanoidRootPart") 
+local cam = game:GetService("Workspace").Camera
 
 local MobileOn = table.find({Enum.Platform.Android, Enum.Platform.IOS}, UserInputService:GetPlatform())
 
@@ -46,7 +49,8 @@ _G.GetOldBright = {
 	}
 }
 
-if not old then
+if not HookLoading then
+HookLoading = true
 local old
 old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
     local args = {...}
@@ -76,7 +80,7 @@ function Distance2(pos)
 end
 
 function Deciphercode(v)
-local Hints = game.Players.LocalPlayer.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
+local Hints = playergui:WaitForChild("PermUI"):WaitForChild("Hints")
 local code = {[1] = "_",[2] = "_", [3] = "_", [4] = "_", [5] = "_"}
     for i, v in pairs(v:WaitForChild("UI"):GetChildren()) do
         if v:IsA("ImageLabel") and v.Name ~= "Image" then
@@ -177,8 +181,7 @@ _G.EntityTable = {
 		GlitchAmbush = {"Glitch Ambush", "Find HidingSpot!"},
 		GiggleCeiling = {"Giggle", "Avoid it."},
 		Groundskeeper = {"Skeeper", "Don't touch grass"},
-		MonumentEntity = {"Monument", "You go a distance and have to look back to check."},
-		GloomPile = {"Gloom Pile", "Don't touch Gloom Pile (Egg)"}
+		MonumentEntity = {"Monument", "You go a distance and have to look back to check."}
 	},
 	Closet = {
 		["A60"] = 190,
@@ -187,7 +190,7 @@ _G.EntityTable = {
 		["AmbushMoving"] = 200,
 		["GlitchRush"] = 190,
 		["GlitchAmbush"] = 200,
-		["BackdoorRush"] = 200
+		["BackdoorRush"] = 160
 	}
 }
 
@@ -308,7 +311,29 @@ playergui.ChildAdded:Connect(function()
 	end
 end)
 
+local FrameTimer = tick()
+local CurrentRooms = 0
+local FrameCounter = 0
+local FPS = 60
 game:GetService("RunService").RenderStepped:Connect(function()
+FrameCounter += 1
+if (tick() - FrameTimer) >= 1 then
+    FPS = FrameCounter
+    FrameTimer = tick()
+    FrameCounter = 0
+end
+if isMines then 
+	CurrentRooms = 100 + RoomLate.Value 
+elseif isBackdoor then 
+	CurrentRooms = -50 + RoomLate.Value 
+else 
+	CurrentRooms = RoomLate.Value 
+end
+Library:SetWatermark(("%s Current Rooms | %s FPS | %s MS"):format(
+	math.floor(CurrentRooms),
+    math.floor(FPS),
+    math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+))
 for i, v in pairs(_G.GetOldBright.New) do
 	if _G.FullBright then
 		Lighting[i] = v
@@ -380,7 +405,7 @@ function RemoveLagTo(v)
 		end
 	end
 end
-game.Workspace:FindFirstChild("CurrentRooms").DescendantAdded:Connect(function(v)
+game.Workspace.DescendantAdded:Connect(function(v)
 	RemoveLagTo(v)
 end)
 end
@@ -787,7 +812,7 @@ Main1:AddToggle("Anti Lag", {
     Callback = function(Value)
 _G.AntiLag = Value
 if _G.AntiLag == true then
-for i,v in pairs(workspace.CurrentRooms:GetDescendants()) do
+for i,v in pairs(workspace:GetDescendants()) do
 	RemoveLagTo(v)
 end
 end
@@ -906,6 +931,24 @@ end
 
 local Misc = Tabs.Tab1:AddLeftGroupbox("Misc")
 
+local EntityName = {}
+for i, v in pairs(_G.EntityTable.EntityNotify) do
+	table.insert(EntityName, v[1])
+end
+
+Misc:AddDropdown("EntityNotify", {
+    Text = "Entity Notify",
+    Values = EntityName,
+    Default = {"Rush"},
+    Multi = true,
+    Callback = function(Value)
+_G.EntityNotifyNow = {}
+for i, v in next, Options.EntityNotify.Value do
+	table.insert(_G.EntityNotifyNow, i)
+end
+    end
+})
+
 Misc:AddToggle("Notification Entity", {
     Text = "Notification Entity",
     Default = false,
@@ -913,8 +956,8 @@ Misc:AddToggle("Notification Entity", {
 _G.NotifyEntity = Value
 if _G.NotifyEntity then
     EntityChild = workspace.DescendantAdded:Connect(function(child)
-	    for i, v in pairs(_G.EntityTable.EntityNotify) do
-            if child:IsA("Model") and child.Name == i then
+	    for i, v in pairs(_G.EntityNotifyNow or {"Rush"}) do
+            if child:IsA("Model") and child.Name:find(v) then
 	            repeat task.wait() until not child:IsDescendantOf(workspace) or Distance(child:GetPivot().Position) < 10000
 				local EntityName = _G.EntityTable.EntityNotify[child.Name][1]
 				local EntityWa = _G.EntityTable.EntityNotify[child.Name][2]
@@ -1082,6 +1125,47 @@ _G.NotifyChat = Value
 
 local Misc1 = Tabs.Tab1:AddRightGroupbox("Misc")
 
+if isHotel then
+Misc1:AddButton({
+    Text = "Instant Cube Glitch",
+    Func = function()
+LoadingInstant = true
+spawn(function()
+	Toggles["Bypass Speed"]:SetValue(false)
+	wait(0.3)
+	repeat task.wait() until not LoadingInstant
+	wait(0.5)
+	Toggles["Bypass Speed"]:SetValue(true)
+end)
+local OldCollision = char:FindFirstChild("CollisionPart").CFrame 
+for i = 1, 6 do
+	repeat task.wait()
+		if root and root.Position.Y > -5 and char:FindFirstChild("CollisionPart") then
+			char:FindFirstChild("CollisionPart").CFrame = OldCollision * CFrame.new(0, 90, 0)
+		end
+	until cam and cam:FindFirstChild("Glitch")
+	wait(0.3)
+	repeat task.wait() until cam and not cam:FindFirstChild("Glitch")
+	wait(0.4)
+	Notification({title = "Arona", content = "Glitch times "..i.." / 6", duration = 3, icon = "82357489459031"})
+end
+wait(0.7)
+local Cube = workspace:FindFirstChild("GlitchCube", true)
+if not Cube then
+	Notification({title = "Arona", content = "You can go find it.", duration = 5, icon = "82357489459031"})
+end
+for _, v in ipairs(workspace:GetDescendants()) do
+	if v:IsA("Model") and v.Name == "GlitchCube" then
+		Notification({title = "Arona", content = "Oh look! Glitch Cube spawn here", duration = 5, icon = "82357489459031"})
+		ESPLibrary:AddESP({Object = v, Text = "Glitch Cube", Color = Color3.fromRGB(151, 50, 168)})
+		break
+	end
+end
+LoadingInstant = false
+    end
+})
+end
+
 if isMines then
 Misc1:AddToggle("Auto Mines Anchor", {
     Text = "Auto Mines Anchor",
@@ -1171,7 +1255,7 @@ if EntityCl and EntityCl.PrimaryPart then
 					if v:FindFirstChild("HiddenPlayer") and v:FindFirstChildWhichIsA("BasePart") and v:FindFirstChild("Main") and not v.Main:FindFirstChild("HideEntityOnSpot") then
 						if Distance2(v:FindFirstChildWhichIsA("BasePart").Position) <= 20 then
 							local Pro = v:FindFirstChild("HidePrompt", true)
-							if Pro then
+							if Pro and Pro.Enabled == true then
 								fireproximityprompt(Pro)
 							end
 						end
@@ -1195,16 +1279,14 @@ Misc1:AddToggle("Anticheat Manipulation", {
     Text = "Anticheat Manipulation",
     Default = false,
     Callback = function(Value)
-task.spawn(function()
-	if _G.BypassSpeed then
-		Toggles["Bypass Speed"]:SetValue(false)
-		wait(0.3)
-		repeat task.wait() until not _G.AntiCheatBruh
-		wait(0.33)
-		Toggles["Bypass Speed"]:SetValue(true)
-	end
-end)
 _G.AntiCheatBruh = Value
+if _G.BypassSpeed then
+	Toggles["Bypass Speed"]:SetValue(false)
+	wait(0.3)
+	repeat task.wait() until not _G.AntiCheatBruh
+	wait(0.5)
+	Toggles["Bypass Speed"]:SetValue(true)
+end
     end
 }):AddKeyPicker("AnticheatManipulation", {
    Default = "U",
@@ -1326,7 +1408,7 @@ end
 Misc1:AddDropdown("Auto Loot type", {
     Text = "No Loot",
     Multi = true,
-    Values = {"Battery", "Jeff Shop", "Heal", "Mines Anchor"}
+    Values = {"Unlock Lockpick", "Jeff Shop", "Gold", "Light Items", "Skull Prompt"}
 })
 
 _G.Aura = {
@@ -1370,10 +1452,15 @@ while _G.AutoLoot do
 for i, v in pairs(_G.AddedGet) do
 	if v:IsA("ProximityPrompt") and v.Enabled == true then
 		if Distance(v.Parent:GetPivot().Position) <= 12 then
+            if Options["Auto Loot type"].Value["Unlock Lockpick"] and (v.Name == "UnlockPrompt" or v.Parent:GetAttribute("Locked")) and char:FindFirstChild("Lockpick") then continue end
+            if Options["Auto Loot type"].Value["Gold"] and v.Name == "LootPrompt" then continue end
+            if Options["Auto Loot type"].Value["Light Items"] and v.Parent:GetAttribute("Tool_LightSource") and not v.Parent:GetAttribute("Tool_CanCutVines") then continue end
+            if Options["Auto Loot type"].Value["Skull Prompt"] and v.Name == "SkullPrompt" then continue end
 			if Options["Auto Loot type"].Value["Jeff Shop"] and v.Parent:GetAttribute("JeffShop") then continue end
-			if Options["Auto Loot type"].Value["Battery"] and v.Parent:GetAttribute("PropType") == "Battery" and ((char:FindFirstChildOfClass("Tool") and char:FindFirstChildOfClass("Tool"):GetAttribute("RechargeProp") ~= "Battery") or char:FindFirstChildOfClass("Tool") == nil) then continue end 
-            if Options["Auto Loot type"].Value["Heal"] and v.Parent:GetAttribute("PropType") == "Heal" and char:FindFirstChild("Humanoid") and char.Humanoid.Health == char.Humanoid.MaxHealth then continue end
-            if Options["Auto Loot type"].Value["Mines Anchor"] and v.Parent.Name == "MinesAnchor" then continue end
+			
+			if v.Parent:GetAttribute("PropType") == "Battery" and ((char:FindFirstChildOfClass("Tool") and char:FindFirstChildOfClass("Tool"):GetAttribute("RechargeProp") ~= "Battery") or char:FindFirstChildOfClass("Tool") == nil) then continue end 
+            if v.Parent:GetAttribute("PropType") == "Heal" and char:FindFirstChild("Humanoid") and char.Humanoid.Health == char.Humanoid.MaxHealth then continue end
+            if v.Parent.Name == "MinesAnchor" then continue end
             
 			if table.find(_G.Aura["AutoLootNotInter"], v.Name) then
 				fireproximityprompt(v)
@@ -1451,8 +1538,10 @@ if not _G.BypassSpeed then
 	if char:FindFirstChild("CloneCollisionPart1") then
 		char:FindFirstChild("CloneCollisionPart1"):Destroy()
 	end
-	Options.WS:SetMax(21)
-	Options.Vitamin:SetMax(6)
+	if not _G.AntiCheatBruh and not LoadingInstant then
+		Options.WS:SetMax(21)
+		Options.Vitamin:SetMax(6)
+	end
 else
 	Options.WS:SetMax(60)
 	Options.Vitamin:SetMax(40)
@@ -1471,12 +1560,8 @@ if char:FindFirstChild("HumanoidRootPart") then
 	local CloneColl = char:FindFirstChild("CloneCollisionPart1")
 	if CloneColl then
 		CloneColl.Anchored = false
-		if root.Anchored or _G.AntiCheatBruh then
-			CloneColl.Massless = true
-		else
-			CloneColl.Massless = not CloneColl.Massless
-			wait(0.23)
-		end
+		CloneColl.Massless = not CloneColl.Massless
+		wait(0.23)
 	end
 end
 task.wait()
@@ -2127,10 +2212,10 @@ end
 
 Esp1:AddSlider("ArrowsSize", {
     Text = "Set Arrows Radius",
-    Default = 0.6,
-    Min = 0.1,
-    Max = 1,
-    Rounding = 1,
+    Default = 300,
+    Min = 0,
+    Max = 500,
+    Rounding = 0,
     Compact = false,
     Callback = function(Value)
 if ESPLibrary then
@@ -2220,7 +2305,7 @@ _G.VolumeTime = Value
 
 MenuGroup:AddToggle("KeybindMenuOpen", {Default = false, Text = "Open Keybind Menu", Callback = function(Value) Library.KeybindFrame.Visible = Value end})
 MenuGroup:AddToggle("ShowCustomCursor", {Text = "Custom Cursor", Default = true, Callback = function(Value) Library.ShowCustomCursor = Value end})
-MenuGroup:AddToggle("ExecuteOnTeleport", {Default = true, Text = "Execute On Teleport"})
+MenuGroup:AddToggle("watermark", {Text = "Show Watermark", Default = true, Callback = function(Value) Library:SetWatermarkVisibility(Value) end})
 MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
 _G.LinkJoin = loadstring(game:HttpGet("https://pastefy.app/2LKQlhQM/raw"))()
@@ -2258,22 +2343,6 @@ ThemeManager:ApplyToTab(Tabs["UI Settings"])
 SaveManager:LoadAutoloadConfig()
 
 ----- Script -------
-
-game.Players.LocalPlayer.OnTeleport:Connect(function()
-if not Toggles["ExecuteOnTeleport"].Value then return end
-ExecuteNowTP = queueonteleport or queue_on_teleport
-if ExecuteNowTP then
-ExecuteNowTP([[
-    if not game:IsLoaded() then
-        game.Loaded:Wait()
-    end
-    repeat wait() until game.Players.LocalPlayer
-    if LoadingTpExe then return end
-	LoadingTpExe = true
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/File-Script/Door.lua"))()
-]])
-end
-end)
 
 _G.AddedGet = {}
 _G.AddedEsp = {}
