@@ -152,6 +152,18 @@ function CheckGlove()
 	return game.Players.LocalPlayer:FindFirstChild("leaderstats") and game.Players.LocalPlayer.leaderstats:FindFirstChild("Glove") and game.Players.LocalPlayer.leaderstats.Glove.Value
 end
 
+function RemoteEquipGlove(Value)
+	if game.ReplicatedStorage:WaitForChild("_NETWORK") then
+		for i, v in pairs(game.ReplicatedStorage._NETWORK:GetChildren()) do 
+			if v.ClassName == "RemoteEvent" then
+
+				v:FireServer(Value)
+
+			end
+		end
+	end
+end
+
 if hookmetamethod and getnamecallmethod then
 if not Hit then
 MethodGlove, EquipGlove = false, "Default"
@@ -2637,6 +2649,17 @@ end
 
 local Badge2Group = Tabs.Tab3:AddRightGroupbox("Badge")
 
+_G.GloveCondition = "Condition"
+Badge2Group:AddDropdown("GloveChoose", {
+    Text = "Glove Condition Badge",
+    Values = {"Free (Remote)", "Condition"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.GloveCondition = Value
+    end
+})
+
 Badge2Group:AddButton({
     Text = "Get Glove Kinetic",
     Func = function()
@@ -2696,7 +2719,8 @@ end
 Badge2Group:AddButton({
     Text = "Get Glove Bomb",
     Func = function()
-if CheckGlove() == "Warp" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2124919840) then
+if (_G.GloveCondition == "Free (Remote)" or CheckGlove() == "Warp") and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2124919840) then
+if CheckGlove() ~= "Warp" then RemoteEquipGlove("Warp") wait(1) end
 OldTouch = workspace.DEATHBARRIER.CanTouch
 local players = game.Players:GetChildren()
 local RandomPlayer = players[math.random(1, #players)]
@@ -2743,7 +2767,18 @@ end
 Badge2Group:AddButton({
     Text = "Get Glove Blasphemy",
     Func = function()
-if CheckGlove() == "bus" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 3335299217032061) then
+if (_G.GloveCondition == "Free (Remote)" or CheckGlove() == "bus") and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 3335299217032061) then
+if CheckGlove() ~= "bus" then 
+	RemoteEquipGlove("bus") 
+	wait(1) 
+	repeat task.wait() until game.Players.LocalPlayer.Character
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		repeat task.wait()
+		firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+		firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+		until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+	end
+end
 OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 repeat
 if game.Players.LocalPlayer.Character.Humanoid.Health == 0 or game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then break end
@@ -2816,7 +2851,8 @@ end
 Badge2Group:AddButton({
     Text = "Get Glove Tank",
     Func = function()
-if CheckGlove() == "Pillow" and CheckUnlockGlove("Shotgun").Value == true and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+if (_G.GloveCondition == "Free (Remote)" or CheckGlove() == "Pillow") and CheckUnlockGlove("Shotgun").Value == true and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+if CheckGlove() ~= "Pillow" then RemoteEquipGlove("Pillow") wait(1) end
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer(CFrame.new(260, 36, 191))
 wait(1)
 local Pillow = workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s PillowFort")
@@ -2860,6 +2896,9 @@ Badge2Group:AddButton({
     Text = "Voodoo + Fish + Trap Farm",
     Func = function()
 if CheckGlove() == "Ghost" and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+if not _G.AutoBrick then
+	_G.AutoBrick = "Slow"
+end
 game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
 fireclickdetector(workspace.Lobby["ZZZZZZZ"].ClickDetector)
 wait(0.2)
@@ -2874,11 +2913,12 @@ end
 wait(0.35)
 game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace["SafeBox"].CFrame * CFrame.new(0,5,0))
 wait(0.2)
-repeat wait(1)
+Notification("you have setting spam Brick, Farm brick in slow state", 5)
+repeat
 if game.Players.LocalPlayer.Backpack:FindFirstChild("Brick") then
 game.Players.LocalPlayer.Backpack:FindFirstChild("Brick").Parent = game.Players.LocalPlayer.Character
 end
-task.wait(0.03)
+task.wait(0.05)
 if game.Players.LocalPlayer.Character:FindFirstChild("Brick") then
 if _G.AutoBrick == "Fast" then
 game:GetService("ReplicatedStorage").lbrick:FireServer()
@@ -2887,6 +2927,7 @@ elseif _G.AutoBrick == "Slow" then
 game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
 end
 end
+wait(1)
 until game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health <= 0 or game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil or game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2127567042)
 else
 Notification("You don't have Ghost equipped, or You have go to lobby", _G.TimeNotify)
@@ -2945,11 +2986,16 @@ end
 Badge2Group:AddButton({
     Text = "Get The Schlop",
     Func = function()
-if CheckGlove() == "Cloud" and game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2130032297) and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+if CheckGlove() == "Cloud" and (_G.GloveCondition == "Free (Remote)" or game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2130032297)) and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Arena.CannonIsland.Cannon.Base.CFrame * CFrame.new(0,2,35)
 wait(0.3)
 game:GetService("ReplicatedStorage").CloudAbility:FireServer()
-fireclickdetector(workspace.Lobby.fish.ClickDetector)
+if _G.GloveCondition == "Free (Remote)" then
+	RemoteEquipGlove("fish")
+	wait(1.5)
+else
+	fireclickdetector(workspace.Lobby.fish.ClickDetector)
+end
 wait(0.2)
 if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 repeat task.wait()
@@ -3033,10 +3079,6 @@ if workspace:FindFirstChild("Debug Room") then
     task.wait(0.3)
     codeglove = table.concat(code)
     Notification("OK, you got code: "..codeglove)
-    task.wait(0.3)
-    if Backpiece then
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Backpiece.CFrame * CFrame.new(-5, 0, 0)
-    end
     task.wait(0.3)
     if ButtonKey then
         for i = 1, #codeglove do
@@ -3398,8 +3440,7 @@ while _G.PhaseOrJetfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "JetOrb" or v.Name == "PhaseOrb" then
-			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 0)
-			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 1)
+			game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v.CFrame
         end
     end
 end
@@ -3420,10 +3461,9 @@ Badge2Group:AddToggle("MATERIALIZE Farm", {
 _G.MATERIALIZEfarm = Value
 while _G.MATERIALIZEfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-for i,v in pairs(game.Workspace:GetChildren()) do
+	for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "MATERIALIZEOrb" then
-			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 0)
-			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 1)
+			game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v.CFrame
         end
     end
 end
@@ -3446,8 +3486,7 @@ while _G.Siphonfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "SiphonOrb" then
-			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 0)
-			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 1)
+			game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v.CFrame
         end
     end
 end
@@ -3493,8 +3532,7 @@ while _G.Giftfarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Workspace:GetChildren()) do
         if v.Name == "Gift" then
-			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 0)
-			firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v, 1)
+			v.CFrame = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
         end
     end
 end
