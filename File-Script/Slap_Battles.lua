@@ -8,6 +8,7 @@ repeat task.wait() until Loading and Loading.Visible == false
 end
 if LoadingScriptSlap then return end
 LoadingScriptSlap = true
+_G.ConnectFun = {}
 function TweenTp(Part, CFnew, Body, Speed)
 BodyEnter = Body
 if BodyEnter == true then
@@ -155,10 +156,8 @@ end
 function RemoteEquipGlove(Value)
 	if game.ReplicatedStorage:WaitForChild("_NETWORK") then
 		for i, v in pairs(game.ReplicatedStorage._NETWORK:GetChildren()) do 
-			if v.ClassName == "RemoteEvent" then
-
+			if v.ClassName == "RemoteEvent" then			
 				v:FireServer(Value)
-
 			end
 		end
 	end
@@ -180,6 +179,58 @@ Hit = hookmetamethod(game, "__namecall", function(method, ...)
 	return Hit(method, ...)
 end)
 end
+end
+
+local function combinations(list, n)
+	local result = {}
+	local function recurse(start, combo)
+		if #combo == n then
+			table.insert(result, table.clone(combo))
+			return
+		end
+		for i = start, #list do
+			table.insert(combo, list[i])
+			recurse(i + 1, combo)
+			table.remove(combo)
+		end
+	end
+	recurse(1, {})
+	return result
+end
+
+function findGroup(maxDist, groupSize)
+	local players = {}
+	for i, v in pairs(game.Players:GetChildren()) do
+		if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+			table.insert(players, v)
+		end
+	end
+	if #players ~= 0 then
+		for _, v in ipairs(combinations(players, groupSize)) do
+			local allClose = true
+			for i = 1, #v do
+				for j = i+1, #v do
+					local c1 = v[i].Character
+					local c2 = v[j].Character
+					if not (c1 and c1:FindFirstChild("HumanoidRootPart") and c2 and c2:FindFirstChild("HumanoidRootPart")) then
+						allClose = false
+						break
+					end
+					local p1 = c1.HumanoidRootPart.Position
+					local p2 = c2.HumanoidRootPart.Position
+					if (p1 - p2).Magnitude >= maxDist then
+						allClose = false
+						break
+					end
+				end
+				if not allClose then break end
+			end
+			if allClose then
+				return v
+			end
+		end
+	end
+	return nil
 end
 
 ---SafeSpotBox---
@@ -1097,11 +1148,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXSc
 
 local Anti1Group = Tabs.Tab2:AddLeftGroupbox("Toggle All")
 
+_G.AntiToggles = {}
 if game.Workspace:FindFirstChild("NoChanged") == nil then
 local NoChanged = Instance.new("BoolValue", workspace)
 NoChanged.Name = "NoChanged"
 end
-Anti1Group:AddToggle("Toggle Anti", {
+_G.AntiToggles["Toggle Anti"] = Anti1Group:AddToggle("Toggle Anti", {
     Text = "Toggle Anti",
     Default = false,
     Callback = function(Value)
@@ -1141,7 +1193,7 @@ _G.AntiVoidChoose = Value
     end
 })
 
-Anti2Group:AddToggle("Anti Void", {
+_G.AntiToggles["Anti Void"] = Anti2Group:AddToggle("Anti Void", {
     Text = "Anti Void",
     Default = false,
     Callback = function(Value)
@@ -1225,7 +1277,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Portal", {
+_G.AntiToggles["Anti Portal"] = Anti2Group:AddToggle("Anti Portal", {
     Text = "Anti Portal",
     Default = false,
     Callback = function(Value)
@@ -1244,7 +1296,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Admin", {
+_G.AntiToggles["Anti Admin"] = Anti2Group:AddToggle("Anti Admin", {
     Text = "Anti Admin",
     Default = false,
     Callback = function(Value)
@@ -1262,7 +1314,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Kick", {
+_G.AntiToggles["Anti Kick"] = Anti2Group:AddToggle("Anti Kick", {
     Text = "Anti Kick",
     Default = false,
     Callback = function(Value)
@@ -1278,7 +1330,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Afk", {
+_G.AntiToggles["Anti Afk"] = Anti2Group:AddToggle("Anti Afk", {
     Text = "Anti Afk",
     Default = false,
     Callback = function(Value)
@@ -1293,7 +1345,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Obby", {
+_G.AntiToggles["Anti Obby"] = Anti2Group:AddToggle("Anti Obby", {
     Text = "Anti Obby",
     Default = false,
     Callback = function(Value)
@@ -1320,7 +1372,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Megarock", {
+_G.AntiToggles["Anti Megarock"] = Anti2Group:AddToggle("Anti Megarock", {
     Text = "Anti Megarock | Custom",
     Default = false,
     Callback = function(Value)
@@ -1337,7 +1389,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Cherry", {
+_G.AntiToggles["Anti Cherry"] = Anti2Group:AddToggle("Anti Cherry", {
     Text = "Anti Cherry",
     Default = false,
     Callback = function(Value)
@@ -1359,7 +1411,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Boss Guide", {
+_G.AntiToggles["Anti Boss Guide"] = Anti2Group:AddToggle("Anti Boss Guide", {
     Text = "Anti Join Boss Guide",
     Default = false,
     Callback = function(Value)
@@ -1375,7 +1427,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Snowball", {
+_G.AntiToggles["Anti Snowball"] = Anti2Group:AddToggle("Anti Snowball", {
     Text = "Anti Snowball",
     Default = false,
     Callback = function(Value)
@@ -1391,7 +1443,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Ball Baller", {
+_G.AntiToggles["Anti Ball Baller"] = Anti2Group:AddToggle("Anti Ball Baller", {
     Text = "Anti Ball Baller",
     Default = false,
     Callback = function(Value)
@@ -1407,7 +1459,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Venom Infected", {
+_G.AntiToggles["Anti Venom Infected"] = Anti2Group:AddToggle("Anti Venom Infected", {
     Text = "Anti Is Ice",
     Default = false,
     Callback = function(Value)
@@ -1423,7 +1475,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Ghost Player", {
+_G.AntiToggles["Anti Ghost Player"] = Anti2Group:AddToggle("Anti Ghost Player", {
     Text = "Anti Ghost Player",
     Default = false,
     Callback = function(Value)
@@ -1443,7 +1495,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Trap", {
+_G.AntiToggles["Anti Trap"] = Anti2Group:AddToggle("Anti Trap", {
     Text = "Anti Trap",
     Default = false,
     Callback = function(Value)
@@ -1460,7 +1512,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Lure", {
+_G.AntiToggles["Anti Lure"] = Anti2Group:AddToggle("Anti Lure", {
     Text = "Anti Lure",
     Default = false,
     Callback = function(Value)
@@ -1476,7 +1528,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Mail", {
+_G.AntiToggles["Anti Mail"] = Anti2Group:AddToggle("Anti Mail", {
     Text = "Anti Mail",
     Default = false,
     Callback = function(Value)
@@ -1491,7 +1543,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Water", {
+_G.AntiToggles["Anti Water"] = Anti2Group:AddToggle("Anti Water", {
     Text = "Anti Water",
     Default = false,
     Callback = function(Value)
@@ -1509,7 +1561,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Jail Admin", {
+_G.AntiToggles["Anti Jail Admin"] = Anti2Group:AddToggle("Anti Jail Admin", {
     Text = "Anti Jail Admin",
     Default = false,
     Callback = function(Value)
@@ -1527,7 +1579,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Mitten Blind", {
+_G.AntiToggles["Anti Mitten Blind"] = Anti2Group:AddToggle("Anti Mitten Blind", {
     Text = "Anti Mitten Blind",
     Default = false,
     Callback = function(Value)
@@ -1541,7 +1593,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Knockoff", {
+_G.AntiToggles["Anti Knockoff"] = Anti2Group:AddToggle("Anti Knockoff", {
     Text = "Anti Knockoff",
     Default = false,
     Callback = function(Value)
@@ -1555,15 +1607,17 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Hallow", {
+_G.AntiToggles["Anti Hallow"] = Anti2Group:AddToggle("Anti Hallow", {
     Text = "Anti Hallow - Jack",
     Default = false,
     Callback = function(Value)
-game.Players.LocalPlayer.PlayerScripts.LegacyClient.HallowJackAbilities.Disabled = Value
+if game.Players.LocalPlayer:FindFirstChild("PlayerScripts"):FindFirstChild("LegacyClient") and game.Players.LocalPlayer.PlayerScripts.LegacyClient:FindFirstChild("HallowJackAbilities") then
+	game.Players.LocalPlayer.PlayerScripts.LegacyClient.HallowJackAbilities.Disabled = Value
+end
     end
 })
 
-Anti2Group:AddToggle("Anti Booster", {
+_G.AntiToggles["Anti Booster"] = Anti2Group:AddToggle("Anti Booster", {
     Text = "Anti Booster",
     Default = false,
     Callback = function(Value)
@@ -1579,7 +1633,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Squid", {
+_G.AntiToggles["Anti Squid"] = Anti2Group:AddToggle("Anti Squid", {
     Text = "Anti Squid",
     Default = false,
     Callback = function(Value)
@@ -1596,7 +1650,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Lamp", {
+_G.AntiToggles["Anti Lamp"] = Anti2Group:AddToggle("Anti Lamp", {
     Text = "Anti Lamp",
     Default = false,
     Callback = function(Value)
@@ -1617,7 +1671,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Pie", {
+_G.AntiToggles["Anti Pie"] = Anti2Group:AddToggle("Anti Pie", {
     Text = "Anti Pie",
     Default = false,
     Callback = function(Value)
@@ -1631,15 +1685,17 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Conveyor", {
+_G.AntiToggles["Anti Conveyor"] = Anti2Group:AddToggle("Anti Conveyor", {
     Text = "Anti Conveyor",
     Default = false,
     Callback = function(Value)
-game.Players.LocalPlayer.PlayerScripts.LegacyClient.ConveyorVictimized.Disabled = Value
+if game.Players.LocalPlayer:FindFirstChild("PlayerScripts"):FindFirstChild("LegacyClient") and game.Players.LocalPlayer.PlayerScripts.LegacyClient:FindFirstChild("ConveyorVictimized") then
+	game.Players.LocalPlayer.PlayerScripts.LegacyClient.ConveyorVictimized.Disabled = Value
+end
     end
 })
 
-Anti2Group:AddToggle("Anti Ice", {
+_G.AntiToggles["Anti Ice"] = Anti2Group:AddToggle("Anti Ice", {
     Text = "Anti Ice",
     Default = false,
     Callback = function(Value)
@@ -1657,7 +1713,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Time Stop", {
+_G.AntiToggles["Anti Time Stop"] = Anti2Group:AddToggle("Anti Time Stop", {
     Text = "Anti Time Stop",
     Default = false,
     Callback = function(Value)
@@ -1673,7 +1729,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Null", {
+_G.AntiToggles["Anti Null"] = Anti2Group:AddToggle("Anti Null", {
     Text = "Anti Null",
     Default = false,
     Callback = function(Value)
@@ -1693,7 +1749,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Run", {
+_G.AntiToggles["Anti Run"] = Anti2Group:AddToggle("Anti Run", {
     Text = "Anti Run",
     Default = false,
     Callback = function(Value)
@@ -1715,51 +1771,46 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Record", {
-    Text = "Anti Record",
+_G.AntiToggles["Anti Record"] = Anti2Group:AddToggle("Anti Record", {
+    Text = "Anti Record (Chat)",
     Default = false,
     Callback = function(Value)
 _G.AntiRecord = Value
     end
 })
+local function findRec(p)
+	if p ~= game.Players.LocalPlayer then
+		p.Chatted:Connect(function(message)
+			Words = message:split(" ")
+			if _G.AntiRecord == true then
+				for i, v in pairs(Words) do
+					if v:lower():match("recording") or v:lower():match(" rec") or v:lower():match("record") or v:lower():match("discor") or v:lower():match(" disco") or v:lower():match(" disc") or v:lower():match("ticket") or v:lower():match("tickets") or v:lower():match(" ds") or v:lower():match(" dc") or v:lower():match("dizzy") or v:lower():match("dizzycord") or v:lower():match(" clip") or v:lower():match("proof") or v:lower():match("evidence") then
+						Toggles["Anti Kick"]:SetValue(false)
+						game.Players.LocalPlayer:Kick("Possible player recording detected.".." [ "..p.Name.." ] [ "..message.." ]")
+					end
+				end
+			end
+		end)
+	end
+end
 for i,p in pairs(game.Players:GetChildren()) do
-if p ~= game.Players.LocalPlayer then
-p.Chatted:Connect(function(message)
-Words = message:split(" ")
-if _G.AntiRecord == true then
-for i, v in pairs(Words) do
-if v:lower():match("recording") or v:lower():match(" rec") or v:lower():match("record") or v:lower():match("discor") or v:lower():match(" disco") or v:lower():match(" disc") or v:lower():match("ticket") or v:lower():match("tickets") or v:lower():match(" ds") or v:lower():match(" dc") or v:lower():match("dizzy") or v:lower():match("dizzycord") or v:lower():match(" clip") or v:lower():match("proof") or v:lower():match("evidence") then
-Toggles["Anti Kick"]:SetValue(false)
-game.Players.LocalPlayer:Kick("Possible player recording detected.".." [ "..p.Name.." ]".." [ "..message.." ]")
+findRec(p)
 end
-end
-end
-end)
-end
-end
-game.Players.PlayerAdded:Connect(function(Player)
-Player.Chatted:Connect(function(message)
-Words = message:split(" ")
-if _G.AntiRecord == true then
-for i, v in pairs(Words) do
-if v:lower():match("recording") or v:lower():match(" rec") or v:lower():match("record") or v:lower():match("discor") or v:lower():match(" disco") or v:lower():match(" disc") or v:lower():match("ticket") or v:lower():match("tickets") or v:lower():match(" ds") or v:lower():match(" dc") or v:lower():match("dizzy") or v:lower():match("dizzycord") or v:lower():match(" clip") or v:lower():match("proof") or v:lower():match("evidence") then
-Toggles["Anti Kick"]:SetValue(false)
-game.Players.LocalPlayer:Kick("Possible player recording detected.".." [ "..Player.Name.." ]".." [ "..message.." ]")
-end
-end
-end
-end)
+game.Players.PlayerAdded:Connect(function(p)
+findRec(p)
 end)
 
-Anti2Group:AddToggle("Anti REDACTED", {
+_G.AntiToggles["Anti REDACTED"] = Anti2Group:AddToggle("Anti REDACTED", {
     Text = "Anti [REDACTED]",
     Default = false,
     Callback = function(Value)
-game.Players.LocalPlayer.PlayerScripts.LegacyClient.Well.Disabled = Value
+if game.Players.LocalPlayer:FindFirstChild("PlayerScripts"):FindFirstChild("LegacyClient") and game.Players.LocalPlayer.PlayerScripts.LegacyClient:FindFirstChild("Well") then
+	game.Players.LocalPlayer.PlayerScripts.LegacyClient.Well.Disabled = Value
+end
     end
 })
 
-Anti2Group:AddToggle("Anti Brazil", {
+_G.AntiToggles["Anti Brazil"] = Anti2Group:AddToggle("Anti Brazil", {
     Text = "Anti Brazil",
     Default = false,
     Callback = function(Value)
@@ -1782,7 +1833,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Za Hando", {
+_G.AntiToggles["Anti Za Hando"] = Anti2Group:AddToggle("Anti Za Hando", {
     Text = "Anti Za Hando",
     Default = false,
     Callback = function(Value)
@@ -1798,7 +1849,7 @@ task.wait()
     end
 })
 
-Anti2Group:AddToggle("Anti Bob", {
+_G.AntiToggles["Anti Bob"] = Anti2Group:AddToggle("Anti Bob", {
     Text = "Anti Bob",
     Default = false,
     Callback = function(Value)
@@ -1815,7 +1866,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Fort", {
+_G.AntiToggles["Anti Fort"] = Anti2Group:AddToggle("Anti Fort", {
     Text = "Anti Fort",
     Default = false,
     Callback = function(Value)
@@ -1831,7 +1882,7 @@ task.wait()
     end
 })
 
-Anti2Group:AddToggle("Anti Pusher", {
+_G.AntiToggles["Anti Pusher"] = Anti2Group:AddToggle("Anti Pusher", {
     Text = "Anti Pusher",
     Default = false,
     Callback = function(Value)
@@ -1847,7 +1898,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Defend", {
+_G.AntiToggles["Anti Defend"] = Anti2Group:AddToggle("Anti Defend", {
     Text = "Anti Defend",
     Default = false,
     Callback = function(Value)
@@ -1874,7 +1925,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Bubble", {
+_G.AntiToggles["Anti Bubble"] = Anti2Group:AddToggle("Anti Bubble", {
     Text = "Anti Bubble",
     Default = false,
     Callback = function(Value)
@@ -1890,7 +1941,25 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Stun", {
+_G.AntiToggles["Anti Pylon"] = Anti2Group:AddToggle("Anti Pylon", {
+    Text = "Anti Pylon",
+    Default = false,
+    Callback = function(Value)
+_G.AntiPylon = Value
+while _G.AntiPylon do
+for i,v in pairs(workspace:GetChildren()) do
+    if v.Name == "Pylon" and v:FindFirstChild("OwningPlayer") and v.OwningPlayer.Value ~= game.Players.LocalPlayer.Name then
+	    if v:FindFirstChild("Hitbox") then
+	        v:FindFirstChild("Hitbox"):Destroy()
+		end
+    end
+end
+task.wait()
+end
+    end
+})
+
+_G.AntiToggles["Anti Stun"] = Anti2Group:AddToggle("Anti Stun", {
     Text = "Anti Stun",
     Default = false,
     Callback = function(Value)
@@ -1904,7 +1973,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti COD", {
+_G.AntiToggles["Anti COD"] = Anti2Group:AddToggle("Anti COD", {
     Text = "Anti Cube Of Death",
     Default = false,
     Callback = function(Value)
@@ -1923,7 +1992,7 @@ end
     end
 })
 
-Anti2Group:AddToggle("Anti Death Barriers", {
+_G.AntiToggles["Anti Death Barriers"] = Anti2Group:AddToggle("Anti Death Barriers", {
     Text = "Anti Death Barriers",
     Default = false,
     Callback = function(Value)
@@ -1958,7 +2027,7 @@ workspace.AntiDefaultArena.CanTouch = true
     end
 })
 
-Anti2Group:AddToggle("Anti Ragdoll", {
+_G.AntiToggles["Anti Ragdoll"] = Anti2Group:AddToggle("Anti Ragdoll", {
     Text = "Anti Ragdoll",
     Default = false,
     Callback = function(Value)
@@ -3604,6 +3673,130 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
+Badge3Group:AddDropdown("Chain Mastery", {
+    Text = "Chain Mastery",
+    Values = {"Arc lightning", "Lightning 3 player", "Lightning 6 player (7 player)", "Slap (No player group)"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.ChainMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Chain Mastery", {
+    Text = "Auto Chain Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoChainMastery = Value
+if not _G.AutoChainMastery then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
+	end
+end
+if CheckGlove() == "Chain" then
+while _G.AutoChainMastery do
+if _G.ChainMastery:find("lightning") or _G.ChainMastery:find("Lightning") or _G.ChainMastery:find("Slap") then
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+	wait(0.5)
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.leaderstats.Slaps.Value >= 666 then
+		fireclickdetector(workspace.Lobby.Ghost.ClickDetector)
+		game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
+		fireclickdetector(workspace.Lobby["Chain"].ClickDetector)
+		task.wait(1)
+		for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+			if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+				v.Transparency = 0
+			end
+		end
+	end
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		repeat task.wait()
+			firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+			firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+		until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+	end
+	wait(0.35)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+	if game.Players.LocalPlayer.Character:FindFirstChild("Chain") then
+		game.Players.LocalPlayer.Character:FindFirstChild("Chain").Parent = game.Players.LocalPlayer.Backpack
+	end
+	wait(0.6)
+end
+if _G.ChainMastery:find("lightning") or _G.ChainMastery:find("Lightning") then
+	if _G.ChainMastery == "Arc lightning" then
+		numberPlayers = 2 
+	elseif _G.ChainMastery == "Lightning 3 player" then
+		numberPlayers = 3
+	elseif _G.ChainMastery == "Lightning 6 player (7 player)" then
+		numberPlayers = 7
+	end
+	local GroupPlayer = findGroup(20, (numberPlayers or 2))
+	if GroupPlayer then
+		local random = GroupPlayer[math.random(1, #GroupPlayer)]
+		if random.Character and random.Character:FindFirstChild("HumanoidRootPart") and random.Character:FindFirstChild("Head") and random.Character:FindFirstChild("Ragdolled") and not random.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not random.Character:FindFirstChild("Counterd") and not random.Character:FindFirstChild("Mirage") and not random.Character:FindFirstChild("rock") and not random.Character:FindFirstChild("Reversed") and random.Character.Ragdolled.Value == false and random.Character.isInArena.Value == true then
+			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
+				local bv = Instance.new("BodyVelocity")
+				bv.Name = "FreezeBV"
+				bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+				bv.MaxForce = Vector3.new(100000, 100000, 100000)
+				bv.Velocity = Vector3.new(0, 0, 0)
+			end
+			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(random.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+			repeat task.wait() until _G.AutoChainMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - random.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+			wait(0.26)
+			for i = 1, 3 do
+				gloveHits["All"]:FireServer(random.Character:FindFirstChild("Head"))
+				task.wait(0.2)
+			end
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+			wait(0.4)
+			repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+			wait(0.2)
+		end
+	end
+elseif _G.ChainMastery:find("Slap") then
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+		local players = {}
+		for i, v in pairs(game.Players:GetChildren()) do
+			if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+				table.insert(players, v)
+			end
+		end
+		if #players ~= 0 then
+			local RandomPlayer = players[math.random(#players)]
+			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
+				local bv = Instance.new("BodyVelocity")
+				bv.Name = "FreezeBV"
+				bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+				bv.MaxForce = Vector3.new(100000, 100000, 100000)
+				bv.Velocity = Vector3.new(0, 0, 0)
+			end
+			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+			repeat task.wait() until _G.AutoChainMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+			task.wait(0.25)
+			for i = 1, 3 do
+				gloveHits["All"]:FireServer(RandomPlayer.Character:FindFirstChild("Head"))
+				wait(0.2)
+			end
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+			wait(0.4)
+			game:GetService("Players").LocalPlayer.Reset:FireServer()
+			wait(0.3)
+			repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+			wait(0.2)
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Chain equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Chain Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Obby Mastery", {
     Text = "Obby Mastery",
     Values = {"Spam Obby", "Slap Entity"},
@@ -3619,7 +3812,6 @@ Badge3Group:AddToggle("Auto Obby Mastery", {
     Default = false, 
     Callback = function(Value) 
 _G.AutoObbyMastery = Value
-ObbyAfk = false
 if CheckGlove() == "Obby" then
 while _G.AutoObbyMastery do
 if _G.ObbyMastery:match("Entity") then
@@ -5789,8 +5981,12 @@ game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character:
 end
 end
 while _G.PlayerView do
-if game.Players[_G.PlayerPut].Character:FindFirstChild("Humanoid") then
-game.Workspace.CurrentCamera.CameraSubject = game.Players[_G.PlayerPut].Character:FindFirstChild("Humanoid")
+if workspace:FindFirstChild(_G.PlayerPut) and game.Players[_G.PlayerPut].Character:FindFirstChild("Humanoid") then
+	game.Workspace.CurrentCamera.CameraSubject = game.Players[_G.PlayerPut].Character:FindFirstChild("Humanoid")
+else
+	if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+		game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+	end
 end
 task.wait()
 end
@@ -5819,13 +6015,13 @@ local lastctrl = {f = 0, b = 0, l = 0, r = 0}
 game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
     if _G.StartFly == true then
         if key:lower() == "w" then
-            Ctrl.f = _G.SetSpeedFlyCloud 
+            Ctrl.f = _G.SetSpeedFly 
         elseif key:lower() == "s" then 
-            Ctrl.b = -_G.SetSpeedFlyCloud
+            Ctrl.b = -_G.SetSpeedFly
         elseif key:lower() == "a" then 
-            Ctrl.l = -_G.SetSpeedFlyCloud
+            Ctrl.l = -_G.SetSpeedFly
         elseif key:lower() == "d" then 
-            Ctrl.r = _G.SetSpeedFlyCloud
+            Ctrl.r = _G.SetSpeedFly
         end 
     end
 end) 
@@ -9681,181 +9877,13 @@ Notification("You need to be in lobby and have 666+ slaps.", _G.TimeNotify)
 end
 end)
 ----// Set Toggle Anti \\-----
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Void"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Portal"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Afk"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Ghost Player"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Kick"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Cherry"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Obby"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Megarock"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Ball Baller"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Trap"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Mail"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Lure"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Water"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Mitten Blind"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Knockoff"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Hallow"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Booster"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Lamp"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Pie"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Ice"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Jail Admin"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Conveyor"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Squid"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Squid"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Time Stop"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Null"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Run"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Record"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti REDACTED"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Bob"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Boss Guide"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Snowball"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Brazil"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Za Hando"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Venom Infected"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Fort"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Pusher"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Defend"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Bubble"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Stun"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti COD"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Death Barriers"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Ragdoll"]:SetValue(game.Workspace.NoChanged.Value)
-end)
-
-game.Workspace.NoChanged.Changed:Connect(function()
-Toggles["Anti Admin"]:SetValue(game.Workspace.NoChanged.Value)
-end)
+table.insert(_G.ConnectFun, game.Workspace.NoChanged.Changed:Connect(function()
+	for i, v in pairs(_G.AntiToggles) do
+		spawn(function()
+			Toggles[i]:SetValue(game.Workspace.NoChanged.Value)
+		end)
+	end
+end))
 elseif game.PlaceId == 11828384869 then
 local Window = Library:CreateWindow({
     Title = "Maze 👁️",
@@ -13637,11 +13665,7 @@ end):AddButton("Copy Link Zalo", function()
         Library:Notify("Zalo link: ".._G.LinkJoin["Zalo"], 10)
     end
 end)
-MenuGroup:AddButton("Unload", function()
-_G.BackpackV2 = false
-Library:Unload() 
-_G.BackpackV2Loop = false
-end)
+MenuGroup:AddButton("Unload", function() Library:Unload() end)
 CreditsGroup:AddLabel("AmongUs - Python / Dex / Script", true)
 CreditsGroup:AddLabel("Giang Hub - Script / Dex", true)
 CreditsGroup:AddLabel("Cao Mod - Script / Dex", true)
@@ -13693,6 +13717,75 @@ ThemeManager:ApplyToTab(Tabs["UI Settings"])
 SaveManager:LoadAutoloadConfig()
 
 ------------------------------------------------------------------------
+Library:OnUnload(function()
+	_G.BackpackV2 = false
+	_G.BackpackV2Loop = false
+	if _G.ConnectFun then
+		for i, v in pairs(_G.ConnectFun) do
+			v:Disconnect()
+		end
+	_G.ConnectFun = nil
+	end
+	if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Hotbar") then
+		game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position = _G.Backpack["Old"]["Hotbar"]
+	end
+	if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Inventory") then
+		game:GetService("CoreGui").RobloxGui.Backpack.Inventory.Position = _G.Backpack["Old"]["Inventory"]
+	end
+	for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+		if v:IsA("TextButton") and v:FindFirstChild("Number") then
+			v.Number.Position = _G.Backpack["Old"]["Backpack Number"][v.Name]
+		end
+	end
+	if game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:FindFirstChild("UIListLayout") then
+		game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:FindFirstChild("UIListLayout"):Destroy()
+	end
+	for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Hotbar:GetChildren()) do
+		if v:IsA("TextButton") then
+			if v:FindFirstChild("Equipped") then
+				v.Equipped.Visible = true
+			end
+			if v:FindFirstChild("SelectionObjectClipper") then
+				v.SelectionObjectClipper.Visible = false
+			end
+			if v:FindFirstChild("UICorner") then
+				v:FindFirstChild("UICorner"):Destroy()
+			end
+		end
+	end
+	for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Inventory.ScrollingFrame.UIGridFrame:GetChildren()) do
+		if v:IsA("TextButton") then
+			if v:FindFirstChild("Equipped") then
+				v.Equipped.Visible = true
+			end
+			if v:FindFirstChild("SelectionObjectClipper") then
+				v.SelectionObjectClipper.Visible = false
+			end
+			if v:FindFirstChild("UICorner") then
+				v:FindFirstChild("UICorner"):Destroy()
+			end
+		end
+	end
+	for i, v in pairs(game:GetService("CoreGui").RobloxGui.Backpack.Inventory:GetChildren()) do
+		if v.Name == "Search" then
+			if v:FindFirstChild("UICorner") then
+				v:FindFirstChild("UICorner"):Destroy()
+			end
+			if v:FindFirstChild("X") and v["X"]:FindFirstChild("UICorner") then
+				v["X"]:FindFirstChild("UICorner"):Destroy()
+			end
+		end
+	end
+	if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Inventory") and game:GetService("CoreGui").RobloxGui.Backpack.Inventory:FindFirstChild("UICorner") then
+		game:GetService("CoreGui").RobloxGui.Backpack.Inventory:FindFirstChild("UICorner"):Destroy()
+	end
+	_G.Backpack = nil
+	gloveHits = nil
+	if AutoSetInfoServer then
+		AutoSetInfoServer:Disconnect()
+		AutoSetInfoServer = nil
+	end
+end)
 _G.BackpackV2Loop = true
 if _G.Backpack == nil then
 _G.Backpack = {
@@ -13840,7 +13933,7 @@ task.wait()
 end
 end)
 
-function BackpackV2(v)
+local function BackpackV2(v)
 v.MouseEnter:Connect(function()
 if _G.BackpackV2 == true then
 local sound = Instance.new("Sound", workspace)
@@ -13885,13 +13978,13 @@ if v:IsA("TextButton") then
 BackpackV2(v)
 end
 end
-game:GetService("CoreGui").RobloxGui.Backpack.Inventory.ScrollingFrame.UIGridFrame.ChildAdded:Connect(function(v)
+table.insert(_G.ConnectFun, game:GetService("CoreGui").RobloxGui.Backpack.Inventory.ScrollingFrame.UIGridFrame.ChildAdded:Connect(function(v)
 if v:IsA("TextButton") then
 BackpackV2(v)
 end
-end)
+end))
 ------------------------------------------------------------------------
-game.Players.LocalPlayer.OnTeleport:Connect(function()
+table.insert(_G.ConnectFun, game.Players.LocalPlayer.OnTeleport:Connect(function()
 if not Toggles["ExecuteOnTeleport"].Value then return end
 ExecuteNowTP = queueonteleport or queue_on_teleport
 if ExecuteNowTP then
@@ -13903,7 +13996,7 @@ ExecuteNowTP([[
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/File-Script/Slap_Battles.lua"))()
 ]])
 end
-end)
+end))
 ------------------------------------------------------------------------
 gloveHits = {
 	["All"] = game.ReplicatedStorage.GeneralHit,
@@ -13984,6 +14077,7 @@ gloveHits = {
     ["Cloud"] = game.ReplicatedStorage.CloudHit,
     ["Null"] = game.ReplicatedStorage.NullHit,
     ["spin"] = game.ReplicatedStorage.spinhit,
+    ["Pylon"] = game.ReplicatedStorage.PylonHit,
     ------------------------------------------------------------------------
     ["Poltergeist"] = game.ReplicatedStorage.UTGHit,
     ["Clock"] = game.ReplicatedStorage.UTGHit,
