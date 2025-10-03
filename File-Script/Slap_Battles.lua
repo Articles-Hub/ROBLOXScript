@@ -164,7 +164,8 @@ function RemoteEquipGlove(Value)
 end
 
 if hookmetamethod and getnamecallmethod then
-if not Hit then
+if not loadingGetOut then
+loadingGetOut = true
 MethodGlove, EquipGlove = false, "Default"
 local Hit
 Hit = hookmetamethod(game, "__namecall", function(method, ...) 
@@ -2277,6 +2278,41 @@ elseif not teleportFunc then
 Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 game:GetService("TeleportService"):Teleport(17290438723)
+  	end    
+})
+
+Badge1Group:AddButton({
+    Text = "Auto Get Plate",
+    Func = function()
+local teleportFunc = queueonteleport or queue_on_teleport
+    if teleportFunc then
+        teleportFunc([[
+            if not game:IsLoaded() then
+                game.Loaded:Wait()
+            end
+            repeat wait() until game.Players.LocalPlayer
+wait(0.3)
+repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and workspace:FindFirstChild("Obstacles")
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	if workspace:FindFirstChild("Obstacles") then workspace.Obstacles:Destroy() end
+	game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Bypass plate obstacles",Icon = "rbxassetid://7733658504",Duration = 5})
+	game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Wait in until glove appear",Icon = "rbxassetid://7733658504",Duration = 5})
+	workspace:GetAttributeChangedSignal("Completed"):Connect(function()
+		if workspace:GetAttribute("Completed") == true then
+			game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Done Bro",Icon = "rbxassetid://7733658504",Duration = 5})
+			while task.wait() do
+				if workspace:FindFirstChild("Glove Model"):FindFirstChild("Hand") then
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Glove Model"].Hand.CFrame
+				end
+			end
+		end
+	end)
+end
+]])
+elseif not teleportFunc then
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
+end
+game:GetService("TeleportService"):Teleport(106620300132058)
   	end    
 })
 
@@ -10543,13 +10579,13 @@ local lastctrl = {f = 0, b = 0, l = 0, r = 0}
 game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
     if _G.StartFly == true then
         if key:lower() == "w" then
-            ctrl.f = 1 
+            ctrl.f = _G.SetSpeedFly
         elseif key:lower() == "s" then 
-            ctrl.b = -1 
+            ctrl.b = -_G.SetSpeedFly
         elseif key:lower() == "a" then 
-            ctrl.l = -1 
+            ctrl.l = -_G.SetSpeedFly
         elseif key:lower() == "d" then 
-            ctrl.r = 1 
+            ctrl.r = _G.SetSpeedFly
         end 
     end
 end) 
@@ -13575,6 +13611,46 @@ end
 end
     end
 })
+elseif game.PlaceId == 106620300132058 then
+local Window = Library:CreateWindow({
+    Title = "Plate 🍽️",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+	Footer = "Omega X Article Hub Version: 1.0.5",
+	Icon = 83462777349222,
+	ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Badge")
+
+MainGroup:AddButton("Get Badge", function()
+if LoadingBadge then return end
+LoadingBadge = true
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	if workspace:FindFirstChild("Obstacles") then workspace.Obstacles:Destroy() end
+	Notification("Bypass plate obstacles", 5)
+	Notification("Wait in until glove appear", 5)
+	workspace:GetAttributeChangedSignal("Completed"):Connect(function()
+		if workspace:GetAttribute("Completed") == true then
+			Notification("Done Bro", 5)
+			while task.wait() do
+				if workspace:FindFirstChild("Glove Model"):FindFirstChild("Hand") then
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Glove Model"].Hand.CFrame
+				end
+			end
+		end
+	end)
+end
+end)
 end
 
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
