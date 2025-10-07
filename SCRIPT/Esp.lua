@@ -888,9 +888,21 @@ local RenderConnection = RunService.Heartbeat:Connect(function()
 						arrow = arrowTemplate:Clone()
 						arrow.Parent = ArrowsFrame
 						arrow.Name = Library:GenerateRandomString()
+
+
 						arrow:WaitForChild("Constraint").Name = Library:GenerateRandomString()
-						ArrowsTable[obj] = arrow	TweenService:Create(arrow ,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{ImageTransparency = 0}):Play()
+
+
+
+
+						ArrowsTable[obj] = arrow
+
+
+						TweenService:Create(arrow ,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{ImageTransparency = 0}):Play()
+
+
 					elseif Library.ElementsEnabled[obj] == true then
+
 						if onScreen and screenPoint.Z > 0 then
 							ArrowsTable[obj].Visible = false
 						else
@@ -900,24 +912,44 @@ local RenderConnection = RunService.Heartbeat:Connect(function()
 							ArrowsTable[obj].Visible = true
 
 							ArrowsTable[obj].ImageColor3 = (Library.Rainbow == true and Library.RainbowColor or ColorTable[obj])
+
+
 						end
+
+
 					end
 				end
 			end
+
 		end
 	end)
 
+
+
+
+
+
 function Library:Unload()
 	for i,Object in pairs(Library.Objects) do
+
 		Library:RemoveESP(Object)
 	end
+
 	for i,Connection in pairs(ConnectionsTable) do
 		Connection:Disconnect()
 	end
+
+
 	CameraConnection:Disconnect()
+
 RenderConnection:Disconnect()
+
+
+
 	ScreenGui.Enabled = false
 	Library.Unloaded = true
+
+
 end
 -- Finishing Touches --
 
