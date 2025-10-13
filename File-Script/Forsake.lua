@@ -1,27 +1,143 @@
-local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
 local PFS = game:GetService("PathfindingService")
-local VIM = game:GetService("VirtualInputManager")
-local TeleportService = game:GetService("TeleportService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local LP = Players.LocalPlayer
-local Spectators = {}
-local currentCharacter
-local isInGame, busy, isSprinting = false, false, false
-local stamina, counter = 100, 0
-local Killer, Survivor = false, false
+local Storage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
+local playerout = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
 
-local function safe(pos)
-    local rayParams = RaycastParams.new()
-    rayParams.FilterDescendantsInstances = {workspace.Map.Ingame.Map}
-    rayParams.FilterType = Enum.RaycastFilterType.Include
-    local rayResult = workspace:Raycast(pos + Vector3.new(0, 5, 0), Vector3.new(0, -10, 0), rayParams)
-    if rayResult then
-        local yDiff = math.abs(rayResult.Position.Y - pos.Y)
-        return yDiff < 5 
-    end
-    return false
+local Modules = Storage:WaitForChild("Modules")
+local Network = Modules and Modules:WaitForChild("Network")
+local Remote = Network and Network:WaitForChild("RemoteEvent")
+
+local player = playerout.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local root = char:WaitForChild("HumanoidRootPart")
+local hum = char:WaitForChild("Humanoid")
+local playergui = player:WaitForChild("PlayerGui")
+local maingui = playergui:WaitForChild("MainUI")
+
+spawn(function()
+	while task.wait() do
+		char = player.Character or player.CharacterAdded:Wait()
+		root = char:WaitForChild("HumanoidRootPart")
+		hum = char:WaitForChild("Humanoid")
+	end
+end)
+
+function Distance(pos)
+	if root then
+		return (root.Position - pos).Magnitude
+	end
+end
+function Distance2(pos)
+	if root then
+		return (pos - root.Position).Magnitude
+	end
 end
 
+_G.GetOldBright = {
+	["Old"] = {
+		Brightness = Lighting.Brightness,
+		ClockTime = Lighting.ClockTime,
+		FogEnd = Lighting.FogEnd,
+		FogStart = Lighting.FogStart,
+		GlobalShadows = Lighting.GlobalShadows,
+		OutdoorAmbient = Lighting.OutdoorAmbient
+	},
+	["New"] = {
+		Brightness = 2,
+		ClockTime = 14,
+		FogEnd = 200000,
+		FogStart = 100000,
+		GlobalShadows = false,
+		OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+	}
+}
+
+getgenv()._VoidRushBypass = false
+getgenv()._oldFireServer = nil
+if not getgenv()._oldFireServer then
+    local old
+    old = hookmetamethod(game, "__namecall", function(self, ...)
+        local method = getnamecallmethod()
+        local args = {...}
+        if self == Remote and method == "FireServer" then
+            if args[1] == player.Name.."VoidRushCollision" then
+                if getgenv()._VoidRushBypass then
+                    return 
+                end
+            end
+        end
+        return old(self, ...)
+    end)
+    getgenv()._oldFireServer = old
+end
+
+Animations = {
+	["KillerAnima"] = {
+	    "126830014841198", "126355327951215", "121086746534252", "18885909645",
+	    "98456918873918", "105458270463374", "83829782357897", "125403313786645",
+	    "118298475669935", "82113744478546", "70371667919898", "99135633258223",
+	    "97167027849946", "109230267448394", "139835501033932", "126896426760253",
+	    "109667959938617", "126681776859538", "129976080405072", "121293883585738",
+	    "81639435858902", "137314737492715", "92173139187970"
+	},
+	["Shot - Punch"] = {
+		["103601716322988"] = true, ["133491532453922"] = true, ["86371356500204"] = true, ["76649505662612"] = true, 
+		["81698196845041"] = true,["87259391926321"] = true, ["140703210927645"] = true, ["136007065400978"] = true, 
+		["136007065400978"] = true, ["129843313690921"] = true, ["129843313690921"] = true, ["86096387000557"] = true,
+		["86709774283672"] = true, ["87259391926321"] = true, ["129843313690921"] = true, ["129843313690921"] = true,
+		["108807732150251"] = true, ["138040001965654"] = true, ["86096387000557"] = true
+	}
+}
+
+local function isFacing(targetRoot)
+    local dot = targetRoot.CFrame.LookVector:Dot((root.Position - targetRoot.Position).Unit)
+    return dot > -0.3
+end
+
+function KillerTarget()
+    local killersFolder = workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild("Killers")
+    if killersFolder then
+        for _, v in ipairs(killersFolder:GetChildren()) do
+            if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") then
+                return v.HumanoidRootPart
+            end
+        end
+    end
+    return nil
+end
+
+function PlayingAnimationId()
+    local ids = {}
+    if hum then
+        for _, v in ipairs(hum:GetPlayingAnimationTracks()) do
+            if v.Animation and v.Animation.AnimationId then
+                local id = v.Animation.AnimationId:match("%d+")
+                if id then
+                    ids[id] = true
+                end
+            end
+        end
+    end
+    return ids
+end
+
+function CheckWall(Target)
+    local Direction = (Target.Position - game.Workspace.CurrentCamera.CFrame.Position).unit * (Target.Position - game.Workspace.CurrentCamera.CFrame.Position).Magnitude
+    local RaycastParams = RaycastParams.new()
+    RaycastParams.FilterDescendantsInstances = {game.Players.LocalPlayer.Character, game.Workspace.CurrentCamera}
+    RaycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    local Result = game.Workspace:Raycast(game.Workspace.CurrentCamera.CFrame.Position, Direction, RaycastParams)
+    return Result == nil or Result.Instance:IsDescendantOf(Target)
+end
+
+local ESPLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/bocaj111004/ESPLibrary/refs/heads/main/Library.lua"))()
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/Test.lua"))()
 local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/ThemeManagerCopy.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/SaveManagerCopy.lua"))()
@@ -44,6 +160,120 @@ if _G.NotificationSound then
     end
 
 Library:SetDPIScale(85)
+Library:SetWatermarkVisibility(true)
+
+local FrameTimer = tick()
+local CurrentRooms = 0
+local FrameCounter = 0
+local FPS = 60
+_G.PunchFlingPower = 10000
+RunService.RenderStepped:Connect(function()
+FrameCounter += 1
+if (tick() - FrameTimer) >= 1 then
+    FPS = FrameCounter
+    FrameTimer = tick()
+    FrameCounter = 0
+end
+local Killer
+local ClosestDistance
+for i, v in pairs(game.Workspace.Players.Killers:GetChildren()) do
+	if v:IsA("Model") and v:GetAttribute("Username") ~= player.Name then
+		Killer = v.Name
+		ClosestDistance = Distance2(v:GetPivot().Position)
+	end
+end
+if hum then SpeedUp = hum.WalkSpeed else SpeedUp = 0 end
+Library:SetWatermark(("Killer: %s (%s m) | %s Speed | %s FPS | %s MS"):format(
+	Killer or "N/A",
+	math.floor(ClosestDistance or 0),
+	math.floor(SpeedUp or 0),
+    math.floor(FPS),
+    math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+))
+for i, v in pairs(_G.GetOldBright.New) do
+	if _G.FullBright then
+		Lighting[i] = v
+	end
+end
+if _G.VoidRushControl and char and char:GetAttribute("VoidRushState") == "Dashing" then
+	hum.WalkSpeed = 60
+	hum.AutoRotate = false
+	
+	local horizontal = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+	if horizontal.Magnitude > 0 then
+	    hum:Move(horizontal.Unit)
+	end
+end
+if _G.AutoBlock or _G.Punch then
+	local Punch = maingui and maingui:FindFirstChild("AbilityContainer") and maingui.AbilityContainer:FindFirstChild("Punch")
+    local charges = Punch and Punch:FindFirstChild("Charges")
+    local Block = maingui and maingui:FindFirstChild("AbilityContainer") and maingui.AbilityContainer:FindFirstChild("Block")
+    local cooldown = Block and Block:FindFirstChild("CooldownTime")
+    
+	for _, v in ipairs(playerout:GetPlayers()) do
+	    if v ~= player and v.Character then
+	        local hrp = v.Character:FindFirstChild("HumanoidRootPart")
+	        local humplr = v.Character:FindFirstChildOfClass("Humanoid")
+	        local animTracks = humplr and humplr:FindFirstChildOfClass("Animator") and humplr:FindFirstChildOfClass("Animator"):GetPlayingAnimationTracks()
+	        if hrp and Distance2(hrp.Position) <= (_G.DetectionRange or 18) then
+	            for _, track in ipairs(animTracks or {}) do
+	                if table.find(Animations["KillerAnima"], tostring(track.Animation.AnimationId):match("%d+")) then
+                        if _G.AutoBlock and Distance2(hrp.Position) <= (_G.DetectionRange or 18) then
+                            if isFacing(hrp) then
+	                            if cooldown and cooldown.Text == "" then
+                                    Remote:FireServer("UseActorAbility", {buffer.fromstring("\"Block\"")})
+                                end
+                                if _G.Punch and charges and charges.Text == "1" then
+                                    Remote:FireServer("UseActorAbility", {buffer.fromstring("\"Punch\"")})
+                                end
+                            end
+                        end
+                    end
+	            end
+	        end
+	    end
+	end
+end
+if _G.Aimbot or _G.AimbotPunch then
+	local playing = PlayingAnimationId()
+    local triggered = false
+    for v in pairs(Animations["Shot - Punch"]) do
+        if playing[v] then
+            triggered = true
+            break
+        end
+    end
+    if triggered then
+        Time = tick()
+        aiming = true
+    end
+    if aiming and tick() - Time <= 1.7 then
+        if not WS then
+            WS = hum.WalkSpeed
+            JP = hum.JumpPower
+            AutoRotate = hum.AutoRotate
+        end
+        hum.AutoRotate = false
+        root.AssemblyAngularVelocity = Vector3.zero
+        local targetHRP = KillerTarget()
+        local prediction = _G.Prediction or 1
+        if targetHRP then
+            local predictedPos = targetHRP.Position + (targetHRP.CFrame.LookVector * prediction)
+            local direction = (predictedPos - root.Position).Unit
+            local yRot = math.atan2(-direction.X, -direction.Z)
+            root.CFrame = CFrame.new(root.Position) * CFrame.Angles(0, yRot, 0)
+        end
+    elseif aiming then
+        aiming = false
+        if WS and JP and AutoRotate then
+            hum.WalkSpeed = WS
+            hum.JumpPower = JP
+            hum.AutoRotate = AutoRotate
+            WS, JP, AutoRotate = nil, nil, nil
+        end
+    end
+end
+end)
 
 local Window = Library:CreateWindow({
     Title = "Forsake",
@@ -61,7 +291,7 @@ local Window = Library:CreateWindow({
 
 Tabs = {
 	Tab = Window:AddTab("Main", "rbxassetid://7734053426"),
-	Tab2 = Window:AddTab("Anti", "rbxassetid://7734056608"),
+	Tab2 = Window:AddTab("Auto", "rbxassetid://7734056608"),
 	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
 }
 
@@ -87,12 +317,12 @@ end
 
 Main1Group:AddButton("Teleport To Generator", function()
 if workspace.Map.Ingame:FindFirstChild("Map") then
-for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-if v.Name == "Generator" and v:FindFirstChild("Positions") and v.Positions:FindFirstChild("Center") and v:FindFirstChild("Progress").Value ~= 100 then
-LP.Character.HumanoidRootPart.CFrame = v.Positions:FindFirstChild("Center").CFrame
-break
-end
-end
+	for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+		if v.Name == "Generator" and v:FindFirstChild("Positions") and v.Positions:FindFirstChild("Center") and v:FindFirstChild("Progress").Value ~= 100 then
+			root.CFrame = v.Positions:FindFirstChild("Center").CFrame
+			break
+		end
+	end
 end
 end)
 
@@ -131,258 +361,69 @@ Main1Group:AddToggle("SetSpeed", {
     Callback = function(Value) 
 _G.NahSpeed = Value
 while _G.NahSpeed do
-if LP.Character:FindFirstChild("Humanoid") then
-LP.Character.Humanoid:SetAttribute("BaseSpeed", _G.SpeedWalk)
-if LP.Character.Humanoid:GetAttribute("BaseSpeed") == _G.SpeedWalk then
-LP.Character.Humanoid.WalkSpeed = _G.SpeedWalk
-end
+if hum then
+hum:SetAttribute("BaseSpeed", _G.SpeedWalk)
 end
 task.wait()
 end
     end
 })
 
-Main1Group:AddToggle("ItemPick", {
-    Text = "Auto PickUp Item",
+local Main3Group = Tabs.Tab:AddLeftGroupbox("Misc")
+
+Main3Group:AddSlider("Health", {
+    Text = "Health",
+    Default = 20,
+    Min = 7,
+    Max = 50,
+    Rounding = 0,
+    Compact = false,
+    Callback = function(Value)
+_G.HealthPizza = Value
+    end
+})
+
+Main3Group:AddToggle("Auto Eat Pizza", {
+    Text = "Auto Eat Pizza",
     Default = false, 
     Callback = function(Value) 
-_G.PickupItem = Value
-while _G.PickupItem do
-if workspace.Map.Ingame:FindFirstChild("Map") then
-for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-if v:IsA("Tool") and v:FindFirstChild("ItemRoot") and v.ItemRoot:FindFirstChild("ProximityPrompt") then
-if (LP.Character.HumanoidRootPart.Position - v.ItemRoot.Position).Magnitude < 25 then
-fireproximityprompt(v.ItemRoot:FindFirstChild("ProximityPrompt"))
-end
-end
-end
+_G.AutoEatPizza = Value
+while _G.AutoEatPizza do
+if hum and hum.Health <= _G.HealthPizza then
+	local OldCFrame = root.CFrame
+	local pizza = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ingame") and workspace.Map.Ingame:FindFirstChild("Pizza")
+	if pizza and pizza:IsA("BasePart") then
+		root.CFrame = pizza.CFrame
+		task.wait(0.5)
+		root.CFrame = OldCFrame
+		wait(0.3)
+	end
 end
 task.wait()
 end
     end
 })
 
-Main1Group:AddButton("Pick Up Item", function()
-if workspace.Map.Ingame:FindFirstChild("Map") then
-OldCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-if v:IsA("Tool") and v:FindFirstChild("ItemRoot") and v.ItemRoot:FindFirstChild("ProximityPrompt") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChild("ItemRoot").CFrame
-wait(0.3)
-fireproximityprompt(v.ItemRoot:FindFirstChild("ProximityPrompt"))
-wait(0.4)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldCFrame
-break
-end
-end
-end
-end)
-
-Main1Group:AddToggle("AutoExpMoney", {
-    Text = "Auto Farm Exp / Money",
+Main3Group:AddToggle("VoidRushBypass", {
+    Text = "Void Rush Bypass",
     Default = false, 
     Callback = function(Value) 
-_G.AutoFarm = Value
-task.spawn(function()
-    while _G.AutoFarm do
-        Spectators = {}
-        for _, v in ipairs(workspace:WaitForChild("Players"):WaitForChild("Spectating"):GetChildren()) do
-            table.insert(Spectators, v.Name)
-        end
-        isInGame = not table.find(Spectators, LP.Name)
-        task.wait(1)
+getgenv()._VoidRushBypass = Value
     end
-end)
-task.spawn(function()
-    while _G.AutoFarm do
-        if isInGame and currentCharacter and currentCharacter:FindFirstChild("Humanoid") then
-            pcall(function()
-                currentCharacter.Humanoid:SetAttribute("BaseSpeed", 14)
-                local barText = LP:WaitForChild("PlayerGui"):WaitForChild("TemporaryUI"):WaitForChild("PlayerInfo").Bars.Stamina.Amount.Text
-                stamina = tonumber(string.split(barText, "/")[1]) or 100
-                local fovMult = currentCharacter:FindFirstChild("FOVMultipliers") and currentCharacter.FOVMultipliers:FindFirstChild("Sprinting")
-                if fovMult and fovMult.Value ~= 1.125 and stamina >= 70 and not busy then
-                    VIM:SendKeyEvent(true, Enum.KeyCode.LeftShift, false, game)
-                end
-            end)
-        end
-        task.wait(1)
-    end
-end)
-task.spawn(function()
-    while _G.AutoFarm do
-        if workspace:FindFirstChild("Players") then
-            local killersFolder = workspace.Players:FindFirstChild("Killers")
-            local survivorsFolder = workspace.Players:FindFirstChild("Survivors")
-            if killersFolder and survivorsFolder then
-                Killer = killersFolder:FindFirstChild(LP.Name) or table.find(killersFolder:GetChildren(), LP.Character)
-                Survivor = survivorsFolder:FindFirstChild(LP.Name) or table.find(survivorsFolder:GetChildren(), LP.Character)
-            end
-        end
-        task.wait(1)
-    end
-end)
-task.spawn(function()
-    task.wait(2)
-    local killersFolder = workspace.Players:WaitForChild("Killers")
-    local survivorsFolder = workspace.Players:WaitForChild("Survivors")
-    while _G.AutoFarm do
-        if Killer then
-            local target = nil
-            for _, survivor in ipairs(survivorsFolder:GetChildren()) do
-                if survivor:IsA("Model") and survivor:FindFirstChild("HumanoidRootPart") then
-                    target = survivor
-                    break
-                end
-            end
-            if target then
-                followingTarget = _G.AutoFarm
-                task.spawn(function()
-                    while followingTarget do
-                        local character = LP.Character
-                        if character and character:FindFirstChild("HumanoidRootPart") and target:FindFirstChild("HumanoidRootPart") then
-                            character:PivotTo(target.HumanoidRootPart.CFrame)
-                        end
-                        task.wait(0.1)
-                    end
-                end)
-                task.spawn(function()
-                    while target and target:FindFirstChild("HumanoidRootPart") and target:IsDescendantOf(survivorsFolder) do
-                        VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                        task.wait(0.05)
-                        VIM:SendMouseButtonEvent(0, 0, 0, false, game, 0)
-                        task.wait(0.1)
-                        VIM:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
-                        task.wait(0.05)
-                        VIM:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
-                        task.wait(0.1)
-                        VIM:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-                        task.wait(0.05)
-                        VIM:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-                        task.wait(0.1)
-                        VIM:SendKeyEvent(true, Enum.KeyCode.R, false, game)
-                        task.wait(0.05)
-                        VIM:SendKeyEvent(false, Enum.KeyCode.R, false, game)
-                        task.wait(0.8)
-                    end
-                    followingTarget = false 
-                end)
-            else
-                task.wait(1)
-            end
-        elseif Survivor then
-            if isInGame then
-                for _, surv in ipairs(survivorsFolder:GetChildren()) do
-                    if surv:GetAttribute("Username") == LP.Name then
-                        currentCharacter = surv
-                        break
-                    end
-                end
-                task.spawn(function()
-                    while _G.AutoFarm do
-                        if currentCharacter and currentCharacter:FindFirstChild("Humanoid") and currentCharacter.Humanoid.Health <= 0 then
-                            isInGame = false
-                            isSprinting = false
-                            busy = false
-                            break
-                        end
-                        task.wait(0.5)
-                    end
-                end)
-                for _, completedgen in ipairs(ReplicatedStorage.ObjectiveStorage:GetChildren()) do
-                    if not isInGame then break end
-                    local required = completedgen:GetAttribute("RequiredProgress")
-                    if completedgen.Value == required then
-                        while #killersFolder:GetChildren() >= 1 do
-                            for _, killer in ipairs(killersFolder:GetChildren()) do
-                                if currentCharacter and killer:FindFirstChild("HumanoidRootPart") and currentCharacter:FindFirstChild("HumanoidRootPart") then
-                                    local killerHRP = killer.HumanoidRootPart
-                                    local charHRP = currentCharacter.HumanoidRootPart
-                                    local dist = (killerHRP.Position - charHRP.Position).Magnitude
-                                  if dist <= 100 then
-    local fleeDistance = 50
-    local bestFleePos = nil
-    for i = 1, 10 do
-        local randomAngle = math.rad(math.random(-180, 180))
-        local cos, sin = math.cos(randomAngle), math.sin(randomAngle)
-        local randomDir = Vector3.new(cos, 0, sin).Unit
-        local potentialPos = charHRP.Position + randomDir * fleeDistance
-        if safe(potentialPos) then
-            local path = PFS:CreatePath({
-                AgentRadius = 2,
-                AgentHeight = 5,
-                AgentCanJump = true,
-            })
-            local success, err = pcall(function()
-                path:ComputeAsync(charHRP.Position, potentialPos)
-            end)
-            if success and path.Status == Enum.PathStatus.Success then
-                local waypoints = path:GetWaypoints()
-                for i = #waypoints, 1, -1 do
-                    if safe(waypoints[i].Position) then
-                        bestFleePos = waypoints[i].Position
-                        break
-                    end
-                end
-                if bestFleePos then break end
-            end
-        end
-    end
-    if bestFleePos then
-        currentCharacter:PivotTo(CFrame.new(bestFleePos + Vector3.new(0, 3, 0))) 
+})
+
+Main3Group:AddToggle("VoidRushControl", {
+    Text = "Void Rush Control",
+    Default = false, 
+    Callback = function(Value) 
+_G.VoidRushControl = Value
+if Value == false then
+	if hum then
+        hum.WalkSpeed = 16 
+        hum.AutoRotate = true
+        hum:Move(Vector3.new(0, 0, 0))
     end
 end
-                                end
-                                task.wait(0.1)
-                            end
-                        end
-                    else
-                        for _, gen in ipairs(workspace.Map.Ingame:WaitForChild("Map"):GetChildren()) do
-                            if gen.Name == "Generator" and gen:FindFirstChild("Progress") and gen.Progress.Value ~= 100 then
-                                if currentCharacter and currentCharacter:FindFirstChild("HumanoidRootPart") then
-                                    local goalPos = gen:WaitForChild("Positions"):WaitForChild("Right").Position
-                                    currentCharacter:PivotTo(CFrame.new(goalPos + Vector3.new(0, 2, 0)))
-                                    task.wait(0.25)
-                                    local thing = gen:FindFirstChild("Main")
-                                    if thing then
-                                        thing = thing:FindFirstChild("Prompt")
-                                        if thing then
-                                            thing.HoldDuration = 0
-                                            thing.RequiresLineOfSight = false
-                                            thing.MaxActivationDistance = 99999
-                                            task.wait(0.1)
-                                            pcall(function()
-                                                thing:InputHoldBegin()
-                                                thing:InputHoldEnd()
-                                            end)
-                                            busy = true
-                                            counter = 0
-                                            while gen.Progress.Value ~= 100 do
-                                                pcall(function()
-                                                    thing:InputHoldBegin()
-                                                    thing:InputHoldEnd()
-                                                    if _G.AutoGeneral == false then
-	                                                    gen.Remotes.RE:FireServer()
-													end
-                                                end)
-                                                task.wait(2.5)
-                                                counter += 1
-                                                if counter >= 10 or not isInGame then break end
-                                            end
-                                            busy = false
-                                            if not isInGame then break end
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-        task.wait(0.5)
-    end
-end)
     end
 })
 
@@ -394,128 +435,45 @@ Main2Group:AddToggle("Generator", {
     Callback = function(Value) 
 _G.EspGeneral = Value
 if _G.EspGeneral == false then
-if workspace.Map.Ingame:FindFirstChild("Map") then
-	for i, v in pairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-		if v.Name == "Generator" then
-			for x, n in pairs(v:GetChildren()) do
-				if n.Name:find("Esp_") then
-					n:Destroy()
-				end
+	if workspace.Map.Ingame:FindFirstChild("Map") then
+		for i, v in pairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+			if v.Name == "Generator" then
+				ESPLibrary:RemoveESP(v)
 			end
 		end
 	end
 end
-end
 while _G.EspGeneral do
 if workspace.Map.Ingame:FindFirstChild("Map") then
-for i, v in pairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-if v.Name == "Generator" and v:FindFirstChild("Progress") then
-if v:FindFirstChild("Esp_Highlight") then
-	if v:FindFirstChild("Progress").Value == 100 then
-		v:FindFirstChild("Esp_Highlight").FillColor = Color3.fromRGB(0, 255, 0)
-		v:FindFirstChild("Esp_Highlight").OutlineColor = Color3.fromRGB(0, 255, 0)
-	else
-		v:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.new(255, 255, 255)
-		v:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.new(255, 255, 255)
+	for i, v in pairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+		if v.Name == "Generator" and v:FindFirstChild("Progress") then
+			if v.Progress.Value == 100 then
+				GeneratorColor = Color3.fromRGB(0, 255, 0)
+			else
+				GeneratorColor = _G.ColorEspGen or Color3.fromRGB(9, 123, 237)
+			end
+			local TextGen = "Generator ("..v.Progress.Value..")"
+			ESPLibrary:AddESP({
+				Object = v,
+				Text = TextGen,
+				Color = GeneratorColor
+			})
+			ESPLibrary:UpdateObjectText(v, TextGen)
+			ESPLibrary:UpdateObjectColor(v, GeneratorColor)
+			ESPLibrary:SetOutlineColor(GeneratorColor)
+		end
 	end
-end
-if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
-	local Highlight = Instance.new("Highlight")
-	Highlight.Name = "Esp_Highlight"
-	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
-	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
-	Highlight.FillTransparency = 0.5
-	Highlight.OutlineTransparency = 0
-	Highlight.Adornee = v
-	Highlight.Parent = v
-	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
-	v:FindFirstChild("Esp_Highlight"):Destroy()
-end
-if v:FindFirstChild("Esp_Gui") and v["Esp_Gui"]:FindFirstChild("TextLabel") then
-	v["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and "Generator ("..v.Progress.Value.."%)" or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Positions.Canter.Position).Magnitude).."m)" or "")
-    v["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
-    v["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
-end
-if _G.EspGui == true and v:FindFirstChild("Esp_Gui") == nil then
-	GuiGenEsp = Instance.new("BillboardGui", v)
-	GuiGenEsp.Adornee = v
-	GuiGenEsp.Name = "Esp_Gui"
-	GuiGenEsp.Size = UDim2.new(0, 100, 0, 150)
-	GuiGenEsp.AlwaysOnTop = true
-	GuiGenEsp.StudsOffset = Vector3.new(0, 3, 0)
-	GuiGenEspText = Instance.new("TextLabel", GuiGenEsp)
-	GuiGenEspText.BackgroundTransparency = 1
-	GuiGenEspText.Font = Enum.Font.Code
-	GuiGenEspText.Size = UDim2.new(0, 100, 0, 100)
-	GuiGenEspText.TextSize = 15
-	GuiGenEspText.TextColor3 = Color3.new(0,0,0) 
-	GuiGenEspText.TextStrokeTransparency = 0.5
-	GuiGenEspText.Text = ""
-	local UIStroke = Instance.new("UIStroke")
-	UIStroke.Color = Color3.new(0, 0, 0)
-	UIStroke.Thickness = 1.5
-	UIStroke.Parent = GuiGenEspText
-	elseif _G.EspGui == false and v:FindFirstChild("Esp_Gui") then
-	v:FindFirstChild("Esp_Gui"):Destroy()
-end
-end
-end
 end
 task.wait()
 end
     end
+}):AddColorPicker("Color Esp Gen", {
+     Default = Color3.fromRGB(9, 123, 237),
+     Callback = function(Value)
+_G.ColorEspGen = Value
+     end
 })
 
-function Esp_Player(v, Colorlight)
-if v:FindFirstChild("Esp_Highlight") then
-	v:FindFirstChild("Esp_Highlight").FillColor = Colorlight or Color3.fromRGB(255, 255, 255)
-	v:FindFirstChild("Esp_Highlight").OutlineColor = Colorlight or Color3.fromRGB(255, 255, 255)
-end
-if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
-	local Highlight = Instance.new("Highlight")
-	Highlight.Name = "Esp_Highlight"
-	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
-	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
-	Highlight.FillTransparency = 0.5
-	Highlight.OutlineTransparency = 0
-	Highlight.Adornee = v
-	Highlight.Parent = v
-	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
-	v:FindFirstChild("Esp_Highlight"):Destroy()
-end
-if v.Head:FindFirstChild("Esp_Gui") and v.Head["Esp_Gui"]:FindFirstChild("TextLabel") then
-	v.Head["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and v.Name or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.1f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude).."m)" or "")..
-            (_G.EspHealth == true and "\nHealth ("..string.format("%.0f", v.Humanoid.Health)..")" or "")
-    v.Head["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
-    v.Head["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
-end
-if _G.EspGui == true and v.Head:FindFirstChild("Esp_Gui") == nil then
-	GuiPlayerEsp = Instance.new("BillboardGui", v.Head)
-	GuiPlayerEsp.Adornee = v.Head
-	GuiPlayerEsp.Name = "Esp_Gui"
-	GuiPlayerEsp.Size = UDim2.new(0, 100, 0, 150)
-	GuiPlayerEsp.AlwaysOnTop = true
-	GuiPlayerEsp.StudsOffset = Vector3.new(0, 3, 0)
-	GuiPlayerEspText = Instance.new("TextLabel", GuiPlayerEsp)
-	GuiPlayerEspText.BackgroundTransparency = 1
-	GuiPlayerEspText.Font = Enum.Font.Code
-	GuiPlayerEspText.Size = UDim2.new(0, 100, 0, 100)
-	GuiPlayerEspText.TextSize = 15
-	GuiPlayerEspText.TextColor3 = Color3.new(0,0,0) 
-	GuiPlayerEspText.TextStrokeTransparency = 0.5
-	GuiPlayerEspText.Text = ""
-	local UIStroke = Instance.new("UIStroke")
-	UIStroke.Color = Color3.new(0, 0, 0)
-	UIStroke.Thickness = 1.5
-	UIStroke.Parent = GuiPlayerEspText
-	elseif _G.EspGui == false and v.Head:FindFirstChild("Esp_Gui") then
-	v.Head:FindFirstChild("Esp_Gui"):Destroy()
-end
-end
 Main2Group:AddToggle("Killer", {
     Text = "Esp Killer",
     Default = false, 
@@ -524,13 +482,8 @@ _G.EspKiller = Value
 if _G.EspKiller == false then
 	for i, v in pairs(game.Workspace.Players:GetChildren()) do
 		if v.Name == "Killers" then
-			if v:FindFirstChild("Esp_Highlight") then
-				v:FindFirstChild("Esp_Highlight"):Destroy()
-			end
-			for y, z in pairs(v.Head:GetChildren()) do
-				if z.Name:find("Esp_") then
-					z:Destroy()
-				end
+			for y, z in pairs(v:GetChildren()) do
+				ESPLibrary:RemoveESP(z)
 			end
 		end
 	end
@@ -539,8 +492,17 @@ while _G.EspKiller do
 for i, v in pairs(game.Workspace.Players:GetChildren()) do
 	if v.Name == "Killers" then
 		for y, z in pairs(v:GetChildren()) do
-			if z:GetAttribute("Username") ~= game.Players.LocalPlayer.Name and z:FindFirstChild("HumanoidRootPart") and z:FindFirstChild("Humanoid") and z:FindFirstChild("Head") then
-				Esp_Player(z, _G.ColorLightKill or Color3.fromRGB(255, 0, 0))
+			if z:GetAttribute("Username") ~= player.Name then
+				local KillerColor = _G.ColorLightKill or Color3.new(255, 0, 0)
+				local TextKiller = z.Name
+				ESPLibrary:AddESP({
+					Object = z,
+					Text = TextKiller,
+					Color = KillerColor
+				})
+				ESPLibrary:UpdateObjectText(z, TextKiller)
+				ESPLibrary:UpdateObjectColor(z, KillerColor)
+				ESPLibrary:SetOutlineColor(KillerColor)
 			end
 		end
 	end
@@ -563,13 +525,8 @@ _G.EspSurvivors = Value
 if _G.EspSurvivors == false then
 	for i, v in pairs(game.Workspace.Players:GetChildren()) do
 		if v.Name == "Survivors" then
-			if v:FindFirstChild("Esp_Highlight") then
-				v:FindFirstChild("Esp_Highlight"):Destroy()
-			end
-			for y, z in pairs(v.Head:GetChildren()) do
-				if z.Name:find("Esp_") then
-					z:Destroy()
-				end
+			for y, z in pairs(v:GetChildren()) do
+				ESPLibrary:RemoveESP(z)
 			end
 		end
 	end
@@ -578,8 +535,17 @@ while _G.EspSurvivors do
 for i, v in pairs(game.Workspace.Players:GetChildren()) do
 	if v.Name == "Survivors" then
 		for y, z in pairs(v:GetChildren()) do
-			if z:GetAttribute("Username") ~= game.Players.LocalPlayer.Name and z:FindFirstChild("HumanoidRootPart") and z:FindFirstChild("Humanoid") and z:FindFirstChild("Head") then
-				Esp_Player(z, _G.ColorLightSurvivors or Color3.fromRGB(0, 255, 0))
+			if z:GetAttribute("Username") ~= player.Name then
+				local SurvivorsColor = _G.ColorLightSurvivors or Color3.new(0, 255, 0)
+				local TextSurvivors = z.Name
+				ESPLibrary:AddESP({
+					Object = z,
+					Text = TextSurvivors,
+					Color = SurvivorsColor
+				})
+				ESPLibrary:UpdateObjectText(z, TextSurvivors)
+				ESPLibrary:UpdateObjectColor(z, SurvivorsColor)
+				ESPLibrary:SetOutlineColor(SurvivorsColor)
 			end
 		end
 	end
@@ -600,167 +566,251 @@ Main2Group:AddToggle("Item", {
     Callback = function(Value) 
 _G.EspItem = Value
 if _G.EspItem == false then
-if workspace.Map.Ingame:FindFirstChild("Map") then
-for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-if v:IsA("Tool") and v:FindFirstChild("ItemRoot") then
-for c, n in ipairs(v:FindFirstChild("ItemRoot"):GetChildren()) do
-if v.Name:find("Esp_") then
-v:Destroy()
-end
-end
-end
-end
-end
+	if workspace.Map.Ingame:FindFirstChild("Map") then
+		for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+			if v:IsA("Tool") then
+				ESPLibrary:RemoveESP(v)
+			end
+		end
+	end
+	if workspace.Map:FindFirstChild("Ingame") then
+		for i, v in ipairs(workspace.Map.Ingame:GetChildren()) do
+			if v:IsA("Tool") then
+				ESPLibrary:RemoveESP(v)
+			end
+		end
+	end
+else
+	function EspItem(v)
+		if v:IsA("Tool") then
+			local ItemColor = _G.ColorItem or Color3.new(0, 255, 0)
+			local TextItem = v.Name
+			ESPLibrary:AddESP({
+				Object = v,
+				Text = TextItem,
+				Color = ItemColor
+			})
+			ESPLibrary:UpdateObjectText(v, TextItem)
+			ESPLibrary:UpdateObjectColor(v, ItemColor)
+			ESPLibrary:SetOutlineColor(ItemColor)
+		end
+	end
 end
 while _G.EspItem do
 if workspace.Map.Ingame:FindFirstChild("Map") then
-for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-if v:IsA("Tool") and v:FindFirstChild("ItemRoot") then
-if v.ItemRoot:FindFirstChild("Esp_Highlight") then
-	v.ItemRoot:FindFirstChild("Esp_Highlight").FillColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
-	v.ItemRoot:FindFirstChild("Esp_Highlight").OutlineColor = _G.ColorLight or Color3.fromRGB(255, 255, 255)
+	for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+		EspItem(v)
+	end
 end
-if _G.EspHighlight == true and v:FindFirstChild("Esp_Highlight") == nil then
-	local Highlight = Instance.new("Highlight")
-	Highlight.Name = "Esp_Highlight"
-	Highlight.FillColor = Color3.fromRGB(255, 255, 255) 
-	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255) 
-	Highlight.FillTransparency = 0.5
-	Highlight.OutlineTransparency = 0
-	Highlight.Adornee = v
-	Highlight.Parent = v
-	elseif _G.EspHighlight == false and v:FindFirstChild("Esp_Highlight") then
-	v:FindFirstChild("Esp_Highlight"):Destroy()
-end
-if v.ItemRoot:FindFirstChild("Esp_Gui") and v.ItemRoot["Esp_Gui"]:FindFirstChild("TextLabel") then
-	v.ItemRoot["Esp_Gui"]:FindFirstChild("TextLabel").Text = 
-	        (_G.EspName == true and v.Name or "")..
-            (_G.EspDistance == true and "\nDistance ("..string.format("%.0f", (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.ItemRoot.Position).Magnitude).."m)" or "")
-    v.ItemRoot["Esp_Gui"]:FindFirstChild("TextLabel").TextSize = _G.EspGuiTextSize or 15
-    v.ItemRoot["Esp_Gui"]:FindFirstChild("TextLabel").TextColor3 = _G.EspGuiTextColor or Color3.new(255, 255, 255)
-end
-if _G.EspGui == true and v.ItemRoot:FindFirstChild("Esp_Gui") == nil then
-	GuiItemEsp = Instance.new("BillboardGui", v.ItemRoot)
-	GuiItemEsp.Adornee = v.ItemRoot
-	GuiItemEsp.Name = "Esp_Gui"
-	GuiItemEsp.Size = UDim2.new(0, 100, 0, 150)
-	GuiItemEsp.AlwaysOnTop = true
-	GuiItemEsp.StudsOffset = Vector3.new(0, 3, 0)
-	GuiItemEspText = Instance.new("TextLabel", GuiItemEsp)
-	GuiItemEspText.BackgroundTransparency = 1
-	GuiItemEspText.Font = Enum.Font.Code
-	GuiItemEspText.Size = UDim2.new(0, 100, 0, 100)
-	GuiItemEspText.TextSize = 15
-	GuiItemEspText.TextColor3 = Color3.new(0,0,0) 
-	GuiItemEspText.TextStrokeTransparency = 0.5
-	GuiItemEspText.Text = ""
-	local UIStroke = Instance.new("UIStroke")
-	UIStroke.Color = Color3.new(0, 0, 0)
-	UIStroke.Thickness = 1.5
-	UIStroke.Parent = GuiItemEspText
-	elseif _G.EspGui == false and v.ItemRoot:FindFirstChild("Esp_Gui") then
-	v.ItemRoot:FindFirstChild("Esp_Gui"):Destroy()
-end
-end
-end
+if workspace.Map:FindFirstChild("Ingame") then
+	for i, v in ipairs(workspace.Map.Ingame:GetChildren()) do
+		EspItem(v)
+	end
 end
 task.wait()
 end
     end
-})
-
-Main2Group:AddDivider()
-
-_G.EspHighlight = false
-Main2Group:AddToggle("Esp Hight Light", {
-    Text = "Esp Hight Light",
-    Default = false, 
-    Callback = function(Value) 
-_G.EspHighlight = Value
-    end
-}):AddColorPicker("Color Esp", {
-     Default = Color3.new(255,255,255),
+}):AddColorPicker("Color Esp2 Item", {
+     Default = Color3.new(0, 255, 0),
      Callback = function(Value)
-_G.ColorLight = Value
+_G.ColorItem = Value
      end
 })
 
-_G.EspGui = false
-Main2Group:AddToggle("Esp Gui", {
-    Text = "Esp Gui",
-    Default = false, 
-    Callback = function(Value) 
-_G.EspGui = Value
+local Esp1 = Tabs.Tab:AddRightGroupbox("Settings Esp")
+
+local Font = {}
+for _, v in ipairs(Enum.Font:GetEnumItems()) do
+    table.insert(Font, v.Name)
+end
+Esp1:AddDropdown("Font", {
+    Text = "Set Font",
+    Values = Font,
+    Default = "Code",
+    Multi = false,
+    Callback = function(Value)
+if ESPLibrary then
+	ESPLibrary:SetFont(Value)
+end
     end
-}):AddColorPicker("Color Esp Text", {
-     Default = Color3.new(255,255,255),
-     Callback = function(Value)
-_G.EspGuiTextColor = Value
-     end
 })
 
-Main2Group:AddSlider("Text Size", {
-    Text = "Text Size [ Gui ]",
-    Default = 7,
-    Min = 7,
-    Max = 50,
+Esp1:AddToggle("Show Distance", {
+    Text = "Show Distance",
+    Default = false,
+    Callback = function(Value)
+if ESPLibrary then
+	ESPLibrary:SetShowDistance(Value)
+end
+    end
+})
+
+Esp1:AddToggle("Show Rainbow", {
+    Text = "Show Rainbow",
+    Default = false,
+    Callback = function(Value)
+if ESPLibrary then
+	ESPLibrary:SetRainbow(Value)
+end
+    end
+})
+
+Esp1:AddToggle("Show Tracers", {
+    Text = "Show Tracers",
+    Default = false,
+    Callback = function(Value)
+if ESPLibrary then
+	ESPLibrary:SetTracers(Value)
+end
+    end
+})
+
+Esp1:AddDropdown("TracersOrigin", {
+    Text = "Tracers Origin",
+    Multi = false,
+    Values = {"Bottom", "Top", "Center", "Mouse"},
+    Callback = function(Value)
+if ESPLibrary then
+	ESPLibrary:SetTracerOrigin(Value)
+end
+    end
+})
+
+Esp1:AddToggle("Show Arrows", {
+    Text = "Show Arrows",
+    Default = false,
+    Callback = function(Value)
+if ESPLibrary then
+	ESPLibrary:SetArrows(Value)
+end
+    end
+})
+
+Esp1:AddSlider("ArrowsSize", {
+    Text = "Set Arrows Radius",
+    Default = 300,
+    Min = 0,
+    Max = 500,
     Rounding = 0,
     Compact = false,
     Callback = function(Value)
-_G.EspGuiTextSize = Value
+if ESPLibrary then
+	ESPLibrary:SetArrowRadius(Value)
+end
     end
 })
 
-Main2Group:AddDivider()
-
-_G.EspName = false
-Main2Group:AddToggle("Esp Name", {
-    Text = "Esp Name",
-    Default = false, 
-    Callback = function(Value) 
-_G.EspName = Value
+Esp1:AddSlider("SetTextSize", {
+    Text = "Set TextSize",
+    Default = 15,
+    Min = 1,
+    Max = 50,
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+if ESPLibrary then
+	ESPLibrary:SetTextSize(Value)
+end
     end
 })
 
-_G.EspDistance = false
-Main2Group:AddToggle("Esp Distance", {
-    Text = "Esp Distance",
-    Default = false, 
-    Callback = function(Value) 
-_G.EspDistance = Value
+Esp1:AddSlider("SetFillTransparency", {
+    Text = "Set Fill Transparency",
+    Default = 0.6,
+    Min = 0,
+    Max = 1,
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+if ESPLibrary then
+	ESPLibrary:SetFillTransparency(Value)
+end
     end
 })
 
-_G.EspHealth = false
-Main2Group:AddToggle("Esp Health", {
-    Text = "Esp Health",
-    Default = false, 
-    Callback = function(Value) 
-_G.EspHealth = Value
+Esp1:AddSlider("SetOutlineTransparency", {
+    Text = "Set OutLine Transparency",
+    Default = 0.6,
+    Min = 0,
+    Max = 1,
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+if ESPLibrary then
+	ESPLibrary:SetOutlineTransparency(Value)
+end
     end
 })
 
-local Anti1Group = Tabs.Tab2:AddLeftGroupbox("Anti")
+local Anti1Group = Tabs.Tab2:AddLeftGroupbox("Auto Block")
 
-Anti1Group:AddToggle("Acid", {
-    Text = "Anti Acid",
+Anti1Group:AddToggle("Auto Block", {
+    Text = "Auto Block",
     Default = false, 
     Callback = function(Value) 
-_G.AntiAcid = Value
-while _G.AntiAcid do
-if workspace.Map.Ingame:FindFirstChild("Map") then
-for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-if v.Name == "AcidContainer" then
-for _, Acid in ipairs(v:GetChildren()) do
-if Acid:IsA("BasePart") then
-Acid.CanTouch = false
-end
-end
-end
-end
-end
-task.wait()
-end
+_G.AutoBlock = Value
+    end
+})
+
+Anti1Group:AddToggle("Auto Punch", {
+    Text = "Auto Punch",
+    Default = false, 
+    Callback = function(Value) 
+_G.Punch = Value
+    end
+})
+
+Anti1Group:AddToggle("Aimbot Punch", {
+    Text = "Aimbot Punch",
+    Default = false, 
+    Callback = function(Value) 
+_G.AimbotPunch = Value
+    end
+})
+
+Anti1Group:AddSlider("PunchFlingPower", {
+    Text = "Punch Fling Power",
+    Default = 10000,
+    Min = 1000,
+    Max = 1000000,
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+_G.PunchFlingPower = Value
+    end
+})
+
+Anti1Group:AddSlider("Detection Range", {
+    Text = "Detection Range (Animation)",
+    Default = detectionRange,
+    Min = 1,
+    Max = 50,
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+_G.DetectionRange = Value
+    end
+})
+
+local Anti2Group = Tabs.Tab2:AddRightGroupbox("Auto Stun")
+
+Anti2Group:AddToggle("Aimbot", {
+    Text = "Chance Aimbot Shot",
+    Default = false, 
+    Callback = function(Value) 
+_G.Aimbot = Value
+    end
+})
+
+Anti2Group:AddSlider("Sharpness", {
+    Text = "Sharpness",
+    Default = 4,
+    Min = 1,
+    Max = 10,
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+_G.Prediction = Value
     end
 })
 
