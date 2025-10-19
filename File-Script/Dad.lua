@@ -118,77 +118,6 @@ game:GetService("StarterGui"):SetCore("SendNotification",{
 end
 end
 
---// Floder Path \\--
-local folderPath = "Nihahaha Hub"
-local autoConfigFile = folderPath .. "/Auto.txt"
-
-if not isfolder(folderPath) then makefolder(folderPath) end
-
-local function getPath(name)
-	return folderPath .. "/" .. name .. ".json"
-end
-
-function SaveConfig(name, data)
-	writefile(getPath(name), HttpService:JSONEncode(data))
-	writefile(autoConfigFile, HttpService:JSONEncode({
-		NameFileSelected = name,
-		Auto = true
-	}))
-end
-
-function LoadConfig(name)
-	local path = getPath(name)
-	if isfile(path) then
-		local success, result = pcall(function()
-			return HttpService:JSONDecode(readfile(path))
-		end)
-		if success then return result end
-	end
-end
-
-function AutoLoadConfig()
-	if isfile(autoConfigFile) then
-		local success, auto = pcall(function()
-			return HttpService:JSONDecode(readfile(autoConfigFile))
-		end)
-		if success and auto.Auto and auto.NameFileSelected then
-			return LoadConfig(auto.NameFileSelected)
-		end
-	end
-end
-
-function readAuto()
-	if isfile(autoConfigFile) then
-		local success, result = pcall(function()
-			return HttpService:JSONDecode(readfile(autoConfigFile))
-		end)
-		if success then return result end
-	end
-	return { NameFileSelected = "Default", Auto = false }
-end
-
-function writeAuto(state)
-	local current = readAuto()
-	current.Auto = state
-	writefile(autoConfigFile, HttpService:JSONEncode(current))
-end
-
-function ListFiles()
-	local files = {}
-	for _, file in ipairs(listfiles(folderPath)) do
-		local name = file:match("([^/\\]+)%.json$")
-		if name then
-			table.insert(files, name)
-		end
-	end
-	return files
-end
-
-local themeValues = {}
-for name,_ in pairs(ui:GetThemes()) do
-    themeValues[#themeValues+1] = name
-end
-
 Tabs = {
     Tab = win:Tab({Title = "Main", Icon = "house"}),
     Tab1 = win:Tab({Title = "Misc", Icon = "layout-list"}),
@@ -1066,77 +995,16 @@ _G.EspHealth = Value
 })
 
 -----------------------------------
-Info = Tabs["Info"]
-local InviteCode = "aD7gjtvPmv"
-local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
-local function LoadDiscordInfo()
-    local success, result = pcall(function()
-        return game:GetService("HttpService"):JSONDecode(ui.Creator.Request({
-            Url = DiscordAPI,
-            Method = "GET",
-            Headers = {
-                ["User-Agent"] = "RobloxBot/1.0",
-                ["Accept"] = "application/json"
-            }
-        }).Body)
-    end)
-
-    if success and result and result.guild then
-        local DiscordInfo = Info:Paragraph({
-            Title = result.guild.name,
-            Desc = ' <font color="#52525b">•</font> Member Count : ' .. tostring(result.approximate_member_count) ..
-                '\n <font color="#16a34a">•</font> Online Count : ' .. tostring(result.approximate_presence_count),
-            Image = "https://cdn.discordapp.com/icons/" .. result.guild.id .. "/" .. result.guild.icon .. ".png?size=1024",
-            ImageSize = 42,
-        })
-
-        Info:Button({
-            Title = "Update Info",
-            Callback = function()
-                local updated, updatedResult = pcall(function()
-                    return game:GetService("HttpService"):JSONDecode(ui.Creator.Request({
-                        Url = DiscordAPI,
-                        Method = "GET",
-                    }).Body)
-                end)
-
-                if updated and updatedResult and updatedResult.guild then
-                    DiscordInfo:SetDesc(
-                        ' <font color="#52525b">�</font> Member Count : ' .. tostring(updatedResult.approximate_member_count) ..
-                        '\n <font color="#16a34a">�</font> Online Count : ' .. tostring(updatedResult.approximate_presence_count)
-                    )
-                end
-            end
-        })
-
-        Info:Button({
-            Title = "Copy Discord Invite",
-            Callback = function()
-	            Notification({title = "Arona", content = "Copy Success", duration = 5, icon = "82357489459031", background = "119839538905938"})
-                setclipboard("https://discord.gg/" .. InviteCode)
-            end
-        })
-    else
-        Info:Paragraph({
-            Title = "Error fetching Discord Info",
-            Desc = game:GetService("HttpService"):JSONEncode(result),
-            Image = "triangle-alert",
-            ImageSize = 26,
-            Color = "Red",
-        })
-    end
-end
-
-LoadDiscordInfo()
-
-Info:Divider()
-Info:Section({ 
-    Title = "All Creator Hub",
+InfoTab = Tabs["Info"]
+InfoTab:Divider()
+InfoTab:Section({ 
+    Title = "Developer",
     TextXAlignment = "Center",
     TextSize = 17,
 })
-Info:Divider()
-local Owner = Info:Paragraph({
+InfoTab:Divider()
+
+InfoTab:Paragraph({
     Title = "Nova Hoang (Nguyễn Tn Hoàng)",
     Desc = "Owner Of Article Hub and Nihahaha Hub",
     Image = "rbxassetid://77933782593847",
@@ -1146,7 +1014,7 @@ local Owner = Info:Paragraph({
     Locked = false,
 })
 
-local CoOwner = Info:Paragraph({
+InfoTab:Paragraph({
     Title = "Giang Hub (Giang)",
     Desc = "Co-Owner Of Article Hub and Nihahaha Hub",
     Image = "rbxassetid://138779531145636",
@@ -1156,216 +1024,178 @@ local CoOwner = Info:Paragraph({
     Locked = false,
 })
 
---// setting \\--
-
-settings = Tabs["Info"]
-settings:Section({ 
-    Title = "Theme",
+InfoTab:Divider()
+InfoTab:Section({ 
+    Title = "Save and Load",
     TextXAlignment = "Center",
-    TextSize = 14,
+    TextSize = 17,
 })
+InfoTab:Divider()
 
-local ThemeSelect
-ThemeSelect = settings:Dropdown({
-    Title = "Select Theme",
-    Values = themeValues,
-    Value = themeValues[1],
-    Callback = function(option)
-        _G.ThemeSelect = option
-    end
-})
-
-settings:Button({
-    Title = "Apply Theme",
-    Desc = "Apply Theme Selected",
-    Locked = false,
-    Callback = function()
-        if _G.ThemeSelect then
-            ui:SetTheme(_G.ThemeSelect)
-        end
-    end
-})
-settings:Section({ 
-    Title = "Background",
-    TextXAlignment = "Center",
-    TextSize = 14,
-})
-
-_G.BVaildSelect = {
-    {"Miyako Winter L2d", "rbxassetid://135163165559760"},
-    {"Hoshino L2d", "rbxassetid://103851438259846"},
-    {"Hoshino Battle L2d", "rbxassetid://75926776642023"},
-    {"Hoshino Swimsuit", "rbxassetid://74106641546392"},
-    {"Koyuki L2d", "rbxassetid://103762147211543"},
-    {"Nozomi L2d", "rbxassetid://85859359097457"},
-    {"Hikari L2d", "rbxassetid://119414088930558"},
-    {"Hina L2d", "rbxassetid://112066327222887"},
-    {"Hina Swimsuit L2d", "rbxassetid://132997118288263"},
-    {"Hina Dress L2d", "rbxassetid://87969100647163"},
-    {"Iroha L2d", "rbxassetid://108978317263049"},
-    {"Ibuki L2d", "rbxassetid://93610279036015"},
-    {"Kuroko L2d", "rbxassetid://83965863962182"},
-    {"Shiroko L2d", "rbxassetid://112249533991911"},
-    {"Mika L2d", "rbxassetid://103641747937298"},
-    {"Momoi L2d", "rbxassetid://92208907380304"},
-    {"Midori L2d", "rbxassetid://96245685520202"},
-    {"Nonomi L2d", "rbxassetid://121480067706078"},
-    {"Hoshino Frist Year L2d", "rbxassetid://110606960925136"},
-    {"Yume L2d", "rbxassetid://115200865502040"},
-    {"No Background", "rbxassetid://0"},
-}
-
-_G.ImageGet = {}
-for i, v in ipairs(_G.BVaildSelect) do
-    table.insert(_G.ImageGet, v[1])
+function ListFiles()
+	local files = {}
+	for _, file in ipairs(listfiles("WindUI/"..Window.Folder.."/config")) do
+		local name = file:match("([^/\\]+)%.json$")
+		if name then
+			table.insert(files, name)
+		end
+	end
+	return files
 end
 
-local SBA = settings:Dropdown({
-    Title = "Select Available Background",
-    Values = _G.ImageGet,
-    Value = "Miyako Winter L2d",
-    Callback = function(option)
-for _, v in ipairs(_G.BVaildSelect) do
-    if v[1] == option then
-        Setbackground = v[2]
-        break
-    end
-end
-if Setbackground then
-win:SetBackgroundImage(Setbackground)
-end
-    end
-})
-
-local CustomBackground = settings:Input({
-    Title = "Put You Background ID Here",
-    Desc = "Dont Try Put Link Image Is Doesn't, Use Id instant",
-    Value = "",
-    Type = "Input",
-    Placeholder = "135163165559760",
-    Callback = function(input)
-    if not input == "" then
-    _G.BackgroundImage = "rbxassetid://" ..input
-        win:SetBackgroundImage(_G.BackgroundImage)
-        end
-    end
-})
-
-_G.ChooseNotify = "WindUI"
-local NotifyYeap = settings:Dropdown({
-    Title = "Choose Notify",
-    Values = {"WindUI", "Roblox"},
-    Value = "WindUI",
-    Callback = function(Value)
-_G.ChooseNotify = Value
-    end
-})
-
-settings:Section({ 
-    Title = "Config",
-    TextXAlignment = "Center",
-    TextSize = 14,
-})
-
-_G.ConfigName = ""
-local savedFiles = ListFiles()
-local auto = readAuto()
-_G.ConfigName = auto.NameFileSelected
-
-settings:Input({
+InfoTab:Input({
 	Title = "Name Config",
 	Desc = "Input name to save/load config",
-	Value = _G.ConfigName,
+	Value = "",
 	InputIcon = "file",
 	Type = "Input",
-	Placeholder = "Config1",
+	Placeholder = "Name Config",
 	Callback = function(text)
 		_G.ConfigName = text
 	end
 })
 
-local filesDropdown = settings:Dropdown({
+local savedFiles = ListFiles()
+local filesDropdown = InfoTab:Dropdown({
 	Title = "Select Config File",
 	Multi = false,
 	AllowNone = true,
-	Values = savedFiles,
-	Value = _G.ConfigName ~= "" and _G.ConfigName or savedFiles[1],
+	Values = savedFiles or {},
+	Value = "",
 	Callback = function(file)
 		_G.ConfigName = file
 	end
 })
 
-settings:Button({
+InfoTab:Button({
 	Title = "Save Config",
 	Desc = "Save current UI config",
 	Callback = function()
-		if _G.ConfigName and _G.ConfigName ~= "" then
-			SaveConfig(_G.ConfigName, {
-				Theme = ui:GetCurrentTheme(),
-				BackgroundImage = _G.BackgroundImage
-			})
-			writeAuto(readAuto().Auto)
-			Notification({title = "Saved", content = "Config saved as " .. _G.ConfigName, duration = 5, icon = "82357489459031", background = "103762147211543"})
-		end
+local config_name = "WindUI/"..Window.Folder.."/config"
+local json_config = game:GetService("HttpService"):JSONEncode(getgenv().Config)
+if json_config then
+	writefile(config_name.."/".._G.ConfigName..".json", json_config)
+	Notify("Done", "[Save File]: Success", "check", 5)
+end
 	end
 })
 
-settings:Button({
+InfoTab:Button({
 	Title = "Load Config",
 	Desc = "Load selected config",
 	Callback = function()
-		if _G.ConfigName and _G.ConfigName ~= "" then
-			local data = LoadConfig(_G.ConfigName)
-			if data then
-				if data.Theme then ui:SetTheme(data.Theme) end
-				if data.BackgroundImage then win:SetBackgroundImage(data.BackgroundImage) end
-				Notification({title = "Loaded", content = "Config loaded from " .. _G.ConfigName, duration = 5, icon = "82357489459031", background = "103762147211543"})
-			end
+local config_name = "WindUI/"..Window.Folder.."/config/".._G.ConfigName..".json"
+if isfile(config_name) then
+    local json_config = readfile(config_name)
+    local http = game:GetService("HttpService"):JSONDecode(json_config)
+    for i, v in pairs(http) do
+        if v["__type"] == "Toggle" or v["__type"] == "Checkbox" then
+	        getgenv().config[i]:Set(v.Value)
 		end
+		if v["__type"] == "Dropdown" then
+			getgenv().config[i]:Select(v.Value)
+		end
+		if v["__type"] == "Slider" then
+			getgenv().config[i]:SetMin(v.Value.Min)
+			getgenv().config[i]:SetMax(v.Value.Max)
+			getgenv().config[i]:Set(v.Value.Default)
+		end
+		if v["__type"] == "Input" or v["__type"] == "Textarea" then
+			getgenv().config[i]:Set(v.Value)
+		end
+		task.wait()
+    end
+	Notify("Done", "[Load File]: Success", "check", 5)
+else
+	Notify("Nah", "[Load File]: Create Config NOW!!", "check", 5)
+end
 	end
 })
 
-settings:Button({
-	Title = "Overwrite Config",
-	Desc = "Replace file with current config",
+InfoTab:Button({
+	Title = "Delete Config",
+	Desc = "Remove file with current config",
 	Callback = function()
-		if _G.ConfigName and _G.ConfigName ~= "" then
-			SaveConfig(_G.ConfigName, {
-				Theme = ui:GetCurrentTheme(),
-				BackgroundImage = _G.BackgroundImage
-			})
-			Notification({title = "Overwritten", content = "File " .. _G.ConfigName .. " updated", duration = 5, icon = "82357489459031", background = "103762147211543"})
-		end
+local file = "WindUI/"..Window.Folder.."/config/".._G.ConfigName..".json"
+if not isfile(file) then Notify("Done", "[Delete File]: Nothing", "check", 5); return end
+local success, decoded = pcall(delfile, file)
+if not success then
+Notify("Done", "[Delete File]: Failed", "check", 5)
+else
+Notify("Done", "[Delete File]: Success", "check", 5)
+end
 	end
 })
 
-settings:Button({
+InfoTab:Button({
 	Title = "Refresh Config List",
 	Callback = function()
-		filesDropdown:Refresh(ListFiles())
+if filesDropdown then
+	filesDropdown:Refresh(ListFiles())
+end
 	end
 })
 
-local AutoLoadConfigToggle = settings:Toggle({
-	Title = "Auto Load Config",
-	Desc = "Automatically load when script starts",
-	Default = readAuto().Auto,
-	Callback = function(state)
-	task.wait(3)
-		writeAuto(state)
-	end
+InfoTab:Divider()
+InfoTab:Section({ 
+    Title = "Discord",
+    TextXAlignment = "Center",
+    TextSize = 17,
 })
+InfoTab:Divider()
 
-AutoLoadConfigToggle:Set(readAuto().Auto)
+local InviteCode = "aD7gjtvPmv"
+local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
+local success, result = pcall(function()
+    return HttpService:JSONDecode(WindUI.Creator.Request({
+        Url = DiscordAPI,
+        Method = "GET",
+        Headers = {
+            ["User-Agent"] = "RobloxBot/1.0",
+            ["Accept"] = "application/json"
+        }
+    }).Body)
+end)
 
-local autoData = readAuto()
-if autoData and autoData.Auto and autoData.NameFileSelected and autoData.NameFileSelected ~= "" then
-	local data = LoadConfig(autoData.NameFileSelected)
-	if data then
-		if data.Theme then ui:SetTheme(data.Theme) end
-		if data.BackgroundImage then
-			win:SetBackgroundImage(data.BackgroundImage)
-			_G.BackgroundImage = data.BackgroundImage
-		end
-	end
+if success and result and result.guild then
+    local DiscordInfo = InfoTab:Paragraph({
+        Title = result.guild.name,
+        Desc = ' <font color="#52525b">•</font> Member Count : ' .. tostring(result.approximate_member_count) ..
+            '\n <font color="#16a34a">•</font> Online Count : ' .. tostring(result.approximate_presence_count),
+        Image = "https://cdn.discordapp.com/icons/" .. result.guild.id .. "/" .. result.guild.icon .. ".png?size=1024",
+        ImageSize = 42,
+    })
+
+    InfoTab:Button({
+        Title = "Update Info",
+        Callback = function()
+            local updated, updatedResult = pcall(function()
+                return HttpService:JSONDecode(WindUI.Creator.Request({
+                    Url = DiscordAPI,
+                    Method = "GET",
+                }).Body)
+            end)            
+            if updated and updatedResult and updatedResult.guild then
+                DiscordInfo:SetDesc(
+                    ' <font color="#52525b">•</font> Member Count : ' .. tostring(updatedResult.approximate_member_count) ..
+                    '\n <font color="#16a34a">•</font> Online Count : ' .. tostring(updatedResult.approximate_presence_count)
+                )
+            end
+        end
+    })
+
+    InfoTab:Button({
+        Title = "Copy Discord Invite",
+        Callback = function()
+            setclipboard("https://discord.gg/" .. InviteCode)
+        end
+    })
+else
+    InfoTab:Paragraph({
+        Title = "Error fetching Discord Info",
+        Desc = HttpService:JSONEncode(result),
+        Image = "triangle-alert",
+        ImageSize = 26,
+        Color = "Red",
+    })
 end
