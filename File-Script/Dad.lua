@@ -648,6 +648,15 @@ end
     end
 })
 
+Misc:Slider({
+    Title = "Water Dispenser",
+    Step = 1,
+    Value = {Min = 1, Max = 100, Default = 40},
+    Callback = function(Value)
+        _G.WaterDispenser = tonumber(Value)
+    end
+})
+
 Misc:Toggle({
     Title = "Auto Drink Water",
     Type = "Toggle",
@@ -677,7 +686,7 @@ if House then
 			end
 		end
 	end
-	if player:FindFirstChild("Thirst") and player.Thirst.Value <= 40 then
+	if player:FindFirstChild("Thirst") and player.Thirst.Value <= (_G.WaterDispenser or 40) then
 		if hasTool("Glass of Water") then
 			local GlassWater = hasTool("Glass of Water")
 			local UserRemote = GlassWater and GlassWater:FindFirstChild("Use")
@@ -705,6 +714,15 @@ end
     end
 })
 
+Misc:Slider({
+    Title = "Hunger",
+    Step = 1,
+    Value = {Min = 1, Max = 100, Default = 40},
+    Callback = function(Value)
+        _G.Hunger = tonumber(Value)
+    end
+})
+
 Misc:Toggle({
     Title = "Auto Hunger",
     Type = "Toggle",
@@ -717,7 +735,7 @@ if Kitchen then
 	local DadRoot = DadReal and DadReal:FindFirstChild("HumanoidRootPart")
 	local DadCheck = DadRoot and DadReal:FindFirstChild("ChaseDoor")
 	
-	if DadCheck and DadCheck.Value == false and player:FindFirstChild("Hunger") and player.Hunger.Value <= 40 then
+	if DadCheck and DadCheck.Value == false and player:FindFirstChild("Hunger") and player.Hunger.Value <= (_G.Hunger or 40) then
 		local fridge = Kitchen:FindFirstChild("FridgeNoodles")
 		local stove = Kitchen:FindFirstChild("Stove")
 		local table = Kitchen:FindFirstChild("DiningTable")
@@ -1049,7 +1067,7 @@ _G.EspHealth = Value
 
 -----------------------------------
 Info = Tabs["Info"]
-local InviteCode = "NE4fqyAStd"
+local InviteCode = "aD7gjtvPmv"
 local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
 local function LoadDiscordInfo()
     local success, result = pcall(function()
