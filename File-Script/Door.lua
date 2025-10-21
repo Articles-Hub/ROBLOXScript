@@ -21,12 +21,12 @@ local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
-local player = game.Players.LocalPlayer
+local player = game.Players.LocalPlayer or game.Players.PlayerAdded:Wait()
 local playergui = player:WaitForChild("PlayerGui")
 local pack = player:WaitForChild("Backpack")
 local char = player.Character or player.CharacterAdded:Wait()
 local root = char:WaitForChild("HumanoidRootPart") 
-local cam = game:GetService("Workspace").Camera
+local cam = workspace.CurrentCamera
 
 local MobileOn = table.find({Enum.Platform.Android, Enum.Platform.IOS}, UserInputService:GetPlatform())
 
@@ -49,7 +49,7 @@ _G.GetOldBright = {
 	}
 }
 
-if not HookLoading then
+if not HookLoading and hookmetamethod then
 HookLoading = true
 local old
 old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
@@ -329,8 +329,10 @@ elseif isBackdoor then
 else 
 	CurrentRooms = RoomLate.Value 
 end
-Library:SetWatermark(("%s Current Rooms | %s FPS | %s MS"):format(
+if char:FindFirstChild("Humanoid") then SpeedUp = char.Humanoid.WalkSpeed else SpeedUp = 0 end
+Library:SetWatermark(("%s Current Rooms | %s Speed | %s FPS | %s MS"):format(
 	math.floor(CurrentRooms),
+	math.floor(SpeedUp or 0),
     math.floor(FPS),
     math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
 ))
@@ -338,6 +340,9 @@ for i, v in pairs(_G.GetOldBright.New) do
 	if _G.FullBright then
 		Lighting[i] = v
 	end
+end
+if Toggles.FastClosetExit.Value and char:FindFirstChild("Humanoid") and char.Humanoid.MoveDirection.Magnitude > 0 and char:GetAttribute("Hiding") then
+    Storage:WaitForChild("RemotesFolder"):WaitForChild("CamLock"):FireServer()
 end
 if _G.AntiCheatBruh and char then
 char:PivotTo(char:GetPivot() * CFrame.new(0, 0, 1000))
@@ -1238,6 +1243,11 @@ end
 })
 
 if not isRoom then
+Misc1:AddToggle("FastClosetExit", {
+    Text = "Fast Closet Exit",
+    Default = false
+})
+
 Misc1:AddToggle("Auto Closet", {
     Text = "Auto Closet",
     Default = false,
@@ -1256,7 +1266,9 @@ if EntityCl and EntityCl.PrimaryPart then
 						if Distance2(v:FindFirstChildWhichIsA("BasePart").Position) <= 20 then
 							local Pro = v:FindFirstChild("HidePrompt", true)
 							if Pro and Pro.Enabled == true then
-								fireproximityprompt(Pro)
+								if not v.Main:FindFirstChild("HideEntityOnSpot") then
+									fireproximityprompt(Pro)
+								end
 							end
 						end
 					end
@@ -1361,9 +1373,15 @@ end
 spawn(function() 
 while _G.AutoRoom do 
 	getHide()
-	_G.SpeedWalk = false
-	_G.BypassSpeed = false
-	char:SetAttribute("CanJump", false)
+	if Toggles.WalkSpeed.Value then
+		Toggles.WalkSpeed:SetValue(false)
+	end
+	if Toggles["Bypass Speed"].Value then
+		Toggles["Bypass Speed"]:SetValue(false)
+	end
+	if Toggles["Use Jump"].Value then
+		Toggles["Use Jump"]:SetValue(false)
+	end
 	if char:FindFirstChild("Humanoid") then
 		char.Humanoid.WalkSpeed = 21.5
 	end
