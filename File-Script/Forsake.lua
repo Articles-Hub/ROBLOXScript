@@ -334,14 +334,24 @@ if workspace.Map.Ingame:FindFirstChild("Map") then
 end
 end)
 
-Main1Group:AddButton("Teleport To Metkid", function()
-if workspace.Map.Ingame:FindFirstChild("Map") then
-	for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
-		if v.Name == "Generator" and v:FindFirstChild("Positions") and v.Positions:FindFirstChild("Center") and v:FindFirstChild("Progress").Value ~= 100 then
-			root.CFrame = v.Positions:FindFirstChild("Center").CFrame
-			break
-		end
-	end
+local function getItem(itemName)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v.Name == "ItemRoot" and v.Parent and v.Parent.Name == itemName then
+            return v
+        end
+    end
+end
+Main1Group:AddButton("Teleport To Medkid", function()
+local Medkid = getItem("Medkid")
+if Medkid then
+	root.CFrame = Medkid.CFrame + Vector3.new(0, 3, 0)
+end
+end)
+
+Main1Group:AddButton("Teleport To BloxyCola", function()
+local BloxyCola = getItem("BloxyCola")
+if BloxyCola then
+	root.CFrame = Medkid.CFrame + Vector3.new(0, 3, 0)
 end
 end)
 
