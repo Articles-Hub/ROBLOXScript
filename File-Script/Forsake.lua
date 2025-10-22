@@ -60,8 +60,7 @@ _G.GetOldBright = {
 }
 
 getgenv()._VoidRushBypass = false
-getgenv()._oldFireServer = nil
-if not getgenv()._oldFireServer then
+if not getgenv()._oldFireServer and hookmetamethod and getnamecallmethod then
     local old
     old = hookmetamethod(game, "__namecall", function(self, ...)
         local method = getnamecallmethod()
@@ -92,7 +91,8 @@ Animations = {
 		["81698196845041"] = true,["87259391926321"] = true, ["140703210927645"] = true, ["136007065400978"] = true, 
 		["136007065400978"] = true, ["129843313690921"] = true, ["129843313690921"] = true, ["86096387000557"] = true,
 		["86709774283672"] = true, ["87259391926321"] = true, ["129843313690921"] = true, ["129843313690921"] = true,
-		["108807732150251"] = true, ["138040001965654"] = true, ["86096387000557"] = true
+		["108807732150251"] = true, ["138040001965654"] = true, ["86096387000557"] = true, ["86545133269813"] = true,
+		["89448354637442"] = true, ["116618003477002"] = true
 	}
 }
 
@@ -195,13 +195,21 @@ for i, v in pairs(_G.GetOldBright.New) do
 		Lighting[i] = v
 	end
 end
-if _G.VoidRushControl and char and char:GetAttribute("VoidRushState") == "Dashing" then
-	hum.WalkSpeed = 60
-	hum.AutoRotate = false
-	
-	local horizontal = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
-	if horizontal.Magnitude > 0 then
-	    hum:Move(horizontal.Unit)
+if _G.VoidRushControl then
+	local VoidRush = char and char:GetAttribute("VoidRushState")
+	if VoidRush and VoidRush == "Dashing" then
+		hum.WalkSpeed = 60
+		hum.AutoRotate = false
+		
+		local Look = root.CFrame.LookVector
+		local horizontal = Vector3.new(Look.X, 0, Look.Z)
+		if horizontal.Magnitude > 0 then
+		    hum:Move(horizontal.Unit)
+		end
+	else
+		if hum then
+			hum.AutoRotate = true
+		end
 	end
 end
 if _G.AutoBlock or _G.Punch then
@@ -326,13 +334,24 @@ if workspace.Map.Ingame:FindFirstChild("Map") then
 end
 end)
 
+Main1Group:AddButton("Teleport To Metkid", function()
+if workspace.Map.Ingame:FindFirstChild("Map") then
+	for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
+		if v.Name == "Generator" and v:FindFirstChild("Positions") and v.Positions:FindFirstChild("Center") and v:FindFirstChild("Progress").Value ~= 100 then
+			root.CFrame = v.Positions:FindFirstChild("Center").CFrame
+			break
+		end
+	end
+end
+end)
+
 Main1Group:AddToggle("Inf Stamina", {
     Text = "Inf Stamina",
     Default = false, 
     Callback = function(Value) 
 _G.InfStamina = Value
 while _G.InfStamina do
-local staminaModule = require(game.ReplicatedStorage:WaitForChild("Systems"):WaitForChild("Character"):WaitForChild("Game"):WaitForChild("Sprinting"))
+local staminaModule = require(Storage:WaitForChild("Systems"):WaitForChild("Character"):WaitForChild("Game"):WaitForChild("Sprinting"))
 if staminaModule then
     staminaModule.MaxStamina = 999999
     staminaModule.Stamina = 999999
@@ -375,7 +394,7 @@ Main3Group:AddSlider("Health", {
     Text = "Health",
     Default = 20,
     Min = 7,
-    Max = 50,
+    Max = 100,
     Rounding = 0,
     Compact = false,
     Callback = function(Value)
@@ -404,6 +423,7 @@ end
     end
 })
 
+if hookmetamethod then
 Main3Group:AddToggle("VoidRushBypass", {
     Text = "Void Rush Bypass",
     Default = false, 
@@ -411,6 +431,7 @@ Main3Group:AddToggle("VoidRushBypass", {
 getgenv()._VoidRushBypass = Value
     end
 })
+end
 
 Main3Group:AddToggle("VoidRushControl", {
     Text = "Void Rush Control",
@@ -452,7 +473,7 @@ if workspace.Map.Ingame:FindFirstChild("Map") then
 			else
 				GeneratorColor = _G.ColorEspGen or Color3.fromRGB(9, 123, 237)
 			end
-			local TextGen = "Generator ("..v.Progress.Value..")"
+			local TextGen = "Generator ("..v.Progress.Value.."%)"
 			ESPLibrary:AddESP({
 				Object = v,
 				Text = TextGen,
@@ -494,7 +515,7 @@ for i, v in pairs(game.Workspace.Players:GetChildren()) do
 		for y, z in pairs(v:GetChildren()) do
 			if z:GetAttribute("Username") ~= player.Name then
 				local KillerColor = _G.ColorLightKill or Color3.new(255, 0, 0)
-				local TextKiller = z.Name
+				local TextKiller = z.Name.." ("..z:GetAttribute("Username")..")"
 				ESPLibrary:AddESP({
 					Object = z,
 					Text = TextKiller,
@@ -537,7 +558,7 @@ for i, v in pairs(game.Workspace.Players:GetChildren()) do
 		for y, z in pairs(v:GetChildren()) do
 			if z:GetAttribute("Username") ~= player.Name then
 				local SurvivorsColor = _G.ColorLightSurvivors or Color3.new(0, 255, 0)
-				local TextSurvivors = z.Name
+				local TextSurvivors = z.Name.." ("..z:GetAttribute("Username")..")"
 				ESPLibrary:AddESP({
 					Object = z,
 					Text = TextSurvivors,
@@ -569,30 +590,39 @@ if _G.EspItem == false then
 	if workspace.Map.Ingame:FindFirstChild("Map") then
 		for i, v in ipairs(workspace.Map.Ingame:FindFirstChild("Map"):GetChildren()) do
 			if v:IsA("Tool") then
-				ESPLibrary:RemoveESP(v)
+				local PartItem = v:FindFirstChildWhichIsA("BasePart")
+				if PartItem then
+					ESPLibrary:RemoveESP(PartItem)
+				end
 			end
 		end
 	end
 	if workspace.Map:FindFirstChild("Ingame") then
 		for i, v in ipairs(workspace.Map.Ingame:GetChildren()) do
 			if v:IsA("Tool") then
-				ESPLibrary:RemoveESP(v)
+				local PartItem = v:FindFirstChildWhichIsA("BasePart")
+				if PartItem then
+					ESPLibrary:RemoveESP(PartItem)
+				end
 			end
 		end
 	end
 else
 	function EspItem(v)
 		if v:IsA("Tool") then
-			local ItemColor = _G.ColorItem or Color3.new(0, 255, 0)
-			local TextItem = v.Name
-			ESPLibrary:AddESP({
-				Object = v,
-				Text = TextItem,
-				Color = ItemColor
-			})
-			ESPLibrary:UpdateObjectText(v, TextItem)
-			ESPLibrary:UpdateObjectColor(v, ItemColor)
-			ESPLibrary:SetOutlineColor(ItemColor)
+			local PartItem = v:FindFirstChildWhichIsA("BasePart")
+			if PartItem then
+				local ItemColor = _G.ColorItem or Color3.new(0, 255, 0)
+				local TextItem = v.Name
+				ESPLibrary:AddESP({
+					Object = PartItem,
+					Text = TextItem,
+					Color = ItemColor
+				})
+				ESPLibrary:UpdateObjectText(PartItem, TextItem)
+				ESPLibrary:UpdateObjectColor(PartItem, ItemColor)
+				ESPLibrary:SetOutlineColor(ItemColor)
+			end
 		end
 	end
 end
@@ -768,18 +798,6 @@ _G.AimbotPunch = Value
     end
 })
 
-Anti1Group:AddSlider("PunchFlingPower", {
-    Text = "Punch Fling Power",
-    Default = 10000,
-    Min = 1000,
-    Max = 1000000,
-    Rounding = 1,
-    Compact = false,
-    Callback = function(Value)
-_G.PunchFlingPower = Value
-    end
-})
-
 Anti1Group:AddSlider("Detection Range", {
     Text = "Detection Range (Animation)",
     Default = detectionRange,
@@ -815,8 +833,80 @@ _G.Prediction = Value
 })
 
 ------------------------------------------------------------------------
+local Credit = Window:AddTab("Credit / Join", "rbxassetid://7733955511")
+local CreditTab = Credit:AddLeftGroupbox("Credit")
+local CreditScript = {
+	["Giang Hub"] = {
+		Text = '[<font color="rgb(73, 230, 133)">Giang Hub</font>] Co-Owner Of Article Hub and Nihahaha Hub',
+		Image = "rbxassetid://138779531145636"
+	},
+	["Nova Hoang"] = {
+		Text = '[<font color="rgb(73, 230, 133)">Nova Hoang (Nguyễn Tn Hoàng)</font>] Owner Of Article Hub and Nihahaha Hub',
+		Image = "rbxassetid://77933782593847",
+	}
+}
+
+if CreditScript then
+	for i, v in pairs(CreditScript) do
+		CreditTab:AddLabel(CreditScript[i].Text, true)
+		CreditTab:AddImage("Image "..i, {Image = CreditScript[i].Image, Height = 200})
+	end
+else
+	CreditTab:AddLabel("[N/A]", true)
+end
+
+local CreditTab2 = Credit:AddRightGroupbox("Join Server")
+
+local quest = request or http_request or (syn and syn.request) or (http and http.request) or (fluxus and fluxus.request)
+local HttpService = game:GetService("HttpService")
+local InviteCode = "aD7gjtvPmv"
+local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
+local success, result = pcall(function()
+    return HttpService:JSONDecode(quest({
+        Url = DiscordAPI,
+        Method = "GET",
+        Headers = {
+            ["User-Agent"] = "RobloxBot/1.0",
+            ["Accept"] = "application/json"
+        }
+    }).Body)
+end)
+
+if success and result and result.guild then
+	CreditTab2:AddLabel(result.guild.name, true)
+	local InfoDiscord = CreditTab2:AddLabel('<font color="#52525b">•</font> Member Count : '..tostring(result.approximate_member_count)..'\n<font color="#16a34a">•</font> Online Count : ' .. tostring(result.approximate_presence_count), true)
+	CreditTab2:AddImage("Image Discord", {Image = "rbxassetid://138779531145636", Height = 200})
+
+	CreditTab2:AddButton("Update Info", function()
+	    local updated, updatedResult = pcall(function()
+            return HttpService:JSONDecode(quest({
+                Url = DiscordAPI,
+                Method = "GET",
+            }).Body)
+        end)            
+        if updated and updatedResult and updatedResult.guild then
+            InfoDiscord:SetText(
+                '<font color="#52525b">•</font> Member Count : ' .. tostring(updatedResult.approximate_member_count) ..
+                '\n<font color="#16a34a">•</font> Online Count : ' .. tostring(updatedResult.approximate_presence_count)
+            )
+        end
+	end)
+
+    CreditTab2:AddButton("Copy Discord Invite", function()
+        setclipboard("https://discord.gg/"..InviteCode)
+    end)
+else
+    CreditTab2:AddLabel("Error fetching Discord Info", true)
+    CreditTab2:AddButton("Copy Discord Invite", function()
+        setclipboard("https://discord.gg/"..InviteCode)
+    end)
+end
+
+CreditTab2:AddButton("Copy Zalo", function()
+    setclipboard("https://zalo.me/g/qlukiy407")
+end)
+
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
-local CreditsGroup = Tabs["UI Settings"]:AddRightGroupbox("Credits")
 local Info = Tabs["UI Settings"]:AddRightGroupbox("Info")
 
 MenuGroup:AddDropdown("NotifySide", {
@@ -865,26 +955,7 @@ MenuGroup:AddToggle("KeybindMenuOpen", {Default = false, Text = "Open Keybind Me
 MenuGroup:AddToggle("ShowCustomCursor", {Text = "Custom Cursor", Default = true, Callback = function(Value) Library.ShowCustomCursor = Value end})
 MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
-_G.LinkJoin = loadstring(game:HttpGet("https://pastefy.app/2LKQlhQM/raw"))()
-MenuGroup:AddButton("Copy Link Discord", function()
-    if setclipboard then
-        setclipboard(_G.LinkJoin["Discord"])
-        Library:Notify("Copied discord link to clipboard!")
-    else
-        Library:Notify("Discord link: ".._G.LinkJoin["Discord"], 10)
-    end
-end):AddButton("Copy Link Zalo", function()
-    if setclipboard then
-        setclipboard(_G.LinkJoin["Zalo"])
-        Library:Notify("Copied Zalo link to clipboard!")
-    else
-        Library:Notify("Zalo link: ".._G.LinkJoin["Zalo"], 10)
-    end
-end)
 MenuGroup:AddButton("Unload", function() Library:Unload() end)
-CreditsGroup:AddLabel("AmongUs - Python / Dex / Script", true)
-CreditsGroup:AddLabel("Giang Hub - Script / Dex", true)
-CreditsGroup:AddLabel("Vu - Script / Dex", true)
 
 Info:AddLabel("Counter [ "..game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(game.Players.LocalPlayer).." ]", true)
 Info:AddLabel("Executor [ "..identifyexecutor().." ]", true)
