@@ -97,32 +97,45 @@ TextLabel.Font = Enum.Font.Code
 TextLabel.TextWrapped = true
 TextLabel.Parent = Frame
 end
-MobileOn = table.find({Enum.Platform.Android, Enum.Platform.IOS}, game:GetService("UserInputService"):GetPlatform())
-local mouse = game.Players.LocalPlayer:GetMouse()
 ctrl = {f = 0, b = 0, l = 0, r = 0}
-mouse.KeyDown:connect(function(key)
-	if _G.SetSpeedFly and type(_G.SetSpeedFly) == "number" then
-		if key:lower() == "w" then
-			ctrl.f = _G.SetSpeedFly
-		elseif key:lower() == "s" then
-			ctrl.b = -_G.SetSpeedFly
-		elseif key:lower() == "a" then
-			ctrl.l = -_G.SetSpeedFly
-		elseif key:lower() == "d" then
-			ctrl.r = _G.SetSpeedFly
-		end
+ctrlCould = {f = 0, b = 0, l = 0, r = 0}
+local UserInputService = game:GetService("UserInputService")
+MobileOn = table.find({Enum.Platform.Android, Enum.Platform.IOS}, UserInputService:GetPlatform())
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if not _G.SetSpeedFlyCloud then
+		_G.SetSpeedFlyCloud = 0
+	elseif not _G.SetSpeedFly then
+		_G.SetSpeedFly = 0
+	end
+	if input.KeyCode == Enum.KeyCode.W then
+		ctrl.f = _G.SetSpeedFly
+		ctrlCould.f = _G.SetSpeedFlyCloud
+	elseif input.KeyCode == Enum.KeyCode.S then
+		ctrl.b = -_G.SetSpeedFly
+		ctrlCould.b = -_G.SetSpeedFlyCloud
+	elseif input.KeyCode == Enum.KeyCode.A then
+		ctrl.l = -_G.SetSpeedFly
+		ctrlCould.l = -_G.SetSpeedFlyCloud
+	elseif input.KeyCode == Enum.KeyCode.D then
+		ctrl.r = _G.SetSpeedFly
+		ctrlCould.r = _G.SetSpeedFlyCloud
 	end
 end)
-
-mouse.KeyUp:connect(function(key)
-	if key:lower() == "w" then
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.KeyCode == Enum.KeyCode.W then
 		ctrl.f = 0
-	elseif key:lower() == "s" then
+		ctrlCould.f = 0
+	elseif input.KeyCode == Enum.KeyCode.S then
 		ctrl.b = 0
-	elseif key:lower() == "a" then
+		ctrlCould.b = 0
+	elseif input.KeyCode == Enum.KeyCode.A then
 		ctrl.l = 0
-	elseif key:lower() == "d" then
+		ctrlCould.l = 0
+	elseif input.KeyCode == Enum.KeyCode.D then
 		ctrl.r = 0
+		ctrlCould.r = 0
 	end
 end)
 _G.SetSpeedFly = 50
@@ -143,20 +156,23 @@ while _G.StartFly do
 		game.Players.LocalPlayer.Character.HumanoidRootPart.GyroHandler.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, game.Players.LocalPlayer.Character.HumanoidRootPart.Position + game.Workspace.CurrentCamera.CFrame.LookVector)
 		game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = Vector3.new()
 		local VectorBVRoot = game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity
-		local RequireMove = require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector()
-		if RequireMove and RequireMove.X > 0 then
-			VectorBVRoot = VectorBVRoot + game.Workspace.CurrentCamera.CFrame.RightVector * (RequireMove.X * _G.SetSpeedFly)
+		if MobileOn then
+			local RequireMove = require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector()
+			if RequireMove and RequireMove.X > 0 then
+				VectorBVRoot = VectorBVRoot + game.Workspace.CurrentCamera.CFrame.RightVector * (RequireMove.X * _G.SetSpeedFly)
+			end
+			if RequireMove and RequireMove.X < 0 then
+				VectorBVRoot = VectorBVRoot + game.Workspace.CurrentCamera.CFrame.RightVector * (RequireMove.X * _G.SetSpeedFly)
+			end
+			if RequireMove and RequireMove.Z > 0 then
+				VectorBVRoot = VectorBVRoot - game.Workspace.CurrentCamera.CFrame.LookVector * (RequireMove.Z * _G.SetSpeedFly)
+			end
+			if RequireMove and RequireMove.Z < 0 then
+				VectorBVRoot = VectorBVRoot - game.Workspace.CurrentCamera.CFrame.LookVector * (RequireMove.Z * _G.SetSpeedFly)
+			end
+		else
+			VectorBVRoot = VectorBVRoot + (game.Workspace.CurrentCamera.CFrame.LookVector * (ctrl.f + ctrl.b)) + (game.Workspace.CurrentCamera.CFrame.RightVector * (ctrl.r + ctrl.l))
 		end
-		if RequireMove and RequireMove.X < 0 then
-			VectorBVRoot = VectorBVRoot + game.Workspace.CurrentCamera.CFrame.RightVector * (RequireMove.X * _G.SetSpeedFly)
-		end
-		if RequireMove and RequireMove.Z > 0 then
-			VectorBVRoot = VectorBVRoot - game.Workspace.CurrentCamera.CFrame.LookVector * (RequireMove.Z * _G.SetSpeedFly)
-		end
-		if RequireMove and RequireMove.Z < 0 then
-			VectorBVRoot = VectorBVRoot - game.Workspace.CurrentCamera.CFrame.LookVector * (RequireMove.Z * _G.SetSpeedFly)
-		end
-		VectorBVRoot = VectorBVRoot + (game.Workspace.CurrentCamera.CFrame.LookVector * (ctrl.f + ctrl.b)) + (game.Workspace.CurrentCamera.CFrame.RightVector * (ctrl.r + ctrl.l))
 		game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = VectorBVRoot
 	elseif game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") == nil then
 		local bv = Instance.new("BodyVelocity")
@@ -9897,28 +9913,22 @@ while _G.CloudSpeed do
             if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 if 3 >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.VehicleSeat.Position).Magnitude then
 	                local VectorBV = v.BodyVelocity.Velocity
-			        local controlModule = require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector()
-					if controlModule.X > 0 then
-						VectorBV = VectorBV + game.Workspace.CurrentCamera.CFrame.RightVector * (controlModule.X * _G.SetSpeedFlyCloud)
-					end
-					if controlModule.X < 0 then
-						VectorBV = VectorBV + game.Workspace.CurrentCamera.CFrame.RightVector * (controlModule.X * _G.SetSpeedFlyCloud)
-					end
-					if controlModule.Z > 0 then
-						VectorBV = VectorBV - game.Workspace.CurrentCamera.CFrame.LookVector * (controlModule.Z * _G.SetSpeedFlyCloud)
-					end
-					if controlModule.Z < 0 then
-						VectorBV = VectorBV - game.Workspace.CurrentCamera.CFrame.LookVector * (controlModule.Z * _G.SetSpeedFlyCloud)
-					end
-				    local UserInputService = game:GetService("UserInputService")
-					local UserInputService = game:GetService("UserInputService")
-					if UserInputService then
-					    if UserInputService:IsKeyDown(Enum.KeyCode.W) then VectorBV += workspace.CurrentCamera.CFrame.LookVector * _G.SetSpeedFlyCloud end
-					    if UserInputService:IsKeyDown(Enum.KeyCode.S) then VectorBV -= workspace.CurrentCamera.CFrame.LookVector * _G.SetSpeedFlyCloud end
-					    if UserInputService:IsKeyDown(Enum.KeyCode.D) then VectorBV += workspace.CurrentCamera.CFrame.RightVector * _G.SetSpeedFlyCloud end
-					    if UserInputService:IsKeyDown(Enum.KeyCode.A) then VectorBV -= workspace.CurrentCamera.CFrame.RightVector * _G.SetSpeedFlyCloud end
-					    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then VectorBV += workspace.CurrentCamera.CFrame.UpVector * _G.SetSpeedFlyCloud end
-					    if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then VectorBV -= workspace.CurrentCamera.CFrame.UpVector * _G.SetSpeedFlyCloud end
+					if MobileOn then
+				        local controlModule = require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector()
+						if controlModule.X > 0 then
+							VectorBV = VectorBV + game.Workspace.CurrentCamera.CFrame.RightVector * (controlModule.X * _G.SetSpeedFlyCloud)
+						end
+						if controlModule.X < 0 then
+							VectorBV = VectorBV + game.Workspace.CurrentCamera.CFrame.RightVector * (controlModule.X * _G.SetSpeedFlyCloud)
+						end
+						if controlModule.Z > 0 then
+							VectorBV = VectorBV - game.Workspace.CurrentCamera.CFrame.LookVector * (controlModule.Z * _G.SetSpeedFlyCloud)
+						end
+						if controlModule.Z < 0 then
+							VectorBV = VectorBV - game.Workspace.CurrentCamera.CFrame.LookVector * (controlModule.Z * _G.SetSpeedFlyCloud)
+						end
+					else
+					    VectorBV = VectorBV + (game.Workspace.CurrentCamera.CFrame.LookVector * (ctrlCould.f.f + ctrlCould.b)) + (game.Workspace.CurrentCamera.CFrame.RightVector * (ctrlCould.r + ctrlCould.l))
 					end
 			        v.BodyVelocity.Velocity = VectorBV
 			    end
@@ -13445,6 +13455,57 @@ end
 task.wait()
 end
 end)
+elseif game.PlaceId == 103505724406848 then
+Window = Library:CreateWindow({
+    Title = "Battles Zombie 🎃",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+	Footer = "Omega X Article Hub Version: 1.0.5",
+	Icon = 83462777349222,
+	ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Badge")
+
+MainGroup:AddButton("Get Badge", function()
+repeat task.wait() until workspace:FindFirstChild("BossAreaSpawn") and workspace:FindFirstChild("Enemies")
+local Enemies = workspace:WaitForChild("Enemies")
+repeat task.wait(1)
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
+	local bv = Instance.new("BodyVelocity")
+	bv.Name = "FreezeBV"
+	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+	bv.MaxForce = Vector3.new(100000, 100000, 100000)
+	bv.Velocity = Vector3.new(0, 0, 0)
+end
+if workspace:FindFirstChild("BossAreaSpawn") then
+	game.Players.LocalPlayer.Character:PivotTo(workspace.BossAreaSpawn.CFrame * CFrame.new(0, 65, 0))
+end
+for i, v in pairs(Enemies:GetChildren()) do
+	if v:FindFirstChild("Head") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+		game:GetService("ReplicatedStorage").Remotes.GeneralHit:FireServer(v.Head)
+	end
+end
+until workspace.Enemies:FindFirstChild("Boss Zombie")
+wait(0.6)
+while true do
+if workspace.Enemies:FindFirstChild("Boss Zombie") and workspace.Enemies["Boss Zombie"]:FindFirstChild("Head") then
+	spawn(function()
+		game:GetService("ReplicatedStorage").Remotes.GeneralHit:FireServer(v.Head)
+	end)
+end
+task.wait()
+end
+end)
 end
 
 local Credit = Window:AddTab("Credit / Join", "rbxassetid://7733955511")
@@ -13594,7 +13655,6 @@ MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShi
 MenuGroup:AddButton("Unload", function() Library:Unload() end)
 Info:AddLabel("Counter [ "..game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(game.Players.LocalPlayer).." ]", true)
 Info:AddLabel("Executor [ "..identifyexecutor().." ]", true)
-Info:AddLabel("Phone / PC [ "..(MobileOn and "Phone" or "PC").." ]", true)
 Info:AddLabel("Job Id [ "..game.JobId.." ]", true)
 Info:AddDivider()
 Info:AddButton("Copy JobId", function()
@@ -13907,8 +13967,8 @@ end
 end))
 ------------------------------------------------------------------------
 table.insert(_G.ConnectFun, game.Players.LocalPlayer.OnTeleport:Connect(function()
-if not Toggles["ExecuteOnTeleport"].Value and LoadingExe then return end
-LoadingExe = true
+if not Toggles["ExecuteOnTeleport"].Value and getgenv().LoadingExe then return end
+getgenv().LoadingExe = true
 local ExecuteNowTP = queueonteleport or queue_on_teleport
 if ExecuteNowTP then
 ExecuteNowTP([[
