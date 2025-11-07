@@ -2325,7 +2325,8 @@ local teleportFunc = queueonteleport or queue_on_teleport
             end
             repeat wait() until game.Players.LocalPlayer
 if game.Workspace:FindFirstChild("BoxingGloves") == nil then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Buildings.house:FindFirstChild("TP").CFrame * CFrame.new(0,10,0)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Buildings.house:FindFirstChild("TP").CFrame * CFrame.new(0,10,0)
+end
 repeat task.wait()
 if game.Workspace:FindFirstChild("BoxingGloves") then
 for i,v in pairs(game.Workspace:GetChildren()) do
@@ -2336,14 +2337,6 @@ end
 end
 end
 until game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 1223765330375569)
-else
-for i,v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "BoxingGloves" and v:FindFirstChild("ClickDetector") then
-fireclickdetector(v.ClickDetector, 0)
-fireclickdetector(v.ClickDetector, 1)
-end
-end
-end
 ]])
 elseif not teleportFunc then
 Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
@@ -2642,6 +2635,127 @@ elseif not teleportFunc then
 Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 game:GetService("TeleportService"):Teleport(11828384869)
+    end
+})
+
+Badge1Group:AddButton({
+    Text = "Get Riftshot",
+    Func = function()
+local teleportFunc = queueonteleport or queue_on_teleport
+if teleportFunc then
+    teleportFunc([[
+        if not game:IsLoaded() then
+            game.Loaded:Wait()
+        end
+        repeat wait() until game.Players.LocalPlayer
+spawn(function()
+	while true do
+		Dialogue = game.Workspace:FindFirstChild("DialoguePrompts")
+		NPC = game.Workspace:FindFirstChild("NPCS")
+		Buildings = game.Workspace:FindFirstChild("Buildings")
+		task.wait()
+	end
+end)
+wait(0.4)
+if Dialogue and Dialogue:FindFirstChild("Sharpshooter Sam") and Dialogue["Sharpshooter Sam"]:FindFirstChildOfClass("ProximityPrompt") then
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Dialogue["Sharpshooter Sam"].CFrame
+	repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Dialogue["Sharpshooter Sam"].Position).Magnitude <= 10
+end
+game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Bypass Success, bomb will bring you, your job is to shoot the bomb (Goodluck!)",Icon = "rbxassetid://7733658504",Duration = 5})
+while true do
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	if Buildings:FindFirstChild("Sharpshooter Sam's Island") and Buildings["Sharpshooter Sam's Island"]:FindFirstChild("Targets") then
+		for i, v in pairs(Buildings["Sharpshooter Sam's Island"].Targets:GetChildren()) do
+			if v.Name:find("bomb") and v:FindFirstChild("Handle") then
+				v.Handle.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -7)
+			end
+		end
+	end
+end
+task.wait()
+end
+]])
+elseif not teleportFunc then
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Lobby.brazil.portal.CFrame
+    end
+})
+
+Badge1Group:AddButton({
+    Text = "Get Badge OOG",
+    Func = function()
+local teleportFunc = queueonteleport or queue_on_teleport
+if teleportFunc then
+    teleportFunc([[
+        if not game:IsLoaded() then
+            game.Loaded:Wait()
+        end
+        repeat wait() until game.Players.LocalPlayer
+spawn(function()
+	while true do
+		Dialogue = game.Workspace:FindFirstChild("DialoguePrompts")
+		NPC = game.Workspace:FindFirstChild("NPCS")
+		Buildings = game.Workspace:FindFirstChild("Buildings")
+		task.wait()
+	end
+end)
+wait(0.4)
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	Gui = game:GetService("Players").LocalPlayer.PlayerGui
+	for i = 1, 2 do
+		if Dialogue and Dialogue:FindFirstChild("PabloPinkyPoo") and Dialogue.PabloPinkyPoo:FindFirstChildOfClass("ProximityPrompt") then
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Dialogue.PabloPinkyPoo.CFrame * CFrame.new(0, 0, -5)
+			repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Dialogue.PabloPinkyPoo.Position).Magnitude <= 10
+			wait(0.2)
+			repeat task.wait()
+				if fireproximityprompt then
+					fireproximityprompt(Dialogue.PabloPinkyPoo:FindFirstChildOfClass("ProximityPrompt")) 
+				end
+			until game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Dialogues"):FindFirstChild("DialogueFrame") and game:GetService("Players").LocalPlayer.PlayerGui.Dialogues.DialogueFrame.Visible == true
+			wait(0.5)
+		end
+		wait(0.1)
+		repeat task.wait() until Gui:FindFirstChild("Dialogues"):FindFirstChild("DialogueFrame") and Gui.Dialogues.DialogueFrame.Visible == false
+		wait(0.6)
+	end
+	wait(0.5)
+	if game.Workspace.QuestStuff:FindFirstChild("Key") and game.Workspace.QuestStuff.Key.Transparency == 0 then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.QuestStuff.Key.CFrame
+		repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game.Workspace.QuestStuff.Key.Position).Magnitude <= 10
+		wait(0.3)
+		if game.Workspace.QuestStuff.Key:FindFirstChild("ClickDetector") then
+			fireclickdetector(game.Workspace.QuestStuff.Key.ClickDetector, 0)
+	        fireclickdetector(game.Workspace.QuestStuff.Key.ClickDetector, 1)
+        end
+        repeat task.wait() until game.Workspace.QuestStuff:FindFirstChild("Key") and game.Workspace.QuestStuff.Key.Transparency ~= 0
+        wait(0.3)
+	end
+	wait(2.6)
+	if Buildings and Buildings:FindFirstChild("oog's cage") and Buildings["oog's cage"]:FindFirstChild("Door") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Buildings["oog's cage"].Door.Door.CFrame * CFrame.new(-3,0,0)
+		repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Buildings["oog's cage"].Door.Door.Position).Magnitude <= 10
+		wait(0.3)
+		fireclickdetector(Buildings["oog's cage"].Door.ClickDetector, 0)
+        fireclickdetector(Buildings["oog's cage"].Door.ClickDetector, 1)
+	end
+	wait(0.3)
+	if Dialogue and Dialogue:FindFirstChild("PabloPinkyPoo") and Dialogue.PabloPinkyPoo:FindFirstChildOfClass("ProximityPrompt") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Dialogue.PabloPinkyPoo.CFrame * CFrame.new(0, 0, -5)
+		repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Dialogue.PabloPinkyPoo.Position).Magnitude <= 10
+		wait(0.2)
+		repeat task.wait()
+			if fireproximityprompt then
+				fireproximityprompt(Dialogue.PabloPinkyPoo:FindFirstChildOfClass("ProximityPrompt")) 
+			end
+		until game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Dialogues"):FindFirstChild("DialogueFrame") and game:GetService("Players").LocalPlayer.PlayerGui.Dialogues.DialogueFrame.Visible == true
+	end
+end
+]])
+elseif not teleportFunc then
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Lobby.brazil.portal.CFrame
     end
 })
 
@@ -10710,8 +10824,8 @@ game:GetService("ReplicatedStorage").Events.BusJumping:FireServer()
 if game.Players.LocalPlayer.PlayerGui:FindFirstChild("JumpPrompt") then
 game.Players.LocalPlayer.PlayerGui.JumpPrompt:Destroy()
 end
-wait(0.4)
-repeat task.wait() ray = workspace:Raycast(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(0, -500, 0)) until ray
+wait(1)
+ray = workspace:Raycast(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(0, -500, 0)) 
 if ray then
 	local NameGlove = game.Players.LocalPlayer:FindFirstChild("Glove") and game.Players.LocalPlayer.Character.Glove.Value
 	repeat task.wait()
@@ -12023,6 +12137,15 @@ task.wait()
     end
 })
 elseif game.PlaceId == 7234087065 then
+spawn(function()
+	while true do
+		Dialogue = game.Workspace:FindFirstChild("DialoguePrompts")
+		NPC = game.Workspace:FindFirstChild("NPCS")
+		Buildings = game.Workspace:FindFirstChild("Buildings")
+		task.wait()
+	end
+end)
+
 Window = Library:CreateWindow({
     Title = "Lobby OOG 🐕",
     Center = true,
@@ -12041,91 +12164,118 @@ Tabs = {
 	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
 }
 
-local Misc1Group = Tabs.Tab:AddLeftGroupbox("Prepare")
+local Misc1Group = Tabs.Tab:AddLeftGroupbox("Main")
 
-Misc1Group:AddButton("Teleport Pablo", function()
-if game.Workspace.NPCS:FindFirstChild("Pablo Pinkypoo") and game.Workspace.NPCS["Pablo Pinkypoo"]:FindFirstChild("HumanoidRootPart") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.NPCS["Pablo Pinkypoo"].HumanoidRootPart.CFrame * CFrame.new(0,0,5)
-wait(0.4)
-for i,v in ipairs(game.Workspace.DialoguePrompts:GetChildren()) do
-            if v.Name == "PabloPinkyPoo" and v:FindFirstChild("ProximityPrompt") then
-                fireproximityprompt(v.ProximityPrompt)
-            end
+Misc1Group:AddButton("Get Badge OOG", function()
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	Gui = game:GetService("Players").LocalPlayer.PlayerGui
+	for i = 1, 2 do
+		if Dialogue and Dialogue:FindFirstChild("PabloPinkyPoo") and Dialogue.PabloPinkyPoo:FindFirstChildOfClass("ProximityPrompt") then
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Dialogue.PabloPinkyPoo.CFrame * CFrame.new(0, 0, -5)
+			repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Dialogue.PabloPinkyPoo.Position).Magnitude <= 10
+			wait(0.2)
+			repeat task.wait()
+				if fireproximityprompt then
+					fireproximityprompt(Dialogue.PabloPinkyPoo:FindFirstChildOfClass("ProximityPrompt")) 
+				end
+			until game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Dialogues"):FindFirstChild("DialogueFrame") and game:GetService("Players").LocalPlayer.PlayerGui.Dialogues.DialogueFrame.Visible == true
+		end
+		wait(0.1)
+		repeat task.wait() until Gui:FindFirstChild("Dialogues"):FindFirstChild("DialogueFrame") and Gui.Dialogues.DialogueFrame.Visible == false
+		wait(0.6)
+	end
+	wait(0.5)
+	if game.Workspace.QuestStuff:FindFirstChild("Key") and game.Workspace.QuestStuff.Key.Transparency == 0 then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.QuestStuff.Key.CFrame
+		repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game.Workspace.QuestStuff.Key.Position).Magnitude <= 10
+		wait(0.3)
+		if game.Workspace.QuestStuff.Key:FindFirstChild("ClickDetector") then
+			fireclickdetector(game.Workspace.QuestStuff.Key.ClickDetector, 0)
+	        fireclickdetector(game.Workspace.QuestStuff.Key.ClickDetector, 1)
         end
+        repeat task.wait() until game.Workspace.QuestStuff:FindFirstChild("Key") and game.Workspace.QuestStuff.Key.Transparency ~= 0
+        wait(0.3)
+	end
+	wait(2.6)
+	if Buildings and Buildings:FindFirstChild("oog's cage") and Buildings["oog's cage"]:FindFirstChild("Door") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Buildings["oog's cage"].Door.Door.CFrame * CFrame.new(-3,0,0)
+		repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Buildings["oog's cage"].Door.Door.Position).Magnitude <= 10
+		wait(0.3)
+		fireclickdetector(Buildings["oog's cage"].Door.ClickDetector, 0)
+        fireclickdetector(Buildings["oog's cage"].Door.ClickDetector, 1)
+	end
+	wait(0.3)
+	if Dialogue and Dialogue:FindFirstChild("PabloPinkyPoo") and Dialogue.PabloPinkyPoo:FindFirstChildOfClass("ProximityPrompt") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Dialogue.PabloPinkyPoo.CFrame * CFrame.new(0, 0, -5)
+		repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Dialogue.PabloPinkyPoo.Position).Magnitude <= 10
+		wait(0.2)
+		repeat task.wait()
+			if fireproximityprompt then
+				fireproximityprompt(Dialogue.PabloPinkyPoo:FindFirstChildOfClass("ProximityPrompt")) 
+			end
+		until game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Dialogues"):FindFirstChild("DialogueFrame") and game:GetService("Players").LocalPlayer.PlayerGui.Dialogues.DialogueFrame.Visible == true
+	end
 end
 end)
 
-Misc1Group:AddButton("Teleport Key", function()
-if game.Workspace.QuestStuff:FindFirstChild("Key") and game.Workspace.QuestStuff.Key.Transparency == 0 then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.QuestStuff.Key.CFrame
-wait(0.35)
-for i,v in ipairs(game.Workspace.QuestStuff:GetChildren()) do
-            if v.Name == "Key" and v:FindFirstChild("ClickDetector") then
-                   fireclickdetector(v.ClickDetector, 0)
-                   fireclickdetector(v.ClickDetector, 1)
-            end
-        end
+Misc1Group:AddButton("Get Badge Riftshot", function()
+if Dialogue and Dialogue:FindFirstChild("Sharpshooter Sam") and Dialogue["Sharpshooter Sam"]:FindFirstChildOfClass("ProximityPrompt") then
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Dialogue["Sharpshooter Sam"].CFrame
+	repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Dialogue["Sharpshooter Sam"].Position).Magnitude <= 10
+end
+Notification("Bypass Success, Now bomb will bring you, your job is to shoot", 5)
+while true do
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	if Buildings:FindFirstChild("Sharpshooter Sam's Island") and Buildings["Sharpshooter Sam's Island"]:FindFirstChild("Targets") then
+		for i, v in pairs(Buildings["Sharpshooter Sam's Island"].Targets:GetChildren()) do
+			if v.Name:find("bomb") and v:FindFirstChild("Handle") then
+				v.Handle.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -7)
+			end
+		end
+	end
+end
+task.wait()
 end
 end)
 
-Misc1Group:AddButton("Unlock ogg", function()
-if game.Workspace.Buildings:FindFirstChild("oog's cage") and game.Workspace.Buildings["oog's cage"]:FindFirstChild("Door") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Buildings["oog's cage"].Door.Door.CFrame * CFrame.new(-3,0,0)
-wait(0.35)
-for i,v in ipairs(game.Workspace.Buildings["oog's cage"]:GetChildren()) do
-            if v.Name == "Door" and v:FindFirstChild("ClickDetector") then
-                   fireclickdetector(v.ClickDetector, 0)
-                   fireclickdetector(v.ClickDetector, 1)
-            end
-        end
-end
-end)
-
-Misc1Group:AddButton("Click Boxer", function()
+Misc1Group:AddButton("Get Badge Boxer", function()
 if game.Workspace:FindFirstChild("BoxingGloves") == nil then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Buildings.house:FindFirstChild("TP").CFrame * CFrame.new(0,10,0)
-wait(1)
-for i,v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "BoxingGloves" and v:FindFirstChild("ClickDetector") then
-fireclickdetector(v.ClickDetector, 0)
-fireclickdetector(v.ClickDetector, 1)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Buildings.house:FindFirstChild("TP").CFrame * CFrame.new(0,10,0)
 end
-end
-else
-for i,v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "BoxingGloves" and v:FindFirstChild("ClickDetector") then
-fireclickdetector(v.ClickDetector, 0)
-fireclickdetector(v.ClickDetector, 1)
-end
-end
+repeat task.wait() until game.Workspace:FindFirstChild("BoxingGloves"):FindFirstChild("ClickDetector")
+wait(0.6)
+if game.Workspace:FindFirstChild("BoxingGloves"):FindFirstChild("ClickDetector") then
+	fireclickdetector(game.Workspace.BoxingGloves.ClickDetector, 0)
+	fireclickdetector(game.Workspace.BoxingGloves.ClickDetector, 1)
 end
 end)
 
-Misc1Group:AddButton("Teleport Event Area", function()
+Misc1Group:AddDivider()
+Misc1Group:AddButton("Enter Event Area", function()
 for i, v in ipairs(workspace.Signs:GetChildren()) do
-if v.Name == "Sign" and v:FindFirstChild("Text") and v.Text:FindFirstChild("ClickDetector") then
-if fireclickdetector then
-fireclickdetector(v.Text.ClickDetector, 0)
-fireclickdetector(v.Text.ClickDetector, 1)
-elseif not fireclickdetector then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Text.CFrame
-end
-end
+	if v.Name == "Sign" and v:FindFirstChild("Text") and v.Text:FindFirstChild("ClickDetector") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Text.CFrame
+		if fireclickdetector then
+			fireclickdetector(v.Text.ClickDetector, 0)
+			fireclickdetector(v.Text.ClickDetector, 1)
+		end
+	end
 end
 end)
 
-Misc1Group:AddButton("Teleport Designer Roblox", function()
+Misc1Group:AddButton("Enter Designer Roblox", function()
 repeat task.wait()
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(249, 94, -62841)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(249, 94, -62841)
 until workspace.Buildings:FindFirstChild("wizard twoer 2")
 wait(0.8)
 for i, v in pairs(workspace.Buildings["wizard twoer 2"]:GetChildren()) do
-if v.Name == "Model" and v:FindFirstChild("Trigger") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChild("Trigger").CFrame
-end
+	if v.Name == "Model" and v:FindFirstChild("Trigger") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChild("Trigger").CFrame
+	end
 end
 end)
 
+Misc1Group:AddDivider()
 Misc1Group:AddToggle("Auto Tp Clock", {
     Text = "Auto Teleport Clock",
     Default = false, 
@@ -12133,14 +12283,15 @@ Misc1Group:AddToggle("Auto Tp Clock", {
 _G.AutoTPClock = Value
 while _G.AutoTPClock do
 for i,v in pairs(workspace.Buildings:GetChildren()) do
-if v.Name == "wizard twoer" and v:FindFirstChild("Cone") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Cone.CFrame * CFrame.new(0,15,0)
-end
+	if v.Name == "wizard twoer" and v:FindFirstChild("Cone") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Cone.CFrame * CFrame.new(0,15,0)
+	end
 end
 task.wait()
 end
     end
 })
+
 elseif game.PlaceId == 74169485398268 then
 Window = Library:CreateWindow({
     Title = "Maze Bind 👁️‍🗨️",
