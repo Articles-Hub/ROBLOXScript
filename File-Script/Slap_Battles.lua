@@ -2664,8 +2664,8 @@ end
 game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Bypass Success, bomb will bring you, your job is to shoot the bomb (Goodluck!)",Icon = "rbxassetid://7733658504",Duration = 5})
 while true do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-	if Buildings:FindFirstChild("Sharpshooter Sam's Island") and Buildings["Sharpshooter Sam's Island"]:FindFirstChild("Targets") then
-		for i, v in pairs(Buildings["Sharpshooter Sam's Island"].Targets:GetChildren()) do
+	if workspace:FindFirstChild("Sharpshooter Sam's Targets") then
+		for i, v in pairs(workspace["Sharpshooter Sam's Targets"]:GetChildren()) do
 			if v.Name:find("bomb") and v:FindFirstChild("Handle") then
 				v.Handle.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -7)
 			end
@@ -12226,8 +12226,8 @@ end
 Notification("Bypass Success, Now bomb will bring you, your job is to shoot", 5)
 while true do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-	if Buildings:FindFirstChild("Sharpshooter Sam's Island") and Buildings["Sharpshooter Sam's Island"]:FindFirstChild("Targets") then
-		for i, v in pairs(Buildings["Sharpshooter Sam's Island"].Targets:GetChildren()) do
+	if workspace:FindFirstChild("Sharpshooter Sam's Targets") then
+		for i, v in pairs(workspace["Sharpshooter Sam's Targets"]:GetChildren()) do
 			if v.Name:find("bomb") and v:FindFirstChild("Handle") then
 				v.Handle.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -7)
 			end
@@ -12327,7 +12327,7 @@ end
 end)
 elseif game.PlaceId == 102908326578005 then
 Window = Library:CreateWindow({
-    Title = "OOG Home Jorgis 🏠",
+    Title = "OOG Home Jorgis ??",
     Center = true,
     AutoShow = true,
     Resizable = true,
