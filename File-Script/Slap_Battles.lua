@@ -2662,10 +2662,17 @@ if Dialogue and Dialogue:FindFirstChild("Sharpshooter Sam") and Dialogue["Sharps
 	repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Dialogue["Sharpshooter Sam"].Position).Magnitude <= 10
 end
 game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Error",Text = "Bypass Success, bomb will bring you, your job is to shoot the bomb (Goodluck!)",Icon = "rbxassetid://7733658504",Duration = 5})
+wait(0.3)
+for i,v in ipairs(game:GetService("Workspace"):GetDescendants()) do
+    if v.Name:find("Sharpshooter Sam's") then
+        SharpshooterTarget = v
+    end
+end
+wait(0.3)
 while true do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-	if workspace:FindFirstChild("Sharpshooter Sam's Targets") then
-		for i, v in pairs(workspace["Sharpshooter Sam's Targets"]:GetChildren()) do
+	if SharpshooterTarget then
+		for i, v in pairs(SharpshooterTarget:GetChildren()) do
 			if v.Name:find("bomb") and v:FindFirstChild("Handle") then
 				v.Handle.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -7)
 			end
@@ -12219,15 +12226,21 @@ end
 end)
 
 Misc1Group:AddButton("Get Badge Riftshot", function()
-if Dialogue and Dialogue:FindFirstChild("Sharpshooter Sam") and Dialogue["Sharpshooter Sam"]:FindFirstChildOfClass("ProximityPrompt") then
+if Dialogue and Dialogue:FindFirstChild("Sharpshooter Sam") then
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Dialogue["Sharpshooter Sam"].CFrame
-	repeat task.wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Dialogue["Sharpshooter Sam"].Position).Magnitude <= 10
 end
 Notification("Bypass Success, Now bomb will bring you, your job is to shoot", 5)
+wait(0.3)
+for i,v in ipairs(game:GetService("Workspace"):GetDescendants()) do
+    if v.Name:find("Sharpshooter Sam's") then
+        SharpshooterTarget = v
+    end
+end
+wait(0.3)
 while true do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-	if workspace:FindFirstChild("Sharpshooter Sam's Targets") then
-		for i, v in pairs(workspace["Sharpshooter Sam's Targets"]:GetChildren()) do
+	if SharpshooterTarget then
+		for i, v in pairs(SharpshooterTarget:GetChildren()) do
 			if v.Name:find("bomb") and v:FindFirstChild("Handle") then
 				v.Handle.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -7)
 			end
@@ -12242,7 +12255,7 @@ Misc1Group:AddButton("Get Badge Boxer", function()
 if game.Workspace:FindFirstChild("BoxingGloves") == nil then
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Buildings.house:FindFirstChild("TP").CFrame * CFrame.new(0,10,0)
 end
-repeat task.wait() until game.Workspace:FindFirstChild("BoxingGloves"):FindFirstChild("ClickDetector")
+repeat task.wait() until game.Workspace:FindFirstChild("BoxingGloves")
 wait(0.6)
 if game.Workspace:FindFirstChild("BoxingGloves"):FindFirstChild("ClickDetector") then
 	fireclickdetector(game.Workspace.BoxingGloves.ClickDetector, 0)
