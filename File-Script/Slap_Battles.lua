@@ -248,22 +248,24 @@ function CheckGlove()
 end
 
 if hookmetamethod and getnamecallmethod then
-if not loadingGetOut then
-loadingGetOut = true
-MethodGlove, EquipGlove = false, "Default"
-local Hit
-Hit = hookmetamethod(game, "__namecall", function(method, ...) 
-	local args = {...}
-	local methodcall = getnamecallmethod()
-    if methodcall == "FireServer" then
-	    if ((tostring(method) == "GoldenHit" and EquipGlove == "Golden") or (tostring(method) == "GeneralHit" and (EquipGlove == "Glovel" or EquipGlove == "Mace" or EquipGlove == "Charge"))) and MethodGlove == true then
-			args[2] = (EquipGlove == "Mace" and 200 or true)
-			return Hit(method, unpack(args))
-		end
-    end
-	return Hit(method, ...)
-end)
-end
+	if not loadingGetOut then
+		loadingGetOut = true
+		MethodGlove, EquipGlove = false, "Default"
+		getgenv().HookFun = hookmetamethod(game, "__namecall", function(method, ...) 
+			local args = {...}
+			local methodcall = getnamecallmethod()
+		    if methodcall == "FireServer" then
+			    if ((tostring(method) == "GoldenHit" and EquipGlove == "Golden") or (tostring(method) == "GeneralHit" and (EquipGlove == "Glovel" or EquipGlove == "Mace" or EquipGlove == "Charge"))) and MethodGlove == true then
+					args[2] = (EquipGlove == "Mace" and 200 or true)
+					return getgenv().HookFun(method, unpack(args))
+				end
+				if tostring(method) == "GeneralAbility" and args[1] == "antispam" and getgenb().AntiSpamBypass then
+					return
+				end
+		    end
+			return getgenv().HookFun(method, ...)
+		end)
+	end
 end
 
 local function combinations(list, n)
@@ -1496,6 +1498,16 @@ task.wait()
 end
     end
 })
+
+if hookmetamethod then
+	_G.AntiToggles["Anti Spam Bypass"] = Anti2Group:AddToggle("Anti Spam Bypass", {
+	    Text = "Anti Spam Bypass (Chainsaw)",
+	    Default = false,
+	    Callback = function(Value)
+	getgenb().AntiSpamBypass = Value
+	    end
+	})
+end
 
 _G.AntiToggles["Anti Boss Guide"] = Anti2Group:AddToggle("Anti Boss Guide", {
     Text = "Anti Join Boss Guide",
@@ -3943,6 +3955,80 @@ end
 
 local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
 
+Badge3Group:AddToggle("Auto Stalker Mastery", {
+    Text = "Auto Stalker Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoStalkerMastery = Value
+if not _G.AutoStalkerMastery then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
+	end
+end
+if CheckGlove() == "Stalker" then
+while _G.AutoStalkerMastery do
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.5)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.leaderstats.Slaps.Value >= 666 then
+	fireclickdetector(workspace.Lobby.Ghost.ClickDetector)
+	game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
+	fireclickdetector(workspace.Lobby["Stalker"].ClickDetector)
+	task.wait(1)
+	for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+		if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+			v.Transparency = 0
+		end
+	end
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.35)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+if game.Players.LocalPlayer.Character:FindFirstChild("Stalker") then
+game.Players.LocalPlayer.Character:FindFirstChild("Stalker").Parent = game.Players.LocalPlayer.Backpack
+end
+wait(0.3)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		table.insert(players, v)
+	end
+end
+if #players ~= 0 then
+	local RandomPlayer = players[math.random(#players)]
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
+		local bv = Instance.new("BodyVelocity")
+		bv.Name = "FreezeBV"
+		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+		bv.MaxForce = Vector3.new(100000, 100000, 100000)
+		bv.Velocity = Vector3.new(0, 0, 0)
+	end
+	game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+	repeat task.wait() until _G.AutoStalkerMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+	wait(0.3)
+	for i = 1, 3 do
+		gloveHits["All"]:FireServer(RandomPlayer.Character:FindFirstChild("Head"))
+		wait(0.2)
+	end
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+	task.wait(3.5)
+end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Stalker equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Stalker Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Moon Mastery", {
     Text = "Moon Mastery",
     Values = {"Unequip + Ragdoll Time", "Slap Player"},
@@ -5772,7 +5858,7 @@ _G.AutoBombMastery = Value
 if CheckGlove() == "Bomb" then
 while _G.AutoBombMastery do
 if _G.BombMastery == "Throw Bomb" then
-for i = 1, 500 do
+for i = 1, 1000 do
 spawn(function()
 	game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
 	game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
@@ -6280,7 +6366,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Orig
 elseif Value == "Lobby" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-800,328,-2.5)
 elseif Value == "Hunter Room" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom.Build.Union.CFrame * CFrame.new(0,5,0)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom.Build.Union.CFrame * CFrame.new(0,0,5)
 elseif Value == "Brazil" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Lobby.brazil.portal.CFrame
 elseif Value == "Island Slapple" then
@@ -6627,6 +6713,79 @@ _G.AutoFarmSlapBattles = Value
     end
 })
 
+local LastPathTime = 0
+local PFS = game:GetService("PathfindingService")
+table.insert(_G.ConnectFun, game:GetService("RunService").RenderStepped:Connect(function()
+	if _G.AutoFarmSlap and _G.AutoFarmSlapBattles == "Aimbot" then
+		if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+			local HugeTarget, Target = math.huge, nil
+			for i,v in pairs(game.Players:GetChildren()) do
+				if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+					if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+						if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+							if _G.AutoFarmSlap == true then
+								local TargetDisPlr = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
+								if TargetDisPlr < HugeTarget then
+									Target = v.Character
+									HugeTarget = TargetDisPlr
+								end
+							end
+						end
+					end
+				end
+			end
+			if Target then
+				LastPathTime = tick()
+				CurrentTarget = Target.HumanoidRootPart
+				local ok, err = pcall(function()
+					local path = PFS:CreatePath({
+						AgentRadius = 1,
+						WaypointSpacing = 8,
+						AgentHeight = 5,
+						AgentCanJump = true,
+						AgentJumpHeight = 10,
+						AgentCanClimb = true,
+						AgentMaxSlope = 45,
+						Costs = {
+					        BrickFind = math.huge
+					    }
+					})
+					path:ComputeAsync(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, CurrentTarget.Position)
+					if path and path.Status == Enum.PathStatus.Success then
+						local Waypoints = path:GetWaypoints()
+						local pathFolder = workspace:FindFirstChild("PathFindPartsFolder")
+						if not pathFolder then
+							pathFolder = Instance.new("Folder")
+							pathFolder.Name = "PathFindPartsFolder"
+							pathFolder.Parent = workspace
+						end
+						pathFolder:ClearAllChildren()
+						for _, Waypoint in pairs(Waypoints) do
+							local part = Instance.new("Part")
+							part.Size = Vector3.new(1.3, 1.3, 1.3)
+							part.Position = Waypoint.Position
+							part.Shape = Enum.PartType.Ball
+							part.Material = Enum.Material.SmoothPlastic
+							part.Anchored = true
+							part.CanCollide = false
+							part.Parent = pathFolder
+						end
+						for i, Waypoint in pairs(Waypoints) do
+							if i == 1 then continue end
+							if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+								if Waypoint.Action == Enum.PathWaypointAction.Jump then
+									game.Players.LocalPlayer.Character.Humanoid.Jump = true
+								end
+								game.Players.LocalPlayer.Character.Humanoid:MoveTo(Waypoint.Position)
+								game.Players.LocalPlayer.Character.Humanoid.MoveToFinished:Wait()
+							end
+						end
+					end
+				end)
+			end
+		end
+	end
+end))
 Misc1Basic:AddToggle("Auto Farm Slap", {
     Text = "Auto Farm Slap",
     Default = false, 
@@ -6634,64 +6793,71 @@ Misc1Basic:AddToggle("Auto Farm Slap", {
 _G.AutoFarmSlap = Value
 while _G.AutoFarmSlap do
 if _G.AutoFarmSlapBattles == "Aimbot" then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid:MoveTo(game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").Position)
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+		if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+			game.Players.LocalPlayer.Character.Humanoid:MoveTo(game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").Position)
+		end
+	end
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+		for i, v in pairs(workspace:GetChildren()) do
+			if v.Name == "Union" and not v:FindFirstChild("PathfindingModifier") then
+				local modifier = Instance.new("PathfindingModifier")
+				modifier.Label = "BrickFind"
+				modifier.Parent = v
+			end
+		end
+	end
 end
-end
-end
-local DstanceHuge, Target = math.huge, nil
+local HugeTargetWhile, TargetWhile = math.huge, nil
 for i,v in pairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
-if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
-if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
-if _G.AutoFarmSlap == true then
-if _G.AutoFarmSlapBattles == "Teleport" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Character:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0,5,0)
-task.wait(0.5)
-if CheckGlove() == "Mace" then
-gloveHits["Mace"]:FireServer(v.Character.HumanoidRootPart, 100)
-elseif gloveHits[CheckGlove()] ~= nil then
-gloveHits[CheckGlove()]:FireServer(v.Character.HumanoidRootPart)
-else
-game:GetService("ReplicatedStorage").GeneralHit:FireServer(v.Character.HumanoidRootPart)
+	if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+		if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+			if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
+				if _G.AutoFarmSlap == true then
+					if _G.AutoFarmSlapBattles == "Teleport" then
+						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Character:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0,5,0)
+					elseif _G.AutoFarmSlapBattles == "Tween" then
+						TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0), true, 1)
+					elseif _G.AutoFarmSlapBattles == "Aimbot" then
+						local TargetDisPlrWhile = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
+						if TargetDisPlrWhile < HugeTargetWhile then
+							TargetWhile = v.Character
+							HugeTargetWhile = TargetDisPlrWhile
+						end
+					end
+					if _G.AutoFarmSlapBattles ~= "Aimbot" then
+						task.wait(0.5)
+						if CheckGlove() == "Mace" then
+							gloveHits["Mace"]:FireServer(v.Character.HumanoidRootPart, 100)
+						elseif gloveHits[CheckGlove()] ~= nil then
+							gloveHits[CheckGlove()]:FireServer(v.Character.HumanoidRootPart)
+						else
+							game:GetService("ReplicatedStorage").GeneralHit:FireServer(v.Character.HumanoidRootPart)
+						end
+					end
+				end
+			end
+		end
+	end
 end
-elseif _G.AutoFarmSlapBattles == "Tween" then
-TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0), true, 1)
-wait(0.35)
-if CheckGlove() == "Mace" then
-gloveHits["Mace"]:FireServer(v.Character.HumanoidRootPart, 100)
-elseif gloveHits[CheckGlove()] ~= nil then
-gloveHits[CheckGlove()]:FireServer(v.Character.HumanoidRootPart)
-else
-game:GetService("ReplicatedStorage").GeneralHit:FireServer(v.Character.HumanoidRootPart)
-end
-elseif _G.AutoFarmSlapBattles == "Aimbot" then
-local DstancePlayer = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
-if DstancePlayer < DstanceHuge then
-DstanceHuge, Target = DstancePlayer, v.Character
-end
-end
-end
-end
-end
-end
-end
-if Target and _G.AutoFarmSlapBattles == "Aimbot" then
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Ragdolled").Value == false then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(Target.HumanoidRootPart.Position.X, game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y, Target.HumanoidRootPart.Position.Z))
-end
-for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-if v:IsA("Tool") and v:FindFirstChild("Glove") then
-if (v:FindFirstChild("Glove").Position - Target.HumanoidRootPart.Position).Magnitude <= 5 then
-game:GetService("VirtualUser"):ClickButton1(Vector2.new(200, 200))
-else
-game.Players.LocalPlayer.Character.Humanoid:MoveTo(Target.HumanoidRootPart.Position)
-end
-end
-end
-end
+if TargetWhile and _G.AutoFarmSlapBattles == "Aimbot" then
+	if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Ragdolled").Value == false then
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, Vector3.new(TargetWhile.HumanoidRootPart.Position.X, game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y, TargetWhile.HumanoidRootPart.Position.Z))
+		end
+		for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+			if v:IsA("Tool") and v:FindFirstChild("Glove") then
+				v.Parent = game.Players.LocalPlayer.Character
+			end
+		end
+		for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+			if v:IsA("Tool") and v:FindFirstChild("Glove") then
+				if (v:FindFirstChild("Glove").Position - TargetWhile.HumanoidRootPart.Position).Magnitude <= 5 then
+					game:GetService("VirtualUser"):ClickButton1(Vector2.new(200, 200))
+				end
+			end
+		end
+	end
 end
 task.wait()
 end
@@ -7322,31 +7488,23 @@ end
 end
 task.wait()
 end
+while _G.OnAbility and game.Players.LocalPlayer.Character:FindFirstChild("KS250Complete") do
+if game.Players.LocalPlayer.Character:FindFirstChild("KS250Complete") then
+game:GetService("ReplicatedStorage").TheForce:FireServer()
+for i,v in pairs(game.Workspace:GetChildren()) do
+        if v.Name == "Part" then
+            v:Destroy()
+        end
+    end
+end
+task.wait()
+end
     end
 }):AddKeyPicker("SpamAbility", {
    Default = "B",
    Text = "Auto Spam Ability",
    Mode = "Toggle",
    SyncToggleState = true
-})
-
-Misc1Basic:AddToggle("Spam Ability 250 Kill", {
-    Text = "Spam Ability 250 Kill",
-    Default = false, 
-    Callback = function(Value) 
-_G.SpamAbliKilll = Value
-while _G.SpamAbliKilll do
-if game.Players.LocalPlayer.Character:FindFirstChild("KS250Complete") then
-game:GetService("ReplicatedStorage").TheForce:FireServer()
-for i,v in pairs(game.Workspace:GetChildren()) do
-                    if v.Name == "Part" then
-                        v:Destroy()
-                    end
-                end
-end
-task.wait()
-end
-    end
 })
 
 Misc1Basic:AddToggle("Method Glove", {
@@ -7619,23 +7777,19 @@ _G.AutoEnter = Value
 _G.AutoEnterJoin = Value
 while _G.AutoEnterJoin do
 if _G.AutoEnter == "Arena" then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
-firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
-end
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
+	EnterPo = workspace.Lobby:FindFirstChild("Teleport1")
 elseif _G.AutoEnter == "Arena Default" then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-repeat task.wait()
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport2, 0)
-firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Lobby.Teleport2, 1)
+	EnterPo = workspace.Lobby:FindFirstChild("Teleport2")
 end
-until game.Players.LocalPlayer.Character:FindFirstChild("entered")
-end
+if EnterPo then
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		repeat task.wait()
+			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+				firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, EnterPo, 0)
+				firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, EnterPo, 1)
+			end
+		until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+	end
 end
 task.wait()
 end
@@ -7695,89 +7849,72 @@ _G.SlapAuraChoose = Value
     Callback = function(Value) 
 _G.SlapAura = Value
 while _G.SlapAura do
+local function AuraSlap(v)
+	if CheckGlove() == "Mace" then
+		gloveHits["Mace"]:FireServer(v, 100)
+	elseif gloveHits[CheckGlove()] ~= nil then
+		gloveHits[CheckGlove()]:FireServer(v)
+	else
+		game.ReplicatedStorage.GeneralHit:FireServer(v)
+	end
+end
 if _G.SlapAuraChoose == "Normal" then
-for i,v in pairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
-if v.Character.Head:FindFirstChild("UnoReverseCard") == nil or CheckGlove() == "Error" then
-if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
-if _G.SlapAuraFriend == "Fight" then
-if CheckGlove() == "Mace" then
-gloveHits["Mace"]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter), 100)
-elseif gloveHits[CheckGlove()] ~= nil then
-gloveHits[CheckGlove()]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
-else
-game.ReplicatedStorage.GeneralHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
-end
-elseif _G.SlapAuraFriend == "Not Fight" then
-if not game.Players.LocalPlayer:IsFriendsWith(v.UserId) then
-if CheckGlove() == "Mace" then
-gloveHits["Mace"]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter), 200)
-elseif gloveHits[CheckGlove()] ~= nil then
-gloveHits[CheckGlove()]:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
-else
-game.ReplicatedStorage.GeneralHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
-end
-end
-end
-end
-end
-end
-end
-end
-if workspace:FindFirstChild("cherry_storage") then
-for i, v in pairs(workspace.cherry_storage:GetChildren()) do
-if string.find(v.Name, "Cherry") and v:FindFirstChild("HumanoidRootPart") then
-if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude then
-if CheckGlove() == "Mace" then
-gloveHits["Mace"]:FireServer(v:WaitForChild(_G.SlapAuraCharacter), 100)
-elseif gloveHits[CheckGlove()] ~= nil then
-gloveHits[CheckGlove()]:FireServer(v:WaitForChild(_G.SlapAuraCharacter))
-else
-game.ReplicatedStorage.GeneralHit:FireServer(v:WaitForChild(_G.SlapAuraCharacter))
-end
-end
-end
-end
-end
-for i, c in pairs(workspace:GetChildren()) do
-if string.find(c.Name, "Å") and c:FindFirstChild("HumanoidRootPart") then
-if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - c.HumanoidRootPart.Position).Magnitude then
-if CheckGlove() == "Mace" then
-gloveHits["Mace"]:FireServer(c:WaitForChild(_G.SlapAuraCharacter), 100)
-elseif gloveHits[CheckGlove()] ~= nil then
-gloveHits[CheckGlove()]:FireServer(c:WaitForChild(_G.SlapAuraCharacter))
-else
-game.ReplicatedStorage.GeneralHit:FireServer(c:WaitForChild(_G.SlapAuraCharacter))
-end
-end
-end
-end
-if game.Workspace:FindFirstChild("Balls") then
-for i, g in pairs(workspace:GetChildren()) do
-if g.Name == "Balls" then
-for i, z in pairs(g:GetChildren()) do
-if string.find(z.Name, "'s Ball") then
-if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - z.Position).Magnitude then
-game:GetService("ReplicatedStorage").Events.BeachBall:FireServer(z, Vector3.new(game:GetService("Workspace").CurrentCamera.CFrame.LookVector.X, 0, game:GetService("Workspace").CurrentCamera.CFrame.LookVector.Z).Unit * 0.2)
-end
-end
-end
-end
-end
-end
+	for i,v in pairs(game.Players:GetChildren()) do
+		if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+			if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+				if v.Character.Head:FindFirstChild("UnoReverseCard") == nil or CheckGlove() == "Error" then
+					if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
+						if _G.SlapAuraFriend == "Fight" or (_G.SlapAuraFriend == "Not Fight" and not game.Players.LocalPlayer:IsFriendsWith(v.UserId)) then
+							AuraSlap(v.Character:WaitForChild(_G.SlapAuraCharacter))
+						end
+					end
+				end
+			end
+		end
+	end
+	if workspace:FindFirstChild("cherry_storage") then
+		for i, v in pairs(workspace.cherry_storage:GetChildren()) do
+			if string.find(v.Name, "Cherry") and v:FindFirstChild("HumanoidRootPart") then
+				if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude then
+					AuraSlap(v:WaitForChild(_G.SlapAuraCharacter))
+				end
+			end
+		end
+	end
+	for i, c in pairs(workspace:GetChildren()) do
+		if string.find(c.Name, "Å") and c:FindFirstChild("HumanoidRootPart") then
+			if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - c.HumanoidRootPart.Position).Magnitude then
+				AuraSlap(c:WaitForChild(_G.SlapAuraCharacter))
+			end
+		end
+	end
+	if game.Workspace:FindFirstChild("Balls") then
+		for i, g in pairs(workspace:GetChildren()) do
+			if g.Name == "Balls" then
+				for i, z in pairs(g:GetChildren()) do
+					if string.find(z.Name, "'s Ball") then
+						if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - z.Position).Magnitude then
+							game:GetService("ReplicatedStorage").Events.BeachBall:FireServer(z, Vector3.new(game:GetService("Workspace").CurrentCamera.CFrame.LookVector.X, 0, game:GetService("Workspace").CurrentCamera.CFrame.LookVector.Z).Unit * 0.2)
+						end
+					end
+				end
+			end
+		end
+	end
 elseif _G.SlapAuraChoose == "Reverse" then
-for i,v in pairs(game.Players:GetChildren()) do
-if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-if v.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") then
-if v.Character.Head:FindFirstChild("UnoReverseCard") and game.Players.LocalPlayer.Character.Head:FindFirstChild("UnoReverseCard") then
-if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
-game.ReplicatedStorage.ReverseHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
-end
-end
-end
-end
-end
+	for i,v in pairs(game.Players:GetChildren()) do
+		if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+			if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+				if v.Character.Head:FindFirstChild("UnoReverseCard") == nil or CheckGlove() == "Error" then
+					if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
+						if _G.SlapAuraFriend == "Fight" or (_G.SlapAuraFriend == "Not Fight" and not game.Players.LocalPlayer:IsFriendsWith(v.UserId)) then
+							game.ReplicatedStorage.ReverseHit:FireServer(v.Character:WaitForChild(_G.SlapAuraCharacter))
+						end
+					end
+				end
+			end
+		end
+	end
 end
 task.wait(.08)
 end
@@ -7820,24 +7957,20 @@ _G.ShukuchiFriend = Value
     Callback = function(Value) 
 _G.AutoShukuchi = Value
 if CheckGlove() == "Shukuchi" then
-                while _G.AutoShukuchi do
-for i,v in pairs(game.Players:GetPlayers()) do
-                    if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Head:FindFirstChild("RedEye") == nil and v.Character:FindFirstChild("Mirage") == nil then
-if v.Character.Head:FindFirstChild("UnoReverseCard") == nil then
-                        if _G.ReachShukuchi >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
-if _G.ShukuchiFriend == "Fight" then
-game:GetService("ReplicatedStorage").SM:FireServer(v)
-elseif _G.ShukuchiFriend == "Not Fight" then
-if not game.Players.LocalPlayer:IsFriendsWith(v.UserId) then
-game:GetService("ReplicatedStorage").SM:FireServer(v)
-end
-end
-                     end
-end
-end
-end
-                 end
+while _G.AutoShukuchi do
+	for i,v in pairs(game.Players:GetChildren()) do
+		if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+			if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character.Ragdolled.Value == false and v.Character:FindFirstChild("Mirage") == nil then
+				if v.Character.Head:FindFirstChild("UnoReverseCard") == nil or CheckGlove() == "Error" then
+					if _G.ReachSlapArua >= (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude then
+						if _G.SlapAuraFriend == "Fight" or (_G.SlapAuraFriend == "Not Fight" and not game.Players.LocalPlayer:IsFriendsWith(v.UserId)) then
+							game:GetService("ReplicatedStorage").SM:FireServer(v)
+						end
+					end
+				end
+			end
+		end
+	end
 task.wait()
 end
 elseif _G.AutoShukuchi == true then
@@ -13871,6 +14004,10 @@ Library:OnUnload(function()
 			v:Disconnect()
 		end
 	_G.ConnectFun = nil
+	end
+	if hookmetamethod and getgenv().HookFun then
+		hookmetamethod(game, "__namecall", getgenv().HookFun)
+		getgenv().HookFun = nil
 	end
 	if game:GetService("CoreGui").RobloxGui.Backpack:FindFirstChild("Hotbar") then
 		game:GetService("CoreGui").RobloxGui.Backpack.Hotbar.Position = _G.Backpack["Old"]["Hotbar"]
