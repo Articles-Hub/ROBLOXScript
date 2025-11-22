@@ -2386,6 +2386,73 @@ game:GetService("TeleportService"):Teleport(74169485398268)
 })
 
 Badge1Group:AddButton({
+    Text = "Auto Get Conker",
+    Func = function()
+local teleportFunc = queueonteleport or queue_on_teleport
+    if teleportFunc then
+        teleportFunc([[
+            if not game:IsLoaded() then
+                game.Loaded:Wait()
+            end
+            repeat wait() until game.Players.LocalPlayer
+wait(2.5)
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV") == nil then
+	local bv = Instance.new("BodyVelocity")
+	bv.Name = "FreezeBV"
+	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+	bv.MaxForce = Vector3.new(100000, 100000, 100000)
+	bv.Velocity = Vector3.new(0, 0, 0)
+end
+game:GetService("ReplicatedStorage").Remotes.Dialogue.FinishedNPCDialogue:FireServer()
+repeat task.wait() until workspace:FindFirstChild("Map"):FindFirstChild("Props"):FindFirstChild("BasketCollection") and workspace.Map.Props.BasketCollection:FindFirstChild("Basket")
+fireclickdetector(workspace.Map.Props.BasketCollection.Basket.ClickDetector)
+repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("ConkerHoldVisual")
+task.wait(2.8)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.CoreAssets.Bowl["Sphere.002"].CFrame
+spawn(function()
+	workspace.NPCs.DescendantAdded:Connect(function(s)
+	    if s.Name == "squirrel" then
+		    local ok, err = pcall(function()
+		        while task.wait() and s do
+		            game:GetService("ReplicatedStorage").Remotes.tool.use:FireServer("slap")
+		            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s:FindFirstChild("HumanoidRootPart")})
+				end
+	        end)
+	    end
+	end)
+	workspace.DescendantAdded:Connect(function(n)
+	    if n.Name == "Conker" then
+	        if n:FindFirstChildOfClass("TouchTransmitter") then
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = n.CFrame
+				if firetouchinterest then
+		            firetouchinterest(n, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)
+		            firetouchinterest(n, game.Players.LocalPlayer.Character.HumanoidRootPart, 1)
+				end
+	            task.delay(0.1, function()
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.CoreAssets.Bowl["Sphere.002"].CFrame
+					task.wait(0.5)
+					workspace.Map.CoreAssets.Bowl.ProximityPrompt.HoldDuration = 0
+					if fireproximityprompt then
+						fireproximityprompt(workspace.Map.CoreAssets.Bowl.ProximityPrompt)
+					end
+					pcall(function()
+						workspace.Map.CoreAssets.Bowl.ProximityPrompt:InputHoldBegin()
+		                workspace.Map.CoreAssets.Bowl.ProximityPrompt:InputHoldEnd()
+					end)
+	            end)
+	        end
+	    end
+	end)
+end)
+]])
+elseif not teleportFunc then
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
+end
+game:GetService("TeleportService"):Teleport(101113181694564)
+    end
+})
+
+Badge1Group:AddButton({
     Text = "Auto Get FrostBite",
     Func = function()
 local teleportFunc = queueonteleport or queue_on_teleport
@@ -13802,6 +13869,79 @@ if workspace.Enemies:FindFirstChild("Boss Zombie") and workspace.Enemies["Boss Z
 end
 task.wait()
 end
+end)
+elseif game.PlaceId == 101113181694564 then
+Window = Library:CreateWindow({
+    Title = "Maze Pim Halloween 🎃",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+	Footer = "Omega X Article Hub Version: 1.0.5",
+	Icon = 83462777349222,
+	ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Badge")
+
+MainGroup:AddButton("Get Badge", function()
+if LoadingBadge then return end
+LoadingBadge = true
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV") == nil then
+	local bv = Instance.new("BodyVelocity")
+	bv.Name = "FreezeBV"
+	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+	bv.MaxForce = Vector3.new(100000, 100000, 100000)
+	bv.Velocity = Vector3.new(0, 0, 0)
+end
+game:GetService("ReplicatedStorage").Remotes.Dialogue.FinishedNPCDialogue:FireServer()
+repeat task.wait() until workspace:FindFirstChild("Map"):FindFirstChild("Props"):FindFirstChild("BasketCollection") and workspace.Map.Props.BasketCollection:FindFirstChild("Basket")
+fireclickdetector(workspace.Map.Props.BasketCollection.Basket.ClickDetector)
+repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("ConkerHoldVisual")
+task.wait(2.8)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.CoreAssets.Bowl["Sphere.002"].CFrame
+spawn(function()
+	workspace.NPCs.DescendantAdded:Connect(function(s)
+	    if s.Name == "squirrel" then
+		    local ok, err = pcall(function()
+		        while task.wait() and s do
+		            game:GetService("ReplicatedStorage").Remotes.tool.use:FireServer("slap")
+		            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s:FindFirstChild("HumanoidRootPart")})
+				end
+	        end)
+	    end
+	end)
+	workspace.DescendantAdded:Connect(function(n)
+	    if n.Name == "Conker" then
+	        if n:FindFirstChildOfClass("TouchTransmitter") then
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = n.CFrame
+				if firetouchinterest then
+		            firetouchinterest(n, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)
+		            firetouchinterest(n, game.Players.LocalPlayer.Character.HumanoidRootPart, 1)
+				end
+	            task.delay(0.1, function()
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.CoreAssets.Bowl["Sphere.002"].CFrame
+					task.wait(0.5)
+					workspace.Map.CoreAssets.Bowl.ProximityPrompt.HoldDuration = 0
+					if fireproximityprompt then
+						fireproximityprompt(workspace.Map.CoreAssets.Bowl.ProximityPrompt)
+					end
+					pcall(function()
+						workspace.Map.CoreAssets.Bowl.ProximityPrompt:InputHoldBegin()
+		                workspace.Map.CoreAssets.Bowl.ProximityPrompt:InputHoldEnd()
+					end)
+	            end)
+	        end
+	    end
+	end)
+end)
 end)
 end
 
