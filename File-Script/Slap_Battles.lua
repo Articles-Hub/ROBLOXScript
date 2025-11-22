@@ -192,6 +192,120 @@ while _G.StartFly do
 	task.wait()
 	end
 end
+
+_G.ConnectAnimPlay = {}
+function Animation(Value)
+	_G.LoadingEmote = Value
+	if not _G.LoadingEmote then
+		if _G.ConnectAnimPlay then
+			for i, v in pairs(_G.ConnectAnimPlay) do
+				v:Disconnect()
+			end
+		_G.ConnectAnimPlay = {}
+		end
+	end
+	if _G.ConnectAnimPlay then
+		function CheckAnim()
+			if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game:GetService("ReplicatedStorage"):FindFirstChild("AnimationPack") then
+				AnimFuns = {
+				    ["l"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["L"]),
+				    ["groove"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Groove"]),
+				    ["helicopter"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Helicopter"]),
+				    ["floss"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Floss"]),
+				    ["kick"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Kick"]),
+				    ["headless"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Headless"]),
+				    ["laugh"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Laugh"]),
+				    ["parker"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Parker"]),
+				    ["thriller"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Thriller"]),
+				    ["spasm"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Spasm"])
+				}
+			end
+			return (AnimFuns or nil)
+		end
+		GuiEmote = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("EmoteWheel")
+		if GuiEmote and GuiEmote:FindFirstChild("EmoteWheel") then
+		for i, v in pairs(GuiEmote.EmoteWheel:GetChildren()) do
+			if v:IsA("ImageButton") then
+				table.insert(_G.ConnectAnimPlay, v.MouseButton1Click:Connect(function()
+					if _G.LoadingEmote == true then
+						local Anims = CheckAnim()
+						GuiEmote.EmoteWheel.Visible = false
+						for i, v in pairs(Anims) do
+					        if v.IsPlaying then
+					            v:Stop()
+					        end
+					    end
+						if Anims and Anims.laugh and Anims.laugh.IsPlaying then
+							game:GetService("ReplicatedStorage").AnimationSound:FireServer()
+						end
+						task.wait()
+						if v.Text:lower() == "laugh" then
+							game:GetService("ReplicatedStorage").AnimationSound:FireServer("_emoteLaugh")
+						end
+						Anims[v.Text:lower()]:Play()
+						game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
+						    if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
+						        for i, v in pairs(Anims) do
+						            if v.IsPlaying then
+						                v:Stop()
+										if string.lower(i) == "laugh" then
+											game:GetService("ReplicatedStorage").AnimationSound:FireServer()
+										end
+						            end
+						        end
+						    end
+						end)
+					end
+				end))
+			end
+		end
+		table.insert(_G.ConnectAnimPlay, game.Players.LocalPlayer.Chatted:Connect(function(msg)
+			if _G.LoadingEmote == true then
+				if GuiEmote and GuiEmote:FindFirstChild("EmoteWheel") then
+					if string.lower(msg) == "/e opengui" then
+					   GuiEmote.EmoteWheel.Visible = true
+					elseif string.lower(msg) == "/e closegui" then
+					   GuiEmote.EmoteWheel.Visible = false
+					end
+				end
+				local Anims = CheckAnim()
+				for i, v in pairs(Anims) do
+				    if v.IsPlaying then
+				        v:Stop()
+				    end
+				end
+				if Anims and Anims.laugh and Anims.laugh.IsPlaying then
+					game:GetService("ReplicatedStorage").AnimationSound:FireServer()
+				end
+				for i, v in pairs(Anims) do
+					if string.lower(msg) == "/e "..i then
+						Anims[i]:Play()
+						if string.lower(msg) == "/e laugh" then
+							game:GetService("ReplicatedStorage").AnimationSound:FireServer("_emoteLaugh")
+						end
+					end
+				end
+				game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
+				    if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
+				        for i, v in pairs(Anims) do
+				            if v.IsPlaying then
+				                v:Stop()
+								if string.lower(i) == "laugh" then
+									game:GetService("ReplicatedStorage").AnimationSound:FireServer()
+								end
+				            end
+				        end
+					end
+				end)
+			end
+		end))
+	end
+end
+if not loadingNotify then
+	loadingNotify = true
+	Notification("You have Command /e {Name Emote} | /e opengui | /e cancelgui", _G.TimeNotify)
+end
+end
 _G.TimeNotify = 5
 if game.PlaceId == 6403373529 or game.PlaceId == 9015014224 or game.PlaceId == 11520107397 or game.PlaceId == 124596094333302 then
 if game.ReplicatedStorage:FindFirstChild("AdminGUI") then
@@ -6475,7 +6589,7 @@ end
 Misc2Group:AddInput("Players", {
     Default = "",
     Numeric = false,
-    Text = "",
+    Text = "Player",
     Finished = true,
     Placeholder = "Username",
     Callback = function(Value)
@@ -7655,100 +7769,7 @@ Misc1Basic:AddToggle("Free Emote", {
     Text = "Free Emote",
     Default = false, 
     Callback = function(Value) 
-_G.LoadingEmote = Value
-Anims = {
-    ["L"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["L"]),
-    ["GROOVE"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Groove"]),
-    ["HELICOPTER"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Helicopter"]),
-    ["FLOSS"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Floss"]),
-    ["KICK"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Kick"]),
-    ["HEADLESS"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Headless"]),
-    ["LAUGH"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Laugh"]),
-    ["PARKER"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Parker"]),
-    ["THRILLER"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Thriller"]),
-    ["SPASM"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Spasm"])
-}
-local GuiEmote = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes")
-if GuiEmote and GuiEmote:FindFirstChild("Emotes") and GuiEmote.Emotes:FindFirstChild("Frame") and GuiEmote.Emotes.Frame:FindFirstChild("Buttons") then
-for i, v in pairs(GuiEmote.Emotes.Frame:FindFirstChild("Buttons"):GetChildren()) do
-	if v:IsA("TextButton") then
-		v.MouseButton1Click:Connect(function()
-			if _G.LoadingEmote == true then
-				game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes").Enabled = false
-				for i, v in pairs(Anims) do
-				        if v.IsPlaying then
-				            v:Stop()
-				        end
-				    end
-				task.wait()
-				if v.Text:match("LAUGH") then
-					game:GetService("ReplicatedStorage").AnimationSound:FireServer("LAUGH")
-				end
-				Anims[v.Text]:Play()
-				game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
-				    if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
-				        for i, v in pairs(Anims) do
-				            if v.IsPlaying then
-				                v:Stop()
-				            end
-				        end
-				    end
-				end)
-			end
-		end)
-	end
-end
-game.Players.LocalPlayer.Chatted:Connect(function(msg)
-if _G.LoadingEmote == true then
-if string.lower(msg) == "/e opengui" then
-   game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes").Enabled = true
-elseif string.lower(msg) == "/e closegui" then
-   game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ConsoleEmotes").Enabled = false
-end
-for i, v in pairs(Anims) do
-        if v.IsPlaying then
-            v:Stop()
-        end
-    end
-task.wait()
-if string.lower(msg) == "/e l" then
-   Anims["L"]:Play()
-elseif string.lower(msg) == "/e groove" then
-   Anims["GROOVE"]:Play()
-elseif string.lower(msg) == "/e helicopter" then
-   Anims["HELICOPTER"]:Play()
-elseif string.lower(msg) == "/e floss" then
-   Anims["FLOSS"]:Play()
-elseif string.lower(msg) == "/e kick" then
-   Anims["KICK"]:Play()
-elseif string.lower(msg) == "/e headless" then
-   Anims["HEADLESS"]:Play()
-elseif string.lower(msg) == "/e laugh" then
-   Anims["LAUGH"]:Play()
-   game:GetService("ReplicatedStorage").AnimationSound:FireServer("LAUGH")
-elseif string.lower(msg) == "/e parker" then
-   Anims["PARKER"]:Play()
-elseif string.lower(msg) == "/e thriller" then
-   Anims["THRILLER"]:Play()
-elseif string.lower(msg) == "/e spasm" then
-   Anims["SPASM"]:Play()
-end
-game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
-    if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
-        for i, v in pairs(Anims) do
-            if v.IsPlaying then
-                v:Stop()
-            end
-        end
-    end
-end)
-end
-end)
-end
-if loadingNotify then return else
-loadingNotify = true
-Notification("You have Command /e Name Emote | /e opengui | /e cancelgui", _G.TimeNotify)
-end
+Animation(Value)
     end
 })
 
@@ -8564,7 +8585,7 @@ local Misc3Group = Tabs.Tab5:AddRightGroupbox("Misc Help")
 Misc3Group:AddInput("Players", {
     Default = "",
     Numeric = false,
-    Text = "",
+    Text = "Player",
     Finished = true,
     Placeholder = "Username",
     Callback = function(Value)
@@ -8875,7 +8896,7 @@ end
 Glove1Group:AddInput("Players", {
     Default = "",
     Numeric = false,
-    Text = "",
+    Text = "Player",
     Finished = true,
     Placeholder = "Username",
     Callback = function(Value)
@@ -8923,68 +8944,7 @@ end
 Glove1Group:AddInput("Players", {
     Default = "",
     Numeric = false,
-    Text = "",
-    Finished = true,
-    Placeholder = "Username",
-    Callback = function(Value)
-if Value == "Me" or Value == "me" or Value == "Username" or Value == "" then
-Person = game.Players.LocalPlayer.Name
-else
-_G.PlayerTarget = Value
-for _, v in pairs(game.Players:GetPlayers()) do
-if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
-PlayerTa = v
-end
-end
-if PlayerTa then
-Person = PlayerTa.Name
-Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
-else
-Notification("Can't find player", _G.TimeNotify)
-end
-end
-    end
-})
-
-Glove1Group:AddDropdown("RojoAbility", {
-    Text = "Rojo Ability",
-    Values = {"Normal", "Down"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-RojoAbility = Value
-    end
-})
-
-Glove1Group:AddToggle("RojoAbility", {
-    Text = "Auto Ability Rojo",
-    Default = false, 
-    Callback = function(Value) 
-if Person == nil then
-Person = game.Players.LocalPlayer.Name
-end
-_G.RojoSpam = Value
-if CheckGlove() == "Rojo" then
-while _G.RojoSpam do
-if RojoAbility == "Normal" then
-game:GetService("ReplicatedStorage"):WaitForChild("RojoAbility"):FireServer("Release", {game.Players[Person].Character.HumanoidRootPart.CFrame})
-elseif RojoAbility == "Down" then
-game:GetService("ReplicatedStorage"):WaitForChild("RojoAbility"):FireServer("Release", {game.Players[Person].Character.HumanoidRootPart.CFrame * CFrame.Angles(-1.5, -9.99999993922529e-09, -0.5663706660270691)})
-end
-task.wait()
-end
-elseif _G.RojoSpam == true then
-Notification("You don't have Rojo equipped.", _G.TimeNotify)
-wait(0.05)
-Toggles.RojoAbility:SetValue(false)
-end
-    end
-})
-
-Glove1Group:AddInput("Players", {
-    Default = "",
-    Numeric = false,
-    Text = "",
+    Text = "Player",
     Finished = true,
     Placeholder = "Username",
     Callback = function(Value)
@@ -9045,7 +9005,7 @@ end
 Glove1Group:AddInput("Players", {
     Default = "",
     Numeric = false,
-    Text = "",
+    Text = "Player",
     Finished = true,
     Placeholder = "Username",
     Callback = function(Value)
@@ -9086,7 +9046,7 @@ end
 Glove1Group:AddInput("Players", {
     Default = "",
     Numeric = false,
-    Text = "",
+    Text = "Player",
     Finished = true,
     Placeholder = "Username",
     Callback = function(Value)
@@ -9152,7 +9112,7 @@ _G.PlayerChoose = Value
 Glove1Group:AddInput("Players", {
     Default = "",
     Numeric = false,
-    Text = "",
+    Text = "Player",
     Finished = true,
     Placeholder = "Username",
     Callback = function(Value)
@@ -9399,6 +9359,37 @@ if CheckGlove() == "Grab" and game.Players.LocalPlayer.Character:FindFirstChild(
 	wait(0.37)
 	if game.Players.LocalPlayer.Character:FindFirstChild("Grab") then
 		game.Players.LocalPlayer.Character:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Backpack
+	end
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
+	end
+else
+	Notification("You don't have Grab equipped, or you have to go Arena, or player go to Arena", _G.TimeNotify)
+end
+end)
+
+Glove1Group:AddButton("Conker Player Teleport", function()
+if CheckGlove() == "Conker" and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players[_G.PlayerButton].Character:FindFirstChild("entered") then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
+		local bv = Instance.new("BodyVelocity")
+		bv.Name = "FreezeBV"
+		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+		bv.MaxForce = Vector3.new(100000, 100000, 100000)
+		bv.Velocity = Vector3.new(0, 0, 0)
+	end
+	if game.Players.LocalPlayer.Backpack:FindFirstChild("Conker") then
+		game.Players.LocalPlayer.Backpack:FindFirstChild("Conker").Parent = game.Players.LocalPlayer.Character
+	end
+	wait(0.36)
+	OLG = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton].Character.Head.CFrame * CFrame.new(0, 5, 0)
+	wait(0.2)
+	gloveHits["All"]:FireServer(game.Players[_G.PlayerButton].Character.Head)
+	wait(0.15)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OLG
+	wait(0.37)
+	if game.Players.LocalPlayer.Character:FindFirstChild("Conker") then
+		game.Players.LocalPlayer.Character:FindFirstChild("Conker").Parent = game.Players.LocalPlayer.Backpack
 	end
 	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
 		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
@@ -9955,7 +9946,7 @@ end
 Glove2Group:AddInput("Players", {
     Default = "",
     Numeric = false,
-    Text = "",
+    Text = "Player",
     Finished = true,
     Placeholder = "Username",
     Callback = function(Value)
@@ -10136,7 +10127,6 @@ elseif _G.PingPongServer == "Nuke" then
 for i,v in pairs(game.Workspace:GetChildren()) do
                     if v.Name == (game.Players.LocalPlayer.Name.."_PingPongBall") then
 v.CFrame = game.workspace.Origo.CFrame * CFrame.new(math.random(-_G.ExtendPingPong, _G.ExtendPingPong), -5, math.random(-_G.ExtendPingPong, _G.ExtendPingPong))
-
                     end
                 end
 end
@@ -10269,7 +10259,7 @@ end
 Glove2Group:AddInput("Players", {
     Default = "",
     Numeric = false,
-    Text = "",
+    Text = "Player",
     Finished = true,
     Placeholder = "Username",
     Callback = function(Value)
@@ -10403,7 +10393,7 @@ game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
 fireclickdetector(workspace.Lobby[OGlove].ClickDetector)
 task.wait(1)
 for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-if v:IsA("BasePart") and v.Name == "HumanoidRootPart" then
+if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
 v.Transparency = 0
 end
 end
@@ -11572,63 +11562,13 @@ if Code then
 end
 end)
 
-Misc1Group:AddButton("Free Emotes", function()
-if LoadingScr then return end
-LoadingScr = true
-if not Anims then
-	Anims = {
-	    ["L"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["L"]),
-	    ["Groove"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Groove"]),
-	    ["Helicopter"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Helicopter"]),
-	    ["Floss"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Floss"]),
-	    ["Kick"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Kick"]),
-	    ["Headless"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Headless"]),
-	    ["Laugh"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Laugh"]),
-	    ["Parker"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Parker"]),
-	    ["Thriller"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Thriller"]),
-	    ["Spasm"] = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(game:GetService("ReplicatedStorage").AnimationPack["Spasm"])
-	}
-end
-game.Players.LocalPlayer.Chatted:Connect(function(msg)
-	for i, v in pairs(Anims) do
-	    if v.IsPlaying then
-	        v:Stop()
-	    end
-	end
-	task.wait()
-	if string.lower(msg) == "/e l" then
-	   Anims["L"]:Play()
-	elseif string.lower(msg) == "/e groove" then
-	   Anims["Groove"]:Play()
-	elseif string.lower(msg) == "/e helicopter" then
-	   Anims["Helicopter"]:Play()
-	elseif string.lower(msg) == "/e floss" then
-	   Anims["Floss"]:Play()
-	elseif string.lower(msg) == "/e kick" then
-	   Anims["Kick"]:Play()
-	elseif string.lower(msg) == "/e headless" then
-	   Anims["Headless"]:Play()
-	elseif string.lower(msg) == "/e laugh" then
-	   Anims["Laugh"]:Play()
-	   game:GetService("ReplicatedStorage").AnimationSound:FireServer("LAUGH")
-	elseif string.lower(msg) == "/e parker" then
-	   Anims["Parker"]:Play()
-	elseif string.lower(msg) == "/e thriller" then
-	   Anims["Thriller"]:Play()
-	elseif string.lower(msg) == "/e spasm" then
-	   Anims["Spasm"]:Play()
-	end
-	game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
-	    if game.Players.LocalPlayer.Character.Humanoid.MoveDirection.Magnitude > 0 then
-	        for i, v in pairs(Anims) do
-	            if v.IsPlaying then
-	                v:Stop()
-	            end
-	        end
-	    end
-	end)
-end)
-end)
+Misc1Group:AddToggle("Free Emote", {
+    Text = "Free Emote",
+    Default = false, 
+    Callback = function(Value) 
+Animation(Value)
+    end
+})
 
 local Local1Group = Tabs.Tab3:AddLeftGroupbox("Speed")
 
