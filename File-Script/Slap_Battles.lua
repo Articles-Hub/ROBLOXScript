@@ -2510,13 +2510,6 @@ local teleportFunc = queueonteleport or queue_on_teleport
             end
             repeat wait() until game.Players.LocalPlayer
 wait(2.5)
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "FreezeBV"
-	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
 game:GetService("ReplicatedStorage").Remotes.Dialogue.FinishedNPCDialogue:FireServer()
 repeat task.wait() until workspace:FindFirstChild("Map"):FindFirstChild("Props"):FindFirstChild("BasketCollection") and workspace.Map.Props.BasketCollection:FindFirstChild("Basket")
 fireclickdetector(workspace.Map.Props.BasketCollection.Basket.ClickDetector)
@@ -13834,16 +13827,11 @@ local MainGroup = Tabs.Tab:AddLeftGroupbox("Badge")
 MainGroup:AddButton("Get Badge", function()
 if LoadingBadge then return end
 LoadingBadge = true
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "FreezeBV"
-	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
 game:GetService("ReplicatedStorage").Remotes.Dialogue.FinishedNPCDialogue:FireServer()
 repeat task.wait() until workspace:FindFirstChild("Map"):FindFirstChild("Props"):FindFirstChild("BasketCollection") and workspace.Map.Props.BasketCollection:FindFirstChild("Basket")
-fireclickdetector(workspace.Map.Props.BasketCollection.Basket.ClickDetector)
+if fireclickdetector then
+	fireclickdetector(workspace.Map.Props.BasketCollection.Basket.ClickDetector)
+end
 repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("ConkerHoldVisual")
 task.wait(2.8)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.CoreAssets.Bowl["Sphere.002"].CFrame
