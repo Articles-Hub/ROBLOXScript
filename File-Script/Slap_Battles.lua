@@ -2521,8 +2521,11 @@ spawn(function()
 	    if s.Name == "squirrel" then
 		    local ok, err = pcall(function()
 		        while task.wait() and s do
-		            game:GetService("ReplicatedStorage").Remotes.tool.use:FireServer("slap")
-		            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s:FindFirstChild("HumanoidRootPart")})
+					if s:FindFirstChild("HumanoidRootPart") then
+						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = s.HumanoidRootPart.CFrame
+			            game:GetService("ReplicatedStorage").Remotes.tool.use:FireServer("slap")
+			            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s:FindFirstChild("HumanoidRootPart")})
+					end
 				end
 	        end)
 	    end
@@ -13829,9 +13832,7 @@ if LoadingBadge then return end
 LoadingBadge = true
 game:GetService("ReplicatedStorage").Remotes.Dialogue.FinishedNPCDialogue:FireServer()
 repeat task.wait() until workspace:FindFirstChild("Map"):FindFirstChild("Props"):FindFirstChild("BasketCollection") and workspace.Map.Props.BasketCollection:FindFirstChild("Basket")
-if fireclickdetector then
-	fireclickdetector(workspace.Map.Props.BasketCollection.Basket.ClickDetector)
-end
+fireclickdetector(workspace.Map.Props.BasketCollection.Basket.ClickDetector)
 repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("ConkerHoldVisual")
 task.wait(2.8)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.CoreAssets.Bowl["Sphere.002"].CFrame
@@ -13840,8 +13841,11 @@ spawn(function()
 	    if s.Name == "squirrel" then
 		    local ok, err = pcall(function()
 		        while task.wait() and s do
-		            game:GetService("ReplicatedStorage").Remotes.tool.use:FireServer("slap")
-		            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s:FindFirstChild("HumanoidRootPart")})
+					if s:FindFirstChild("HumanoidRootPart") then
+						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = s.HumanoidRootPart.CFrame
+			            game:GetService("ReplicatedStorage").Remotes.tool.use:FireServer("slap")
+			            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s:FindFirstChild("HumanoidRootPart")})
+					end
 				end
 	        end)
 	    end
