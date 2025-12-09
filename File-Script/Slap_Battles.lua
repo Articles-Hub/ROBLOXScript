@@ -868,7 +868,9 @@ if _G.NotificationSound then
         end
     end
 
-Library:SetDPIScale(85)
+if MobileOn then
+	Library:SetDPIScale(85)
+end
 if game.PlaceId == 6403373529 or game.PlaceId == 9015014224 or game.PlaceId == 11520107397 or game.PlaceId == 124596094333302 then
 Window = Library:CreateWindow({
     Title = "Slap Battles 👏",
@@ -2522,9 +2524,8 @@ spawn(function()
 		    local ok, err = pcall(function()
 		        while task.wait() and s do
 					if s:FindFirstChild("HumanoidRootPart") then
-						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = s.HumanoidRootPart.CFrame
 			            game:GetService("ReplicatedStorage").Remotes.tool.use:FireServer("slap")
-			            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s:FindFirstChild("HumanoidRootPart")})
+			            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s.HumanoidRootPart})
 					end
 				end
 	        end)
@@ -6434,7 +6435,7 @@ end
     end
 })
 
-Badge3Group:AddDropdown("Moon Mastery", {
+Badge4Group:AddDropdown("Moon Mastery", {
     Text = "Moon Mastery",
     Values = {"Slap Clone"},
     Default = "",
@@ -6444,7 +6445,7 @@ _G.MoonMasteryHelp = Value
     end
 })
 
-Badge3Group:AddToggle("Auto Moon Mastery", {
+Badge4Group:AddToggle("Auto Moon Mastery", {
     Text = "Auto Moon Mastery",
     Default = false, 
     Callback = function(Value) 
@@ -6734,7 +6735,7 @@ end
     end
 })
 
-Badge3Group:AddDropdown("Bonk Mastery", {
+Badge4Group:AddDropdown("Bonk Mastery", {
     Text = "BONK Mastery",
     Values = {"BONK Clone", "BONK + Slap"},
     Default = "",
@@ -6744,7 +6745,7 @@ _G.BonkMasteryHelp = Value
     end
 })
 
-Badge3Group:AddToggle("Auto Bonk Mastery", {
+Badge4Group:AddToggle("Auto Bonk Mastery", {
     Text = "Auto BONK Mastery",
     Default = false, 
     Callback = function(Value) 
@@ -14422,7 +14423,7 @@ end
 end)
 elseif game.PlaceId == 101113181694564 then
 Window = Library:CreateWindow({
-    Title = "Maze Pim Halloween 🎃",
+    Title = "Collect Conker 🍎",
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -14456,9 +14457,8 @@ spawn(function()
 		    local ok, err = pcall(function()
 		        while task.wait() and s do
 					if s:FindFirstChild("HumanoidRootPart") then
-						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = s.HumanoidRootPart.CFrame
 			            game:GetService("ReplicatedStorage").Remotes.tool.use:FireServer("slap")
-			            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s:FindFirstChild("HumanoidRootPart")})
+			            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", {Instance = s.HumanoidRootPart})
 					end
 				end
 	        end)
