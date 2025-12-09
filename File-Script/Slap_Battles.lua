@@ -3298,6 +3298,42 @@ end
 })
 
 Badge2Group:AddButton({
+    Text = "Get Glove Pyscho (Win Obby)",
+    Func = function()
+if game.Workspace:FindFirstChild("RepressedMemoriesMap") then
+OldPlayerCF = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
+	local bv = Instance.new("BodyVelocity")
+	bv.Name = "FreezeBV"
+	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+	bv.MaxForce = Vector3.new(100000, 100000, 100000)
+	bv.Velocity = Vector3.new(0, 0, 0)
+end
+PsychokiTrigger = workspace:FindFirstChild("RepressedMemoriesMap") and workspace.RepressedMemoriesMap:FindFirstChild("Psychokinesis"):FindFirstChild("Triggers")
+Start = PsychokiTrigger and PsychokiTrigger:FindFirstChild("StartPsychoEvent")
+Stop = PsychokiTrigger and PsychokiTrigger:FindFirstChild("StopPsychoEvent")
+local Tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, TweenInfo.new((Start.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / 70, Enum.EasingStyle.Linear), {CFrame = Start.CFrame})
+Tween:Play()
+Tween.Completed:Wait()
+task.wait(3.5)
+local Tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, TweenInfo.new((Stop.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude / 100, Enum.EasingStyle.Linear), {CFrame = Stop.CFrame})
+Tween:Play()
+Tween.Completed:Wait()
+wait(2)
+local Tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, TweenInfo.new(3, Enum.EasingStyle.Linear), {CFrame = OldPlayerCF})
+Tween:Play()
+Tween.Completed:Wait()
+wait(1)
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
+	game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
+end
+else
+Notification("You have enter limbo [ don't show all, not work ]", _G.TimeNotify)
+end
+    end
+})
+
+Badge2Group:AddButton({
     Text = "Get Glove Blasphemy",
     Func = function()
 if CheckGlove() == "bus" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 3335299217032061) then
@@ -3833,39 +3869,39 @@ Badge2Group:AddToggle("Bob", {
     Default = false, 
     Callback = function(Value) 
 _G.BobFarm = Value
-if CheckGlove() == "Replica" and CheckUnlockGlove("bob").Value == false then
-while _G.BobFarm do
 if CheckGlove() == "Replica" then
+while _G.BobFarm do
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-if CheckUnlockGlove("bob").Value == false then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
-if _G.BobFarmCh == "Walk" then
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-game.Players.LocalPlayer.Character.Humanoid:MoveTo(game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").Position)
-end
-elseif _G.BobFarmCh == "Teleport" then
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
-firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
-end
-end
-if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0 then
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
-wait(0.17)
-game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
-wait(0.12)
-game:GetService("Players").LocalPlayer.Reset:FireServer()
-end
-end
-elseif CheckUnlockGlove("bob").Value == true then
-Notification("Your got bob", 5)
-Toggles["Bob"]:SetValue(false)
-end
-end
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+		ArenaLobby = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1")
+		if ArenaLobby then
+			if _G.BobFarmCh == "Walk" then
+				if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+					game.Players.LocalPlayer.Character.Humanoid:MoveTo(ArenaLobby.Position)
+				end
+			else
+				if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+					firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, ArenaLobby, 0)
+					firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, ArenaLobby, 1)
+				end
+			end
+		end
+	elseif game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+		if _G.BobFarmCh == "Walk" then
+			if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+				game.Players.LocalPlayer.Character.Humanoid:MoveTo(game.Players.LocalPlayer.Character.HumanoidRootPart.Position)
+			end
+		end
+		task.wait(0.17)
+		game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
+		task.wait(0.12)
+		game:GetService("Players").LocalPlayer.Reset:FireServer()
+	end
 end
 task.wait()
 end
 elseif _G.BobFarm == true then
-Notification("You don't have Replica equipped, or you have owner badge", 5)
+Notification("You don't have Replica equipped", 5)
 wait(0.05)
 Toggles["Bob"]:SetValue(false)
 end
@@ -4074,16 +4110,6 @@ end
    SyncToggleState = true
 })
 
-Badge2Group:AddDropdown("Farm Brick", {
-    Text = "Farm Brick",
-    Values = {"Slow", "Fast"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-_G.AutoBrick = Value
-    end
-})
-
 Badge2Group:AddToggle("AutoFram Brick", {
     Text = "AutoFram Brick",
     Default = false, 
@@ -4091,16 +4117,17 @@ Badge2Group:AddToggle("AutoFram Brick", {
 _G.Brickfarm = Value
 if CheckGlove() == "Brick" then
 while _G.Brickfarm do
-repeat task.wait() until _G.Brickfarm == false or game.Players.LocalPlayer.Character:FindFirstChild("Brick")
 if game.Players.LocalPlayer.Character:FindFirstChild("Brick") then
-if _G.AutoBrick == "Slow" then
-game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,x)
-elseif _G.AutoBrick == "Fast" then
-game:GetService("ReplicatedStorage").lbrick:FireServer()
-game:GetService("Players").LocalPlayer.PlayerGui.BRICKCOUNT.ImageLabel.TextLabel.Text = game:GetService("Players").LocalPlayer.PlayerGui.BRICKCOUNT.ImageLabel.TextLabel.Text + 1
+	game:GetService("ReplicatedStorage").lbrick:FireServer()
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		for i, v in pairs(workspace:GetChildren()) do
+			if v.Name == "Union" and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude < 10 then
+				game:GetService("Players").LocalPlayer.PlayerGui.BRICKCOUNT.ImageLabel.TextLabel.Text += 1
+			end
+		end
+	end
 end
-end
-task.wait(1.2)
+task.wait()
 end
 elseif Brickfarm == true then
 Notification("You don't have Brick equipped", _G.TimeNotify)
@@ -4130,7 +4157,8 @@ end
     end
 })
 
-local Badge3Group = Tabs.Tab3:AddRightGroupbox("Mastery Badge")
+TabBoxMastery = Tabs.Tab3:AddRightTabbox()
+local Badge3Group = TabBoxMastery:AddTab("Mastery")
 
 Badge3Group:AddToggle("Auto Stalker Mastery", {
     Text = "Auto Stalker Mastery",
@@ -6339,6 +6367,444 @@ elseif _G.AutoBrickMastery == true then
 Notification("You don't have Brick equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Brick Mastery"]:SetValue(false)
+end
+    end
+})
+
+local Badge4Group = TabBoxMastery:AddTab("Mastery Help")
+
+Badge4Group:AddLabel("[<font color=\"rgb(73, 230, 133)\">Mastery Help</font>] Please have a clone account ready to help.", true)
+Badge4Group:AddLabel("[<font color=\"rgb(73, 230, 133)\">How to used</font>]:\n1. If you are using the main account, you can enable ".."\"Auto Mastery or whatever you want\""..", Don't forget you have to input your clone account into".."\"Clone Account\"".."\n2. Your Clone account will enable".."\"Safe Help Clone.\"", true)
+Badge4Group:AddInput("Players", {
+    Text = "Clone Account",
+    Finished = true,
+    Placeholder = "Username",
+    Callback = function(Value)
+_G.PlayerTarget = Value
+PlayerTa = nil
+for _, v in pairs(game.Players:GetPlayers()) do
+if string.sub(v.Name, 1, #_G.PlayerTarget):lower() == _G.PlayerTarget:lower() then
+PlayerTa = v
+end
+end
+if PlayerTa then
+_G.HelpPlayer2 = PlayerTa.Name
+Notification("Found Player [ "..PlayerTa.Name.." ]", _G.TimeNotify)
+else
+Notification("Can't find player", _G.TimeNotify)
+end
+    end
+})
+
+Badge4Group:AddToggle("Safe CloneHelp", {
+    Text = "Safe Clone Help",
+    Default = false, 
+    Callback = function(Value) 
+_G.SafeCloneGg = Value
+if not _G.SafeCloneGg then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV1") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV1"):Destroy()
+	end
+end
+while _G.SafeCloneGg do
+local YourAcc = game.Players.LocalPlayer or nil
+char = (YourAcc and YourAcc.Character) or nil
+if char:FindFirstChild("entered") == nil then
+	repeat task.wait() until game.Players.LocalPlayer.Character
+	if char:FindFirstChild("entered") == nil and char:FindFirstChild("HumanoidRootPart") then
+		repeat task.wait()
+			firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+			firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+		until char and char:FindFirstChild("entered")
+	end
+else
+	if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Head") and char:FindFirstChild("Humanoid") and char:FindFirstChild("entered") then
+		char.HumanoidRootPart.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0, (_G.MoonMasteryHelp == "Slap + Land" and 80 or 5), 0)
+		if char.HumanoidRootPart:FindFirstChild("AntiRagBV1") == nil then
+			local bv = Instance.new("BodyVelocity")
+			bv.Name = "AntiRagBV1"
+			bv.Parent = char.HumanoidRootPart
+			bv.MaxForce = Vector3.new(100000, 100000, 100000)
+			bv.Velocity = Vector3.new(0, 0, 0)
+		end
+	end
+end
+task.wait()
+end
+    end
+})
+
+Badge3Group:AddDropdown("Moon Mastery", {
+    Text = "Moon Mastery",
+    Values = {"Slap Clone"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.MoonMasteryHelp = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Moon Mastery", {
+    Text = "Auto Moon Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoMoonMasteryHelp = Value
+if not _G.AutoMoonMasteryHelp then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
+	end
+end
+if CheckGlove() == "Moon" then
+while _G.AutoMoonMasteryHelp do
+local YourAcc = game.Players.LocalPlayer or nil
+char = (YourAcc and YourAcc.Character) or nil
+if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") then
+	if char:FindFirstChild("entered") == nil then
+		repeat task.wait() until game.Players.LocalPlayer.Character
+		if char:FindFirstChild("entered") == nil and char:FindFirstChild("HumanoidRootPart") then
+			repeat task.wait()
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+			until char and char:FindFirstChild("entered")
+		end
+	else
+		if char:FindFirstChild("HumanoidRootPart") and char.HumanoidRootPart:FindFirstChild("AntiRagBV1") == nil then
+			local bv = Instance.new("BodyVelocity")
+			bv.Name = "AntiRagBV1"
+			bv.Parent = char.HumanoidRootPart
+			bv.MaxForce = Vector3.new(100000, 100000, 100000)
+			bv.Velocity = Vector3.new(0, 0, 0)
+		end
+		local CloneAcc = game.Players[_G.HelpPlayer2] or nil
+		local CloneChar = CloneAcc and CloneAcc.Character or nil
+		if not CloneChar:FindFirstChild("entered") then
+			char.HumanoidRootPart.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0,5,0)
+		end
+		if _G.MoonMasteryHelp == "Slap Clone" then
+			if CloneChar and CloneChar:FindFirstChild("HumanoidRootPart") and CloneChar:FindFirstChild("Head") and CloneChar:FindFirstChild("Humanoid") and CloneChar:FindFirstChild("entered") and char:FindFirstChild("Ragdolled") then
+				if char.Ragdolled.Value == false then
+					char.HumanoidRootPart.CFrame = CloneChar.HumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
+				end
+			end
+		end
+		if YourAcc and YourAcc.Backpack:FindFirstChild("Moon") then
+			YourAcc.Backpack.Moon.Parent = char
+		elseif char and char:FindFirstChild("Moon") then
+			if CloneChar and CloneChar:FindFirstChild("HumanoidRootPart") and CloneChar:FindFirstChild("Head") and CloneChar:FindFirstChild("Humanoid") and CloneChar:FindFirstChild("entered") and char:FindFirstChild("Ragdolled") then
+				if char.Ragdolled.Value == false then
+					gloveHits["All"]:FireServer(CloneChar.Head)
+					task.wait(0.05)
+				end
+			end
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Moon equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Moon Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddDropdown("Brick Mastery", {
+    Text = "Brick Mastery",
+    Values = {"Snipe Clone", "Trip Clone"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.BrickMasteryHelp = Value
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Brick", {
+    Text = "Auto Mastery Brick",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoBrickMasteryHelp = Value
+if not _G.AutoBrickMasteryHelp then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV1") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV1"):Destroy()
+	end
+end
+if CheckGlove() == "Brick" then
+while _G.AutoBrickMasteryHelp do
+local YourAcc = game.Players.LocalPlayer or nil
+char = (YourAcc and YourAcc.Character) or nil
+if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") then
+	if char:FindFirstChild("entered") == nil then
+		repeat task.wait() until game.Players.LocalPlayer.Character
+		if char:FindFirstChild("entered") == nil and char:FindFirstChild("HumanoidRootPart") then
+			repeat task.wait()
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+			until char and char:FindFirstChild("entered")
+		end
+	else
+		if char:FindFirstChild("HumanoidRootPart") and char.HumanoidRootPart:FindFirstChild("AntiRagBV1") == nil then
+			local bv = Instance.new("BodyVelocity")
+			bv.Name = "AntiRagBV1"
+			bv.Parent = char.HumanoidRootPart
+			bv.MaxForce = Vector3.new(100000, 100000, 100000)
+			bv.Velocity = Vector3.new(0, 0, 0)
+		end
+		local CloneAcc = game.Players[_G.HelpPlayer2] or nil
+		local CloneChar = CloneAcc and CloneAcc.Character or nil
+		if not CloneChar:FindFirstChild("entered") then
+			char.HumanoidRootPart.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0,5,0)
+		end
+		if CloneChar and CloneChar:FindFirstChild("HumanoidRootPart") and CloneChar:FindFirstChild("Head") and CloneChar:FindFirstChild("Humanoid") and CloneChar:FindFirstChild("entered") and char:FindFirstChild("Ragdolled") and char.Ragdolled.Value == false then
+			if _G.BrickMasteryHelp == "Snipe Clone" then
+				char.HumanoidRootPart.CFrame = CloneChar.Head.CFrame * CFrame.new(0, 15, 3)
+			elseif _G.BrickMasteryHelp == "Trip Clone" then
+				char.HumanoidRootPart.CFrame = CloneChar.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+			end
+		end
+		if YourAcc and YourAcc.Backpack:FindFirstChild("Brick") then
+			YourAcc.Backpack.Brick.Parent = char
+		elseif char and char:FindFirstChild("Brick") then
+			if CloneChar and CloneChar:FindFirstChild("Ragdolled") and not CloneChar.Ragdolled.Value then
+				game:GetService("ReplicatedStorage").lbrick:FireServer()
+			end
+		end
+	end
+end
+task.wait()
+end
+elseif _G.AutoBrickMasteryHelp == true then
+Notification("You don't have Brick equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Brick"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddDropdown("Voodoo Mastery", {
+    Text = "Voodoo Mastery",
+    Values = {"Farm Voodoo Clone", "Voodoo Slap 20 Clone"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.VoodooMasteryHelp = Value
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Voodoo", {
+    Text = "Auto Voodoo Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoVoodooMasteryHelp = Value
+if not _G.AutoVoodooMasteryHelp then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV1") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV1"):Destroy()
+	end
+end
+if CheckGlove() == "Voodoo" then
+while _G.AutoVoodooMasteryHelp do
+local YourAcc = game.Players.LocalPlayer or nil
+char = (YourAcc and YourAcc.Character) or nil
+if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") then
+	if char:FindFirstChild("entered") == nil then
+		repeat task.wait() until game.Players.LocalPlayer.Character
+		if char:FindFirstChild("entered") == nil and char:FindFirstChild("HumanoidRootPart") then
+			repeat task.wait()
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+			until char and char:FindFirstChild("entered")
+		end
+	else
+		if char:FindFirstChild("HumanoidRootPart") and char.HumanoidRootPart:FindFirstChild("AntiRagBV1") == nil then
+			local bv = Instance.new("BodyVelocity")
+			bv.Name = "AntiRagBV1"
+			bv.Parent = char.HumanoidRootPart
+			bv.MaxForce = Vector3.new(100000, 100000, 100000)
+			bv.Velocity = Vector3.new(0, 0, 0)
+		end
+		local CloneAcc = game.Players[_G.HelpPlayer2] or nil
+		local CloneChar = CloneAcc and CloneAcc.Character or nil
+		if not CloneChar:FindFirstChild("entered") then
+			char.HumanoidRootPart.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0,5,0)
+		end
+		if CloneChar and CloneChar:FindFirstChild("HumanoidRootPart") and CloneChar:FindFirstChild("Head") and CloneChar:FindFirstChild("Humanoid") and CloneChar:FindFirstChild("entered") and char:FindFirstChild("Ragdolled") and char.Ragdolled.Value == false then
+			if _G.VoodooMasteryHelp:match("Voodoo") then
+				char.HumanoidRootPart.CFrame = CloneChar.Head.CFrame * CFrame.new(0, 3, 0)
+			end
+		end
+		if YourAcc and YourAcc.Backpack:FindFirstChild("Voodoo") then
+			YourAcc.Backpack.Voodoo.Parent = char
+		elseif char and char:FindFirstChild("Voodoo") then
+			game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+			wait(0.5)
+			for i = 1, 5 do
+				gloveHits["All"]:FireServer(CloneChar.Head)
+				task.wait()
+			end
+			task.wait(6.55)
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Voodoo equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Voodoo Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddDropdown("Shard Mastery", {
+    Text = "Shard Mastery",
+    Values = {"Slap + Shard Clone", "150 Studs Clone", "Shard Clone"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.ShardMasteryHelp = Value
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Shard", {
+    Text = "Auto Mastery Shard",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoShardMasteryHelp = Value
+if not _G.AutoShardMasteryHelp then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV"):Destroy()
+	end
+end
+if CheckGlove() == "Shard" then
+while _G.AutoShardMasteryHelp do
+local YourAcc = game.Players.LocalPlayer or nil
+char = (YourAcc and YourAcc.Character) or nil
+if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") then
+	if char:FindFirstChild("entered") == nil then
+		repeat task.wait() until game.Players.LocalPlayer.Character
+		if char:FindFirstChild("entered") == nil and char:FindFirstChild("HumanoidRootPart") then
+			repeat task.wait()
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+			until char and char:FindFirstChild("entered")
+		end
+	else
+		if char:FindFirstChild("HumanoidRootPart") and char.HumanoidRootPart:FindFirstChild("AntiRagBV") == nil then
+			local bv = Instance.new("BodyVelocity")
+			bv.Name = "AntiRagBV"
+			bv.Parent = char.HumanoidRootPart
+			bv.MaxForce = Vector3.new(100000, 100000, 100000)
+			bv.Velocity = Vector3.new(0, 0, 0)
+		end
+		local CloneAcc = game.Players[_G.HelpPlayer2] or nil
+		local CloneChar = CloneAcc and CloneAcc.Character or nil
+		if not CloneChar:FindFirstChild("entered") then
+			char.HumanoidRootPart.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0,5,0)
+		end
+		if YourAcc and YourAcc.Backpack:FindFirstChild("Shard") then
+			YourAcc.Backpack.Shard.Parent = char
+		end
+		if CloneChar and CloneChar:FindFirstChild("HumanoidRootPart") and CloneChar:FindFirstChild("Head") and CloneChar:FindFirstChild("Humanoid") and CloneChar:FindFirstChild("entered") and char:FindFirstChild("Ragdolled") and char.Ragdolled.Value == false then
+			if _G.ShardMasteryHelp == "Slap + Shard Clone" then
+				char.HumanoidRootPart.CFrame = CloneChar.HumanoidRootPart.CFrame * CFrame.new(0, 0, 7)	
+				if char and char:FindFirstChild("Shard") then
+					if CloneChar and CloneChar:FindFirstChild("HumanoidRootPart") then
+						game:GetService("ReplicatedStorage").Shards:FireServer()
+						wait(2)
+						gloveHits["Shard"]:FireServer(CloneChar.HumanoidRootPart)
+						wait(3.2)
+					end
+				end
+			elseif _G.ShardMasteryHelp == "150 Studs Clone" or _G.ShardMasteryHelp == "Shard Clone" then
+				char.HumanoidRootPart.CFrame = CloneChar.HumanoidRootPart.CFrame * CFrame.new(0, 0, (_G.ShardMasteryHelp == "150 Studs Clone" and 135 or 7))
+				wait(0.5)
+				game:GetService("ReplicatedStorage").Shards:FireServer()
+				task.wait(4.87)
+			end
+		end
+	end
+end
+task.wait()
+end
+elseif _G.AutoShardMasteryHelp == true then
+Notification("You don't have Shard equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Shard"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddDropdown("Bonk Mastery", {
+    Text = "BONK Mastery",
+    Values = {"BONK Clone", "BONK + Slap"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.BonkMasteryHelp = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Bonk Mastery", {
+    Text = "Auto BONK Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoBonkMasteryHelp = Value
+if not _G.AutoBonkMasteryHelp then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
+	end
+end
+if CheckGlove() == "BONK" then
+while _G.AutoBonkMasteryHelp do
+local YourAcc = game.Players.LocalPlayer or nil
+char = (YourAcc and YourAcc.Character) or nil
+if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") then
+	if char:FindFirstChild("entered") == nil then
+		repeat task.wait() until game.Players.LocalPlayer.Character
+		if char:FindFirstChild("entered") == nil and char:FindFirstChild("HumanoidRootPart") then
+			repeat task.wait()
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+				firetouchinterest(char:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+			until char and char:FindFirstChild("entered")
+		end
+	else
+		if char:FindFirstChild("HumanoidRootPart") and char.HumanoidRootPart:FindFirstChild("AntiRagBV") == nil then
+			local bv = Instance.new("BodyVelocity")
+			bv.Name = "AntiRagBV"
+			bv.Parent = char.HumanoidRootPart
+			bv.MaxForce = Vector3.new(100000, 100000, 100000)
+			bv.Velocity = Vector3.new(0, 0, 0)
+		end
+		local CloneAcc = game.Players[_G.HelpPlayer2] or nil
+		local CloneChar = CloneAcc and CloneAcc.Character or nil
+		if not CloneChar:FindFirstChild("entered") then
+			char.HumanoidRootPart.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0,5,0)
+		end
+		if YourAcc and YourAcc.Backpack:FindFirstChild("BONK") then
+			YourAcc.Backpack.BONK.Parent = char
+		end
+		if CloneChar and CloneChar:FindFirstChild("HumanoidRootPart") and CloneChar:FindFirstChild("Head") and CloneChar:FindFirstChild("Humanoid") and CloneChar:FindFirstChild("entered") and char:FindFirstChild("Ragdolled") and char.Ragdolled.Value == false then
+			if _G.BonkMasteryHelp:match("BONK") then
+				char.HumanoidRootPart.CFrame = CloneChar.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)	
+				if char and char:FindFirstChild("BONK") then
+					if CloneChar and CloneChar:FindFirstChild("HumanoidRootPart") then
+						game:GetService("ReplicatedStorage"):WaitForChild("BONK"):FireServer()
+						if _G.BonkMasteryHelp == "BONK + Slap" then
+							wait(0.7)
+							gloveHits["All"]:FireServer(CloneChar.HumanoidRootPart)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have BONK equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Bonk Mastery"]:SetValue(false)
 end
     end
 })
@@ -8721,6 +9187,176 @@ Notification("You don't have Confusion equipped, or you have to go lobby.", _G.T
 end
 end)
 
+Misc3Group:AddButton("Help Player Wheelchair", function()
+local CheckGloveWheel = 0
+local WhatGloveNo = {}
+for i, v in pairs({"bull", "bomb", "brick", "slicer", "blasphemy", "tableflip", "l.o.l.b.o.m.b"}) do
+    local FoundGlove = false
+    for j, b in pairs(game.Players.LocalPlayer:FindFirstChild("_unlockedGloves"):GetChildren()) do
+        if b.Value == true and string.find(b.Name:lower(), v) then
+            CheckGloveWheel += 1
+            FoundGlove = true
+            break
+        end
+    end
+    if not FoundGlove then
+        table.insert(WhatGloveNo, v)
+    end
+end
+if tonumber(CheckGloveWheel) == 7 then
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players[_G.PlayerPut1].Character:FindFirstChild("entered") then
+		spawn(function()
+			repeat task.wait()
+				if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
+					local bv = Instance.new("BodyVelocity")
+					bv.Name = "FreezeBV"
+					bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+					bv.MaxForce = Vector3.new(100000, 100000, 100000)
+					bv.Velocity = Vector3.new(0, 0, 0)
+				end
+				if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+					game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+				end
+			until StopFreezeBV
+			wait(0.3)
+			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
+				game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
+			end
+		end)
+		function EquipGloveHelp(name)
+			if fireclickdetector then
+				fireclickdetector(workspace.Lobby[name].ClickDetector)
+			end
+		end
+		if game.Players[_G.PlayerPut1].Character:FindFirstChild("HumanoidRootPart") then
+			local charpl = game.Players[_G.PlayerPut1].Character
+			local rootpl = charpl and charpl:FindFirstChild("HumanoidRootPart")
+			EquipGloveHelp("Bull")
+			spawn(function()
+				repeat task.wait()
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = rootpl.CFrame * CFrame.new(0, 5, 0) * CFrame.Angles(math.rad(90), math.rad(0), math.rad(0))
+				until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == true
+			end)
+			wait(0.3)
+			repeat task.wait()
+				gloveHits["Bull"]:FireServer(rootpl)
+				task.wait(0.3)
+			until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == true
+			wait(0.1)
+			repeat task.wait() until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == false
+			wait(0.35)
+			EquipGloveHelp("Bomb")
+			spawn(function()
+				repeat task.wait()
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = rootpl.CFrame * CFrame.new(0, 4, 0) * CFrame.Angles(math.rad(90), math.rad(0), math.rad(0))
+				until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == true
+			end)
+			wait(0.5)
+			game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
+			game:GetService("ReplicatedStorage"):WaitForChild("BombThrow"):FireServer("Ebutton")
+			wait(0.12)
+			repeat task.wait() until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == false
+			EquipGloveHelp("Brick")
+			task.wait(0.1)
+			repeat task.wait() until game.Players.LocalPlayer.Character
+			if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+				repeat task.wait()
+					firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+					firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+				until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+			end
+			task.wait(0.3)
+			repeat task.wait()
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = rootpl.CFrame * CFrame.new(0, 0, 5)
+				if game.Players.LocalPlayer.Backpack:FindFirstChild("Brick") then
+					game.Players.LocalPlayer.Backpack.Brick.Parent = game.Players.LocalPlayer.Character
+				else
+					game:GetService("ReplicatedStorage").lbrick:FireServer()
+				end
+			until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == true
+			wait(0.3)
+			repeat task.wait() until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == false
+			game:GetService("Players").LocalPlayer.Reset:FireServer()
+			wait(0.3)
+			repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
+			task.wait(0.55)
+			EquipGloveHelp("Slicer")
+			task.wait(0.1)
+			repeat task.wait() until game.Players.LocalPlayer.Character
+			if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+				repeat task.wait()
+					firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+					firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+				until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+			end
+			task.wait(0.5)
+			repeat task.wait()
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = rootpl.CFrame * CFrame.new(0, 8, 0) * CFrame.Angles(math.rad(90), math.rad(0), math.rad(0))
+				if game.Players.LocalPlayer.Backpack:FindFirstChild("Slicer") then
+					game.Players.LocalPlayer.Backpack.Slicer.Parent = game.Players.LocalPlayer.Character
+				else
+					game:GetService("ReplicatedStorage").Slicer:FireServer("slash", game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame, Vector3.new())
+				end
+			until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == true
+			wait(0.3)
+			repeat task.wait() until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == false
+			task.wait(0.1)
+			game:GetService("Players").LocalPlayer.Reset:FireServer()
+			wait(0.3)
+			repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health > 0
+			task.wait(0.5)
+			EquipGloveHelp("Blasphemy")
+			spawn(function()
+				repeat task.wait()
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = rootpl.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(90), math.rad(0), math.rad(0))
+				until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == true
+			end)
+			task.wait(0.36)
+			repeat task.wait()
+				gloveHits["All"]:FireServer(rootpl)
+				task.wait(0.3)
+			until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == true
+			wait(0.1)
+			repeat task.wait() until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == false
+			wait(0.1)
+			EquipGloveHelp("Tableflip")
+			spawn(function()
+				repeat task.wait()
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = rootpl.CFrame * CFrame.new(0, 8, 0) * CFrame.Angles(math.rad(90), math.rad(0), math.rad(0))
+				until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == true
+			end)
+			task.wait(0.37)
+			game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+			wait(0.1)
+			repeat task.wait() until charpl:FindFirstChild("Ragdolled") and charpl.Ragdolled.Value == false
+			EquipGloveHelp("L.O.L.B.O.M.B")
+			repeat task.wait() until game.Players.LocalPlayer.Character
+			if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+				repeat task.wait()
+					firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+					firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+				until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+			end
+			wait(0.3)
+			spawn(function()
+				repeat task.wait()
+					if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = rootpl.CFrame * CFrame.new(0, 3, 0)
+					end
+				until game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.Health <= 0
+			end)
+			game:GetService("Players").LocalPlayer.Reset:FireServer()
+			wait(0.7)
+			StopFreezeBV = true
+		end
+	else
+		Notification("You have to go lobby or, player have to go arena.", _G.TimeNotify)
+	end
+else
+	Notification("You have owner ".."\"7 Glove\"".." ("..table.concat(", ", WhatGloveNo)..")", _G.TimeNotify)
+end
+end)
+
 Misc3Group:AddSlider("Time Help Berserk", {
     Text = "Time Help Berserk",
     Default = 3,
@@ -8732,51 +9368,29 @@ _G.TimeHelpGotIm = Value
     end
 })
 
-Misc3Group:AddDropdown("Will Teleport Help", {
-    Text = "Will Teleport Help",
-    Values = {"Up To You","SafeSpotBox 1.0","SafeSpotBox 2.0"},
-    Default = "",
-    Multi = false,
-    Callback = function(Value)
-_G.GetTeleportHelp = Value
-    end
-})
-
 Misc3Group:AddButton("Help Player Berserk", function()
 if CheckGlove() == "Kinetic" and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players[_G.PlayerPut1].Character:FindFirstChild("entered") then
-for o = 1,_G.TimeHelpGotIm do
-if _G.GetTeleportHelp == "Up To You" then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-elseif _G.GetTeleportHelp == "SafeSpotBox 1.0" then
+for o = 1, _G.TimeHelpGotIm do
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleportHelp == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
 game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
 repeat task.wait()
-game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = -99})
+	game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = -99})
 until game.Players.LocalPlayer.Character:WaitForChild("KineticSlappedBadgeCounter").Value >= 100
 wait(2.8)
-if _G.GetTeleportHelp == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleportHelp == "SafeSpotBox 1.0" or _G.GetTeleportHelp == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerPut1].Character.Head.CFrame * CFrame.new(0,5.80,0)
-end
+spawn(function()
+	repeat task.wait()
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerPut1].Character.Head.CFrame * CFrame.new(0,5.80,0) * CFrame.Angles(math.rad(90), math.rad(0), math.rad(0))
+	until game.Players[_G.PlayerPut1].Character:FindFirstChild("Ragdolled") and game.Players[_G.PlayerPut1].Character.Ragdolled.Value == true
+end)
 wait(0.28)
 if game.Players.LocalPlayer.Backpack:FindFirstChild("Kinetic") then
-game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack.Kinetic)
+	game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack.Kinetic)
 end
 wait(0.19)
 game:GetService("ReplicatedStorage").KineticExpl:FireServer(game.Players.LocalPlayer.Character.Kinetic, game.Players.LocalPlayer.Character.HumanoidRootPart.Position)
 game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
 wait(0.7)
-if _G.GetTeleportHelp == "Up To You" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-elseif _G.GetTeleportHelp == "SafeSpotBox 1.0" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-elseif _G.GetTeleportHelp == "SafeSpotBox 2.0" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
-end
 wait(3.8)
 end
 else
@@ -8925,7 +9539,7 @@ SaveThePlayer = game.Players.LocalPlayer.Name
 end
 GuardianAngelSpam = Value
 if CheckGlove() == "Guardian Angel" then
-while GuardianAngelSpam and CheckGlove() == "Guardian Angel" do
+while GuardianAngelSpam do
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer(game.Players[SaveThePlayer])
 task.wait()
 end
@@ -9297,7 +9911,7 @@ if _G.PlayerChoose == "Random" then
 	end
 end
 if CheckGlove() == "Jester" then
-	game:GetService("ReplicatedStorage").GeneralAbility:FireServer("Ability3",game.Players[_G.PlayerButton])
+	game:GetService("ReplicatedStorage").GeneralAbility:FireServer("Ability3", game.Players[_G.PlayerButton])
 else
 	Notification("You don't have Jester glove equipped", _G.TimeNotify)
 end
@@ -9528,10 +10142,10 @@ for i,v in pairs(game.Players:GetChildren()) do
  end
 end)
 
-Glove1Group:AddButton("Bring All Player", function()
+Glove1Group:AddButton("Bring All Player (Lawnmower)", function()
 if CheckGlove() == "Lawnmower" then
-game:GetService("ReplicatedStorage").GeneralAbility:FireServer("lawnmower")
-for i,v in pairs(game.Players:GetChildren()) do
+	game:GetService("ReplicatedStorage").GeneralAbility:FireServer("lawnmower")
+	for i,v in pairs(game.Players:GetChildren()) do
          if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
               if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.Ragdolled.Value == false then
                  game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Character.HumanoidRootPart.CFrame
@@ -14019,6 +14633,16 @@ _G.TimeNotify = Value
 MenuGroup:AddToggle("KeybindMenuOpen", {Default = false, Text = "Open Keybind Menu", Callback = function(Value) Library.KeybindFrame.Visible = Value end})
 MenuGroup:AddToggle("ShowCustomCursor", {Text = "Custom Cursor", Default = true, Callback = function(Value) Library.ShowCustomCursor = Value end})
 MenuGroup:AddToggle("ExecuteOnTeleport", {Default = true, Text = "Execute On Teleport"})
+MenuGroup:AddDropdown("DPIDropdown", {
+    Values = {"50%", "75%", "80%", "85%", "100%", "115%", "125%", "150%", "175%", "200%"},
+    Default = "100%",
+    Text = "DPI Scale",
+    Callback = function(Value)
+        Value = Value:gsub("%%", "")
+        local He = tonumber(Value)
+        Library:SetDPIScale(He)
+    end
+})
 MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
 MenuGroup:AddButton("Unload", function() Library:Unload() end)
@@ -14354,111 +14978,115 @@ ExecuteNowTP([[
 end
 end))
 ------------------------------------------------------------------------
+local function safe(g)
+	return game.ReplicatedStorage:FindFirstChild(g) or nil
+end
+
 gloveHits = {
-	["All"] = game.ReplicatedStorage.GeneralHit,
-	------------------------------------------------------------------------
-    ["Default"] = game.ReplicatedStorage.b,
-    ["Extended"] = game.ReplicatedStorage.b,
-    ------------------------------------------------------------------------
-    ["ZZZZZZZ"] = game.ReplicatedStorage.ZZZZZZZHit,
-    ["Brick"] = game.ReplicatedStorage.BrickHit,
-    ["Snow"] = game.ReplicatedStorage.SnowHit,
-    ["Pull"] = game.ReplicatedStorage.PullHit,
-    ["Flash"] = game.ReplicatedStorage.FlashHit,
-    ["Spring"] = game.ReplicatedStorage.springhit,
-    ["Swapper"] = game.ReplicatedStorage.HitSwapper,
-    ["Bull"] = game.ReplicatedStorage.BullHit,
-    ["Dice"] = game.ReplicatedStorage.DiceHit,
-    ["Ghost"] = game.ReplicatedStorage.GhostHit,
-    ["Stun"] = game.ReplicatedStorage.HtStun,
-    ["Za Hando"] = game.ReplicatedStorage.zhramt,
-    ["Fort"] = game.ReplicatedStorage.Fort,
-    ["Magnet"] = game.ReplicatedStorage.MagnetHIT,
-    ["Pusher"] = game.ReplicatedStorage.PusherHit,
-    ["Anchor"] = game.ReplicatedStorage.hitAnchor,
-    ["Space"] = game.ReplicatedStorage.HtSpace,
-    ["Boomerang"] = game.ReplicatedStorage.BoomerangH,
-    ["Speedrun"] = game.ReplicatedStorage.Speedrunhit,
-    ["Mail"] = game.ReplicatedStorage.MailHit,
-    ["Golden"] = game.ReplicatedStorage.GoldenHit,
-    ["MR"] = game.ReplicatedStorage.MisterHit,
-    ["Reaper"] = game.ReplicatedStorage.ReaperHit,
-    ["Replica"] = game.ReplicatedStorage.ReplicaHit,
-    ["Defense"] = game.ReplicatedStorage.DefenseHit,
-    ["Killstreak"] = game.ReplicatedStorage.KSHit,
-    ["Reverse"] = game.ReplicatedStorage.ReverseHit,
-    ["Shukuchi"] = game.ReplicatedStorage.ShukuchiHit,
-    ["Duelist"] = game.ReplicatedStorage.DuelistHit,
-    ["woah"] = game.ReplicatedStorage.woahHit,
-    ["Ice"] = game.ReplicatedStorage.IceHit,
-    ["Adios"] = game.ReplicatedStorage.hitAdios,
-    ["Blocked"] = game.ReplicatedStorage.BlockedHit,
-    ["Engineer"] = game.ReplicatedStorage.engiehit,
-    ["Rocky"] = game.ReplicatedStorage.RockyHit,
-    ["Conveyor"] = game.ReplicatedStorage.ConvHit,
-    ["STOP"] = game.ReplicatedStorage.STOP,
-    ["Phantom"] = game.ReplicatedStorage.PhantomHit,
-    ["Wormhole"] = game.ReplicatedStorage.WormHit,
-    ["Acrobat"] = game.ReplicatedStorage.AcHit,
-    ["Plague"] = game.ReplicatedStorage.PlagueHit,
-    ["[REDACTED]"] = game.ReplicatedStorage.ReHit,
-    ["bus"] = game.ReplicatedStorage.hitbus,
-    ["Phase"] = game.ReplicatedStorage.PhaseH,
-    ["Warp"] = game.ReplicatedStorage.WarpHt,
-    ["Bomb"] = game.ReplicatedStorage.BombHit,
-    ["Bubble"] = game.ReplicatedStorage.BubbleHit,
-    ["Jet"] = game.ReplicatedStorage.JetHit,
-    ["Shard"] = game.ReplicatedStorage.ShardHIT,
-    ["potato"] = game.ReplicatedStorage.potatohit,
-    ["CULT"] = game.ReplicatedStorage.CULTHit,
-    ["bob"] = game.ReplicatedStorage.bobhit,
-    ["Buddies"] = game.ReplicatedStorage.buddiesHIT,
-    ["Spy"] = game.ReplicatedStorage.SpyHit,
-    ["Detonator"] = game.ReplicatedStorage.DetonatorHit,
-    ["Rage"] = game.ReplicatedStorage.GRRRR,
-    ["Trap"] = game.ReplicatedStorage.traphi,
-    ["Orbit"] = game.ReplicatedStorage.Orbihit,
-    ["Hybrid"] = game.ReplicatedStorage.HybridCLAP,
-    ["Slapple"] = game.ReplicatedStorage.SlappleHit,
-    ["Disarm"] = game.ReplicatedStorage.DisarmH,
-    ["Dominance"] = game.ReplicatedStorage.DominanceHit,
-    ["Link"] = game.ReplicatedStorage.LinkHit,
-    ["Rojo"] = game.ReplicatedStorage.RojoHit,
-    ["rob"] = game.ReplicatedStorage.robhit,
-    ["Rhythm"] = game.ReplicatedStorage.rhythmhit,
-    ["Nightmare"] = game.ReplicatedStorage.nightmarehit,
-    ["Hitman"] = game.ReplicatedStorage.HitmanHit,
-    ["Thor"] = game.ReplicatedStorage.ThorHit,
-    ["Retro"] = game.ReplicatedStorage.RetroHit,
-    ["Cloud"] = game.ReplicatedStorage.CloudHit,
-    ["Null"] = game.ReplicatedStorage.NullHit,
-    ["spin"] = game.ReplicatedStorage.spinhit,
-    ["Pylon"] = game.ReplicatedStorage.PylonHit,
-    ------------------------------------------------------------------------
-    ["Poltergeist"] = game.ReplicatedStorage.UTGHit,
-    ["Clock"] = game.ReplicatedStorage.UTGHit,
-    ["Untitled Tag Glove"] = game.ReplicatedStorage.UTGHit,
-    ------------------------------------------------------------------------
-    ["Kinetic"] = game.ReplicatedStorage.HtStun,
-    ["Recall"] = game.ReplicatedStorage.HtStun,
-    ["Balloony"] = game.ReplicatedStorage.HtStun,
-    ["Sparky"] = game.ReplicatedStorage.HtStun,
-    ["Boogie"] = game.ReplicatedStorage.HtStun,
-    ["Stun"] = game.ReplicatedStorage.HtStun,
-    ["Coil"] = game.ReplicatedStorage.HtStun,
-    ------------------------------------------------------------------------
-    ["Diamond"] = game.ReplicatedStorage.DiamondHit,
-    ["Megarock"] = game.ReplicatedStorage.DiamondHit,
-    ------------------------------------------------------------------------
-    ["Moon"] = game.ReplicatedStorage.CelestialHit,
-    ["Jupiter"] = game.ReplicatedStorage.CelestialHit,
-    ------------------------------------------------------------------------
-    ["Mitten"] = game.ReplicatedStorage.MittenHit,
-    ["Hallow Jack"] = game.ReplicatedStorage.HallowHIT,
-    ------------------------------------------------------------------------
-    ["OVERKILL"] = game.ReplicatedStorage.Overkillhit,
-    ["The Flex"] = game.ReplicatedStorage.FlexHit,
-    ["Custom"] = game.ReplicatedStorage.CustomHit,
-    ["God's Hand"] = game.ReplicatedStorage.Godshand,
-    ["Error"] = game.ReplicatedStorage.Errorhit
+	["All"] = safe("GeneralHit"),
+	------------------------------------------------
+	["Default"] = safe("b"),
+	["Extended"] = safe("b"),
+	------------------------------------------------
+	["ZZZZZZZ"] = safe("ZZZZZZZHit"),
+	["Brick"] = safe("BrickHit"),
+	["Snow"] = safe("SnowHit"),
+	["Pull"] = safe("PullHit"),
+	["Flash"] = safe("FlashHit"),
+	["Spring"] = safe("springhit"),
+	["Swapper"] = safe("HitSwapper"),
+	["Bull"] = safe("BullHit"),
+	["Dice"] = safe("DiceHit"),
+	["Ghost"] = safe("GhostHit"),
+	["Stun"] = safe("HtStun"),
+	["Za Hando"] = safe("zhramt"),
+	["Fort"] = safe("Fort"),
+	["Magnet"] = safe("MagnetHIT"),
+	["Pusher"] = safe("PusherHit"),
+	["Anchor"] = safe("hitAnchor"),
+	["Space"] = safe("HtSpace"),
+	["Boomerang"] = safe("BoomerangH"),
+	["Speedrun"] = safe("Speedrunhit"),
+	["Mail"] = safe("MailHit"),
+	["Golden"] = safe("GoldenHit"),
+	["MR"] = safe("MisterHit"),
+	["Reaper"] = safe("ReaperHit"),
+	["Replica"] = safe("ReplicaHit"),
+	["Defense"] = safe("DefenseHit"),
+	["Killstreak"] = safe("KSHit"),
+	["Reverse"] = safe("ReverseHit"),
+	["Shukuchi"] = safe("ShukuchiHit"),
+	["Duelist"] = safe("DuelistHit"),
+	["woah"] = safe("woahHit"),
+	["Ice"] = safe("IceHit"),
+	["Adios"] = safe("hitAdios"),
+	["Blocked"] = safe("BlockedHit"),
+	["Engineer"] = safe("engiehit"),
+	["Rocky"] = safe("RockyHit"),
+	["Conveyor"] = safe("ConvHit"),
+	["STOP"] = safe("STOP"),
+	["Phantom"] = safe("PhantomHit"),
+	["Wormhole"] = safe("WormHit"),
+	["Acrobat"] = safe("AcHit"),
+	["Plague"] = safe("PlagueHit"),
+	["[REDACTED]"] = safe("ReHit"),
+	["bus"] = safe("hitbus"),
+	["Phase"] = safe("PhaseH"),
+	["Warp"] = safe("WarpHt"),
+	["Bomb"] = safe("BombHit"),
+	["Bubble"] = safe("BubbleHit"),
+	["Jet"] = safe("JetHit"),
+	["Shard"] = safe("ShardHIT"),
+	["potato"] = safe("potatohit"),
+	["CULT"] = safe("CULTHit"),
+	["bob"] = safe("bobhit"),
+	["Buddies"] = safe("buddiesHIT"),
+	["Spy"] = safe("SpyHit"),
+	["Detonator"] = safe("DetonatorHit"),
+	["Rage"] = safe("GRRRR"),
+	["Trap"] = safe("traphi"),
+	["Orbit"] = safe("Orbihit"),
+	["Hybrid"] = safe("HybridCLAP"),
+	["Slapple"] = safe("SlappleHit"),
+	["Disarm"] = safe("DisarmH"),
+	["Dominance"] = safe("DominanceHit"),
+	["Link"] = safe("LinkHit"),
+	["Rojo"] = safe("RojoHit"),
+	["rob"] = safe("robhit"),
+	["Rhythm"] = safe("rhythmhit"),
+	["Nightmare"] = safe("nightmarehit"),
+	["Hitman"] = safe("HitmanHit"),
+	["Thor"] = safe("ThorHit"),
+	["Retro"] = safe("RetroHit"),
+	["Cloud"] = safe("CloudHit"),
+	["Null"] = safe("NullHit"),
+	["spin"] = safe("spinhit"),
+	["Pylon"] = safe("PylonHit"),
+	------------------------------------------------
+	["Poltergeist"] = safe("UTGHit"),
+	["Clock"] = safe("UTGHit"),
+	["Untitled Tag Glove"] = safe("UTGHit"),
+	------------------------------------------------
+	["Kinetic"] = safe("HtStun"),
+	["Recall"] = safe("HtStun"),
+	["Balloony"] = safe("HtStun"),
+	["Sparky"] = safe("HtStun"),
+	["Boogie"] = safe("HtStun"),
+	["Stun"] = safe("HtStun"),
+	["Coil"] = safe("HtStun"),
+	------------------------------------------------
+	["Diamond"] = safe("DiamondHit"),
+	["Megarock"] = safe("DiamondHit"),
+	------------------------------------------------
+	["Moon"] = safe("CelestialHit"),
+	["Jupiter"] = safe("CelestialHit"),
+	------------------------------------------------
+	["Mitten"] = safe("MittenHit"),
+	["Hallow Jack"] = safe("HallowHIT"),
+	------------------------------------------------
+	["OVERKILL"] = safe("Overkillhit"),
+	["The Flex"] = safe("FlexHit"),
+	["Custom"] = safe("CustomHit"),
+	["God's Hand"] = safe("Godshand"),
+	["Error"] = safe("Errorhit"),
 }
