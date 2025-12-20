@@ -2188,7 +2188,7 @@ end
     end
 })
 
-_G.AntiToggles["Anti Pile"] = Anti2Group:AddToggle("Anti Pylon", {
+_G.AntiToggles["Anti Pile"] = Anti2Group:AddToggle("Anti Pile", {
     Text = "Anti Pile",
     Default = false,
     Callback = function(Value)
@@ -3373,7 +3373,7 @@ local npc = rm and rm:FindFirstChild("RepressedMemoriesNPC")
 local head = npc and npc:FindFirstChild("Head")
 local dialog = head and head:FindFirstChild("Dialog")
 local Dialog8Step = {
-    [1] = "8 steps to get recall",
+    [1] = "7 steps to get recall",
     [2] = "Please allow me to START!?!?!?",
     [3] = "STEP 1",
     [4] = "STEP 2",
@@ -3381,8 +3381,7 @@ local Dialog8Step = {
     [6] = "STEP 4",
     [7] = "STEP 5",
     [8] = "STEP 6",
-    [9] = "STEP 7",
-    [10] = "STEP 8, DEEEEEEEE",
+    [9] = "STEP 7, DEEEEEEEEEEEEEEE"
 }
 if rm and dialog then
     local NumberQuest = 1
