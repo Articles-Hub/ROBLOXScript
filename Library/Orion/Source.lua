@@ -7,7 +7,7 @@ local HttpService = game:GetService("HttpService")
 
 local PARENT = (gethui and gethui()) or game:GetService('CoreGui')
 
-local OrionLib = {
+OrionLib = {
         Elements = {},
         ThemeObjects = {},
         Connections = {},
@@ -934,7 +934,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 }), {
                                         AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
                                                 Size = UDim2.new(1, -12, 1, 0),
-                                                Position = UDim2.new(0, 12, 0, 0),
+                                                Position = UDim2.new(0, 8, 0, 0),
                                                 Font = Enum.Font.GothamBold,
                                                 TextWrapped = true,
                                                 Name = "Content"
@@ -943,9 +943,8 @@ function OrionLib:MakeWindow(WindowConfig)
                                 }), "Second")
                                 
                                 AddConnection(LabelFrame.Content:GetPropertyChangedSignal("Text"), function()
-	                                if LabelFrame and LabelFrame:FindFirstChild("Content") then
-                                        LabelFrame.Content.Size = UDim2.new(1, -24, 0, LabelFrame.Content.TextBounds.Y)
-                                        LabelFrame.Size = UDim2.new(1, 0, 0, LabelFrame.Content.TextBounds.Y + 35)
+	                                if LabelFrame then
+                                        LabelFrame.Size = UDim2.new(1, 0, 0, LabelFrame.Content.TextBounds.Y + 25)
                                     end
                                 end)
 
@@ -1007,7 +1006,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 local Click = SetProps(MakeElement("Button"), {
                                         Size = UDim2.new(1, 0, 1, 0)
                                 })
-								local IconButton = tostring(ButtonConfig.Icon):match("^rbxassetid://") and ButtonConfig.Icon or ("rbxassetid://" .. tostring(ButtonConfig.Icon):match("%d+"))
+                                
                                 local ButtonFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
                                         Size = UDim2.new(1, 0, 0, 33),
                                         Parent = ItemParent
@@ -1018,7 +1017,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                                 Font = Enum.Font.GothamBold,
                                                 Name = "Content"
                                         }), "Text"),
-                                        AddThemeObject(SetProps(MakeElement("Image", IconButton), {
+                                        AddThemeObject(SetProps(MakeElement("Image", ButtonConfig.Icon), {
                                                 Size = UDim2.new(0, 20, 0, 20),
                                                 Position = UDim2.new(1, -30, 0, 7),
                                         }), "TextDark"),
@@ -1061,7 +1060,6 @@ function OrionLib:MakeWindow(WindowConfig)
 								end
                                 
                                 function Button:SetCallback(callback)
-								    if type(callback) ~= "function" then return end
 								    ButtonConfig.Callback = callback
 								end
                                 return Button
@@ -1122,7 +1120,6 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end    
                                 
                                 function Toggle:SetCallback(call)
-	                                if type(call) ~= "function" then return end
 									ToggleConfig.Callback = call
                                 end    
                                 
@@ -1132,7 +1129,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                         TweenService:Create(ToggleBox.Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Color = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Stroke}):Play()
                                         TweenService:Create(ToggleBox.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = Toggle.Value and 0 or 1, Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)}):Play()
                                         local success, err = pcall(function() ToggleConfig.Callback(Toggle.Value) end)
-                                        if success then
+                                        if not success then
 	                                        OrionLib:MakeNotification({Name = "Error Script", Content = err, Time = 5})
 	                                        Toggle.Value = false
 	                                        TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = OrionLib.Themes.Default.Divider}):Play()
@@ -1141,7 +1138,7 @@ function OrionLib:MakeWindow(WindowConfig)
 										end
                                 end    
                                 
-								if ToggleConfig.Default then
+								if ToggleConfig.Default == true then
 	                                Toggle:Set(true)
 								end
 								
@@ -1343,7 +1340,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								TweenService:Create(Dropdown.Buttons[Value], TweenInfo.new(.15), {BackgroundTransparency = 0}):Play()
 								TweenService:Create(Dropdown.Buttons[Value].Title, TweenInfo.new(.15), {TextTransparency = 0}):Play()
 						
-								return DropdownConfig.Callback({Dropdown.Value})
+								return DropdownConfig.Callback(Dropdown.Value)
 							end
 						
 							AddConnection(Click.MouseButton1Click, function()
@@ -1756,87 +1753,93 @@ function OrionLib:MakeWindow(WindowConfig)
                                 if ColorpickerConfig.Flag then                                
                                         OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker
                                 end
-                                return Colorpicker
-                        end  
-                        
-		                function ElementFunction:AddSection(SectionConfig)
-		                        SectionConfig.Name = SectionConfig.Name or "Section"
-		
-		                        local SectionFrame = SetChildren(SetProps(MakeElement("TFrame"), {
-		                                Size = UDim2.new(1, 0, 0, 26),
-		                                Parent = Container
-		                        }), {
-		                                AddThemeObject(SetProps(MakeElement("Label", SectionConfig.Name, 14), {
-		                                        Size = UDim2.new(1, -12, 0, 16),
-		                                        Position = UDim2.new(0, 0, 0, 3),
-		                                        Font = Enum.Font.GothamSemibold
-		                                }), "TextDark"),
-		                                SetChildren(SetProps(MakeElement("TFrame"), {
-		                                        AnchorPoint = Vector2.new(0, 0),
-		                                        Size = UDim2.new(1, 0, 1, -24),
-		                                        Position = UDim2.new(0, 0, 0, 23),
-		                                        Name = "Holder"
-		                                }), {
-		                                        MakeElement("List", 0, 6)
-		                                }),
-		                        })
-		
-		                        AddConnection(SectionFrame.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-		                                SectionFrame.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y + 31)
-		                                SectionFrame.Holder.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y)
-		                        end)
-		
-		                        local SectionFunction = {}
-		                        for i, v in next, GetElements(SectionFrame.Holder) do
-		                                SectionFunction[i] = v 
-		                        end
-		                        return SectionFunction
-		                end        
-		
-		                for i, v in next, GetElements(Container) do
-		                        ElementFunction[i] = v 
-		                end
-		
-		                if TabConfig.PremiumOnly then
-		                        for i, v in next, ElementFunction do
-		                                ElementFunction[i] = function() end
-		                        end    
-		                        Container:FindFirstChild("UIListLayout"):Destroy()
-		                        Container:FindFirstChild("UIPadding"):Destroy()
-		                        SetChildren(SetProps(MakeElement("TFrame"), {
-		                                Size = UDim2.new(1, 0, 1, 0),
-		                                Parent = ItemParent
-		                        }), {
-		                                AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://3610239960"), {
-		                                        Size = UDim2.new(0, 18, 0, 18),
-		                                        Position = UDim2.new(0, 15, 0, 15),
-		                                        ImageTransparency = 0.4
-		                                }), "Text"),
-		                                AddThemeObject(SetProps(MakeElement("Label", "Unauthorised Access", 14), {
-		                                        Size = UDim2.new(1, -38, 0, 14),
-		                                        Position = UDim2.new(0, 38, 0, 18),
-		                                        TextTransparency = 0.4
-		                                }), "Text"),
-		                                AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://4483345875"), {
-		                                        Size = UDim2.new(0, 56, 0, 56),
-		                                        Position = UDim2.new(0, 84, 0, 110),
-		                                }), "Text"),
-		                                AddThemeObject(SetProps(MakeElement("Label", "Premium Features", 14), {
-		                                        Size = UDim2.new(1, -150, 0, 14),
-		                                        Position = UDim2.new(0, 150, 0, 112),
-		                                        Font = Enum.Font.GothamBold
-		                                }), "Text"),
-		                                AddThemeObject(SetProps(MakeElement("Label", "This part of the script is locked to Sirius Premium users. Purchase Premium in the Discord server (discord.gg/sirius)", 12), {
-		                                        Size = UDim2.new(1, -200, 0, 14),
-		                                        Position = UDim2.new(0, 150, 0, 138),
-		                                        TextWrapped = true,
-		                                        TextTransparency = 0.4
-		                                }), "Text")
-		                        })
-		                end
-				end
-			return ElementFunction   
-        end
+                                if ColorpickerConfig.Flag then				
+									OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker
+								end
+								return Colorpicker
+							end  
+							return ElementFunction   
+						end	
+						
+						local ElementFunction = {}
+						function ElementFunction:AddSection(SectionConfig)
+							SectionConfig.Name = SectionConfig.Name or "Section"
+				
+							local SectionFrame = SetChildren(SetProps(MakeElement("TFrame"), {
+								Size = UDim2.new(1, 0, 0, 26),
+								Parent = Container
+							}), {
+								AddThemeObject(SetProps(MakeElement("Label", SectionConfig.Name, 14), {
+									Size = UDim2.new(1, -12, 0, 16),
+									Position = UDim2.new(0, 0, 0, 3),
+									Font = Enum.Font.GothamSemibold
+								}), "TextDark"),
+								SetChildren(SetProps(MakeElement("TFrame"), {
+									AnchorPoint = Vector2.new(0, 0),
+									Size = UDim2.new(1, 0, 1, -24),
+									Position = UDim2.new(0, 0, 0, 23),
+									Name = "Holder"
+								}), {
+									MakeElement("List", 0, 6)
+								}),
+							})
+				
+							AddConnection(SectionFrame.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+								SectionFrame.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y + 31)
+								SectionFrame.Holder.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y)
+							end)
+				
+							local SectionFunction = {}
+							for i, v in next, GetElements(SectionFrame.Holder) do
+								SectionFunction[i] = v 
+							end
+							return SectionFunction
+						end	
+				
+						for i, v in next, GetElements(Container) do
+							ElementFunction[i] = v 
+						end
+				
+						if TabConfig.PremiumOnly then
+							for i, v in next, ElementFunction do
+								ElementFunction[i] = function() end
+							end    
+							Container:FindFirstChild("UIListLayout"):Destroy()
+							Container:FindFirstChild("UIPadding"):Destroy()
+							SetChildren(SetProps(MakeElement("TFrame"), {
+								Size = UDim2.new(1, 0, 1, 0),
+								Parent = ItemParent
+							}), {
+								AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://3610239960"), {
+									Size = UDim2.new(0, 18, 0, 18),
+									Position = UDim2.new(0, 15, 0, 15),
+									ImageTransparency = 0.4
+								}), "Text"),
+								AddThemeObject(SetProps(MakeElement("Label", "Unauthorised Access", 14), {
+									Size = UDim2.new(1, -38, 0, 14),
+									Position = UDim2.new(0, 38, 0, 18),
+									TextTransparency = 0.4
+								}), "Text"),
+								AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://4483345875"), {
+									Size = UDim2.new(0, 56, 0, 56),
+									Position = UDim2.new(0, 84, 0, 110),
+								}), "Text"),
+								AddThemeObject(SetProps(MakeElement("Label", "Premium Features", 14), {
+									Size = UDim2.new(1, -150, 0, 14),
+									Position = UDim2.new(0, 150, 0, 112),
+									Font = Enum.Font.GothamBold
+								}), "Text"),
+								AddThemeObject(SetProps(MakeElement("Label", "This part of the script is locked to Sirius Premium users. Purchase Premium in the Discord server (discord.gg/sirius)", 12), {
+									Size = UDim2.new(1, -200, 0, 14),
+									Position = UDim2.new(0, 150, 0, 138),
+									TextWrapped = true,
+									TextTransparency = 0.4
+								}), "Text")
+							})
+						end
+						return ElementFunction   
+					end  
+					
         function Functions:Destroy()
                 for _, Connection in next, OrionLib.Connections do
                         Connection:Disconnect()
@@ -1850,5 +1853,3 @@ end
 function OrionLib:Destroy()
         Orion:Destroy()
 end
-
-return OrionLib
