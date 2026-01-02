@@ -466,7 +466,7 @@ function OrionLib:MakeNotification(NotificationConfig)
                 TweenService:Create(NotificationFrame.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.4}):Play()
                 TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
                 wait(0.05)
-                local TweenPos = TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {Position = UDim2.new(1, 0, 1, 0)})
+                local TweenPos = TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {Position = UDim2.new(1, 0, 3, 0)})
                 TweenPos:Play()
                 TweenPos.Completed:Wait()
                 NotificationFrame:Destroy()
@@ -1007,7 +1007,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 local Click = SetProps(MakeElement("Button"), {
                                         Size = UDim2.new(1, 0, 1, 0)
                                 })
-								local IconButton = "rbxassetid://"..tostring(ButtonConfig.Icon):match("%d+")
+								local IconButton = tostring(ButtonConfig.Icon):match("^rbxassetid://") and ButtonConfig.Icon or ("rbxassetid://" .. tostring(ButtonConfig.Icon):match("%d+"))
                                 local ButtonFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
                                         Size = UDim2.new(1, 0, 0, 33),
                                         Parent = ItemParent
@@ -1047,7 +1047,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
                                 function Button:Set(ButtonText)
 	                                if ButtonFrame and ButtonFrame:FindFirstChild("Content") then
-                                        ButtonFrame.Content.Text = ToChange
+                                        ButtonFrame.Content.Text = ButtonText
                                     end
                                 end
                                 
