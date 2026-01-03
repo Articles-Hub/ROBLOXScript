@@ -15184,6 +15184,7 @@ end
 })
 workspace.Trash.Instances.ChildAdded:Connect(function(child)
 	if _G.AutoCleanTrash then
+		task.wait(0.2)
 		Trash(child)
 	end
 end)
