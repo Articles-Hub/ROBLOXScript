@@ -15080,6 +15080,15 @@ end
     end
 })
 elseif game.PlaceId == 122901288403496 then
+function InTable(t, value)
+	for _, v in ipairs(t) do
+		if v == value then
+			return true
+		end
+	end
+	return false
+end
+
 Window = Library:CreateWindow({
     Title = "JOB APPLICATION!!! 📦",
     Center = true,
@@ -15134,89 +15143,80 @@ local function Unequip()
 	end
 end
 local function Equip(toolName)
+	Unequip()
 	local tool = game.Players.LocalPlayer.Backpack:FindFirstChild(toolName)
 	if tool and game.Players.LocalPlayer.Character then
 		tool.Parent = game.Players.LocalPlayer.Character
 	end
-end
-function Trash(trash)
-	if not trash or not _G.AutoCleanTrash then return end
-	local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-	if not hrp then return end
-	Unequip()
-	if trash.Name == "TrashPile" then
-		local pile = trash:FindFirstChild("trash pile")
-		if not pile then return end
-		Equip("Broom")
-		hrp.CFrame = pile.CFrame * CFrame.new(0, 5, 0)
-		local timeout = os.clock() + 10
-		while _G.AutoCleanTrash and trash:FindFirstChild("trash pile") do
-			game:GetService("ReplicatedStorage").Remotes.CleanTrash:FireServer(trash)
-			task.wait(0.3)
-			if os.clock() > timeout then break end
-		end
-	end
-	if trash.Name == "TrashSpill" then
-		local spill = trash:FindFirstChild("Slime")
-		if not spill then return end
-		Equip("Mop")
-		hrp.CFrame = spill.CFrame * CFrame.new(0, 5, 0)
-		local timeout = os.clock() + 10
-		while _G.AutoCleanTrash and trash:FindFirstChild("Slime") do
-			game:GetService("ReplicatedStorage").Remotes.CleanTrash:FireServer(trash)
-			task.wait(0.3)
-			if os.clock() > timeout then break end
-		end
-	end
-	Unequip()
 end
 MainGroup:AddToggle("Auto Clean Trash", {
     Text = "Auto Clean Trash",
     Default = false, 
     Callback = function(Value) 
 _G.AutoCleanTrash = Value
+while _G.AutoCleanTrash do
 for i, v in pairs(workspace.Trash.Instances:GetChildren()) do
-	if _G.AutoCleanTrash then
-		Trash(v)
+	if v.Name == "TrashPile" and v:FindFirstChild("trash pile") then
+		OldCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+		Equip("Broom")
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v["trash pile"].CFrame * CFrame.new(0, 5, 0)
+		repeat task.wait()
+			game:GetService("ReplicatedStorage").Remotes.CleanTrash:FireServer(v)
+		until not (v and v:FindFirstChild("trash pile"))
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldCFrame
+	elseif v.Name == "TrashSpill" and v:FindFirstChild("Slime") then
+		OldCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+		Equip("Mop")
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v["Slime"].CFrame * CFrame.new(0, 5, 0)
+		repeat task.wait()
+			game:GetService("ReplicatedStorage").Remotes.CleanTrash:FireServer(v)
+		until not (v and v:FindFirstChild("Slime"))
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldCFrame
 	end
+end
+task.wait()
 end
     end
 })
-workspace.Trash.Instances.ChildAdded:Connect(function(child)
-	if _G.AutoCleanTrash then
-		task.wait(0.2)
-		Trash(child)
-	end
-end)
 
-local MainGroup1 = Tabs.Tab:AddRightGroupbox("Collect Box / Sell")
+local MainGroup1 = Tabs.Tab:AddRightGroupbox("Misc")
 
 MainGroup1:AddButton("Auto Stock Shelf Glove", function()
+OldCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 for _, v in ipairs(workspace.GloveShipment:GetChildren()) do
-	if v:IsA("Model") and v.Name:lower():find("stockbox_") and v:FindFirstChild("Box") then
-		local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-		if hrp then
-			hrp.CFrame = v.Box.CFrame * CFrame.new(0, 5, 0)
-		end
-		task.wait(0.5)
-		local FoundGlove = v.Name:match("_(.+)")
-		if not FoundGlove then continue end
-		game:GetService("ReplicatedStorage").Remotes.PickupBox:FireServer(v)
-		repeat task.wait() until workspace:FindFirstChild("HeldBox_" .. FoundGlove)
-		task.wait(0.3)
-		for _, sh in ipairs(workspace.Shelves:GetChildren()) do
-			if sh:IsA("Model") and sh:FindFirstChild("Base") and not sh:FindFirstChild("Glove", true) and workspace:FindFirstChild("HeldBox_" .. FoundGlove) then
-				if hrp then
-					hrp.CFrame = sh.Base.CFrame * CFrame.new(0, 5, 0)
-				end
-				task.wait(0.3)
-				game:GetService("ReplicatedStorage").Remotes.StockShelf:FireServer(sh)
-				repeat task.wait() until not workspace:FindFirstChild("HeldBox_" .. FoundGlove)
-				break
-			end
-		end
-	end
+    if v:IsA("Model") and v.Name:lower():find("stockbox_") and v:FindFirstChild("Box") then
+        local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = v.Box.CFrame * CFrame.new(0, 5, 0)
+        end        
+        local FoundGlove = v.Name:match("_(.+)")
+        if not FoundGlove then continue end
+        repeat task.wait()
+            game:GetService("ReplicatedStorage").Remotes.PickupBox:FireServer(v)
+        until workspace:FindFirstChild("HeldBox_" .. FoundGlove)
+        wait(0.1)
+        for _, sh in ipairs(workspace.Shelves:GetChildren()) do
+            if sh:IsA("Model") and sh:FindFirstChild("Base") and workspace:FindFirstChild("HeldBox_" .. FoundGlove) then
+                local hasGlove = false
+                for _, j in pairs(sh:GetDescendants()) do
+                    if j.Name:match("Glove") then
+                        hasGlove = true
+                        break
+                    end
+                end
+                if hasGlove then continue end
+                if hrp then
+                    hrp.CFrame = sh.Base.CFrame * CFrame.new(0, 5, 0)
+                end
+                repeat task.wait()
+                    game:GetService("ReplicatedStorage").Remotes.StockShelf:FireServer(sh)
+                until not workspace:FindFirstChild("HeldBox_" .. FoundGlove)
+                break
+            end
+        end
+    end
 end
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OldCFrame
 end)
 
 MainGroup1:AddButton("Teleport Sell Glove", function()
@@ -15234,13 +15234,12 @@ MainGroup1:AddToggle("Auto Sell Glove", {
 _G.AutoSellGlove = Value
 while _G.AutoSellGlove do
 for i, v in ipairs(workspace:GetChildren()) do
-	if v:IsA("Model") then
-		local glove = v:FindFirstChild("Glove", true)
-		if glove then
-			if not glove.Parent.Name:lower():find("heldcheckoutitem_") then
-				game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("PickupCheckoutItem"):FireServer(glove.Parent)
+	for _, n in pairs(v:GetChildren()) do
+		if n.Name:find("Glove") then
+			if not n.Parent.Name:lower():find("heldcheckoutitem_") then
+				game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("PickupCheckoutItem"):FireServer(n.Parent)
 			else
-				game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ScanCheckoutItem"):FireServer(glove.Parent.Name:match("_(.+)"))
+				game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ScanCheckoutItem"):FireServer(n.Parent.Name:match("_(.+)"))
 			end
 		end
 	end
@@ -15249,6 +15248,34 @@ task.wait()
 end
     end
 })
+
+MainGroup1:AddButton("Find Glove Sell", function()
+	local NoSellGlove = {"bob", "bubble", "lamp", "l.o.l.b.o.m.b", "overkill", "plague", "sbeve", "ufo"}
+	local Found = {}
+	local gui = game.Players.LocalPlayer.PlayerGui
+	local list = gui.WholesaleOrdering.Canvas.Listings.ScrollingFrame
+	for _, v in ipairs(list:GetChildren()) do
+		if v.Name:lower():find("listing") and v:FindFirstChild("Topbar") then
+			local glove = v.Topbar.ItemName.Text:lower():match("^(.-)%s*%[")
+			if InTable(NoSellGlove, glove) and not gui.Displays.subBarHolder.day.Text:match("5") then continue end
+			local profit = tonumber(v.ExpectedProfit.Text:sub(2))
+			local cost = tonumber(v.Cost.Text:sub(2))
+			if profit and cost then
+				table.insert(Found, {v, profit, cost})
+			end
+		end
+	end
+	table.sort(Found, function(a, b)
+		return a[2] > b[2]
+	end)
+	local Money = tonumber(gui.Displays.topBarHolder.cash.Text:sub(2)) or 0
+	for _, v in ipairs(Found) do
+		if Money >= v[3] then
+			firesignal(v[1].Activated)
+			Money -= v[3]
+		end
+	end
+end)
 end
 
 local success, err = pcall(function()
@@ -15703,7 +15730,7 @@ if not CoreGui:FindFirstChild("ClickDestroyFreezeBV") then
 			if TextButton then
 				TextButton.Text = "Unfreeze"
 			end
-			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV1") == nil then
+			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBVButton") == nil then
 				local bv = Instance.new("BodyVelocity")
 				bv.Name = "FreezeBVButton"
 				bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
