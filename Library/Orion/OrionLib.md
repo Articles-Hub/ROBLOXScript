@@ -250,7 +250,7 @@ OrionLib.Flags["SliderTo"]:SetMax(90)
 ### Change Slider Value Min
 ```lua
 Slider:SetMin(10)
-OrionLib.Flags["SliderTo"]:SetMax(10)
+OrionLib.Flags["SliderTo"]:SetMin(10)
 ```
 
 
