@@ -185,9 +185,10 @@ local function SetChildren(Element, Children)
 end
 
 local function Round(Number, Factor)
-        local Result = math.floor(Number/Factor + (math.sign(Number) * 0.5)) * Factor
-        if Result < 0 then Result = Result + Factor end
-        return Result
+	local decimals = tostring(Factor):match("%.(%d+)")
+	decimals = decimals and #decimals or 0	
+	local result = math.floor(Number / Factor + 0.5) * Factor
+	return tonumber(string.format("%." .. decimals .. "f", result))
 end
 
 local function ReturnProperty(Object)
@@ -472,7 +473,7 @@ function OrionLib:MakeNotification(NotificationConfig)
                 TweenService:Create(NotificationFrame.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.4}):Play()
                 TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
                 wait(0.05)
-                local TweenPos = TweenService:Create(NotificationFrame, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Position = UDim2.new(1, -70, 0, 0)})
+                local TweenPos = TweenService:Create(NotificationFrame, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Position = UDim2.new(1, 120, 0, 0)})
                 TweenPos:Play()
                 TweenPos.Completed:Wait()
                 NotificationFrame:Destroy()
@@ -1205,6 +1206,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
 									local width = BindBox.Value.TextBounds.X + 20
 									TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, width, 0, 24)}):Play()
+									TweenService:Create(Click, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, width, 0, 24)}):Play()
 								end)
 						
 								AddConnection(Click.InputEnded, function(Input)
@@ -1246,6 +1248,137 @@ function OrionLib:MakeWindow(WindowConfig)
 								OrionLib.Flags[ToggleConfig.Flag] = Toggle
 							end
 							return Toggle
+						end
+						function ElementFunction:AddSlider(SliderConfig)
+							SliderConfig = SliderConfig or {}
+							SliderConfig.Name = SliderConfig.Name or "Slider"
+							SliderConfig.Min = SliderConfig.Min or 0
+							SliderConfig.Max = SliderConfig.Max or 100
+							SliderConfig.Increment = SliderConfig.Increment or 1
+							SliderConfig.Default = SliderConfig.Default or 50
+							SliderConfig.Callback = SliderConfig.Callback or function() end
+							SliderConfig.ValueName = SliderConfig.ValueName or ""
+							SliderConfig.Color = SliderConfig.Color or Color3.fromRGB(9, 149, 98)
+							SliderConfig.Flag = SliderConfig.Flag or nil
+							SliderConfig.Save = SliderConfig.Save or false
+							
+							local Slider = {Value = SliderConfig.Default, Save = SliderConfig.Save}  
+							local Dragging = false  
+						  
+							local SliderDrag = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {  
+								Size = UDim2.new(0, 0, 1, 0),  
+								BackgroundTransparency = 0.3,  
+								ClipsDescendants = true  
+							}), {  
+								AddThemeObject(SetProps(MakeElement("Label", "value", 13), {  
+									Size = UDim2.new(1, -12, 0, 14),  
+									Position = UDim2.new(0, 12, 0, 6),  
+									Font = Enum.Font.GothamBold,  
+									Name = "Value",  
+									TextTransparency = 0  
+								}), "Text")  
+							})  
+						  
+							local SliderBar = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {  
+								Size = UDim2.new(1, -24, 0, 26),  
+								Position = UDim2.new(0, 12, 0, 30),  
+								BackgroundTransparency = 0.9  
+							}), {  
+								SetProps(MakeElement("Stroke"), {Color = SliderConfig.Color}),  
+								AddThemeObject(SetProps(MakeElement("Label", "value", 13), {  
+									Size = UDim2.new(1, -12, 0, 14),  
+									Position = UDim2.new(0, 12, 0, 6),  
+									Font = Enum.Font.GothamBold,  
+									Name = "Value",  
+									TextTransparency = 0.8  
+								}), "Text"),  
+								SliderDrag  
+							})  
+						  
+							local SliderFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {  
+								Size = UDim2.new(1, 0, 0, 65),  
+								Parent = ItemParent  
+							}), {  
+								AddThemeObject(SetProps(MakeElement("Label", SliderConfig.Name, 15), {  
+									Size = UDim2.new(1, -12, 0, 14),  
+									Position = UDim2.new(0, 12, 0, 10),  
+									Font = Enum.Font.GothamBold,  
+									Name = "Content"  
+								}), "Text"),  
+								AddThemeObject(MakeElement("Stroke"), "Stroke"),  
+								SliderBar  
+							}), "Second")  
+							  
+							local function DraggingUi(parent)  
+								parent.InputBegan:Connect(function(Input)  
+									if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then  
+										Dragging = true  
+									end  
+								end)  
+							  
+								parent.InputEnded:Connect(function(Input)  
+									if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then  
+										Dragging = false  
+									end  
+								end)  
+							end  
+							  
+							DraggingUi(SliderBar)  
+							AddConnection(UserInputService.InputChanged, function(Input)  
+								if Dragging then   
+									local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)  
+									Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))   
+									SaveCfg(game.GameId)  
+								end  
+							end)  
+						  
+							local function Update()  
+								TweenService:Create(SliderDrag, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.fromScale((Slider.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}):Play()  
+								SliderBar.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
+								SliderDrag.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
+								SliderConfig.Callback(Slider.Value)  
+							end  
+						  
+							function Slider:Set(Value)  
+								Slider.Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)  
+								Update()  
+							end  
+							  
+							function Slider:SetMax(Value: number)  
+								local MaxToFix = tonumber(Value) or 5
+								SliderConfig.Max = (MaxToFix > 0 and MaxToFix or 5)  
+								Slider.Value = math.clamp(Round(Slider.Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)  
+								Update()  
+							end  
+						  
+							function Slider:SetMin(Value: number)  
+								SliderConfig.Min = tonumber(Value) or 5
+								Slider.Value = math.clamp(Round(Slider.Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)  
+								Update()  
+							end  
+						  
+							function Slider:SetText(ToChange)  
+								if SliderFrame and SliderFrame:FindFirstChild("Content") then  
+									SliderFrame.Content.Text = ToChange  
+								end  
+							end  
+							  
+							function Slider:SetTextValue(ToChange)  
+								SliderConfig.ValueName = ToChange  
+								SliderBar.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
+								SliderDrag.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
+							end  
+						  
+							function Slider:SetCallback(ToChange)  
+								SliderConfig.Callback = ToChange  
+							end  
+						  
+							Slider.Value = math.clamp(Slider.Value, SliderConfig.Min, SliderConfig.Max)  
+							Update()  
+							if SliderConfig.Flag then  
+								OrionLib.Flags[SliderConfig.Flag] = Slider  
+							end  
+							return Slider  
 						end
                         function ElementFunction:AddDropdown(DropdownConfig)
 							DropdownConfig = DropdownConfig or {}
@@ -1911,7 +2044,8 @@ function OrionLib:MakeWindow(WindowConfig)
 						local ElementFunction = {}
 						function ElementFunction:AddSection(SectionConfig)
 							SectionConfig.Name = SectionConfig.Name or "Section"
-							Section = {}
+							SectionConfig.Flag = SectionConfig.Flag or nil
+							local Section = {Type = "Section"}
 				
 							local SectionFrame = SetChildren(SetProps(MakeElement("TFrame"), {
 								Size = UDim2.new(1, 0, 0, 26),
@@ -1953,7 +2087,11 @@ function OrionLib:MakeWindow(WindowConfig)
 							for i, v in next, GetElements(SectionFrame.Holder) do
 								SectionFunction[i] = v 
 							end
-							return SectionFunction
+							
+							if SectionConfig.Flag then
+								OrionLib.Flags[SectionConfig.Flag] = Section
+							end
+							return Section
 						end	
 				
 						for i, v in next, GetElements(Container) do
