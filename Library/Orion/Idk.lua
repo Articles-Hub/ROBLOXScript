@@ -1959,8 +1959,6 @@ function OrionLib:MakeWindow(WindowConfig)
         end
         
         return ElementFunction
-    end
-    return OrionLib
-end
+            end
 
 return OrionLib
