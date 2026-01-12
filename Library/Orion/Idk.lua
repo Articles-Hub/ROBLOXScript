@@ -1960,7 +1960,32 @@ function OrionLib:MakeWindow(WindowConfig)
         
         return ElementFunction
     end
+function Functions:Destroy()
+                for _, Connection in next, OrionLib.Connections do
+                        Connection:Disconnect()
+                end
+                MainWindow:Destroy()
+                MobileIcon:Destroy()
+        end        
+        return Functions
+end   
 
+function OrionLib:Destroy()
+	Orion:Destroy()
+	if OrionLib then
+		for i, v in next, OrionLib.OnDestroy do
+			local success, err = pcall(v)
+		end
+		for _, Connection in next, OrionLib.Connections do
+	        Connection:Disconnect()
+        end
+		OrionLib = nil
+	end
+end
+
+function OrionLib:OnDestroy(destroy)
+	table.insert(OrionLib.OnDestroy, destroy)
+end
     return OrionLib
 end
 
