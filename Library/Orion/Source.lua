@@ -1,18 +1,24 @@
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
+local cloneref = (cloneref or clonereference or function(instance: any)
+    return instance
+end)
+local getgenv = getgenv or function()
+    return shared
+end
+local UserInputService: UserInputService = cloneref(game:GetService("UserInputService"))
+local TweenService: TweenService = cloneref(game:GetService("TweenService"))
+local RunService: RunService = cloneref(game:GetService("RunService"))
+local HttpService: HttpService = cloneref(game:GetService("HttpService"))
 local LocalPlayer = game:GetService("Players").LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local HttpService = game:GetService("HttpService")
+local Mouse = cloneref(LocalPlayer:GetMouse())
 
-local PARENT = (gethui and gethui()) or game:GetService('CoreGui')
+local PARENT = (gethui and gethui()) or cloneref(game:GetService("CoreGui"))
 
 OrionLib = {
         Elements = {},
         ThemeObjects = {},
         Connections = {},
         Flags = {},
-        OnDestroy = {},
+        OnDestroyTo = {},
         Themes = {
                 Default = {
                         Main = Color3.fromRGB(25, 25, 25),
@@ -28,20 +34,23 @@ OrionLib = {
         SaveCfg = false
 }
 
+getgenv().Destroy = false
+
 --Feather Icons https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/Orion/icons.json
 local Icons = {}
 
 local Success, Response = pcall(function()
-        Icons = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/Orion/icons.json")).icons
+        Icons = HttpService:JSONDecode(game:HttpGetAsync("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/Orion/icons.json")).icons
 end)
 
 if not Success then
         warn("\nOrion Library - Failed to load Feather Icons. Error code: " .. Response .. "\n")
 end
 
-local function GetIcon(IconName)
-        if Icons[IconName] ~= nil then
-                return Icons[IconName]
+local function GetIcon(IconName: string)
+		local IconLower = IconName:lower() or ""
+        if Icons[IconLower] ~= nil then
+                return Icons[IconLower]
         else
                 return nil
         end
@@ -73,6 +82,13 @@ function OrionLib:SetFont(font: Enum.Font)
 	end
 end
 
+function OrionLib:AddConnect(Signal, Function)
+	if getgenv().Destroy then return end
+	local SignalConnect = Signal:Connect(Function)
+    table.insert(OrionLib.Connections, SignalConnect)
+    return SignalConnect
+end
+
 OrionLib:SetFont("GothamBold")
 
 function OrionLib:IsRunning()
@@ -80,7 +96,7 @@ function OrionLib:IsRunning()
 end
 
 local function AddConnection(Signal, Function)
-        if (not OrionLib:IsRunning()) then
+        if (not OrionLib:IsRunning()) or getgenv().Destroy then
                 return
         end
         local SignalConnect = Signal:Connect(Function)
@@ -89,7 +105,7 @@ local function AddConnection(Signal, Function)
 end
 
 task.spawn(function()
-        while (OrionLib:IsRunning()) do
+        while (OrionLib:IsRunning()) or getgenv().Destroy do
                 wait()
         end
 
@@ -123,7 +139,7 @@ local function MakeDraggable(DragPoint, Main)
                         if Input == DragInput and Dragging then
                                 local Delta = Input.Position - MousePos
                                 TweenService:Create(Main, TweenInfo.new(0.05, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)}):Play()
-                                Main.Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
+                                Main.Position = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
                         end
                 end)
         end)
@@ -263,6 +279,9 @@ local function SaveCfg(Name)
                         end
                 end        
         end
+    pcall(function()
+        writefile(OrionLib.Folder .. "/" .. Name .. ".txt", tostring(HttpService:JSONEncode(Data)))
+	end)
 end
 
 local WhitelistedMouse = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,Enum.UserInputType.MouseButton3}
@@ -410,75 +429,162 @@ local NotificationHolder = SetProps(SetChildren(MakeElement("TFrame"), {
 })
 
 function OrionLib:MakeNotification(NotificationConfig)
-        spawn(function()
-                NotificationConfig.Name = NotificationConfig.Name or "Notification"
-                NotificationConfig.Content = NotificationConfig.Content or "Test"
-                NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://14229447778"
-                NotificationConfig.Time = NotificationConfig.Time or 15
-                NotificationConfig.SoundId = NotificationConfig.SoundId or "rbxassetid://0"
-                NotificationConfig.Volume = NotificationConfig.Volume or 0
+	if getgenv().Destroy then return end
+	task.spawn(function()
+		NotificationConfig.Name = NotificationConfig.Name or "Notification"
+		NotificationConfig.Content = NotificationConfig.Content or "Content"
+		NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://14229447778"
+		NotificationConfig.Time = NotificationConfig.Time or 5
+		NotificationConfig.Volume = NotificationConfig.Volume or 1
+		
+		local function ParseText(Str)
+			if type(Str) ~= "string" then return Str end
+			Str = Str:gsub("%[Highlight:['\"](.-)['\"]%]", '<font color="#ffffff"><b>%1</b></font>')
+			Str = Str:gsub("%[underline:['\"](.-)['\"]%]", '<u>%1</u>')
+			Str = Str:gsub("%[Color_(.-):['\"](.-)['\"]%]", '<font color="%1">%2</font>')
+			return Str
+		end
 
-                local NotificationParent = SetProps(MakeElement("TFrame"), {
-                        Size = UDim2.new(1, 0, 0, 0),
-                        AutomaticSize = Enum.AutomaticSize.Y,
-                        Parent = NotificationHolder
-                })
-				
-				local IconNotify = NotificationConfig.Image:match("%d+")
-                local NotificationFrame = SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(25, 25, 25), 0, 10), {
-                        Parent = NotificationParent, 
-                        Size = UDim2.new(1, 0, 0, 0),
-                        Position = UDim2.new(1, -55, 0, 0),
-                        BackgroundTransparency = 0,
-                        AutomaticSize = Enum.AutomaticSize.Y
-                }), {
-                        MakeElement("Stroke", Color3.fromRGB(93, 93, 93), 1.2),
-                        MakeElement("Padding", 12, 12, 12, 12),
-                        SetProps(MakeElement("Image", IconNotify), {
-                                Size = UDim2.new(0, 20, 0, 20),
-                                ImageColor3 = Color3.fromRGB(240, 240, 240),
-                                Name = "Icon"
-                        }),
-                        SetProps(MakeElement("Label", NotificationConfig.Name, 15), {
-                                Size = UDim2.new(1, -30, 0, 20),
-                                Position = UDim2.new(0, 30, 0, 0),
-                                Font = fontlocal or Enum.Font.GothamBold,
-                                RichText = true,
-                                AutomaticSize = Enum.AutomaticSize.Y, 
-                                Name = "Title"
-                        }),
-                        SetProps(MakeElement("Label", NotificationConfig.Content, 14), {
-                                Size = UDim2.new(1, 0, 0, 0),
-                                Position = UDim2.new(0, 0, 0, 25),
-                                Font = fontlocal or Enum.Font.GothamSemibold,
-                                Name = "Content",
-                                RichText = true,
-                                AutomaticSize = Enum.AutomaticSize.Y,
-                                TextColor3 = Color3.fromRGB(200, 200, 200),
-                                TextWrapped = true
-                        })
-                })
+		local IconId = NotificationConfig.Image
+		if not tostring(IconId):find("rbxassetid") and tostring(IconId):match("%d+") then
+			IconId = "rbxassetid://" .. tostring(IconId):match("%d+")
+		end
 
-                TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 0, 0, 0)}):Play()
-                local sound = Instance.new("Sound", workspace)
-	            sound.SoundId = "rbxassetid://"..NotificationConfig.SoundId:match("%d+")
-	            sound.Volume = tonumber(NotificationConfig.Volume)
-	            sound.PlayOnRemove = true
-	            sound:Destroy()
-                wait(NotificationConfig.Time - 0.88)
-                TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-                TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.6}):Play()
-                wait(0.3)
-                TweenService:Create(NotificationFrame.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 0.9}):Play()
-                TweenService:Create(NotificationFrame.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.4}):Play()
-                TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
-                wait(0.05)
-                local TweenPos = TweenService:Create(NotificationFrame, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Position = UDim2.new(1, 120, 0, 0)})
-                TweenPos:Play()
-                TweenPos.Completed:Wait()
-                NotificationFrame:Destroy()
-        end)
-end    
+		local NotificationParent = SetProps(MakeElement("Frame"), {
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Parent = NotificationHolder,
+			BackgroundTransparency = 1,
+			ClipsDescendants = false
+		})
+		
+		local Card = SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(25, 25, 25), 0, 8), {
+			Parent = NotificationParent,
+			Size = UDim2.new(1, -20, 0, 0),
+			Position = UDim2.new(1, 30, 0, 0), 
+			AutomaticSize = Enum.AutomaticSize.Y
+		}), {
+			MakeElement("Stroke", Color3.fromRGB(60, 60, 60), 1),
+			Create("UIPadding", {
+				PaddingTop = UDim.new(0, 10),
+				PaddingBottom = UDim.new(0, 10),
+				PaddingLeft = UDim.new(0, 12),
+				PaddingRight = UDim.new(0, 12)
+			})
+		})
+
+		local List = Create("UIListLayout", {
+			Parent = Card,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Padding = UDim.new(0, 6),
+			HorizontalAlignment = Enum.HorizontalAlignment.Center
+		})
+		
+		local Header = Create("Frame", {
+			Parent = Card,
+			Size = UDim2.new(1, 0, 0, 20),
+			BackgroundTransparency = 1,
+			LayoutOrder = 1
+		})
+		
+		Create("UIListLayout", {
+			Parent = Header,
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8)
+		})
+		
+		Create("ImageLabel", {
+			Parent = Header,
+			Size = UDim2.new(0, 16, 0, 16),
+			Image = IconId,
+			ImageColor3 = Color3.fromRGB(255, 255, 255),
+			BackgroundTransparency = 1
+		})
+		
+		Create("TextLabel", {
+			Parent = Header,
+			AutomaticSize = Enum.AutomaticSize.XY,
+			Text = ParseText(NotificationConfig.Name),
+			Font = Enum.Font.GothamBold,
+			TextSize = 13,
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			BackgroundTransparency = 1,
+			RichText = true
+		})
+
+		if NotificationConfig.Banner then
+			local Banner = Create("ImageLabel", {
+				Parent = Card,
+				Size = UDim2.new(1, 0, 0, 100),
+				Image = NotificationConfig.Banner,
+				ScaleType = Enum.ScaleType.Crop,
+				BackgroundTransparency = 1,
+				LayoutOrder = 2
+			})
+			Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = Banner})
+			Create("UIStroke", {
+				Parent = Banner, 
+				Transparency = 0.5, 
+				Color = Color3.fromRGB(80,80,80),
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			})
+		end
+		
+		Create("TextLabel", {
+			Parent = Card,
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Text = ParseText(NotificationConfig.Content),
+			Font = Enum.Font.GothamSemibold,
+			TextSize = 12,
+			TextColor3 = Color3.fromRGB(200, 200, 200),
+			BackgroundTransparency = 1,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextWrapped = true,
+			RichText = true,
+			LayoutOrder = 3
+		})
+
+		Create("Frame", {Parent = Card, Size = UDim2.new(1,0,0,2), BackgroundTransparency = 1, LayoutOrder = 4})
+
+		local BarWrapper = Create("Frame", {
+			Parent = Card,
+			Size = UDim2.new(1, 4, 0, 2),
+			BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+			BorderSizePixel = 0,
+			LayoutOrder = 5
+		})
+		Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = BarWrapper})
+
+		local Bar = Create("Frame", {
+			Parent = BarWrapper,
+			Size = UDim2.new(0, 0, 1, 0),
+			BackgroundColor3 = Color3.fromRGB(0, 170, 255),
+			BorderSizePixel = 0
+		})
+		Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = Bar})
+
+		if NotificationConfig.SoundId then
+			local sId = tostring(NotificationConfig.SoundId):match("%d+")
+			if sId then
+				local s = Instance.new("Sound", workspace)
+				s.SoundId = "rbxassetid://" .. sId
+				s.Volume = tonumber(NotificationConfig.Volume)
+				s.PlayOnRemove = true
+				s:Destroy()
+			end
+		end
+
+		TweenService:Create(Card, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(1, -272, 0, 0)}):Play()
+		TweenService:Create(Bar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 1, 0)}):Play()
+		task.wait(NotificationConfig.Time)
+		local Out = TweenService:Create(Card, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Position = UDim2.new(1, 90, 0, 0)})
+		Out:Play()
+		Out.Completed:Wait()
+		NotificationParent:Destroy()
+	end)
+end
 
 function OrionLib:Init()
         if OrionLib.SaveCfg and (isfile and readfile) then        
@@ -494,6 +600,56 @@ function OrionLib:Init()
                 end)                
         end        
 end        
+
+function OrionLib:MakeWatermark(Watermark)
+	Watermark = Watermark or {}
+	Watermark.Text = Watermark.Text or "Nah"
+	Watermark.Visible = Watermark.Visible or false
+	Watermark.Flag = Watermark.Flag or nil
+	
+	local WatermarkHe = {}
+	local LabelFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+	        Size = UDim2.new(0, 24, 0, 40),
+			Position = UDim2.fromOffset(6, 6),
+	        BackgroundTransparency = 0,
+			Visible = Watermark.Visible,
+	        Parent = Orion
+	}), {
+	        AddThemeObject(SetProps(MakeElement("Label", Watermark.Text, 15), {
+	                Size = UDim2.new(1, -12, 1, 0),
+	                Position = UDim2.new(0, 8, 0, 0),
+	                Font = Enum.Font.GothamBold,
+	                Name = "Content"
+	        }), "Text"),
+	        AddThemeObject(MakeElement("Stroke"), "Stroke")
+	}), "Second")
+	
+	MakeDraggable(LabelFrame.Content, LabelFrame)
+	
+	function WatermarkHe:SetText(text: string)
+		if getgenv().Destroy then return end
+		if LabelFrame and LabelFrame:FindFirstChild("Content") then
+			LabelFrame.Content.Text = text
+		end
+	end
+	function WatermarkHe:SetVisible(visi: bool)
+		if getgenv().Destroy then return end
+		if LabelFrame then
+			LabelFrame.Visible = visi
+		end
+	end
+	if LabelFrame and LabelFrame:FindFirstChild("Content") then
+		AddConnection(LabelFrame.Content:GetPropertyChangedSignal("Text"), function()
+			local width = LabelFrame.Content.TextBounds.X + 20
+			TweenService:Create(LabelFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, width, 0, 35)}):Play()
+			TweenService:Create(LabelFrame.Content, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, width, 0, 35)}):Play()
+		end)
+	end	
+	if Watermark.Flag then
+		OrionLib.Flags[Watermark.Flag] = WatermarkHe
+	end
+	return WatermarkHe
+end
 
 function OrionLib:MakeWindow(WindowConfig)
         local FirstTab = true
@@ -743,10 +899,23 @@ function OrionLib:MakeWindow(WindowConfig)
 
         AddConnection(MobileReopenButton.MouseButton1Click, function()
                 MainWindow.Visible = true
+                TweenService:Create(MainWindow, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+					Size = UDim2.new(0, 615, 0, 344),
+				}):Play()
+				WindowStuff.Visible = true
+				WindowTopBarLine.Visible = true
+				MinimizeBtn.Ico.Image = "rbxassetid://7072719338"
                 MobileReopenButton.Visible = false
+                Minimized = false
         end)
 
         AddConnection(CloseBtn.MouseButton1Up, function()
+		        MainWindow.ClipsDescendants = true
+				local WindowLoading = TweenService:Create(MainWindow, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+					Size = UDim2.new(0, 0, 0, 0)
+				})
+				WindowLoading:Play()
+				WindowLoading.Completed:Wait()
                 MainWindow.Visible = false
                 UIHidden = true
 
@@ -763,7 +932,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
         AddConnection(UserInputService.InputBegan, function(Input)
                 if Input.KeyCode == _currentKey then
-                        MobileReopenButton.Visible = false
+                        MobileReopenButton.Visible = true
                         MainWindow.Visible = not MainWindow.Visible
                 end
         end)
@@ -789,46 +958,97 @@ function OrionLib:MakeWindow(WindowConfig)
         end)
 
         local function LoadSequence()
-                MainWindow.Visible = false
-                local LoadSequenceLogo = SetProps(MakeElement("Image", WindowConfig.IntroIcon), {
-                        Parent = Orion,
-                        AnchorPoint = Vector2.new(0.5, 0.5),
-                        Position = UDim2.new(0.5, 0, 0.4, 0),
-                        Size = UDim2.new(0, 28, 0, 28),
-                        ImageColor3 = Color3.fromRGB(255, 255, 255),
-                        ImageTransparency = 1
-                })
-
-                local LoadSequenceText = SetProps(MakeElement("Label", WindowConfig.IntroText, 14), {
-                        Parent = Orion,
-                        Size = UDim2.new(1, 0, 1, 0),
-                        AnchorPoint = Vector2.new(0.5, 0.5),
-                        Position = UDim2.new(0.5, 19, 0.5, 0),
-                        TextXAlignment = Enum.TextXAlignment.Center,
-                        Font = Enum.Font.GothamBold,
-                        TextTransparency = 1
-                })
-
-                TweenService:Create(LoadSequenceLogo, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageTransparency = 0, Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
-                wait(0.8)
-                TweenService:Create(LoadSequenceLogo, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -(LoadSequenceText.TextBounds.X/2), 0.5, 0)}):Play()
-                wait(0.3)
-                TweenService:Create(LoadSequenceText, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-                wait(2)
-                TweenService:Create(LoadSequenceText, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 1}):Play()
-                wait(0.3)
-                TweenService:Create(LoadSequenceLogo, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
-                wait(0.3)
-                TweenService:Create(LoadSequenceLogo, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageTransparency = 1}):Play()
-                wait(0.5)
-                MainWindow.Visible = true
-                LoadSequenceLogo:Destroy()
-                LoadSequenceText:Destroy()
-        end 
-
-        if WindowConfig.IntroEnabled then
-                LoadSequence()
-        end
+	        MainWindow.Size = UDim2.new(0, 0, 0, 0)
+			MainWindow.Visible = false
+			local Blur = Create("BlurEffect", {
+				Name = "IntroBlur",
+				Size = 0,
+				Parent = game:GetService("Lighting")
+			})
+		
+			local BaseFrame = SetProps(MakeElement("Frame"), {
+				Parent = Orion,
+				Size = UDim2.new(1, 0, 1, 0),
+				BackgroundTransparency = 1,
+				ZIndex = 999
+			})
+			
+			local LoadSequenceLogo = SetProps(MakeElement("Image", WindowConfig.IntroIcon), {
+				Parent = BaseFrame,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.new(0.5, 0, 0.4, 0),
+				Size = UDim2.new(0, 0, 0, 0),
+				ImageColor3 = Color3.fromRGB(255, 255, 255),
+				ImageTransparency = 1,
+				Rotation = -180,
+				ZIndex = 101
+			})
+			
+			local LoadSequenceGlow = SetProps(MakeElement("Image", "rbxassetid://7072706859"), {
+				Parent = BaseFrame,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.new(0.5, 0, 0.45, 0),
+				Size = UDim2.new(0, 0, 0, 0),
+				ImageColor3 = Color3.fromRGB(255, 255, 255),
+				ImageTransparency = 1,
+				ZIndex = 100
+			})
+		
+			local LoadSequenceText = SetProps(MakeElement("Label", WindowConfig.IntroText, 22), {
+				Parent = BaseFrame,
+				Size = UDim2.new(0, 400, 0, 40),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.new(0.5, 0, 0.55, 0),
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Font = Enum.Font.GothamBlack,
+				TextTransparency = 1,
+				ZIndex = 101
+			})
+			
+			TweenService:Create(Blur, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = 18}):Play()
+			task.wait(0.2)
+			TweenService:Create(LoadSequenceLogo, TweenInfo.new(1, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out, 0, false, 0.2), {
+				Size = UDim2.new(0, 56, 0, 56), 
+				ImageTransparency = 0,
+				Rotation = 0
+			}):Play()
+			TweenService:Create(LoadSequenceGlow, TweenInfo.new(1, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out, 0, false, 0.2), {
+				Size = UDim2.new(0, 140, 0, 140), 
+				ImageTransparency = 0.6
+			}):Play()
+			task.wait(0.3)
+			TweenService:Create(LoadSequenceText, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+				TextTransparency = 0,
+				Position = UDim2.new(0.5, 0, 0.52, 0)
+			}):Play()
+			task.wait(2)
+			TweenService:Create(LoadSequenceText, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+				TextTransparency = 1,
+				Position = UDim2.new(0.5, 0, 0.55, 0)
+			}):Play()
+			task.wait(0.1)
+			TweenService:Create(LoadSequenceLogo, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+				Size = UDim2.new(0, 0, 0, 0), 
+				Rotation = 56
+			}):Play()
+			TweenService:Create(LoadSequenceGlow, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+				Size = UDim2.new(0, 0, 0, 0)
+			}):Play()
+			local BlurTween = TweenService:Create(Blur, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 0})
+			BlurTween:Play()
+			BlurTween.Completed:Wait()
+			wait(0.15)
+			MainWindow.Visible = true
+			Blur:Destroy()
+			BaseFrame:Destroy()
+			TweenService:Create(MainWindow, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 615, 0, 344),
+			}):Play()
+		end 
+		
+		if WindowConfig.IntroEnabled then
+			LoadSequence()
+		end
 
         local Functions = {}
 		local TabName = {}
@@ -957,6 +1177,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
                                 local LabelFunction = {}
                                 function LabelFunction:Set(ToChange)
+	                                if getgenv().Destroy then return end
 	                                if LabelFrame and LabelFrame:FindFirstChild("Content") then
                                         LabelFrame.Content.Text = ToChange
                                     end
@@ -997,6 +1218,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
                                 local ParagraphFunction = {}
                                 function ParagraphFunction:Set(ToChange)
+	                                if getgenv().Destroy then return end
 	                                if ParagraphFrame and ParagraphFrame:FindFirstChild("Content") then
                                         ParagraphFrame.Content.Text = ToChange
                                     end
@@ -1052,6 +1274,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end)
 
                                 function Button:Set(ButtonText)
+	                                if getgenv().Destroy then return end
 	                                if ButtonFrame and ButtonFrame:FindFirstChild("Content") then
                                         ButtonFrame.Content.Text = ButtonText
                                     end
@@ -1067,6 +1290,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								end
                                 
                                 function Button:SetCallback(callback)
+	                                if getgenv().Destroy then return end
 								    ButtonConfig.Callback = callback
 								end
                                 return Button
@@ -1093,18 +1317,20 @@ function OrionLib:MakeWindow(WindowConfig)
 							local ToggleBox = SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
 								Size = UDim2.new(0, 24, 0, 24),
 								Position = UDim2.new(1, -24, 0.5, 0),
-								AnchorPoint = Vector2.new(0.5, 0.5)
+								AnchorPoint = Vector2.new(0.5, 0.5),
+								BackgroundColor3 = OrionLib.Themes.Default.Divider
 							}), {
 								SetProps(MakeElement("Stroke"), {
-									Color = ToggleConfig.Color,
+									Color = OrionLib.Themes.Default.Stroke,
 									Name = "Stroke",
 									Transparency = 0.5
 								}),
 								SetProps(MakeElement("Image", "rbxassetid://3944680095"), {
-									Size = UDim2.new(0, 20, 0, 20),
+									Size = UDim2.new(0, 8, 0, 8),
 									AnchorPoint = Vector2.new(0.5, 0.5),
 									Position = UDim2.new(0.5, 0, 0.5, 0),
 									ImageColor3 = Color3.fromRGB(255, 255, 255),
+									ImageTransparency = 1,
 									Name = "Ico"
 								}),
 							})
@@ -1126,6 +1352,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							}), "Second")
 						
 							function Toggle:Set(Value)
+								if getgenv().Destroy then return end
 								Toggle.Value = Value
 								TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
 									BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider
@@ -1146,16 +1373,18 @@ function OrionLib:MakeWindow(WindowConfig)
 							end
 						
 							function Toggle:SetText(txt)
+								if getgenv().Destroy then return end
 								if ToggleFrame and ToggleFrame:FindFirstChild("Content") then
 									ToggleFrame.Content.Text = txt
 								end
 							end
 						
 							function Toggle:SetCallback(cb)
+								if getgenv().Destroy then return end
 								ToggleConfig.Callback = cb
 							end
 						
-							if ToggleConfig.Default == true then
+							if ToggleConfig.Default then
 								Toggle:Set(true)
 							end
 						
@@ -1235,6 +1464,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								end)
 						
 								function Bind:Set(Key)
+									if getgenv().Destroy then return end
 									Bind.Value = Key.Name or Key
 									BindBox.Value.Text = Bind.Value
 								end
@@ -1333,6 +1563,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							end)  
 						  
 							local function Update()  
+								if getgenv().Destroy then return end
 								TweenService:Create(SliderDrag, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.fromScale((Slider.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}):Play()  
 								SliderBar.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
 								SliderDrag.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
@@ -1340,11 +1571,13 @@ function OrionLib:MakeWindow(WindowConfig)
 							end  
 						  
 							function Slider:Set(Value)  
+								if getgenv().Destroy then return end
 								Slider.Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)  
 								Update()  
 							end  
 							  
 							function Slider:SetMax(Value: number)  
+								if getgenv().Destroy then return end
 								local MaxToFix = tonumber(Value) or 5
 								SliderConfig.Max = (MaxToFix > 0 and MaxToFix or 5)  
 								Slider.Value = math.clamp(Round(Slider.Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)  
@@ -1352,29 +1585,36 @@ function OrionLib:MakeWindow(WindowConfig)
 							end  
 						  
 							function Slider:SetMin(Value: number)  
+								if getgenv().Destroy then return end
 								SliderConfig.Min = tonumber(Value) or 5
 								Slider.Value = math.clamp(Round(Slider.Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)  
 								Update()  
 							end  
 						  
 							function Slider:SetText(ToChange)  
+								if getgenv().Destroy then return end
 								if SliderFrame and SliderFrame:FindFirstChild("Content") then  
 									SliderFrame.Content.Text = ToChange  
 								end  
 							end  
 							  
 							function Slider:SetTextValue(ToChange)  
+								if getgenv().Destroy then return end
 								SliderConfig.ValueName = ToChange  
 								SliderBar.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
 								SliderDrag.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
 							end  
 						  
 							function Slider:SetCallback(ToChange)  
+								if getgenv().Destroy then return end
 								SliderConfig.Callback = ToChange  
 							end  
 						  
 							Slider.Value = math.clamp(Slider.Value, SliderConfig.Min, SliderConfig.Max)  
-							Update()  
+							TweenService:Create(SliderDrag, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.fromScale((Slider.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}):Play()  
+							SliderBar.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
+							SliderDrag.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
+							
 							if SliderConfig.Flag then  
 								OrionLib.Flags[SliderConfig.Flag] = Slider  
 							end  
@@ -1389,15 +1629,33 @@ function OrionLib:MakeWindow(WindowConfig)
 							DropdownConfig.Callback = DropdownConfig.Callback or function() end
 							DropdownConfig.Flag = DropdownConfig.Flag or nil
 							DropdownConfig.Save = DropdownConfig.Save or false
+						
 							local Dropdown = {
 								Value = DropdownConfig.Default,
-								Options = DropdownConfig.Options,
+								Options = {},
+								RawOptions = DropdownConfig.Options,
 								Buttons = {},
 								Toggled = false,
 								Type = "Dropdown",
 								Save = DropdownConfig.Save
 							}
-							local MaxElements = 5
+						
+							local MaxElementsHeight = 250
+						
+							local function GetKeyList(tbl)
+								local keys = {}
+								for k, v in pairs(tbl) do
+									if type(k) == "string" then
+										table.insert(keys, k)
+									else
+										table.insert(keys, v)
+									end
+								end
+								return keys
+							end
+						
+							Dropdown.Options = GetKeyList(DropdownConfig.Options)
+						
 							if DropdownConfig.Multi then
 								if type(Dropdown.Value) ~= "table" then
 									Dropdown.Value = {}
@@ -1478,38 +1736,105 @@ function OrionLib:MakeWindow(WindowConfig)
 							end)
 						
 							local function AddOptions(Options)
-								for _, Option in pairs(Options) do
+								for k, v in pairs(Options) do
+									local OptionVal = (type(k) == "string" and k) or v
+									local Data = (type(k) == "string" and v) or {}
+									local HasData = (type(v) == "table")
+									
+									local TitleStr = HasData and (Data.Title or Data.title or OptionVal) or OptionVal
+									local DescStr = HasData and (Data.Desc or Data.desc or nil) or nil
+									local IconStr = HasData and (Data.Icon or Data.icon or nil) or nil
+									local ThumbStr = HasData and (Data.Thumbnail or Data.thumbnail or nil) or nil
+									
+									local ButtonHeight = (ThumbStr and 65) or ((DescStr or IconStr) and 45) or 30
+						
+									local Elements = {
+										MakeElement("Corner", 0, 6)
+									}
+									
+									local TextLeftPadding = 8
+						
+									if ThumbStr then
+										local strokeProps = {
+											Color = Color3.fromRGB(60, 60, 60),
+											Thickness = 1,
+											Transparency = 0.5
+										}
+						
+										table.insert(Elements, SetProps(SetChildren(MakeElement("Image", ThumbStr), {
+											MakeElement("Corner", 0, 4),
+											SetProps(MakeElement("Stroke"), strokeProps)
+										}), {
+											Size = UDim2.new(0, 55, 0, 55),
+											AnchorPoint = Vector2.new(0, 0.5),
+											Position = UDim2.new(0, 6, 0.5, 0),
+											ImageTransparency = 0,
+											Name = "Thumbnail",
+											ScaleType = Enum.ScaleType.Crop,
+											BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+										}))
+										TextLeftPadding = 70
+									elseif IconStr then
+										table.insert(Elements, SetProps(MakeElement("Image", IconStr), {
+											Size = UDim2.new(0, 26, 0, 26),
+											Position = UDim2.new(0, 8, 0.5, -13),
+											ImageTransparency = 0.4,
+											Name = "Icon"
+										}))
+										TextLeftPadding = 42
+									end
+						
+									local TitleY = DescStr and 6 or 0
+									if ThumbStr and DescStr then TitleY = 12 end
+						
+									table.insert(Elements, AddThemeObject(SetProps(MakeElement("Label", TitleStr, 13, 0.4), {
+										Position = UDim2.new(0, TextLeftPadding, 0, TitleY),
+										Size = UDim2.new(1, -(TextLeftPadding + 10), (DescStr and 0 or 1), (DescStr and 16 or 0)),
+										TextXAlignment = Enum.TextXAlignment.Left,
+										Name = "Title",
+										Font = Enum.Font.GothamBold,
+										ClipsDescendants = true
+									}), "Text"))
+						
+									if DescStr then
+										local DescY = ThumbStr and 30 or 22
+										table.insert(Elements, AddThemeObject(SetProps(MakeElement("Label", DescStr, 11, 0.4), {
+											Position = UDim2.new(0, TextLeftPadding, 0, DescY),
+											Size = UDim2.new(1, -(TextLeftPadding + 10), 0, 14),
+											TextXAlignment = Enum.TextXAlignment.Left,
+											Name = "Desc",
+											Font = Enum.Font.Gotham,
+											TextColor3 = Color3.fromRGB(150, 150, 150),
+											ClipsDescendants = true
+										}), "Text"))
+									end
+						
 									local OptionBtn = AddThemeObject(SetProps(SetChildren(
 										MakeElement("Button", Color3.fromRGB(40, 40, 40)),
-										{
-											MakeElement("Corner", 0, 6),
-											AddThemeObject(SetProps(MakeElement("Label", Option, 13, 0.4), {
-												Position = UDim2.new(0, 8, 0, 0),
-												Size = UDim2.new(1, -8, 1, 0),
-												Name = "Title"
-											}), "Text")
-										}
+										Elements
 									), {
 										Parent = DropdownContainer,
-										Size = UDim2.new(1, 0, 0, 28),
+										Size = UDim2.new(1, 0, 0, ButtonHeight),
 										BackgroundTransparency = 1,
 										ClipsDescendants = true
 									}), "Divider")
 						
 									AddConnection(OptionBtn.MouseButton1Click, function()
-										Dropdown:Set(Option)
+										Dropdown:Set(OptionVal)
 										SaveCfg(game.GameId)
 									end)
 						
-									Dropdown.Buttons[Option] = OptionBtn
+									Dropdown.Buttons[OptionVal] = OptionBtn
 								end
 							end
-							
+						
 							function Dropdown:SetCallback(call)
+								if getgenv().Destroy then return end
 								DropdownConfig.Callback = call
 							end
 						
 							function Dropdown:Refresh(Options, Delete)
+								if getgenv().Destroy then return end
 								if Delete then
 									for _, v in pairs(Dropdown.Buttons) do
 										v:Destroy()
@@ -1517,47 +1842,67 @@ function OrionLib:MakeWindow(WindowConfig)
 									table.clear(Dropdown.Options)
 									table.clear(Dropdown.Buttons)
 								end
-								Dropdown.Options = Options
-								AddOptions(Dropdown.Options)
+								
+								Dropdown.RawOptions = Options
+								Dropdown.Options = GetKeyList(Options)
+								AddOptions(Options)
 							end
 						
 							function Dropdown:Set(Value)
+								if getgenv().Destroy then return end
 								if not table.find(Dropdown.Options, Value) then
 									Dropdown.Value = DropdownConfig.Multi and {} or nil
 									DropdownFrame.F.Selected.Text = "..."
 									for _, v in pairs(Dropdown.Buttons) do
-										TweenService:Create(v, TweenInfo.new(.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
-										TweenService:Create(v.Title, TweenInfo.new(.15, Enum.EasingStyle.Quad), {TextTransparency = 0.4}):Play()
+										TweenService:Create(v, TweenInfo.new(.15), {BackgroundTransparency = 1}):Play()
+										TweenService:Create(v.Title, TweenInfo.new(.15), {TextTransparency = 0.4}):Play()
+										if v:FindFirstChild("Desc") then TweenService:Create(v.Desc, TweenInfo.new(.15), {TextTransparency = 0.5}):Play() end
+										if v:FindFirstChild("Icon") then TweenService:Create(v.Icon, TweenInfo.new(.15), {ImageTransparency = 0.4}):Play() end
 									end
 									return
 								end
 						
 								if DropdownConfig.Multi then
 									local index = table.find(Dropdown.Value, Value)
+									local btn = Dropdown.Buttons[Value]
 									if index then
 										table.remove(Dropdown.Value, index)
-										TweenService:Create(Dropdown.Buttons[Value], TweenInfo.new(.15), {BackgroundTransparency = 1}):Play()
-										TweenService:Create(Dropdown.Buttons[Value].Title, TweenInfo.new(.15), {TextTransparency = 0.4}):Play()
+										TweenService:Create(btn, TweenInfo.new(.15), {BackgroundTransparency = 1}):Play()
+										TweenService:Create(btn.Title, TweenInfo.new(.15), {TextTransparency = 0.4}):Play()
+										if btn:FindFirstChild("Desc") then TweenService:Create(btn.Desc, TweenInfo.new(.15), {TextTransparency = 0.5}):Play() end
+										if btn:FindFirstChild("Icon") then TweenService:Create(btn.Icon, TweenInfo.new(.15), {ImageTransparency = 0.4}):Play() end
 									else
 										table.insert(Dropdown.Value, Value)
-										TweenService:Create(Dropdown.Buttons[Value], TweenInfo.new(.15), {BackgroundTransparency = 0}):Play()
-										TweenService:Create(Dropdown.Buttons[Value].Title, TweenInfo.new(.15), {TextTransparency = 0}):Play()
+										TweenService:Create(btn, TweenInfo.new(.15), {BackgroundTransparency = 0}):Play()
+										TweenService:Create(btn.Title, TweenInfo.new(.15), {TextTransparency = 0}):Play()
+										if btn:FindFirstChild("Desc") then TweenService:Create(btn.Desc, TweenInfo.new(.15), {TextTransparency = 0}):Play() end
+										if btn:FindFirstChild("Icon") then TweenService:Create(btn.Icon, TweenInfo.new(.15), {ImageTransparency = 0}):Play() end
 									end
-						
 									DropdownFrame.F.Selected.Text = (#Dropdown.Value == 0 and "...") or table.concat(Dropdown.Value, ", ")
 									return DropdownConfig.Callback(Dropdown.Value)
 								end
 						
 								Dropdown.Value = Value
-								DropdownFrame.F.Selected.Text = Value
+								
+								local dataInfo = Dropdown.RawOptions[Value]
+								local titleShow = Value
+								if type(dataInfo) == "table" and dataInfo.Title then titleShow = dataInfo.Title end
+								DropdownFrame.F.Selected.Text = titleShow
 						
 								for _, v in pairs(Dropdown.Buttons) do
 									TweenService:Create(v, TweenInfo.new(.15), {BackgroundTransparency = 1}):Play()
 									TweenService:Create(v.Title, TweenInfo.new(.15), {TextTransparency = 0.4}):Play()
+									if v:FindFirstChild("Desc") then TweenService:Create(v.Desc, TweenInfo.new(.15), {TextTransparency = 0.5}):Play() end
+									if v:FindFirstChild("Icon") then TweenService:Create(v.Icon, TweenInfo.new(.15), {ImageTransparency = 0.4}):Play() end
 								end
 						
-								TweenService:Create(Dropdown.Buttons[Value], TweenInfo.new(.15), {BackgroundTransparency = 0}):Play()
-								TweenService:Create(Dropdown.Buttons[Value].Title, TweenInfo.new(.15), {TextTransparency = 0}):Play()
+								local selBtn = Dropdown.Buttons[Value]
+								if selBtn then
+									TweenService:Create(selBtn, TweenInfo.new(.15), {BackgroundTransparency = 0}):Play()
+									TweenService:Create(selBtn.Title, TweenInfo.new(.15), {TextTransparency = 0}):Play()
+									if selBtn:FindFirstChild("Desc") then TweenService:Create(selBtn.Desc, TweenInfo.new(.15), {TextTransparency = 0.2}):Play() end
+									if selBtn:FindFirstChild("Icon") then TweenService:Create(selBtn.Icon, TweenInfo.new(.15), {ImageTransparency = 0}):Play() end
+								end
 						
 								return DropdownConfig.Callback(Dropdown.Value)
 							end
@@ -1567,16 +1912,18 @@ function OrionLib:MakeWindow(WindowConfig)
 								DropdownFrame.F.Line.Visible = Dropdown.Toggled
 								TweenService:Create(DropdownFrame.F.Ico, TweenInfo.new(.15), {Rotation = Dropdown.Toggled and 180 or 0}):Play()
 						
-								local sizeY = (#Dropdown.Options > MaxElements)
-									and (38 + (MaxElements * 28))
-									or (DropdownList.AbsoluteContentSize.Y + 38)
+								local currentContentSize = DropdownList.AbsoluteContentSize.Y
+								local expandSize = math.min(currentContentSize, MaxElementsHeight)
+								local sizeY = (currentContentSize > 0)
+									and (38 + expandSize)
+									or 38
 						
 								TweenService:Create(DropdownFrame, TweenInfo.new(.15), {
 									Size = Dropdown.Toggled and UDim2.new(1, 0, 0, sizeY) or UDim2.new(1, 0, 0, 38)
 								}):Play()
 							end)
 						
-							Dropdown:Refresh(Dropdown.Options, false)
+							Dropdown:Refresh(DropdownConfig.Options, false)
 						
 							if DropdownConfig.Multi then
 								for _, v in ipairs(Dropdown.Value) do
@@ -1703,6 +2050,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end)
 
                                 function Bind:Set(Key)
+		                                if getgenv().Destroy then return end
                                         Bind.Binding = false
                                         Bind.Value = Key or Bind.Value
                                         Bind.Value = Bind.Value.Name or Bind.Value
@@ -1710,12 +2058,14 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end
                                 
                                 function Bind:SetText(ToChange)
+	                                if getgenv().Destroy then return end
 	                                if BindFrame and BindFrame:FindFirstChild("Content") then
 										BindFrame.Content.Text = ToChange
 									end
                                 end
                                 
                                 function Bind:SetCallback(ToChange)
+	                                if getgenv().Destroy then return end
 	                                BindConfig.Callback = ToChange
                                 end
 
@@ -1748,6 +2098,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                         TextColor3 = Color3.fromRGB(255, 255, 255),
                                         PlaceholderColor3 = Color3.fromRGB(210,210,210),
                                         PlaceholderText = "Input",
+                                        Text = Textbox.Value or "",
                                         ClearTextOnFocus = TextboxConfig.TextDisappear,
                                         Font = Enum.Font.GothamSemibold,
                                         ClipsDescendants = true,
@@ -1801,6 +2152,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end
                                 
                                 function Textbox:SetText(ToChange)
+	                                if getgenv().Destroy then return end
 	                                if TextboxActual then
 										TextboxActual.Text = ToChange
 										if TextboxConfig.Finished == false then
@@ -1810,16 +2162,16 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end
                                 
                                 function Textbox:SetLabel(ToChange)
+	                                if getgenv().Destroy then return end
 	                                if TextboxFrame and TextboxFrame:FindFirstChild("Content") then
 										TextboxFrame.Content.Text = ToChange
 									end
                                 end
                                 
                                 function Textbox:SetCallback(ToChange)
+	                                if getgenv().Destroy then return end
 	                                TextboxConfig.Callback = ToChange
                                 end
-
-                                TextboxActual.Text = Textbox.Value
 
                                 AddConnection(Click.MouseEnter, function()
                                         TweenService:Create(TextboxFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
@@ -1844,200 +2196,439 @@ function OrionLib:MakeWindow(WindowConfig)
 							return Textbox
 						end
                         function ElementFunction:AddColorpicker(ColorpickerConfig)
-                                ColorpickerConfig = ColorpickerConfig or {}
-                                ColorpickerConfig.Name = ColorpickerConfig.Name or "Colorpicker"
-                                ColorpickerConfig.Default = ColorpickerConfig.Default or Color3.fromRGB(255,255,255)
-                                ColorpickerConfig.Callback = ColorpickerConfig.Callback or function() end
-                                ColorpickerConfig.Flag = ColorpickerConfig.Flag or nil
-                                ColorpickerConfig.Save = ColorpickerConfig.Save or false
-
-                                local ColorH, ColorS, ColorV = 1, 1, 1
-                                local Colorpicker = {Value = ColorpickerConfig.Default, Toggled = false, Type = "Colorpicker", Save = ColorpickerConfig.Save}
-
-                                local ColorSelection = Create("ImageLabel", {
-                                        Size = UDim2.new(0, 18, 0, 18),
-                                        Position = UDim2.new(select(3, Color3.toHSV(Colorpicker.Value))),
-                                        ScaleType = Enum.ScaleType.Fit,
-                                        AnchorPoint = Vector2.new(0.5, 0.5),
-                                        BackgroundTransparency = 1,
-                                        Image = "http://www.roblox.com/asset/?id=4805639000"
-                                })
-
-                                local HueSelection = Create("ImageLabel", {
-                                        Size = UDim2.new(0, 18, 0, 18),
-                                        Position = UDim2.new(0.5, 0, 1 - select(1, Color3.toHSV(Colorpicker.Value))),
-                                        ScaleType = Enum.ScaleType.Fit,
-                                        AnchorPoint = Vector2.new(0.5, 0.5),
-                                        BackgroundTransparency = 1,
-                                        Image = "http://www.roblox.com/asset/?id=4805639000"
-                                })
-
-                                local Color = Create("ImageLabel", {
-                                        Size = UDim2.new(1, -25, 1, 0),
-                                        Visible = false,
-                                        Image = "rbxassetid://4155801252"
-                                }, {
-                                        Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
-                                        ColorSelection
-                                })
-
-                                local Hue = Create("Frame", {
-                                        Size = UDim2.new(0, 20, 1, 0),
-                                        Position = UDim2.new(1, -20, 0, 0),
-                                        Visible = false
-                                }, {
-                                        Create("UIGradient", {Rotation = 270, Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 4)), ColorSequenceKeypoint.new(0.20, Color3.fromRGB(234, 255, 0)), ColorSequenceKeypoint.new(0.40, Color3.fromRGB(21, 255, 0)), ColorSequenceKeypoint.new(0.60, Color3.fromRGB(0, 255, 255)), ColorSequenceKeypoint.new(0.80, Color3.fromRGB(0, 17, 255)), ColorSequenceKeypoint.new(0.90, Color3.fromRGB(255, 0, 251)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 4))},}),
-                                        Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
-                                        HueSelection
-                                })
-
-                                local ColorpickerContainer = Create("Frame", {
-                                        Position = UDim2.new(0, 0, 0, 32),
-                                        Size = UDim2.new(1, 0, 1, -32),
-                                        BackgroundTransparency = 1,
-                                        ClipsDescendants = true
-                                }, {
-                                        Hue,
-                                        Color,
-                                        Create("UIPadding", {
-                                                PaddingLeft = UDim.new(0, 35),
-                                                PaddingRight = UDim.new(0, 35),
-                                                PaddingBottom = UDim.new(0, 10),
-                                                PaddingTop = UDim.new(0, 17)
-                                        })
-                                })
-
-                                local Click = SetProps(MakeElement("Button"), {
-                                        Size = UDim2.new(1, 0, 1, 0)
-                                })
-
-                                local ColorpickerBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
-                                        Size = UDim2.new(0, 24, 0, 24),
-                                        Position = UDim2.new(1, -12, 0.5, 0),
-                                        AnchorPoint = Vector2.new(1, 0.5)
-                                }), {
-                                        AddThemeObject(MakeElement("Stroke"), "Stroke")
-                                }), "Main")
-
-                                local ColorpickerFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-                                        Size = UDim2.new(1, 0, 0, 38),
-                                        Parent = ItemParent
-                                }), {
-                                        SetProps(SetChildren(MakeElement("TFrame"), {
-                                                AddThemeObject(SetProps(MakeElement("Label", ColorpickerConfig.Name, 15), {
-                                                        Size = UDim2.new(1, -12, 1, 0),
-                                                        Position = UDim2.new(0, 12, 0, 0),
-                                                        Font = Enum.Font.GothamBold,
-                                                        Name = "Content"
-                                                }), "Text"),
-                                                ColorpickerBox,
-                                                Click,
-                                                AddThemeObject(SetProps(MakeElement("Frame"), {
-                                                        Size = UDim2.new(1, 0, 0, 1),
-                                                        Position = UDim2.new(0, 0, 1, -1),
-                                                        Name = "Line",
-                                                        Visible = false
-                                                }), "Stroke"), 
-                                        }), {
-                                                Size = UDim2.new(1, 0, 0, 38),
-                                                ClipsDescendants = true,
-                                                Name = "F"
-                                        }),
-                                        ColorpickerContainer,
-                                        AddThemeObject(MakeElement("Stroke"), "Stroke"),
-                                }), "Second")
-
-                                AddConnection(Click.MouseButton1Click, function()
-                                        Colorpicker.Toggled = not Colorpicker.Toggled
-                                        TweenService:Create(ColorpickerFrame,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = Colorpicker.Toggled and UDim2.new(1, 0, 0, 148) or UDim2.new(1, 0, 0, 38)}):Play()
-                                        Color.Visible = Colorpicker.Toggled
-                                        Hue.Visible = Colorpicker.Toggled
-                                        ColorpickerFrame.F.Line.Visible = Colorpicker.Toggled
-                                end)
-
-                                local function UpdateColorPicker()
-                                        ColorpickerBox.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
-                                        Color.BackgroundColor3 = Color3.fromHSV(ColorH, 1, 1)
-                                        Colorpicker:Set(ColorpickerBox.BackgroundColor3)
-                                        ColorpickerConfig.Callback(ColorpickerBox.BackgroundColor3)
-                                        SaveCfg(game.GameId)
-                                end
-
-                                ColorH = 1 - (math.clamp(HueSelection.AbsolutePosition.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
-                                ColorS = (math.clamp(ColorSelection.AbsolutePosition.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
-                                ColorV = 1 - (math.clamp(ColorSelection.AbsolutePosition.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
-
-                                AddConnection(Color.InputBegan, function(input)
-                                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                                if ColorInput then
-                                                        ColorInput:Disconnect()
-                                                end
-                                                ColorInput = AddConnection(RunService.RenderStepped, function()
-                                                        local ColorX = (math.clamp(Mouse.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
-                                                        local ColorY = (math.clamp(Mouse.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
-                                                        ColorSelection.Position = UDim2.new(ColorX, 0, ColorY, 0)
-                                                        ColorS = ColorX
-                                                        ColorV = 1 - ColorY
-                                                        UpdateColorPicker()
-                                                end)
-                                        end
-                                end)
-
-                                AddConnection(Color.InputEnded, function(input)
-                                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                                if ColorInput then
-                                                        ColorInput:Disconnect()
-                                                end
-                                        end
-                                end)
-
-                                AddConnection(Hue.InputBegan, function(input)
-                                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                                if HueInput then
-                                                        HueInput:Disconnect()
-                                                end;
-
-                                                HueInput = AddConnection(RunService.RenderStepped, function()
-                                                        local HueY = (math.clamp(Mouse.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
-
-                                                        HueSelection.Position = UDim2.new(0.5, 0, HueY, 0)
-                                                        ColorH = 1 - HueY
-
-                                                        UpdateColorPicker()
-                                                end)
-                                        end
-                                end)
-
-                                AddConnection(Hue.InputEnded, function(input)
-                                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                                if HueInput then
-                                                        HueInput:Disconnect()
-                                                end
-                                        end
-                                end)
-
-                                function Colorpicker:Set(Value)
-                                        Colorpicker.Value = Value
-                                        ColorpickerBox.BackgroundColor3 = Colorpicker.Value
-                                        ColorpickerConfig.Callback(Colorpicker.Value)
-                                end
-                                
-                                function Colorpicker:SetCallback(ToChange)
-                                        ColorpickerConfig.Callback = ToChange
-                                end
-                                
-                                function Colorpicker:SetText(ToChange)
-	                                if ColorpickerFrame and ColorpickerFrame:FindFirstChild("Content") then
-		                                ColorpickerFrame.Content.Text = ToChange
+							ColorpickerConfig = ColorpickerConfig or {}
+							ColorpickerConfig.Name = ColorpickerConfig.Name or "Colorpicker"
+							ColorpickerConfig.Default = ColorpickerConfig.Default or Color3.fromRGB(255, 255, 255)
+							ColorpickerConfig.DefaultAlpha = ColorpickerConfig.DefaultAlpha or 0
+							ColorpickerConfig.Callback = ColorpickerConfig.Callback or function() end
+							ColorpickerConfig.Flag = ColorpickerConfig.Flag or nil
+							ColorpickerConfig.Save = ColorpickerConfig.Save or false
+							ColorpickerConfig.Alpha = ColorpickerConfig.Alpha or false
+						
+							local ColorH, ColorS, ColorV = 1, 1, 1
+							local AlphaValue = ColorpickerConfig.DefaultAlpha
+							local Colorpicker = {
+								Value = ColorpickerConfig.Default,
+								Alpha = AlphaValue,
+								Toggled = false,
+								Type = "Colorpicker",
+								Save = ColorpickerConfig.Save,
+								RecentColors = {}
+							}
+						
+							local function RGBToHex(c)
+								return string.format("#%02X%02X%02X", c.R * 255, c.G * 255, c.B * 255)
+							end
+						
+							local function HexToRGB(hex)
+								hex = hex:gsub("#", "")
+								return Color3.fromRGB(tonumber("0x" .. hex:sub(1, 2)), tonumber("0x" .. hex:sub(3, 4)), tonumber("0x" .. hex:sub(5, 6)))
+							end
+						
+							local ColorSelection = Create("ImageLabel", {
+								Size = UDim2.new(0, 18, 0, 18),
+								Position = UDim2.new(select(3, Color3.toHSV(Colorpicker.Value))),
+								ScaleType = Enum.ScaleType.Fit,
+								AnchorPoint = Vector2.new(0.5, 0.5),
+								BackgroundTransparency = 1,
+								Image = "http://www.roblox.com/asset/?id=4805639000"
+							})
+						
+							local HueSelection = Create("ImageLabel", {
+								Size = UDim2.new(0, 18, 0, 18),
+								Position = UDim2.new(0.5, 0, 1 - select(1, Color3.toHSV(Colorpicker.Value))),
+								ScaleType = Enum.ScaleType.Fit,
+								AnchorPoint = Vector2.new(0.5, 0.5),
+								BackgroundTransparency = 1,
+								Image = "http://www.roblox.com/asset/?id=4805639000"
+							})
+							
+							local AlphaSelection = Create("ImageLabel", {
+								Size = UDim2.new(0, 18, 0, 18),
+								Position = UDim2.new(0.5, 0, 1 - AlphaValue, 0),
+								ScaleType = Enum.ScaleType.Fit,
+								AnchorPoint = Vector2.new(0.5, 0.5),
+								BackgroundTransparency = 1,
+								Image = "http://www.roblox.com/asset/?id=4805639000"
+							})
+						
+							local ColorP = Create("ImageLabel", {
+								Size = UDim2.new(1, -50, 0, 150),
+								Visible = false,
+								Image = "rbxassetid://4155801252"
+							}, {
+								Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
+								ColorSelection
+							})
+						
+							local Hue = Create("Frame", {
+								Size = UDim2.new(0, 20, 0, 150),
+								Position = UDim2.new(1, -45, 0, 0),
+								Visible = false
+							}, {
+								Create("UIGradient", {
+									Rotation = 90,
+									Color = ColorSequence.new{
+										ColorSequenceKeypoint.new(0.00, Color3.fromHSV(1, 1, 1)),
+										ColorSequenceKeypoint.new(0.17, Color3.fromHSV(0.83, 1, 1)),
+										ColorSequenceKeypoint.new(0.33, Color3.fromHSV(0.67, 1, 1)),
+										ColorSequenceKeypoint.new(0.50, Color3.fromHSV(0.5, 1, 1)),
+										ColorSequenceKeypoint.new(0.67, Color3.fromHSV(0.33, 1, 1)),
+										ColorSequenceKeypoint.new(0.83, Color3.fromHSV(0.17, 1, 1)),
+										ColorSequenceKeypoint.new(1.00, Color3.fromHSV(0, 1, 1))
+									}
+								}),
+								Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
+								HueSelection
+							})
+							
+							local AlphaFrame = Create("Frame", {
+								Size = UDim2.new(0, 20, 0, 150),
+								Position = UDim2.new(1, -20, 0, 0),
+								Visible = false
+							}, {
+								Create("ImageLabel", {
+									Size = UDim2.new(1,0,1,0),
+									Image = "rbxassetid://3885141947",
+									ScaleType = Enum.ScaleType.Tile,
+									TileSize = UDim2.new(0, 10, 0, 10),
+									BackgroundTransparency = 0.5
+								}, {
+									Create("UICorner", {CornerRadius = UDim.new(0, 5)})
+								}),
+								Create("Frame", {
+									Size = UDim2.new(1, 0, 1, 0),
+									BackgroundColor3 = Color3.new(1,1,1),
+									Name = "GradientHolder"
+								}, {
+									Create("UIGradient", {
+										Rotation = 90,
+										Transparency = NumberSequence.new({
+											NumberSequenceKeypoint.new(0, 0),
+											NumberSequenceKeypoint.new(1, 1)
+										})
+									}),
+									Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
+								}),
+								Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
+								AlphaSelection
+							})
+						
+							if not ColorpickerConfig.Alpha then
+								ColorP.Size = UDim2.new(1, -25, 0, 150)
+								Hue.Position = UDim2.new(1, -20, 0, 0)
+								AlphaFrame.Visible = false
+							end
+						
+							local Inputs = Create("Frame", {
+								Size = UDim2.new(1, 0, 0, 30),
+								Position = UDim2.new(0, 0, 0, 160),
+								BackgroundTransparency = 1,
+								Visible = false
+							}, {
+								Create("UIListLayout", {
+									FillDirection = Enum.FillDirection.Horizontal,
+									SortOrder = Enum.SortOrder.LayoutOrder,
+									Padding = UDim.new(0, 5)
+								})
+							})
+							
+							local HexBox = Create("TextBox", {
+								Size = UDim2.new(0, 70, 1, 0),
+								BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+								TextColor3 = Color3.fromRGB(255, 255, 255),
+								Text = RGBToHex(Colorpicker.Value),
+								Font = Enum.Font.GothamBold,
+								TextSize = 12,
+								PlaceholderText = "HEX"
+							}, {Create("UICorner", {CornerRadius = UDim.new(0, 4)})})
+							
+							local RBox = Create("TextBox", {Size = UDim2.new(0, 40, 1, 0), BackgroundColor3 = Color3.fromRGB(30,30,30), TextColor3 = Color3.new(1,0,0), Text = math.floor(Colorpicker.Value.R*255), Font=Enum.Font.GothamBold, TextSize=12}, {Create("UICorner", {CornerRadius=UDim.new(0,4)})})
+							local GBox = Create("TextBox", {Size = UDim2.new(0, 40, 1, 0), BackgroundColor3 = Color3.fromRGB(30,30,30), TextColor3 = Color3.new(0,1,0), Text = math.floor(Colorpicker.Value.G*255), Font=Enum.Font.GothamBold, TextSize=12}, {Create("UICorner", {CornerRadius=UDim.new(0,4)})})
+							local BBox = Create("TextBox", {Size = UDim2.new(0, 40, 1, 0), BackgroundColor3 = Color3.fromRGB(30,30,30), TextColor3 = Color3.new(0.3,0.3,1), Text = math.floor(Colorpicker.Value.B*255), Font=Enum.Font.GothamBold, TextSize=12}, {Create("UICorner", {CornerRadius=UDim.new(0,4)})})
+							
+							local EyedropperBtn = Create("TextButton", {
+								Size = UDim2.new(0, 30, 1, 0),
+								BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+								Text = "",
+							}, {
+								Create("UICorner", {CornerRadius = UDim.new(0, 4)}),
+								Create("ImageLabel", {
+									Size = UDim2.new(0, 16, 0, 16),
+									AnchorPoint = Vector2.new(0.5, 0.5),
+									Position = UDim2.new(0.5, 0, 0.5, 0),
+									Image = "rbxassetid://6031256372",
+									BackgroundTransparency = 1
+								})
+							})
+							
+							HexBox.Parent = Inputs
+							RBox.Parent = Inputs
+							GBox.Parent = Inputs
+							BBox.Parent = Inputs
+							EyedropperBtn.Parent = Inputs
+							
+							local RecentFrame = Create("Frame", {
+								Size = UDim2.new(1, 0, 0, 20),
+								Position = UDim2.new(0, 0, 0, 195),
+								BackgroundTransparency = 1,
+								Visible = false
+							}, {
+								Create("UIListLayout", {
+									FillDirection = Enum.FillDirection.Horizontal,
+									SortOrder = Enum.SortOrder.LayoutOrder,
+									Padding = UDim.new(0, 6)
+								})
+							})
+						
+							local ColorpickerContainer = Create("Frame", {
+								Position = UDim2.new(0, 0, 0, 38),
+								Size = UDim2.new(1, 0, 1, -38),
+								BackgroundTransparency = 1,
+								ClipsDescendants = true
+							}, {
+								Hue,
+								ColorP,
+								AlphaFrame,
+								Inputs,
+								RecentFrame,
+								Create("UIPadding", {
+									PaddingLeft = UDim.new(0, 10),
+									PaddingRight = UDim.new(0, 10),
+									PaddingBottom = UDim.new(0, 10),
+									PaddingTop = UDim.new(0, 10)
+								})
+							})
+						
+							local Click = SetProps(MakeElement("Button"), {
+								Size = UDim2.new(1, 0, 1, 0)
+							})
+						
+							local ColorpickerBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
+								Size = UDim2.new(0, 24, 0, 24),
+								Position = UDim2.new(1, -12, 0.5, 0),
+								AnchorPoint = Vector2.new(1, 0.5)
+							}), {
+								AddThemeObject(MakeElement("Stroke"), "Stroke")
+							}), "Main")
+						
+							local ColorpickerFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+								Size = UDim2.new(1, 0, 0, 38),
+								Parent = ItemParent
+							}), {
+								SetProps(SetChildren(MakeElement("TFrame"), {
+									AddThemeObject(SetProps(MakeElement("Label", ColorpickerConfig.Name, 15), {
+										Size = UDim2.new(1, -12, 1, 0),
+										Position = UDim2.new(0, 12, 0, 0),
+										Font = Enum.Font.GothamBold,
+										Name = "Content"
+									}), "Text"),
+									ColorpickerBox,
+									Click,
+									AddThemeObject(SetProps(MakeElement("Frame"), {
+										Size = UDim2.new(1, 0, 0, 1),
+										Position = UDim2.new(0, 0, 1, -1),
+										Name = "Line",
+										Visible = false
+									}), "Stroke"), 
+								}), {
+									Size = UDim2.new(1, 0, 0, 38),
+									ClipsDescendants = true,
+									Name = "F"
+								}),
+								ColorpickerContainer,
+								AddThemeObject(MakeElement("Stroke"), "Stroke"),
+							}), "Second")
+							
+							local function AddRecentColor(Col)
+								local found = false
+								for _, v in ipairs(Colorpicker.RecentColors) do
+									if v == Col then found = true end
+								end
+								if not found then
+									table.insert(Colorpicker.RecentColors, 1, Col)
+									if #Colorpicker.RecentColors > 5 then
+										table.remove(Colorpicker.RecentColors, 6)
 									end
 								end
 								
-                                Colorpicker:Set(Colorpicker.Value)
-                                if ColorpickerConfig.Flag then                                
-                                        OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker
-                                end
-								return Colorpicker
-							end  
+								for _, child in pairs(RecentFrame:GetChildren()) do
+									if child:IsA("ImageButton") then child:Destroy() end
+								end
+								
+								for _, rc in ipairs(Colorpicker.RecentColors) do
+									local cBtn = Create("ImageButton", {
+										Size = UDim2.new(0, 20, 0, 20),
+										BackgroundColor3 = rc,
+										AutoButtonColor = false
+									}, {Create("UICorner", {CornerRadius = UDim.new(0, 4)})})
+									cBtn.Parent = RecentFrame
+									AddConnection(cBtn.MouseButton1Click, function()
+										Colorpicker:Set(rc)
+									end)
+								end
+							end
+						
+							local function UpdateInputDisplays()
+								local col = Colorpicker.Value
+								HexBox.Text = RGBToHex(col)
+								RBox.Text = tostring(math.floor(col.R * 255))
+								GBox.Text = tostring(math.floor(col.G * 255))
+								BBox.Text = tostring(math.floor(col.B * 255))
+								AlphaFrame.GradientHolder.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
+							end
+						
+							local function UpdateColorPicker(BlockCallback)
+								ColorpickerBox.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
+								ColorP.BackgroundColor3 = Color3.fromHSV(ColorH, 1, 1)
+								
+								Colorpicker.Value = ColorpickerBox.BackgroundColor3
+								
+								if not BlockCallback then
+									ColorpickerConfig.Callback(Colorpicker.Value, AlphaValue)
+								end
+								
+								UpdateInputDisplays()
+								SaveCfg(game.GameId)
+							end
+							
+							ColorH, ColorS, ColorV = Color3.toHSV(Colorpicker.Value)
+						
+							AddConnection(Click.MouseButton1Click, function()
+								Colorpicker.Toggled = not Colorpicker.Toggled
+								local sizeH = ColorpickerConfig.Alpha and 270 or 270
+								TweenService:Create(ColorpickerFrame, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = Colorpicker.Toggled and UDim2.new(1, 0, 0, sizeH) or UDim2.new(1, 0, 0, 38)}):Play()
+								ColorP.Visible = Colorpicker.Toggled
+								Hue.Visible = Colorpicker.Toggled
+								AlphaFrame.Visible = Colorpicker.Toggled and ColorpickerConfig.Alpha
+								Inputs.Visible = Colorpicker.Toggled
+								RecentFrame.Visible = Colorpicker.Toggled
+								ColorpickerFrame.F.Line.Visible = Colorpicker.Toggled
+								if not Colorpicker.Toggled then
+									AddRecentColor(Colorpicker.Value)
+								end
+							end)
+						
+							AddConnection(EyedropperBtn.MouseButton1Click, function()
+								local mouse = game.Players.LocalPlayer:GetMouse()
+								local pickerConnect
+								pickerConnect = AddConnection(game:GetService("RunService").RenderStepped, function()
+									local target = mouse.Target
+									if target and target:IsA("BasePart") then
+										EyedropperBtn.BackgroundColor3 = target.Color
+										EyedropperBtn.Text = ""
+									else
+										EyedropperBtn.BackgroundColor3 = Color3.new(0,0,0)
+										EyedropperBtn.Text = "?"
+									end
+								end)
+								
+								local clickConnect
+								clickConnect = AddConnection(game:GetService("UserInputService").InputBegan, function(input)
+									if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+										local target = mouse.Target
+										if target and target:IsA("BasePart") then
+											Colorpicker:Set(target.Color)
+										end
+										pickerConnect:Disconnect()
+										clickConnect:Disconnect()
+										EyedropperBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+									end
+								end)
+							end)
+							
+							AddConnection(HexBox.FocusLost, function()
+								pcall(function()
+									local nC = HexToRGB(HexBox.Text)
+									Colorpicker:Set(nC)
+								end)
+							end)
+							
+							local function UpdateRGB()
+								local r, g, b = tonumber(RBox.Text) or 0, tonumber(GBox.Text) or 0, tonumber(BBox.Text) or 0
+								Colorpicker:Set(Color3.fromRGB(r, g, b))
+							end
+							AddConnection(RBox.FocusLost, UpdateRGB)
+							AddConnection(GBox.FocusLost, UpdateRGB)
+							AddConnection(BBox.FocusLost, UpdateRGB)
+						
+							AddConnection(ColorP.InputBegan, function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									if ColorInput then ColorInput:Disconnect() end
+									ColorInput = AddConnection(RunService.RenderStepped, function()
+										local ColorX = (math.clamp(Mouse.X - ColorP.AbsolutePosition.X, 0, ColorP.AbsoluteSize.X) / ColorP.AbsoluteSize.X)
+										local ColorY = (math.clamp(Mouse.Y - ColorP.AbsolutePosition.Y, 0, ColorP.AbsoluteSize.Y) / ColorP.AbsoluteSize.Y)
+										ColorSelection.Position = UDim2.new(ColorX, 0, ColorY, 0)
+										ColorS = ColorX
+										ColorV = 1 - ColorY
+										UpdateColorPicker()
+									end)
+								end
+							end)
+						
+							AddConnection(ColorP.InputEnded, function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									if ColorInput then ColorInput:Disconnect() end
+								end
+							end)
+						
+							AddConnection(Hue.InputBegan, function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									if HueInput then HueInput:Disconnect() end
+									HueInput = AddConnection(RunService.RenderStepped, function()
+										local HueY = (math.clamp(Mouse.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
+										HueSelection.Position = UDim2.new(0.5, 0, HueY, 0)
+										ColorH = 1 - HueY
+										UpdateColorPicker()
+									end)
+								end
+							end)
+						
+							AddConnection(Hue.InputEnded, function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									if HueInput then HueInput:Disconnect() end
+								end
+							end)
+							
+							AddConnection(AlphaFrame.InputBegan, function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									if AlphaInput then AlphaInput:Disconnect() end
+									AlphaInput = AddConnection(RunService.RenderStepped, function()
+										local AY = (math.clamp(Mouse.Y - AlphaFrame.AbsolutePosition.Y, 0, AlphaFrame.AbsoluteSize.Y) / AlphaFrame.AbsoluteSize.Y)
+										AlphaSelection.Position = UDim2.new(0.5, 0, AY, 0)
+										AlphaValue = 1 - AY
+										ColorpickerConfig.Callback(Colorpicker.Value, AlphaValue)
+									end)
+								end
+							end)
+							
+							AddConnection(AlphaFrame.InputEnded, function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									if AlphaInput then AlphaInput:Disconnect() end
+								end
+							end)
+						
+							function Colorpicker:Set(Value, Alpha)
+								if getgenv().Destroy then return end
+								if typeof(Value) == "Color3" then
+									Colorpicker.Value = Value
+									local h, s, v = Color3.toHSV(Value)
+									ColorH, ColorS, ColorV = h, s, v
+									ColorSelection.Position = UDim2.new(ColorS, 0, 1 - ColorV, 0)
+									HueSelection.Position = UDim2.new(0.5, 0, 1 - ColorH, 0)
+									UpdateColorPicker(true)
+								end
+								if Alpha then
+									AlphaValue = Alpha
+									AlphaSelection.Position = UDim2.new(0.5, 0, 1 - AlphaValue, 0)
+									ColorpickerConfig.Callback(Colorpicker.Value, AlphaValue)
+								end
+							end
+						
+							Colorpicker:Set(Colorpicker.Value, AlphaValue)
+							if ColorpickerConfig.Flag then OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker end
+							return Colorpicker
+						end
 							return ElementFunction   
 						end	
 						
@@ -2067,12 +2658,14 @@ function OrionLib:MakeWindow(WindowConfig)
 							})
 							
 							function Section:Set(ToChange)
+								if getgenv().Destroy then return end
 								if SectionFrame and SectionFrame:FindFirstChildOfClass("TextLabel") then
 									SectionFrame:FindFirstChildOfClass("TextLabel").Text = ToChange
 								end
 							end
 							
 							function Section:SetTextSize(ToChange: number)
+								if getgenv().Destroy then return end
 								if SectionFrame and SectionFrame:FindFirstChildOfClass("TextLabel") then
 									SectionFrame:FindFirstChildOfClass("TextLabel").TextSize = ToChange
 								end
@@ -2149,20 +2742,24 @@ function OrionLib:MakeWindow(WindowConfig)
 end   
 
 function OrionLib:Destroy()
-	Orion:Destroy()
-	if OrionLib then
-		for i, v in next, OrionLib.OnDestroy do
-			local success, err = pcall(v)
-		end
-		for _, Connection in next, OrionLib.Connections do
-	        Connection:Disconnect()
-        end
-		OrionLib = nil
+	for _, fn in next, OrionLib.OnDestroyTo do
+		pcall(fn)
 	end
+	for _, conn in next, OrionLib.Connections do
+		if typeof(conn) == "RBXScriptConnection" then
+			conn:Disconnect()
+		end
+	end
+	if Orion then
+		Orion:Destroy()
+	end
+	getgenv().Destroy = true
 end
 
-function OrionLib:OnDestroy(destroy)
-	table.insert(OrionLib.OnDestroy, destroy)
+function OrionLib:OnDestroy(fn)
+	if type(fn) == "function" then
+		table.insert(OrionLib.OnDestroyTo, fn)
+	end
 end
 
 return OrionLib
