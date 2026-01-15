@@ -459,6 +459,57 @@ OrionLib.Flags["Dropdown"]:SetCallback(function(Value)
 end)
 ```
 
+
+## Creating a Watermark 
+```lua
+OrionLib:MakeWatermark({
+	Text = "This in Watermark!",
+	Visible = true,
+	Flag = "Watermark"
+})
+
+--[[
+Text = <string> - The Text of the watermark.
+Flag = <string> - The flag remote to the watermark.
+Visible = <bool> - It will appear when true, it will disappear when false in watermark
+]]
+```
+
+### Chaning the text of a watermark
+```lua
+OrionLib.Flags["Watermark"]:SetText("Set Label Success hehe")
+
+--- Full Script Ping / Fps ---
+
+local FrameTimer = tick()
+local CurrentRooms = 0
+local FrameCounter = 0
+local FPS = 60
+OrionLib:AddConnect(game:GetService("RunService").RenderStepped, function()
+FrameCounter += 1
+if (tick() - FrameTimer) >= 1 then
+    FPS = FrameCounter
+    FrameTimer = tick()
+    FrameCounter = 0
+end
+OrionLib.Flags["Watermark"]:SetText(("%s FPS | %s Ping"):format(FPS, math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())))
+end)
+```
+
+### How "OrionLib:AddConnect" work.
+This can connect to Orion, and if it's deleted, it will stop working completely within the connection.
+```lua
+local Time = 0
+OrionLib:AddConnect(game:GetService("RunService").RenderStepped, function()
+	Time += 1
+	if Time >= 50 then
+		print("Loop: Success")
+		Time = 0
+	end
+end)
+```
+If you delete Orion, the connection will stop working, It can prevent spam errors that cause lag and freezes.
+
 # Finishing your script (REQUIRED)
 The below function needs to be added at the end of your code.
 ```lua
