@@ -42,18 +42,33 @@ CloseCallback = <function> - Function to execute when the window is closed.
 
 ## Creating a Tab
 ```lua
-local Tab = Window:MakeTab({
+local Tab, SetTabs = Window:MakeTab({
         Name = "Tab 1",
+        Visible = true,
+        Disabled = false,
         Icon = "rbxassetid://4483345998",
         PremiumOnly = false
 })
 
 --[[
 Name = <string> - The name of the tab.
+Visible = <bool> - Hide or not of the tab.
+Disabled = <bool> - Death or not of the tab.
 Icon = <string> - The icon of the tab.
 PremiumOnly = <bool> - Makes the tab accessible to Sirus Premium users only.
 ]]
 ```
+
+## Change Visible a tabs
+```lua
+SetTabs:SetVisible(true)
+```
+
+## Change Disabled a tabs
+```lua
+SetTabs:SetDisabled(false)
+```
+
 ## Creating a Section
 ```lua
 local Section = Tab:AddSection({
@@ -120,6 +135,7 @@ end)
 Tab:AddToggle({
 	Name = "This is a toggle!",
 	Default = false,
+	Type = "Switch", --- Type "Switch" or "CheckBox"
 	Flag = "Toggles",
 	Callback = function(Value)
 		print(Value)
@@ -132,6 +148,7 @@ Tab:AddToggle({
 Name = <string> - The name of the toggle.
 Default = <bool> - The default value of the toggle.
 Callback = <function> - The function of the toggle.
+Type = <string> - Change the toggle switch to the <type>
 Flag = <string> - flag remote of the toggle
 Save = <bool> - The save of the toggle in turn on/off
 
