@@ -1052,80 +1052,91 @@ function OrionLib:MakeWindow(WindowConfig)
 
         local Functions = {}
 		local TabName = {}
-        function Functions:MakeTab(TabConfig)
-                TabConfig = TabConfig or {}
-                TabConfig.Name = TabConfig.Name or "Tab"
-                TabConfig.Icon = TabConfig.Icon or ""
-                TabConfig.PremiumOnly = TabConfig.PremiumOnly or false
+		function Functions:MakeTab(TabConfig)
+			TabConfig = TabConfig or {}
+			TabConfig.Name = TabConfig.Name or "Tab"
+			TabConfig.Icon = TabConfig.Icon or ""
+			TabConfig.Visible = TabConfig.Visible ~= false
+			TabConfig.Disabled = TabConfig.Disabled == true
+		
+			local Tabs = {
+				Disabled = TabConfig.Disabled,
+				Visible = TabConfig.Visible,
+				Type = "Tabs"
+			}
+		
+			local TabFrame = SetChildren(SetProps(MakeElement("Button"), {
+				Size = UDim2.new(1, 0, 0, 30),
+				Parent = TabHolder,
+				Visible = TabConfig.Visible,
+				AutoButtonColor = not TabConfig.Disabled
+			}), {
+				AddThemeObject(SetProps(MakeElement("Image", TabConfig.Icon), {
+					AnchorPoint = Vector2.new(0, 0.5),
+					Size = UDim2.new(0, 18, 0, 18),
+					Position = UDim2.new(0, 10, 0.5, 0),
+					ImageTransparency = TabConfig.Disabled and 0.7 or 0.4,
+					Name = "Ico"
+				}), "Text"),
+		
+				AddThemeObject(SetProps(MakeElement("Label", TabConfig.Name, 14), {
+					Size = UDim2.new(1, -35, 1, 0),
+					Position = UDim2.new(0, 35, 0, 0),
+					Font = Enum.Font.GothamSemibold,
+					TextTransparency = TabConfig.Disabled and 0.7 or 0.4,
+					Name = "Title"
+				}), "Text")
+			})
+		
+			AddItemTable(Tabs, TabConfig.Name, TabFrame)
+		
+			local Container = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 5), {
+				Size = UDim2.new(1, -150, 1, -50),
+				Position = UDim2.new(0, 150, 0, 50),
+				Parent = MainWindow,
+				Visible = false,
+				Name = "ItemContainer"
+			}), {
+				MakeElement("List", 0, 6),
+				MakeElement("Padding", 15, 10, 10, 15)
+			}), "Divider")
+		
+			AddConnection(Container.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+				Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
+			end)
+		
+			AddConnection(TabFrame.MouseButton1Click, function()
+				if Tabs.Disabled then return end
+				for _, Tab in next, TabHolder:GetChildren() do
+					if Tab:IsA("TextButton") then
+						Tab.Ico.ImageTransparency = 0.4
+						Tab.Title.TextTransparency = 0.4
+					end
+				end
+				for _, c in next, MainWindow:GetChildren() do
+					if c.Name == "ItemContainer" then c.Visible = false end
+				end
+				TabFrame.Ico.ImageTransparency = 0
+				TabFrame.Title.TextTransparency = 0
+				Container.Visible = true
+			end)
+			
+			function Tabs:SetDisabled(state)
+				Tabs.Disabled = state
+				TabFrame.AutoButtonColor = not state
+				TabFrame.Ico.ImageTransparency = state and 0.7 or 0.4
+				TabFrame.Title.TextTransparency = state and 0.7 or 0.4
+				if state then
+					Container.Visible = false
+				end
+			end
 
-                local TabFrame = SetChildren(SetProps(MakeElement("Button"), {
-                        Size = UDim2.new(1, 0, 0, 30),
-                        Parent = TabHolder
-                }), {
-                        AddThemeObject(SetProps(MakeElement("Image", TabConfig.Icon), {
-                                AnchorPoint = Vector2.new(0, 0.5),
-                                Size = UDim2.new(0, 18, 0, 18),
-                                Position = UDim2.new(0, 10, 0.5, 0),
-                                ImageTransparency = 0.4,
-                                Name = "Ico"
-                        }), "Text"),
-                        AddThemeObject(SetProps(MakeElement("Label", TabConfig.Name, 14), {
-                                Size = UDim2.new(1, -35, 1, 0),
-                                Position = UDim2.new(0, 35, 0, 0),
-                                Font = Enum.Font.GothamSemibold,
-                                TextTransparency = 0.4,
-                                Name = "Title"
-                        }), "Text")
-                })
-
-                AddItemTable(Tabs, TabConfig.Name, TabFrame)
-
-                if GetIcon(TabConfig.Icon) ~= nil then
-                        TabFrame.Ico.Image = GetIcon(TabConfig.Icon)
-                end        
-
-                local Container = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 5), {
-                        Size = UDim2.new(1, -150, 1, -50),
-                        Position = UDim2.new(0, 150, 0, 50),
-                        Parent = MainWindow,
-                        Visible = false,
-                        Name = "ItemContainer"
-                }), {
-                        MakeElement("List", 0, 6),
-                        MakeElement("Padding", 15, 10, 10, 15)
-                }), "Divider")
-
-                AddConnection(Container.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-                        Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
-                end)
-
-                if FirstTab then
-                        FirstTab = false
-                        TabFrame.Ico.ImageTransparency = 0
-                        TabFrame.Title.TextTransparency = 0
-                        TabFrame.Title.Font = fontlocal or Enum.Font.GothamBlack
-                        Container.Visible = true
-                end    
-
-                AddConnection(TabFrame.MouseButton1Click, function()
-                        for _, Tab in next, TabHolder:GetChildren() do
-                                if Tab:IsA("TextButton") then
-                                        Tab.Title.Font = Enum.Font.GothamSemibold
-                                        TweenService:Create(Tab.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = 0.4}):Play()
-                                        TweenService:Create(Tab.Title, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0.4}):Play()
-                                end    
-                        end
-                        for _, ItemContainer in next, MainWindow:GetChildren() do
-                                if ItemContainer.Name == "ItemContainer" then
-                                        ItemContainer.Visible = false
-                                end    
-                        end  
-                        TweenService:Create(TabFrame.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play()
-                        TweenService:Create(TabFrame.Title, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-                        TabFrame.Title.Font = fontlocal or Enum.Font.GothamBlack
-                        Container.Visible = true   
-                end)
-
+			function Tabs:SetVisible(state)
+				Tabs.Visible = state
+				TabFrame.Visible = state
+				if not state then Container.Visible = false end
+			end
+			
                 local function GetElements(ItemParent)
                         local ElementFunction = {}
                         function ElementFunction:AddLog(Text)
@@ -1301,40 +1312,59 @@ function OrionLib:MakeWindow(WindowConfig)
 							ToggleConfig.Default = ToggleConfig.Default or false
 							ToggleConfig.Callback = ToggleConfig.Callback or function() end
 							ToggleConfig.Color = ToggleConfig.Color or Color3.fromRGB(9, 99, 195)
+							ToggleConfig.Type = ToggleConfig.Type or "CheckBox"
 							ToggleConfig.Flag = ToggleConfig.Flag or nil
 							ToggleConfig.Save = ToggleConfig.Save or false
 						
 							local Toggle = {
 								Value = ToggleConfig.Default,
 								Save = ToggleConfig.Save,
-								Type = "Toggle"
+								Type = ToggleConfig.Type
 							}
 						
 							local Click = SetProps(MakeElement("Button"), {
 								Size = UDim2.new(1, 0, 1, 0)
 							})
-						
-							local ToggleBox = SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
-								Size = UDim2.new(0, 24, 0, 24),
-								Position = UDim2.new(1, -24, 0.5, 0),
-								AnchorPoint = Vector2.new(0.5, 0.5),
-								BackgroundColor3 = OrionLib.Themes.Default.Divider
-							}), {
-								SetProps(MakeElement("Stroke"), {
-									Color = OrionLib.Themes.Default.Stroke,
-									Name = "Stroke",
-									Transparency = 0.5
-								}),
-								SetProps(MakeElement("Image", "rbxassetid://3944680095"), {
-									Size = UDim2.new(0, 8, 0, 8),
+							local ToggleBox
+							if ToggleConfig.Type == "Switch" then
+								ToggleBox = SetChildren(SetProps(MakeElement("RoundFrame", OrionLib.Themes.Default.Divider, 0, 12), {
+									Size = UDim2.new(0, 40, 0, 20),
+									Position = UDim2.new(1, -8, 0.5, 0),
+									AnchorPoint = Vector2.new(1, 0.5),
+									BackgroundColor3 = OrionLib.Themes.Default.Divider,
+									Name = "Switch"
+								}), {
+									AddThemeObject(MakeElement("Stroke"), "Stroke"),
+									SetProps(MakeElement("RoundFrame", Color3.fromRGB(255,255,255), 0, 10), {
+										Size = UDim2.new(0, 18, 0, 18),
+										Position = UDim2.new(0, 1, 0.48, 0),
+										AnchorPoint = Vector2.new(0, 0.5),
+										Name = "Knob"
+									})
+								})
+							else
+								ToggleBox = SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
+									Size = UDim2.new(0, 24, 0, 24),
+									Position = UDim2.new(1, -24, 0.5, 0),
 									AnchorPoint = Vector2.new(0.5, 0.5),
-									Position = UDim2.new(0.5, 0, 0.5, 0),
-									ImageColor3 = Color3.fromRGB(255, 255, 255),
-									ImageTransparency = 1,
-									Name = "Ico"
-								}),
-							})
-						
+									BackgroundColor3 = OrionLib.Themes.Default.Divider,
+									Name = "Check"
+								}), {
+									SetProps(MakeElement("Stroke"), {
+										Color = OrionLib.Themes.Default.Stroke,
+										Name = "Stroke",
+										Transparency = 0.5
+									}),
+									SetProps(MakeElement("Image", "rbxassetid://3944680095"), {
+										Size = UDim2.new(0, 8, 0, 8),
+										AnchorPoint = Vector2.new(0.5, 0.5),
+										Position = UDim2.new(0.5, 0, 0.5, 0),
+										ImageColor3 = Color3.fromRGB(255, 255, 255),
+										ImageTransparency = 1,
+										Name = "Ico"
+									})
+								})
+							end
 							local ToggleFrame = AddThemeObject(SetChildren(SetProps(
 								MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 									Size = UDim2.new(1, 0, 0, 38),
@@ -1350,20 +1380,29 @@ function OrionLib:MakeWindow(WindowConfig)
 									ToggleBox,
 									Click
 							}), "Second")
-						
+							
 							function Toggle:Set(Value)
 								if getgenv().Destroy then return end
 								Toggle.Value = Value
-								TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
-									BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider
-								}):Play()
-								TweenService:Create(ToggleBox.Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
-									Color = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Stroke
-								}):Play()
-								TweenService:Create(ToggleBox.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
-									ImageTransparency = Toggle.Value and 0 or 1,
-									Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
-								}):Play()
+								if ToggleConfig.Type == "Switch" then
+									TweenService:Create(ToggleBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
+										BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider
+									}):Play()
+									TweenService:Create(ToggleBox.Knob, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
+										Position = Toggle.Value and UDim2.new(1, -19, 0.48, 0) or UDim2.new(0, 1, 0.48, 0)
+									}):Play()
+								else
+									TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+										BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider
+									}):Play()
+									TweenService:Create(ToggleBox.Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+										Color = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Stroke
+									}):Play()
+									TweenService:Create(ToggleBox.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+										ImageTransparency = Toggle.Value and 0 or 1,
+										Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
+									}):Play()
+								end
 								local ok, err = pcall(function()
 									ToggleConfig.Callback(Toggle.Value)
 								end)
@@ -1372,22 +1411,10 @@ function OrionLib:MakeWindow(WindowConfig)
 								end
 							end
 						
-							function Toggle:SetText(txt)
-								if getgenv().Destroy then return end
-								if ToggleFrame and ToggleFrame:FindFirstChild("Content") then
-									ToggleFrame.Content.Text = txt
-								end
-							end
-						
-							function Toggle:SetCallback(cb)
-								if getgenv().Destroy then return end
-								ToggleConfig.Callback = cb
-							end
-						
-							if ToggleConfig.Default then
+							if ToggleConfig.Default == true then
 								Toggle:Set(true)
 							end
-						
+							
 							AddConnection(Click.MouseButton1Up, function()
 								SaveCfg(game.GameId)
 								Toggle:Set(not Toggle.Value)
@@ -1399,43 +1426,44 @@ function OrionLib:MakeWindow(WindowConfig)
 								BindConfig.Hold = BindConfig.Hold or false
 								BindConfig.Flag = BindConfig.Flag or nil
 								BindConfig.Save = BindConfig.Save or false
+						
 								local Bind = {
 									Value = BindConfig.Default.Name or BindConfig.Default,
 									Type = "Bind",
 									Save = BindConfig.Save,
 									Binding = false
 								}
-								local Holding = false
+						
 								local Click = SetProps(MakeElement("Button"), {
-                                        Size = UDim2.new(0, 30, 0, 24),
-                                        Position = UDim2.new(1, -48, 0.5, 0),
-                                        AnchorPoint = Vector2.new(1, 0.5),
-                                        Parent = ToggleFrame,
-                                        ZIndex = 4
-                                })
-                                
+									Size = UDim2.new(0, 30, 0, 24),
+									Position = (ToggleConfig.Type == "Switch" and UDim2.new(1, -55, 0.5, 0) or UDim2.new(1, -48, 0.5, 0)),
+									AnchorPoint = Vector2.new(1, 0.5),
+									Parent = ToggleFrame,
+									ZIndex = 4
+								})
+						
 								local BindBox = AddThemeObject(SetChildren(SetProps(
 									MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
 										Size = UDim2.new(0, 30, 0, 24),
-										Position = UDim2.new(1, -48, 0.5, 0),
+										Position = Click.Position,
 										AnchorPoint = Vector2.new(1, 0.5),
 										Parent = ToggleFrame,
 										ZIndex = 4
 									}), {
-									AddThemeObject(MakeElement("Stroke"), "Stroke"),
-									AddThemeObject(SetProps(MakeElement("Label", Bind.Value, 14), {
-										Size = UDim2.new(1, 0, 1, 0),
-										Font = Enum.Font.GothamBold,
-										TextXAlignment = Enum.TextXAlignment.Center,
-										Name = "Value",
-										ZIndex = 4
-									}), "Text")
-								}), "Main")
-								
+										AddThemeObject(MakeElement("Stroke"), "Stroke"),
+										AddThemeObject(SetProps(MakeElement("Label", Bind.Value, 14), {
+											Size = UDim2.new(1, 0, 1, 0),
+											Font = Enum.Font.GothamBold,
+											TextXAlignment = Enum.TextXAlignment.Center,
+											Name = "Value",
+											ZIndex = 4
+										}), "Text")
+									}), "Main")
+						
 								AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
 									local width = BindBox.Value.TextBounds.X + 20
-									TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, width, 0, 24)}):Play()
-									TweenService:Create(Click, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, width, 0, 24)}):Play()
+									TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Size = UDim2.new(0, width, 0, 24)}):Play()
+									TweenService:Create(Click, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Size = UDim2.new(0, width, 0, 24)}):Play()
 								end)
 						
 								AddConnection(Click.InputEnded, function(Input)
@@ -1445,7 +1473,7 @@ function OrionLib:MakeWindow(WindowConfig)
 										BindBox.Value.Text = "..."
 									end
 								end)
-								
+						
 								AddConnection(UserInputService.InputBegan, function(Input, gp)
 									if gp then return end
 									if UserInputService:GetFocusedTextBox() then return end
@@ -1468,9 +1496,9 @@ function OrionLib:MakeWindow(WindowConfig)
 									Bind.Value = Key.Name or Key
 									BindBox.Value.Text = Bind.Value
 								end
-								
+						
 								if BindConfig.Flag then
-									OrionLib.Flags.ToggleKey[BindConfig.Flag] = Bind
+									OrionLib.Flags[Toggle][BindConfig.Flag] = Bind
 								end
 								return Bind
 							end
@@ -2728,7 +2756,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								}), "Text")
 							})
 						end
-						return ElementFunction   
+						return ElementFunction, Tabs
 					end  
 					
         function Functions:Destroy()
