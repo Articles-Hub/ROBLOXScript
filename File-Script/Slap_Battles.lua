@@ -2937,7 +2937,7 @@ if teleportFunc then
         end
         repeat wait() until game.Players.LocalPlayer
 		if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-			local Map = game:GetService("Workspace"):WaitForChild("Map")
+			Map = game:GetService("Workspace"):WaitForChild("Map")
 			if Map and Map:FindFirstChild("Racetrack") then
 				Map.Racetrack:Destroy()
 			end
@@ -2952,7 +2952,7 @@ if teleportFunc then
 			    align.Position = Map.Waypoints[tostring(i)].CFrame.Position
 			    repeat task.wait() until (game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position - Map.Waypoints[tostring(i)].Position).Magnitude <= 100
 			end
-			align.Position = Map:FindFirstChild("FinishLine").Position
+			align.Position = Vector3.new(-1431, 425, -859)
 		end
 	end
 ]])
@@ -6297,7 +6297,7 @@ for i, v in pairs(game.Workspace:GetChildren()) do
 if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
 repeat task.wait()
 if v:FindFirstChild("HumanoidRootPart") then
-gloveHits["Glovel"]:FireServer(v:FindFirstChild("HumanoidRootPart"), true)
+gloveHits["All"]:FireServer(v:FindFirstChild("HumanoidRootPart"), true)
 end
 until _G.AutoGlovelMastery == false or v:FindFirstChild("HumanoidRootPart") == nil
 end
@@ -6530,7 +6530,7 @@ for i, v in pairs(game.Workspace:GetChildren()) do
 if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
 if v:FindFirstChild("HumanoidRootPart") then
 repeat task.wait()
-game.ReplicatedStorage.GeneralHit:FireServer(v:FindFirstChild("HumanoidRootPart"))
+gloveHits["All"]:FireServer(v:FindFirstChild("HumanoidRootPart"))
 until _G.AutoStickMastery == false or v:FindFirstChild("HumanoidRootPart") == nil
 end
 end
@@ -6597,7 +6597,7 @@ for i, v in pairs(game.Workspace:GetChildren()) do
 if v.Name == ("Å" .. game.Players.LocalPlayer.Name) and v:FindFirstChild("HumanoidRootPart") then
 for o = 1, 35 do
 if v:FindFirstChild("HumanoidRootPart") then
-game.ReplicatedStorage.GeneralHit:FireServer(v:FindFirstChild("HumanoidRootPart"))
+gloveHits["All"]:FireServer(v:FindFirstChild("HumanoidRootPart"))
 end
 task.wait()
 end
@@ -7489,7 +7489,7 @@ if not _G.AutoKillstreakMasteryHelp then
 end
 if _G.Players1CloneHelp or CheckGlove() == "Killstreak" then
 spawn(function()
-	while _G.AutoPlankMasteryHelp do
+	while _G.AutoKillstreakMasteryHelp do
 		if _G.Players1CloneHelp then
 			if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
 				local bv = Instance.new("BodyVelocity")
@@ -7543,9 +7543,62 @@ end
 task.wait()
 end
 elseif Value == true then
-Notification("You don't have Moon equipped", _G.TimeNotify)
+Notification("You don't have Killstreak equipped", _G.TimeNotify)
 wait(0.05)
-Toggles["Auto Mastery Moon"]:SetValue(false)
+Toggles["Auto Mastery Killstreak"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Glovel", {
+    Text = "Auto Mastery Glovel",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoKillstreakMasteryHelp = Value
+if not _G.AutoKillstreakMasteryHelp then
+	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
+		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
+	end
+end
+if _G.Players1CloneHelp or CheckGlove() == "Killstreak" then
+while _G.AutoKillstreakMasteryHelp do
+if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
+	local bv = Instance.new("BodyVelocity")
+	bv.Name = "HelpMasteryFreezeBv"
+	bv.Parent = root
+	bv.MaxForce = Vector3.new(100000, 100000, 100000)
+	bv.Velocity = Vector3.new(0, 0, 0)
+end
+if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
+	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
+end
+if Players2 and Players2:FindFirstChild("entered") then
+	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,5,-3))
+end
+if Players2 and Players2:FindFirstChild("entered") == nil then
+	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
+end
+if not _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") then
+		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
+				for i = 1, 9 do
+					gloveHits["All"]:FireServer(root1, true)
+					task.wait(0.9)
+				end
+				wait(0.3)
+				repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
+				task.wait(0.4)
+			end
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Glovel equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Glovel"]:SetValue(false)
 end
     end
 })
@@ -15641,7 +15694,7 @@ local MainGroup = Tabs.Tab:AddLeftGroupbox("Main")
 
 MainGroup:AddButton("Get Badge", function()
 if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-	local Map = game:GetService("Workspace"):WaitForChild("Map")
+	Map = game:GetService("Workspace"):WaitForChild("Map")
 	if Map and Map:FindFirstChild("Racetrack") then
 		Map.Racetrack:Destroy()
 	end
@@ -15653,12 +15706,131 @@ if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRoot
 	align.Mode = Enum.PositionAlignmentMode.OneAttachment
 	align.MaxForce = math.huge
 	for i = 1, #Map.Waypoints:GetChildren() do
-	    align.Position = Map.Waypoints[tostring(i)].CFrame.Position
+	    align.Position = Map.Waypoints[tostring(i)].Position
 	    repeat task.wait() until (game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position - Map.Waypoints[tostring(i)].Position).Magnitude <= 100
 	end
-	align.Position = Map:FindFirstChild("FinishLine").Position
+	align.Position = Vector3.new(-1431, 425, -859)
 end
 end)
+elseif game.PlaceId == 79885102123162 then
+function CheckGloveHide(j)
+	for i, v in pairs(workspace.Map.GloveLocation:GetDescendants()) do
+		if v:IsA("Model") and v.Name:lower():find(j:lower()) then
+			if v:GetAttribute("Visible") == true then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+function CheckGloveFind(j)
+	for i, v in pairs(workspace.Map.GloveLocation:GetDescendants()) do
+		if v:IsA("Model") and v.Name:lower():find(j:lower()) then
+			if v:GetAttribute("Visible") == true then
+				for _, k in pairs(v:GetDescendants()) do
+					if k:IsA("BasePart") then
+						return k.CFrame
+					end
+				end
+			end
+		end
+	end
+	return nil
+end
+			
+Window = Library:CreateWindow({
+    Title = "Find Glove 🔍",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+	Footer = "Omega X Article Hub Version: 1.0.5",
+	Icon = 83462777349222,
+	ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Main")
+
+MainGroup:AddButton("Find Glove Touch", function()
+if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	for i, v in pairs(workspace.Map.GloveLocation:GetDescendants()) do
+		if v:IsA("Model") then
+			game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:GetPivot().Position)
+			task.wait(0.5)
+		end
+		if v:IsA("TouchTransmitter") and v.Parent:IsA("BasePart") and v.Parent:GetAttribute("Visible") == true then
+			repeat task.wait()
+				game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.Parent.CFrame
+				if firetouchinterest then
+					firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, v.Parent, 0)
+					firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, v.Parent, 1)
+				end
+			until v.Parent:GetAttribute("Visible") == false
+		end
+	end
+end
+end)
+
+for _, j in pairs({"Plate", "Scythe", "Brick", "Jerry"}) do
+	MainGroup:AddButton("Find Glove "..j, function()
+		if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			if j:lower():find("plate") then
+				if workspace:WaitForChild("Map"):WaitForChild("obstacle/puzzles"):WaitForChild("RegularMap"):WaitForChild("Plate"):WaitForChild("Sign"):WaitForChild("hitbox") then
+					repeat task.wait()
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = workspace:WaitForChild("Map"):WaitForChild("obstacle/puzzles"):WaitForChild("RegularMap"):WaitForChild("Plate"):WaitForChild("Sign"):WaitForChild("hitbox").CFrame
+						game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("tool"):WaitForChild("use"):FireServer("Slap")
+						game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("tool"):WaitForChild("hit"):FireServer("Slap", {Instance = workspace:WaitForChild("Map"):WaitForChild("obstacle/puzzles"):WaitForChild("RegularMap"):WaitForChild("Plate"):WaitForChild("Sign"):WaitForChild("hitbox")}, workspace:WaitForChild("Map"):WaitForChild("obstacle/puzzles"):WaitForChild("RegularMap"):WaitForChild("Plate"):WaitForChild("Sign"):WaitForChild("hitbox").Position)
+					until not CheckGloveHide(j)
+					wait(0.4)
+					game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = (CheckGloveFind(j) or game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
+				end
+			elseif j:lower():find("scythe") then
+				for i, v in pairs(workspace.Map["obstacle/puzzles"].Halloween.Scythe:GetChildren()) do
+					if v.Name:find("Pumpkin") then
+						for _, k in pairs(v:GetChildren()) do
+							if k:IsA("BasePart") and not k:GetAttribute("__Hidden") then
+								repeat task.wait()
+									game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = k.CFrame
+								until k:GetAttribute("__Hidden") == true
+								break
+							end
+						end
+					end
+				end
+				repeat task.wait() until not CheckGloveHide(j)
+				wait(0.4)
+				game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = (CheckGloveFind(j) or game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
+			elseif j:lower():find("brick") then
+				repeat task.wait()
+					game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.GloveLocation.CastleIsland.Brick.Brick.CFrame
+				until workspace.Map.GloveLocation.CastleIsland.Brick:GetAttribute("Visible") == true
+			elseif j:lower():find("jerry") then
+				for i, v in pairs(workspace.Map["obstacle/puzzles"].Winter.Jerry_Snowpeeps:GetDescendants()) do
+					if v:IsA("ClickDetector") then
+						if fireclickdetector then
+							fireclickdetector(v)
+						end
+						if v.Parent:IsA("BasePart") then
+							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.Parent.CFrame
+							repeat task.wait() until v.Parent:GetAttribute("__Hidden") == true
+						end
+					end
+				end
+				repeat task.wait() until not CheckGloveHide(j)
+				wait(0.4)
+				game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = (CheckGloveFind(j) or game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
+			end
+		end
+	end)
+end
 end
 
 local success, err = pcall(function()
