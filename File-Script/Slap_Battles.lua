@@ -15764,22 +15764,18 @@ if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRoot
 	for i, v in pairs(workspace.Map.GloveLocation:GetDescendants()) do
 		if v:IsA("Model") then
 			game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:GetPivot().Position)
-			task.wait(0.5)
+			task.wait(0.3)
 		end
-		if v:IsA("TouchTransmitter") and v.Parent:IsA("BasePart") and v.Parent:GetAttribute("Visible") == true then
+		if v:IsA("TouchTransmitter") and v.Parent:IsA("BasePart") and not v.Parent:GetAttribute("__Hidden") then
 			repeat task.wait()
 				game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.Parent.CFrame
-				if firetouchinterest then
-					firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, v.Parent, 0)
-					firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, v.Parent, 1)
-				end
-			until v.Parent:GetAttribute("Visible") == false
+			until v.Parent:GetAttribute("__Hidden") == true
 		end
 	end
 end
 end)
 
-for _, j in pairs({"Plate", "Scythe", "Brick", "Jerry"}) do
+for _, j in pairs({"Plate", "Scythe", "Brick", "Jerry", "Prop", "Pineapple"}) do
 	MainGroup:AddButton("Find Glove "..j, function()
 		if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 			if j:lower():find("plate") then
@@ -15812,6 +15808,14 @@ for _, j in pairs({"Plate", "Scythe", "Brick", "Jerry"}) do
 				repeat task.wait()
 					game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.GloveLocation.CastleIsland.Brick.Brick.CFrame
 				until workspace.Map.GloveLocation.CastleIsland.Brick:GetAttribute("Visible") == true
+			elseif j:lower():find("prop") then
+				repeat task.wait()
+					game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map["obstacle/puzzles"].RegularMap.Prop.Prop_Rock.CFrame
+				until not CheckGloveHide(j)
+			elseif j:lower():find("pineapple") then
+				repeat task.wait()
+					game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map["obstacle/puzzles"].Barzil.Pineslapple.Pineapple.CFrame
+				until not CheckGloveHide(j)
 			elseif j:lower():find("jerry") then
 				for i, v in pairs(workspace.Map["obstacle/puzzles"].Winter.Jerry_Snowpeeps:GetDescendants()) do
 					if v:IsA("ClickDetector") then
