@@ -2023,7 +2023,7 @@ local function main()
 					if Obj.CanCollide then
 						plr.Character:MoveTo(Obj.Position)
 					else
-						plrRP.CFrame = CFrame.new(Obj.Position + Settings.Explorer.TeleportToOffset)
+						plrRP.CFrame = CFrame.new(Obj.Position + Vector3.new(0,0,0))
 					end
 					break
 				elseif Obj:IsA("Model") then
@@ -2031,7 +2031,7 @@ local function main()
 						if Obj.PrimaryPart.CanCollide then
 							plr.Character:MoveTo(Obj.PrimaryPart.Position)
 						else
-							plrRP.CFrame = CFrame.new(Obj.PrimaryPart.Position + Settings.Explorer.TeleportToOffset)
+							plrRP.CFrame = CFrame.new(Obj.PrimaryPart.Position + Vector3.new(0,0,0))
 						end
 						break
 					else
@@ -2040,7 +2040,7 @@ local function main()
 							if part.CanCollide then
 								plr.Character:MoveTo(part.Position)
 							else
-								plrRP.CFrame = CFrame.new(part.Position + Settings.Explorer.TeleportToOffset)
+								plrRP.CFrame = CFrame.new(part.Position + Vector3.new(0,0,0))
 							end
 							break
 						elseif Obj.WorldPivot then
@@ -13708,7 +13708,6 @@ DefaultSettings = (function()
 		Explorer = {
 			_Recurse = true,
 			Sorting = true,
-			TeleportToOffset = Vector3.new(0,0,0),
 			ClickToRename = true,
 			AutoUpdateSearch = true,
 			AutoUpdateMode = 0, -- 0 Default, 1 no tree update, 2 no descendant events, 3 frozen
@@ -14958,6 +14957,7 @@ Main = (function()
 
 		local openButton = gui.OpenButton
 		openButton.BackgroundTransparency = 0.2
+		openButton.Draggable = true
 		openButton.MainFrame.Size = UDim2.new(0,0,0,0)
 		openButton.MainFrame.Visible = false
 		openButton.MouseButton1Click:Connect(function()
