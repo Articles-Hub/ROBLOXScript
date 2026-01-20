@@ -30,7 +30,7 @@ OrionLib = {
                 }
         },
         SelectedTheme = "Default",
-        Folder = nil,
+        Folder = "",
         SaveCfg = false
 }
 
@@ -252,7 +252,14 @@ local function UnpackColor(Color)
 end
 
 local function LoadCfg(Config)
-        local Data = HttpService:JSONDecode(Config)
+        if isfile and isfile(Config) then
+			local ok, decoded = pcall(function()
+				return HttpService:JSONDecode(readfile(Config))
+			end)
+			if ok and typeof(decoded) == "table" then
+				Data = decoded
+			end
+		end
         table.foreach(Data, function(a,b)
                 if OrionLib.Flags[a] then
                         spawn(function() 
@@ -268,7 +275,7 @@ local function LoadCfg(Config)
         end)
 end
 
-local function SaveCfg(Name)
+local function SaveCfg()
         local Data = {}
         for i,v in pairs(OrionLib.Flags) do
                 if v.Save then
@@ -280,7 +287,7 @@ local function SaveCfg(Name)
                 end        
         end
     pcall(function()
-        writefile(OrionLib.Folder .. "/" .. Name .. ".txt", tostring(HttpService:JSONEncode(Data)))
+        writefile(OrionLib.Folder .. "/" .. game.GameId .. ".json", HttpService:JSONEncode(Data))
 	end)
 end
 
@@ -589,8 +596,8 @@ end
 function OrionLib:Init()
         if OrionLib.SaveCfg and (isfile and readfile) then        
                 pcall(function()
-                        if isfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt") then
-                                LoadCfg(readfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt"))
+                        if isfile(OrionLib.Folder .. "/" .. game.GameId .. ".json") then
+                                LoadCfg(OrionLib.Folder .. "/" .. game.GameId .. ".json")
                                 OrionLib:MakeNotification({
                                         Name = "Configuration",
                                         Content = "Auto-loaded configuration for the game " .. game.GameId .. ".",
@@ -681,7 +688,7 @@ function OrionLib:MakeWindow(WindowConfig)
         end
 
         local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4),
-                WindowConfig.SearchBar and {
+                WindowConfig.SearchBar and WindowConfig.SearchBar.Tabs == true and {
                         Size = UDim2.new(1, 0, 1, -90),
                         Position = UDim2.new(0, 0, 0, 40)
                 } or {
@@ -781,8 +788,7 @@ function OrionLib:MakeWindow(WindowConfig)
                 }),
         }), "Second")
 
-        local Tabs = {}
-        if WindowConfig.SearchBar then
+        if WindowConfig.SearchBar and WindowConfig.SearchBar.Tabs == true then
                 local SearchBox = Create("TextBox", {
                         Size = UDim2.new(1, 0, 1, 0),
                         BackgroundTransparency = 1,
@@ -812,7 +818,7 @@ function OrionLib:MakeWindow(WindowConfig)
                 local function SearchHandle()
                         local Text = string.lower(SearchBox.Text)
 
-                        for i,v in pairs(Tabs) do
+                        for i,v in pairs(TabHolder:GetChildren()) do
                                 if v:IsA("TextButton") then
                                         if string.find(string.lower(i), Text) then
                                                 v.Visible = true
@@ -866,6 +872,57 @@ function OrionLib:MakeWindow(WindowConfig)
                 DragPoint,
                 WindowStuff
         }), "Main")
+        
+        if WindowConfig.SearchBar and WindowConfig.SearchBar.Mains == true then
+                local SearchBox = Create("TextBox", {
+                        Size = UDim2.new(1, 0, 1, 0),
+                        BackgroundTransparency = 1,
+                        TextColor3 = Color3.fromRGB(255, 255, 255),
+                        PlaceholderColor3 = Color3.fromRGB(210,210,210),
+                        PlaceholderText = WindowConfig.SearchBar.DefaultMain or "🔍 Search",
+                        Font = Enum.Font.GothamBold,
+                        TextWrapped = true,
+                        Text = "",
+                        TextXAlignment = Enum.TextXAlignment.Center,
+                        TextSize = 14,
+                        ClearTextOnFocus = WindowConfig.SearchBar.ClearTextOnFocus or true
+                })
+
+                local TextboxActual = AddThemeObject(SearchBox, "Text")
+
+                local SearchBar = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 1, 6), {
+                        Parent = MainWindow,
+                        Size = UDim2.new(0, 447, 0, 24),
+                        Position = UDim2.new(0, 606, 0, 72),
+                        AnchorPoint = Vector2.new(1, 0.5)
+                }), {
+                        AddThemeObject(MakeElement("Stroke"), "Stroke"),
+                        TextboxActual
+                }), "Main")
+
+                local function SearchHandleMain()
+                        local Text = string.lower(SearchBox.Text)
+                        
+						for i, v in pairs(MainWindow:GetChildren()) do
+							if v.Name == "ItemContainer" and v.Visible == true then
+								for _, j in pairs(v:GetChildren()) do
+									if j:IsA("Frame") then
+										local ContentFind = j:FindFirstChild("Content", true) or nil
+										if ContentFind then
+											if string.find(string.lower(ContentFind.Text), Text) then
+												j.Visible = true
+											else
+												j.Visible = false
+											end
+										end
+									end
+								end
+							end
+						end
+                end
+
+                AddConnection(TextboxActual:GetPropertyChangedSignal("Text"), SearchHandleMain)
+        end
 
         if WindowConfig.ShowIcon then
 		        local IconTogglesUi = "rbxassetid://"..WindowConfig.Icon:match("%d+")
@@ -973,7 +1030,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ZIndex = 999
 			})
 			
-			local LoadSequenceLogo = SetProps(MakeElement("Image", WindowConfig.IntroIcon), {
+			local LoadSequenceLogo = SetProps(MakeElement("Image", "rbxassetid://"..WindowConfig.IntroIcon:match("%d+")), {
 				Parent = BaseFrame,
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.new(0.5, 0, 0.4, 0),
@@ -1089,20 +1146,20 @@ function OrionLib:MakeWindow(WindowConfig)
 			})
 		
 			AddItemTable(Tabs, TabConfig.Name, TabFrame)
-		
+			
 			local Container = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 5), {
-				Size = UDim2.new(1, -150, 1, -50),
-				Position = UDim2.new(0, 150, 0, 50),
+				Size = UDim2.new(1, -150, 1, (WindowConfig.SearchBar and WindowConfig.SearchBar.Mains == true) and -90 or -50),
+				Position = UDim2.new(0, 150, 0, (WindowConfig.SearchBar and WindowConfig.SearchBar.Mains == true) and 90 or 50),
 				Parent = MainWindow,
 				Visible = false,
 				Name = "ItemContainer"
 			}), {
 				MakeElement("List", 0, 6),
-				MakeElement("Padding", 15, 10, 10, 15)
+				MakeElement("Padding", 15, 10, 10, (WindowConfig.SearchBar and WindowConfig.SearchBar.Mains == true) and 10 or 15)
 			}), "Divider")
-		
+			
 			AddConnection(Container.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-				Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
+				Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + ((WindowConfig.SearchBar and WindowConfig.SearchBar.Mains == true) and 25 or 30))
 			end)
 		
 			AddConnection(TabFrame.MouseButton1Click, function()
@@ -1416,7 +1473,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							end
 							
 							AddConnection(Click.MouseButton1Up, function()
-								SaveCfg(game.GameId)
+								SaveCfg()
 								Toggle:Set(not Toggle.Value)
 							end)
 						
@@ -1482,7 +1539,6 @@ function OrionLib:MakeWindow(WindowConfig)
 											Bind.Value = Input.KeyCode.Name
 											BindBox.Value.Text = Bind.Value
 											Bind.Binding = false
-											SaveCfg(game.GameId)
 										end
 										return
 									end
@@ -1602,6 +1658,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								if getgenv().Destroy then return end
 								Slider.Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)  
 								Update()  
+								SaveCfg()
 							end  
 							  
 							function Slider:SetMax(Value: number)  
@@ -1931,7 +1988,7 @@ function OrionLib:MakeWindow(WindowConfig)
 									if selBtn:FindFirstChild("Desc") then TweenService:Create(selBtn.Desc, TweenInfo.new(.15), {TextTransparency = 0.2}):Play() end
 									if selBtn:FindFirstChild("Icon") then TweenService:Create(selBtn.Icon, TweenInfo.new(.15), {ImageTransparency = 0}):Play() end
 								end
-						
+								SaveCfg()
 								return DropdownConfig.Callback(Dropdown.Value)
 							end
 						
@@ -2083,6 +2140,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                         Bind.Value = Key or Bind.Value
                                         Bind.Value = Bind.Value.Name or Bind.Value
                                         BindBox.Value.Text = Bind.Value
+                                        SaveCfg()
                                 end
                                 
                                 function Bind:SetText(ToChange)
@@ -2647,6 +2705,7 @@ function OrionLib:MakeWindow(WindowConfig)
 									UpdateColorPicker(true)
 								end
 								if Alpha then
+									SaveCfg()
 									AlphaValue = Alpha
 									AlphaSelection.Position = UDim2.new(0.5, 0, 1 - AlphaValue, 0)
 									ColorpickerConfig.Callback(Colorpicker.Value, AlphaValue)
