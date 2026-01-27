@@ -4259,8 +4259,8 @@ Badge2Group:AddDropdown("OrbFarm", {
     Multi = true
 })
 
-Badge2Group:AddToggle("Phase Or Jet Farm", {
-    Text = "Phase & Jet Farm",
+Badge2Group:AddToggle("Orb Farm", {
+    Text = "Auto Orb Farm",
     Default = false, 
     Callback = function(Value) 
 _G.FarmOrbTP = Value
