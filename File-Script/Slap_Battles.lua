@@ -7285,7 +7285,7 @@ if Players2 and Players2:FindFirstChild("entered") then
 		if _G.ShardMasteryHelp:find("Shard Clone") then
 			root.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0, 5, 0)
 		elseif _G.ShardMasteryHelp == "150 Studs Clone" then
-			root.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0, 5, -135)
+			root.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0, 5, -200)
 		end
 	else
 		root.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0, 5, 8)
@@ -8228,7 +8228,7 @@ if not _G.Players1CloneHelp then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
 			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
 				for i = 1, 9 do
-					gloveHits["All"]:FireServer(root1, true)
+					gloveHits["All"]:FireServer(root1)
 					task.wait(0.9)
 				end
 				wait(0.3)
