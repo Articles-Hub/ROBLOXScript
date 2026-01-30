@@ -379,21 +379,21 @@ Callback = <function> - The function of the bind.
 ]]
 ```
 
-### Chaning the value of a bind
+### Changing the value of a bind
 ```lua
 Bind:Set(Enum.KeyCode.E)
 OrionLib.Flags["Bind"]:Set(Enum.KeyCode.E)
 ```
 
 
-### Chaning the label of a bind
+### Changing the label of a bind
 ```lua
 Bind:SetText("Hello")
 OrionLib.Flags["Bind"]:SetText("Bruh")
 ```
 
 
-### Chaning the script of a bind
+### Changing the script of a bind
 ```lua
 Bind:SetCallback(function()
         print("huh")
@@ -416,6 +416,17 @@ local Img = Tab:AddImage({
 Icon = <string> - Find the ID of the icon.
 Size = <number> - Enlarge the image
 ]]
+```
+
+### Changing the Icon (Id)
+```
+Img:SetIcon("rbxassetid://{id icon}")
+```
+
+
+### Changing the Size Icon
+```
+Img:SetSize(100)
 ```
 
 
@@ -473,7 +484,7 @@ Dropdown:Set({"dropdown option", "dropdown option 2"})
 OrionLib.Flags["Dropdown"]:Set({"dropdown option", "dropdown option 2"})
 ```
 
-### Chaning the script of a dropdown
+### Changing the script of a dropdown
 ```lua
 Dropdown:SetCallback(function(Value)
         print("huh", Value)
@@ -519,7 +530,7 @@ how to used: you have add toggle Keybinds are available.
 ]]
 ```
 
-### Chaning the text of a watermark
+### Changing the text of a watermark
 ```lua
 OrionLib.Flags["Watermark"]:SetText("Set Label Success hehe")
 
