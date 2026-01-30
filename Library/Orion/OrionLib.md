@@ -28,8 +28,8 @@ ConfigFolder = <string> - The name of the folder where the configs are saved.
 IntroEnabled = <bool> - Whether or not to show the intro animation.
 IntroText = <string> - Text to show in the intro animation.
 SearchBar = {
-	Default = <string> - The name of the search.
-	ClearTextOnFocus = <bool> - The clean text focus of the search.
+        Default = <string> - The name of the search.
+        ClearTextOnFocus = <bool> - The clean text focus of the search.
 } 
 IntroToggleIcon = <string> - the intro icon toggle to the UI/window can be opened
 IntroIcon = <string> - URL to the image you want to use in the intro animation.
@@ -125,7 +125,7 @@ ButtonClick:Set("Button?")
 ## Change script a Button
 ```lua
 ButtonClick:SetCallback(function()
-	print("is button!")
+        print("is button!")
 end)
 ```
 
@@ -133,15 +133,15 @@ end)
 ## Creating a Checkbox toggle
 ```lua
 Tab:AddToggle({
-	Name = "This is a toggle!",
-	Default = false,
-	Type = "Switch", --- Type "Switch" or "CheckBox"
-	Flag = "Toggles",
-	Callback = function(Value)
-		print(Value)
-	end    
+        Name = "This is a toggle!",
+        Default = false,
+        Type = "Switch", --- Type "Switch" or "CheckBox"
+        Flag = "Toggles",
+        Callback = function(Value)
+                print(Value)
+        end    
 }):AddBind({
-	Default = Enum.KeyCode.F
+        Default = Enum.KeyCode.F
 })
 
 --[[
@@ -174,11 +174,11 @@ OrionLib.Flags["Toggles"]:SetText("This is a toggle?")
 ### Changing the script of an existing Toggle
 ```lua
 CoolToggle:SetCallback(function(Value)
-	print("This is a toggle!", Value)
+        print("This is a toggle!", Value)
 end)
 
 OrionLib.Flags["Toggles"]:SetCallback(function(Value)
-	print("This is a toggle!", Value)
+        print("This is a toggle!", Value)
 end)
 ```
 
@@ -213,11 +213,11 @@ OrionLib.Flags["Color"]:Set(Color3.fromRGB(255,255,255))
 ### Changing the script of an colorpicker
 ```lua
 ColorPicker:SetCallback(function(Value)
-	print("This is a Colorpicker!", Value)
+        print("This is a Colorpicker!", Value)
 end)
 
 OrionLib.Flags["Color"]:SetCallback(function(Value)
-	print("This is a Colorpicker!", Value)
+        print("This is a Colorpicker!", Value)
 end)
 ```
 
@@ -274,11 +274,11 @@ OrionLib.Flags["SliderTo"]:SetMin(10)
 ### Change script in Slider
 ```lua
 Slider:SetCallback(function(Value)
-	print(Value, "Good")
+        print(Value, "Good")
 end)
 
 OrionLib.Flags["SliderTo"]:SetCallback(function(Value)
-	print(Value, "Good")
+        print(Value, "Good")
 end)
 ```
 Make sure you make your slider a variable (local CoolSlider = Tab:AddSlider...) for this to work.
@@ -349,11 +349,11 @@ OrionLib.Flags["TextBox"]:SetLabel("Nothing?")
 ## Change script an Adaptive Input
 ```lua
 TextBoxCool:SetCallback(function(Value)
-	print("is input (TextBox) ", Value)
+        print("is input (TextBox) ", Value)
 end)
 
 OrionLib.Flags["TextBox"]:SetCallback(function(Value)
-	print("is input (TextBox) ", Value)
+        print("is input (TextBox) ", Value)
 end)
 ```
 
@@ -396,12 +396,26 @@ OrionLib.Flags["Bind"]:SetText("Bruh")
 ### Chaning the script of a bind
 ```lua
 Bind:SetCallback(function()
-	print("huh")
+        print("huh")
 end)
 
 OrionLib.Flags["Bind"]:SetCallback(function()
-	print("huh")
+        print("huh")
 end)
+```
+
+
+## Creating a Image
+```lua
+local Img = Tab:AddImage({
+	Icon = "rbxassetid://3944703587",
+	Size = 50
+})
+
+--[[
+Icon = <string> - Find the ID of the icon.
+Size = <number> - Enlarge the image
+]]
 ```
 
 
@@ -462,33 +476,46 @@ OrionLib.Flags["Dropdown"]:Set({"dropdown option", "dropdown option 2"})
 ### Chaning the script of a dropdown
 ```lua
 Dropdown:SetCallback(function(Value)
-	print("huh", Value)
-	for i, v in next, Value do
-		print(i, v)
-	end
+        print("huh", Value)
+        for i, v in next, Value do
+                print(i, v)
+        end
 end)
 
 OrionLib.Flags["Dropdown"]:SetCallback(function(Value)
-	print("hub", Value)
-	for i, v in next, Value do
-		print(i, v)
-	end
+        print("hub", Value)
+        for i, v in next, Value do
+                print(i, v)
+        end
 end)
 ```
+
 
 
 ## Creating a Watermark 
 ```lua
 OrionLib:MakeWatermark({
-	Text = "This in Watermark!",
-	Visible = true,
-	Flag = "Watermark"
+        Text = "This in Watermark!",
+        Visible = true,
+        Flag = "Watermark"
 })
 
 --[[
 Text = <string> - The Text of the watermark.
 Flag = <string> - The flag remote to the watermark.
 Visible = <bool> - It will appear when true, it will disappear when false in watermark
+]]
+```
+
+
+
+
+## Open Ui Keybinds
+```lua
+OrionLib:SetKeyBindVisible(true) -- <bool> - turn on/off to Keybinds toggle
+
+--[[
+how to used: you have add toggle Keybinds are available.
 ]]
 ```
 
@@ -518,11 +545,11 @@ This can connect to Orion, and if it's deleted, it will stop working completely 
 ```lua
 local Time = 0
 OrionLib:AddConnect(game:GetService("RunService").RenderStepped, function()
-	Time += 1
-	if Time >= 50 then
-		print("Loop: Success")
-		Time = 0
-	end
+        Time += 1
+        if Time >= 50 then
+                print("Loop: Success")
+                Time = 0
+        end
 end)
 ```
 If you delete Orion, the connection will stop working, It can prevent spam errors that cause lag and freezes.
@@ -564,6 +591,6 @@ OrionLib:Destroy()
 ## OnDestroying the if remove Interface
 ```lua
 OrionLib:OnDestroy(function()
-	print("HELL YEAAA")
+        print("HELL YEAAA")
 end)
 ```
