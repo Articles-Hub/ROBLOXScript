@@ -608,6 +608,55 @@ function OrionLib:Init()
         end        
 end        
 
+getgenv().TogglesSaveTable = {}
+getgenv().NameBindKey = {}
+function KeyBindAdd()
+	KeyBindFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+	        Size = UDim2.new(0, 235, 0, 160),
+			Position = UDim2.fromOffset(6, 6),
+	        BackgroundTransparency = 0,
+	        Name = "KeyBind",
+			Visible = false,
+	        Parent = Orion
+	}), {
+	        AddThemeObject(SetProps(MakeElement("Label", "Key Binds", 15), {
+	                Size = UDim2.new(1, -12, 0.15, 0),
+	                Position = UDim2.new(0, 8, 0, 0),
+	                Font = Enum.Font.GothamBold,
+	                Name = "Content"
+	        }), "Text"),
+	        AddThemeObject(MakeElement("Stroke"), "Stroke")
+	}), "Second")
+	
+	local WindowTopBarLine = AddThemeObject(SetProps(MakeElement("Frame"), {
+            Size = UDim2.new(1, 0, 0, 1),
+            Position = UDim2.new(0, 0, 0, 25),
+            Parent = KeyBindFrame
+    }), "Stroke")
+	
+	local Container = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 5), {
+		Size = UDim2.new(1, 0, 0.83, 0),
+		Position = UDim2.new(0, 0, 0.17, 0),
+		Parent = KeyBindFrame,
+		Name = "ItemContainer"
+	}), {
+		MakeElement("List", 0, 6),
+		MakeElement("Padding", 15, 10, 10, 15)
+	}), "Divider")
+	
+	MakeDraggable(KeyBindFrame.Content, KeyBindFrame)
+	AddConnection(Container.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+		Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
+	end)
+end
+
+KeyBindAdd()
+function OrionLib:SetKeyBindVisible(visi: bool)
+	if KeyBindFrame then
+		KeyBindFrame.Visible = visi
+	end
+end
+
 function OrionLib:MakeWatermark(Watermark)
 	Watermark = Watermark or {}
 	Watermark.Text = Watermark.Text or "Nah"
@@ -989,8 +1038,23 @@ function OrionLib:MakeWindow(WindowConfig)
 
         AddConnection(UserInputService.InputBegan, function(Input)
                 if Input.KeyCode == _currentKey then
-                        MobileReopenButton.Visible = true
-                        MainWindow.Visible = not MainWindow.Visible
+                        MobileReopenButton.Visible = false
+                        if MinimizedKey then
+	                        TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, 615, 0, 344)}):Play()
+	                        MinimizeBtn.Ico.Image = "rbxassetid://7072719338"
+	                        wait(.02)
+	                        MainWindow.ClipsDescendants = false
+	                        WindowStuff.Visible = true
+	                        WindowTopBarLine.Visible = true
+		                else
+	                        MainWindow.ClipsDescendants = true
+	                        WindowTopBarLine.Visible = false
+	                        MinimizeBtn.Ico.Image = "rbxassetid://7072720870"
+	                        TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, WindowName.TextBounds.X + 140, 0, 50)}):Play()
+	                        wait(0.1)
+	                        WindowStuff.Visible = false        
+		                end
+		                MinimizedKey = not MinimizedKey
                 end
         end)
 
@@ -1363,6 +1427,62 @@ function OrionLib:MakeWindow(WindowConfig)
 								end
                                 return Button
                         end    
+                        function ElementFunction:AddImage(ImageConfig)
+							ImageConfig = ImageConfig or {}
+							ImageConfig.Name = ImageConfig.Name or "Image"
+							ImageConfig.Icon = ImageConfig.Icon or "rbxassetid://0"
+							ImageConfig.Size = ImageConfig.Size or 20
+							ImageConfig.Flag = ImageConfig.Flag or false
+							ImageConfig.Padding = ImageConfig.Padding or 8
+						
+							local Image = {Default = ImageConfig.Icon, Size = ImageConfig.Size, Type = "Image"}
+						
+							local function FrameHeight(iconSize)
+								return iconSize + ImageConfig.Padding * 2
+							end
+						
+							local ImageFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+									Name = ImageConfig.Name,
+									Size = UDim2.new(1, 0, 0, FrameHeight(ImageConfig.Size)),
+									Parent = ItemParent
+								}), {
+								AddThemeObject(SetProps(MakeElement("Image", ImageConfig.Icon), {
+										Name = "Icon",
+										AnchorPoint = Vector2.new(0.5, 0.5),
+										Size = UDim2.new(0, ImageConfig.Size, 0, ImageConfig.Size),
+										Position = UDim2.new(0.5, 0, 0.5, 0),
+										BackgroundTransparency = 1
+									}), "TextDark"),
+								AddThemeObject(MakeElement("Stroke"), "Stroke")
+							}), "Second")
+							
+							IconImage = ImageFrame:FindFirstChild("Icon", true)
+							local function updateLayout(size)
+								if getgenv().Destroy then return end
+								if IconImage then
+									ImageFrame.Size = UDim2.new(1, 0, 0, FrameHeight(size))
+									IconImage.Size = UDim2.new(0, size, 0, size)
+									IconImage.Position = UDim2.new(0.5, 0, 0.5, 0)
+								end
+							end
+						
+							function Image:SetIcon(iconId)
+								if getgenv().Destroy then return end
+								if IconImage then
+									IconImage.Image = tostring(iconId)
+								end
+							end
+						
+							function Image:SetSize(size)
+								if getgenv().Destroy then return end
+								updateLayout(tonumber(size))
+							end
+							
+							if ImageConfig.Flag then
+								OrionLib.Flags[ImageConfig.Flag] = Image
+							end
+							return Image
+						end
                         function ElementFunction:AddToggle(ToggleConfig)
 							ToggleConfig = ToggleConfig or {}
 							ToggleConfig.Name = ToggleConfig.Name or "Toggle"
@@ -1376,7 +1496,8 @@ function OrionLib:MakeWindow(WindowConfig)
 							local Toggle = {
 								Value = ToggleConfig.Default,
 								Save = ToggleConfig.Save,
-								Type = ToggleConfig.Type
+								Type = ToggleConfig.Type,
+								["__DisplayName"] = {}
 							}
 						
 							local Click = SetProps(MakeElement("Button"), {
@@ -1431,35 +1552,77 @@ function OrionLib:MakeWindow(WindowConfig)
 										Size = UDim2.new(1, -12, 1, 0),
 										Position = UDim2.new(0, 12, 0, 0),
 										Font = Enum.Font.GothamBold,
-										Name = "Content"
+										Name = "Content",
 									}), "Text"),
 									AddThemeObject(MakeElement("Stroke"), "Stroke"),
 									ToggleBox,
 									Click
 							}), "Second")
 							
+							function UpdateTweenKeyBindToggles(Object, bool)
+								if Object:FindFirstChild("Switch") and Object.Switch:FindFirstChild("Knob") then
+									TweenService:Create(Object.Switch, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
+										BackgroundColor3 = bool and ToggleConfig.Color or OrionLib.Themes.Default.Divider
+									}):Play()
+									TweenService:Create(Object.Switch.Knob, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
+										Position = bool and UDim2.new(1, -19, 0.48, 0) or UDim2.new(0, 1, 0.48, 0)
+									}):Play()
+								end
+								if Object:FindFirstChild("Check") then
+									TweenService:Create(Object.Check, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+										BackgroundColor3 = bool and ToggleConfig.Color or OrionLib.Themes.Default.Divider
+									}):Play()
+									TweenService:Create(Object.Check.Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+										Color = bool and ToggleConfig.Color or OrionLib.Themes.Default.Stroke
+									}):Play()
+									TweenService:Create(Object.Check.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+										ImageTransparency = bool and 0 or 1,
+										Size = bool and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
+									}):Play()
+								end
+							end
+							
+							local function GetUniqueToggleName(baseName: string)
+								getgenv().ToggleNameCount = getgenv().ToggleNameCount or {}
+								if not getgenv().ToggleNameCount[baseName] then
+									getgenv().ToggleNameCount[baseName] = 1
+									return baseName
+								else
+									getgenv().ToggleNameCount[baseName] += 1
+									return string.format("%s (%d)", baseName, getgenv().ToggleNameCount[baseName])
+								end
+							end
+						
+							function AddTogglesKeyBind(name: string)
+								local KeyBindAdd = ToggleFrame:Clone()
+								KeyBindAdd.Parent = Orion.KeyBind.ItemContainer
+								local displayName = GetUniqueToggleName(name)
+								getgenv().TogglesSaveTable[displayName] = KeyBindAdd
+								Toggle.__DisplayName = displayName
+								if KeyBindAdd then
+									if KeyBindAdd:FindFirstChild("ButtonKey") then
+										KeyBindAdd:FindFirstChild("ButtonKey"):Destroy()
+									end
+									if KeyBindAdd:FindFirstChild("TextButton") then
+										AddConnection(KeyBindAdd:FindFirstChild("TextButton").MouseButton1Up, function()
+											SaveCfg()
+											Toggle:Set(not Toggle.Value)
+											UpdateTweenKeyBindToggles(KeyBindAdd, Toggle.Value)
+										end)
+									end
+									if KeyBindAdd:FindFirstChild("Frame") and KeyBindAdd.Frame:FindFirstChild("Value") then
+										AddConnection(KeyBindAdd.Frame.Value:GetPropertyChangedSignal("Text"), function()
+											local width = KeyBindAdd.Frame.Value.TextBounds.X + 20
+											TweenService:Create(KeyBindAdd.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Size = UDim2.new(0, width, 0, 24)}):Play()
+										end)
+									end
+								end
+							end
+							
 							function Toggle:Set(Value)
 								if getgenv().Destroy then return end
 								Toggle.Value = Value
-								if ToggleConfig.Type == "Switch" then
-									TweenService:Create(ToggleBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
-										BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider
-									}):Play()
-									TweenService:Create(ToggleBox.Knob, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
-										Position = Toggle.Value and UDim2.new(1, -19, 0.48, 0) or UDim2.new(0, 1, 0.48, 0)
-									}):Play()
-								else
-									TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
-										BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider
-									}):Play()
-									TweenService:Create(ToggleBox.Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
-										Color = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Stroke
-									}):Play()
-									TweenService:Create(ToggleBox.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
-										ImageTransparency = Toggle.Value and 0 or 1,
-										Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
-									}):Play()
-								end
+								UpdateTweenKeyBindToggles(ToggleFrame, Toggle.Value)
 								local ok, err = pcall(function()
 									ToggleConfig.Callback(Toggle.Value)
 								end)
@@ -1467,7 +1630,7 @@ function OrionLib:MakeWindow(WindowConfig)
 									OrionLib:MakeNotification({Name = "Error Script", Content = err, Time = 5})
 								end
 							end
-						
+							
 							if ToggleConfig.Default == true then
 								Toggle:Set(true)
 							end
@@ -1475,6 +1638,12 @@ function OrionLib:MakeWindow(WindowConfig)
 							AddConnection(Click.MouseButton1Up, function()
 								SaveCfg()
 								Toggle:Set(not Toggle.Value)
+								if Toggle.__DisplayName then
+									local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
+									if data then
+										UpdateTweenKeyBindToggles(data, Toggle.Value)
+									end
+								end
 							end)
 						
 							function Toggle:AddBind(BindConfig)
@@ -1496,6 +1665,7 @@ function OrionLib:MakeWindow(WindowConfig)
 									Position = (ToggleConfig.Type == "Switch" and UDim2.new(1, -55, 0.5, 0) or UDim2.new(1, -48, 0.5, 0)),
 									AnchorPoint = Vector2.new(1, 0.5),
 									Parent = ToggleFrame,
+									Name = "ButtonKey",
 									ZIndex = 4
 								})
 						
@@ -1505,7 +1675,7 @@ function OrionLib:MakeWindow(WindowConfig)
 										Position = Click.Position,
 										AnchorPoint = Vector2.new(1, 0.5),
 										Parent = ToggleFrame,
-										ZIndex = 4
+										ZIndex = 1
 									}), {
 										AddThemeObject(MakeElement("Stroke"), "Stroke"),
 										AddThemeObject(SetProps(MakeElement("Label", Bind.Value, 14), {
@@ -1513,9 +1683,13 @@ function OrionLib:MakeWindow(WindowConfig)
 											Font = Enum.Font.GothamBold,
 											TextXAlignment = Enum.TextXAlignment.Center,
 											Name = "Value",
-											ZIndex = 4
+											ZIndex = 1
 										}), "Text")
 									}), "Main")
+									
+								function CheckBindTo()
+									return ToggleFrame and ToggleFrame:FindFirstChild("Frame") and ToggleFrame.Frame:FindFirstChild("Value") and true or false
+								end
 						
 								AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
 									local width = BindBox.Value.TextBounds.X + 20
@@ -1539,11 +1713,25 @@ function OrionLib:MakeWindow(WindowConfig)
 											Bind.Value = Input.KeyCode.Name
 											BindBox.Value.Text = Bind.Value
 											Bind.Binding = false
+											if Toggle.__DisplayName then
+												if getgenv().TogglesSaveTable[Toggle.__DisplayName] then
+													local FrameToHere = getgenv().TogglesSaveTable[Toggle.__DisplayName]
+													if FrameToHere and FrameToHere:FindFirstChild("Frame") and FrameToHere.Frame:FindFirstChild("Value") then
+														FrameToHere.Frame:FindFirstChild("Value").Text = Input.KeyCode.Name
+													end
+												end
+											end
 										end
 										return
 									end
 									if Input.KeyCode.Name == Bind.Value then
 										Toggle:Set(not Toggle.Value)
+										if Toggle.__DisplayName then
+											local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
+											if data then
+												UpdateTweenKeyBindToggles(data, Toggle.Value)
+											end
+										end
 									end
 								end)
 						
@@ -1551,7 +1739,17 @@ function OrionLib:MakeWindow(WindowConfig)
 									if getgenv().Destroy then return end
 									Bind.Value = Key.Name or Key
 									BindBox.Value.Text = Bind.Value
+									if Toggle.__DisplayName then
+										if getgenv().TogglesSaveTable[Toggle.__DisplayName] then
+											local FrameToHere = getgenv().TogglesSaveTable[Toggle.__DisplayName]
+											if FrameToHere and FrameToHere:FindFirstChild("Frame") and FrameToHere.Frame:FindFirstChild("Value") then
+												FrameToHere.Frame:FindFirstChild("Value").Text = Key
+											end
+										end
+									end
 								end
+								
+								AddTogglesKeyBind(ToggleConfig.Name)
 						
 								if BindConfig.Flag then
 									OrionLib.Flags[Toggle][BindConfig.Flag] = Bind
