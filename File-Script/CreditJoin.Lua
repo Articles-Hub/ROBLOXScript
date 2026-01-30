@@ -1,3 +1,37 @@
+local cloneref = (cloneref or clonereference or function(instance: any)
+    return instance
+end)
+
+local quest = request or http_request or (syn and syn.request) or (http and http.request) or (fluxus and fluxus.request)
+local HttpService: HttpService = cloneref(game:GetService("HttpService"))
+local InviteCode = "aD7gjtvPmv"
+local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
+success, result = pcall(function()
+    return HttpService:JSONDecode(quest({
+        Url = DiscordAPI,
+        Method = "GET",
+        Headers = {
+            ["User-Agent"] = "RobloxBot/1.0",
+            ["Accept"] = "application/json"
+        }
+    }).Body)
+end)
+
+function UpdateDiscord()
+	return HttpService:JSONDecode(quest({Url = DiscordAPI, Method = "GET"}).Body)
+end
+
+CreditScript = {
+    ["Giang Hub"] = {
+        Text = '[<font color="rgb(73, 230, 133)">Giang Hub</font>] Co-Owner Of Article Hub and Nihahaha Hub',
+        Image = "rbxassetid://138779531145636"
+    },
+    ["Nova Hoang"] = {
+        Text = '[<font color="rgb(73, 230, 133)">Nova Hoang (Nguyễn Tn Hoàng)</font>] Owner Of Article Hub and Nihahaha Hub',
+        Image = "rbxassetid://77933782593847",
+    }
+}
+
 if getgenv().CreditToUi == "Orion" then
 local TabCredits = getgenv().WindowNah:MakeTab({Name = "Credit / Join", Icon = "rbxassetid://7733955511", PremiumOnly = false})
 if CreditScript then
