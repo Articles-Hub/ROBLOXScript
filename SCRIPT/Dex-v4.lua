@@ -1753,6 +1753,7 @@ local function main()
 		if presentClasses["BasePart"] or presentClasses["Model"] then
 			context:AddRegistered("TELEPORT_TO")
 			context:AddRegistered("VIEW_OBJECT")
+			context:AddRegistered("UNVIEW_OBJECT")
 			context:AddRegistered("3DVIEW_MODEL")
 		end
 		if presentClasses["Tween"] then context:AddRegistered("PLAY_TWEEN") end
@@ -2302,6 +2303,12 @@ local function main()
 			end
 		end, OnRightClick = function()
 			workspace.CurrentCamera.CameraSubject = plr.Character
+		end})
+		
+		context:Register("UNVIEW_OBJECT",{Name = "Unview Other Object", IconMap = Explorer.LegacyClassIcons, Icon = 5, OnClick = function()
+			pcall(function()
+				workspace.CurrentCamera.CameraSubject = plr.Character
+			end)
 		end})
 
 		context:Register("VIEW_SCRIPT",{Name = "View Script", IconMap = Explorer.MiscIcons, Icon = "ViewScript", DisabledIcon = "Empty", OnClick = function()
@@ -15046,9 +15053,28 @@ Main = (function()
 		
 		Main.CreateApp({Name = "3D Viewer", IconMap = Explorer.LegacyClassIcons, Icon = 54, Window = ModelViewer.Window})
 
+		if (typeof(queueonteleport) == "function" or typeof(queue_on_teleport) == "function") and typeof(getgenv) == "function" then
+			Main.CreateApp({Name = "TP on executor", IconMap = Main.LargeIcons, Icon = "Script_Viewer", OnClick = function(callback)
+				if callback then
+					exeOnTp = game.Players.LocalPlayer.OnTeleport:Connect(function()
+						if not callback or getgenv().LoadingExe then return end
+						getgenv().LoadingExe = true
+						local ExecuteNowTP = queueonteleport or queue_on_teleport
+						if ExecuteNowTP then
+							ExecuteNowTP([[
+							    if not game:IsLoaded() then
+							        game.Loaded:Wait()
+							    end
+							    repeat wait() until game.Players.LocalPlayer
+							    loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/SCRIPT/Dex-v4.lua"))()
+							]])
+						end
+					end)
+				else if exeOnTp ~= nil then exeOnTp:Disconnect() exeOnTp = nil end end
+			end})
+		end
+		
 		--Main.CreateApp({Name = "Secret Service Panel", IconMap = Main.LargeIcons, Icon = "Output", Window = SecretServicePanel.Window})
-
-
 		Lib.ShowGui(gui)
 	end
 
@@ -15181,7 +15207,7 @@ Main = (function()
 		Main.CreateMainGui()
 		Explorer.Window:Show({Align = "right", Pos = 1, Size = 0.5, Silent = true})
 		Properties.Window:Show({Align = "right", Pos = 2, Size = 0.5, Silent = true})
-		
+	
 		Lib.DeferFunc(function() Lib.Window.ToggleSide("right") end)
 	end
 
