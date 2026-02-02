@@ -1,3 +1,9 @@
+for i, v in pairs({"xeno", "solara", "celery", "nezur", "luna"}) do
+    if string.find(identifyexecutor():lower(), v) then
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Executor Waning", Text = "Unfortunately, " .. identifyexecutor() .. " won't be able to run many of the features in the script due to its power, goodluck", Duration = 60})
+    end
+end
+
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local PFS = game:GetService("PathfindingService")
@@ -23,12 +29,13 @@ local AnimationTrack = hum:FindFirstChildOfClass("Animator") or nil
 local playergui = player:WaitForChild("PlayerGui")
 local maingui = playergui:WaitForChild("MainUI")
 
+_G.Connect = {}
 spawn(function()
-	while task.wait() do
-		char = player.Character or player.CharacterAdded:Wait()
-		root = char:FindFirstChild("HumanoidRootPart") or nil
-		hum = char:FindFirstChild("Humanoid") or nil
-		AnimationTrack = hum:FindFirstChildOfClass("Animator")
+	while true do
+		char = player.Character or nil
+		root = (char and char:FindFirstChild("HumanoidRootPart")) or nil
+		hum = (char and char:FindFirstChild("Humanoid")) or nil
+		AnimationTrack = (hum and hum:FindFirstChildOfClass("Animator")) or nil
 		if require then
 			if not staminaModule then
 				local ok, err = pcall(function()
@@ -38,6 +45,7 @@ spawn(function()
 				end)
 			end
 		end
+	task.wait()
 	end
 end)
 
@@ -70,15 +78,6 @@ _G.GetOldBright = {
 		OutdoorAmbient = Color3.fromRGB(128, 128, 128)
 	}
 }
-
-function CheckWall(Target, Target1)
-    local Direction = (Target.Position - game.Workspace.CurrentCamera.CFrame.Position).unit * (Target.Position - game.Workspace.CurrentCamera.CFrame.Position).Magnitude
-    local RaycastParams = RaycastParams.new()
-    RaycastParams.FilterDescendantsInstances = {game.Players.LocalPlayer.Character, game.Workspace.CurrentCamera}
-    RaycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-    local Result = game.Workspace:Raycast(game.Workspace.CurrentCamera.CFrame.Position, Direction, RaycastParams)
-    return Result == nil or Result.Instance:IsDescendantOf(Target1)
-end
 
 _G.UpdateBasePart = {}
 _G.UpdateParticle = {}
@@ -147,32 +146,49 @@ game.DescendantAdded:Connect(function(v)
 	RemoveLagTo(v)
 end)
 
+function charAb(s)
+	return string.char(3, (#s), 0, 0, 0)..s
+end
+
 getgenv()._VoidRushBypass = false
 getgenv()._WalkspeedOverrideBypass = false
 getgenv()._AntiFootsteps = false
+
+function HookCreated(remote, Name)
+	if not getgenv()._oldFireServerTable[Name] and hookmetamethod and getnamecallmethod then
+		local old
+	    old = hookmetamethod(game, "__namecall", function(self, ...)
+			local method = getnamecallmethod()
+	        local args = {...}
+	        if self == Remote and method == "FireServer" then
+	            if args[1] == remote then
+	                return
+	            end
+			end
+			return old(self, ...)
+	    end)
+		getgenv()._oldFireServerTable[Name] = old
+	end
+end
+function HookRemove(Name)
+	if getgenv()._oldFireServerTable[Name] and hookmetamethod then
+		hookmetamethod(game, "__namecall", getgenv()._oldFireServerTable[Name])
+	end
+end
+
 if not getgenv()._oldFireServer and hookmetamethod and getnamecallmethod then
     local old
     old = hookmetamethod(game, "__namecall", function(self, ...)
         local method = getnamecallmethod()
         local args = {...}
         if self == Remote and method == "FireServer" then
-            if args[1] == player.Name.."VoidRushCollision" then
-                if getgenv()._VoidRushBypass then
-                    return 
-                end
-            end
-            if args[1] == player.Name.."C00lkiddCollision" then
-                if getgenv()._WalkspeedOverrideBypass then
-                    return 
-                end
-            end
             if getgenv()._BlockSkateRebound and tostring(args[1]) == player.Name.."SkateRebound" then
 	            return nil
 	        end
 	        if getgenv()._BlockSkateRebound and tostring(args[1]) == player.Name.."StopSkate" and typeof(args[2]) == "table" then
 	            for i, v in ipairs(args[2]) do
 	                if typeof(v) == "Instance" then
-						Remote:FireServer(player.Name.."StopSkate", {buffer.fromstring("\"Manual\"")})
+						Remote:FireServer(player.Name.."StopSkate", {buffer.fromstring(charAb("Manual"))})
 	                    return nil
 	                end
 	            end
@@ -202,14 +218,14 @@ Animations = {
 		"88582935528044", "94958041603347", "131642454238375", "110702884830060", "91509234639766",
 		"94634594529334", "91758760621955", "77375846492436", "119462383658044", "110153465553223",
 		"126171487400618", "18885909645", "18885919947", "70371667919898", "70447634862911",
-		"71685573690338",
+		"71685573690338", "134020762419760", "85960461320564", "82113036350227", "88451353906104",
+		"123345437821399", "123019923277556", "137679730950847", "81299297965542"
 	},
 	["Aimbot Killer"] = {
 		["Sixer"] = {
 			["Infernal Cry"] = {"121808371053483"},
 			["Demonic Pursuit"] = {"139309647473555"}
-		},
-		["c00kidd"] = {}
+		}
 	},
 	["Hitbox Reach"] = {
 		"18885909645", "18885919947", "70371667919898", "70447634862911", "71685573690338",
@@ -235,7 +251,9 @@ Animations = {
 		"131642454238375", "131696603025265", "133336594357903", "133363345661032", "134958187822107",
 		"136007065400978", "136007065400978", "136323728355613", "137314737492715", "138040001965654",
 		"139309647473555", "139613699193400", "139835501033932", "140365014326125", "140703210927645",
-		"110153465553223"
+		"110153465553223", "134020762419760", "85960461320564", "82113036350227", "88451353906104",
+		"103995840833619", "72186169160926", "82113036350227", "88451353906104", "123345437821399", 
+		"123019923277556", "137679730950847", "81299297965542"
 	},
 	["Aimbot Pizza"] = {
 		"114155003741146", "104033348426533"
@@ -256,12 +274,91 @@ Animations = {
 	["Aimbot Two Time"] = {
         "115194624791339", "89448354637442", "77119710693654", "107640065977686", "112902284724598",
         "86545133269813"
-	}
+	},
+	["Aura Hit"] = {}
 }
 
-local function isFacing(target)
-    return target.CFrame.LookVector:Dot((root.Position - target.Position).Unit) > -0.3
+AutoErrorTriggerSounds = {
+    "86710781315432",
+    "99820161736138",
+    "609342351",
+    "81976396729343",
+    "12222225",
+    "80521472651047",
+    "139012439429121",
+    "91194698358028",
+    "111910850942168",
+    "83851356262523",
+}
+
+local function HasValue(tbl, val)
+	for _, v in ipairs(tbl) do
+		if v == val then
+			return true
+		end
+	end
+	return false
 end
+local function InsertAnim(tbl, anim)
+	if not anim or type(anim) ~= "string" then
+		return
+	end
+	local id = anim:match("%d+")
+	if id and not HasValue(tbl, id) then
+		table.insert(tbl, id)
+	end
+end
+spawn(function()
+	for _, v in ipairs(Storage:GetDescendants()) do
+		if v.Name == "Config" and v:IsA("ModuleScript") then
+			local success, RequireGet = pcall(require, v)
+			if not success then continue end
+			if type(RequireGet) ~= "table" or not RequireGet.Animations then continue end
+			local AnimationTo = RequireGet.Animations
+			InsertAnim(Animations.KillerAnima, AnimationTo.Stab)
+			InsertAnim(Animations.KillerAnima, AnimationTo.Attack)
+			InsertAnim(Animations.KillerAnima, AnimationTo.Slash)
+			InsertAnim(Animations.KillerAnima, AnimationTo.WalkspeedOverrideStart)
+			InsertAnim(Animations.KillerAnima, AnimationTo.WalkspeedOverrideLoop)
+			if AnimationTo.VoidRush then
+				InsertAnim(Animations.KillerAnima, AnimationTo.VoidRush.StartCharge)
+				InsertAnim(Animations.KillerAnima, AnimationTo.VoidRush.LoopCharge)
+				InsertAnim(Animations["Hitbox Reach"], AnimationTo.VoidRush.StartCharge)
+				InsertAnim(Animations["Hitbox Reach"], AnimationTo.VoidRush.LoopCharge)
+			end
+			InsertAnim(Animations["Aimbot Push"], AnimationTo.Punch)
+			InsertAnim(Animations["Aimbot Push"], AnimationTo.ParryPunch)
+			for i, v in pairs(AnimationTo) do
+				if type(i) == "string" then
+					if i:find("Cry") then
+						InsertAnim(Animations.KillerAnima, v)
+						InsertAnim(Animations["Hitbox Reach"], v)
+					end
+					if i:find("Block") then
+						InsertAnim(Animations["Aura Hit"], v)
+					end
+					if i:find("Pizza") then
+						InsertAnim(Animations["Aimbot Pizza"], v)
+					end
+				end
+			end
+			InsertAnim(Animations["Hitbox Reach"], AnimationTo.Stab)
+			InsertAnim(Animations["Hitbox Reach"], AnimationTo.Attack)
+			InsertAnim(Animations["Hitbox Reach"], AnimationTo.Slash)
+			InsertAnim(Animations["Hitbox Reach"], AnimationTo.WalkspeedOverrideStart)
+			InsertAnim(Animations["Hitbox Reach"], AnimationTo.WalkspeedOverrideLoop)
+			InsertAnim(Animations["Hitbox Reach"], AnimationTo.Punch)
+			InsertAnim(Animations["Hitbox Reach"], AnimationTo.ParryPunch)
+			
+			if type(RequireGet) ~= "table" or not RequireGet.Sounds then continue end
+			if v.Parent.Parent.Name:lower():find("survivors") then
+				local SoundTo = RequireGet.Sounds
+				InsertAnim(AutoErrorTriggerSounds, SoundTo.Hit)
+				InsertAnim(AutoErrorTriggerSounds, SoundTo.Slash)
+			end
+		end
+	end
+end)
 
 function Aimbot(target, prediction)
 	local direction = ((target.Position + (target.CFrame.LookVector * prediction)) - root.Position).Unit
@@ -315,21 +412,6 @@ function ClosestSurvivor()
     return closest
 end
 
-function PlayingAnimationId()
-    local ids = {}
-    if hum then
-        for _, v in ipairs(hum:GetPlayingAnimationTracks()) do
-            if v.Animation and v.Animation.AnimationId then
-                local id = v.Animation.AnimationId:match("%d+")
-                if id then
-                    ids[id] = true
-                end
-            end
-        end
-    end
-    return ids
-end
-
 function isHighlightTargetMe(highlight)
     if not char or not highlight.Adornee then return false end
     if highlight.Adornee == char then
@@ -371,14 +453,14 @@ function KillersAttack()
 	local AbilityContainer = maingui and maingui:FindFirstChild("AbilityContainer")
 	if not AbilityContainer:FindFirstChild("Slash") then
         if AbilityContainer:FindFirstChild("Punch") and AbilityContainer.Punch:FindFirstChild("CooldownTime") and AbilityContainer.Punch.CooldownTime.Text == "" then
-            Remote:FireServer("UseActorAbility", {buffer.fromstring("\"Punch\"")})
+            Remote:FireServer("UseActorAbility", {buffer.fromstring(charAb("Punch"))})
         elseif AbilityContainer:FindFirstChild("Stab") and AbilityContainer.Stab:FindFirstChild("CooldownTime") and AbilityContainer.Stab.CooldownTime.Text == "" then
-            Remote:FireServer("UseActorAbility", {buffer.fromstring("\"Stab\"")})
+            Remote:FireServer("UseActorAbility", {buffer.fromstring(charAb("Stab"))})
         elseif AbilityContainer:FindFirstChild("Carving Slash") and AbilityContainer["Carving Slash"]:FindFirstChild("CooldownTime") and AbilityContainer["Carving Slash"].CooldownTime.Text == "" then
-            Remote:FireServer("UseActorAbility", {buffer.fromstring("\"Carving Slash\"")})
+            Remote:FireServer("UseActorAbility", {buffer.fromstring(charAb("Carving Slash"))})
         end
     else
-        Remote:FireServer("UseActorAbility", {buffer.fromstring("\"Slash\"")})
+        Remote:FireServer("UseActorAbility", {buffer.fromstring(charAb("Slash"))})
     end
 end
 
@@ -431,7 +513,46 @@ playerout.PlayerAdded:Connect(function(player)
     end
 end)
 
-_G.Connect = {}
+local function SoundPosition(sound)
+	if sound.Parent and sound.Parent:IsA("BasePart") then
+		return sound.Parent.Position
+	elseif sound.Parent and sound.Parent:IsA("Attachment") and sound.Parent.Parent:IsA("BasePart") then
+		return sound.Parent.Parent.Position
+	end
+	local part = sound.Parent and sound.Parent:FindFirstChildWhichIsA("BasePart", true)
+	if part then
+		return part.Position
+	end
+	return nil
+end
+
+local function SoundAutoParry(sound)
+	if not _G.AutoParryError then return end
+	if not char or not root then return end
+	if not string.find(char.Name:lower(), "johndoe") then return end
+	if not sound:IsA("Sound") or not sound.IsPlaying then return end
+	if not table.find(AutoErrorTriggerSounds, tostring(sound.SoundId):match("%d+")) then return end
+	local pos = SoundPosition(sound)
+	if pos then
+		if (root.Position - pos).Magnitude > (_G.DistanceParry or 15) then
+			return
+		end
+	end
+	Remote:FireServer("UseActorAbility", {buffer.fromstring(charAb("404Error"))})
+end
+
+function HookSound(sound)
+	if not sound:IsA("Sound") then return end
+	sound.Played:Connect(function()
+		SoundAutoParry(sound)
+	end)
+	sound:GetPropertyChangedSignal("IsPlaying"):Connect(function()
+        SoundAutoParry(sound)
+    end)
+	if sound.IsPlaying then
+		SoundAutoParry(sound)
+	end
+end
 
 local ESPLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/bocaj111004/ESPLibrary/refs/heads/main/Library.lua"))()
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/Test.lua"))()
@@ -464,7 +585,7 @@ local CurrentRooms = 0
 local FrameCounter = 0
 local FPS = 60
 local VoidRushRandomSurvivors = {}
-RunService.RenderStepped:Connect(function()
+table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 FrameCounter += 1
 if (tick() - FrameTimer) >= 1 then
     FPS = FrameCounter
@@ -509,6 +630,22 @@ if _G.VoidRushControl then
 		end
 	end
 end
+if _G.VoidRushAimbot then
+	local VoidRush = char and char:GetAttribute("VoidRushState")
+	if VoidRush and VoidRush == "Dashing" then
+		local targetSur = ClosestSurvivor()
+		if targetSur then
+	        local dir = targetSur.HumanoidRootPart.Position - root.Position
+	        local horizontal = Vector3.new(dir.X, 0, dir.Z)
+	        if horizontal.Magnitude > 0 then
+	            root.CFrame = CFrame.new(root.Position, Vector3.new(targetSur.HumanoidRootPart.Position.X, root.Position.Y, targetSur.HumanoidRootPart.Position.Z))
+	            root.AssemblyLinearVelocity = horizontal.Unit * 80
+	        else
+	            root.AssemblyLinearVelocity = Vector3.zero
+	        end
+		end
+	end
+end
 if _G.VoidRushTeleport then
 	local VoidRush = char and char:GetAttribute("VoidRushState")
 	if VoidRush and VoidRush == "Dashing" then
@@ -529,24 +666,47 @@ if _G.VoidRushTeleport then
 		end
 	end
 end
-if _G.WalkSpeedc00kiddControl then
-	if char and char.Name == "c00lkidd" then
-		if root:FindFirstChild("LinearVelocity") then
-			root:FindFirstChild("LinearVelocity").Enabled = false
-		end
-		local look = cam.CFrame.LookVector
-		if look and root:FindFirstChild("LinearVelocity") then
-		    hum.WalkSpeed = 60
-			hum.AutoRotate = false
-			
-			local Look = root.CFrame.LookVector
-			local Horizontal = Vector3.new(Look.X, 0, Look.Z)
-			if Horizontal.Magnitude > 0 then
-			    hum:Move(Horizontal.Unit)
+if char and char.Name:lower() == "c00lkidd" then
+	if root and root:FindFirstChildOfClass("LinearVelocity") then
+		root:FindFirstChildOfClass("LinearVelocity").Enabled = false
+		if _G.WalkSpeedc00kiddControl then
+			lookVector = root.CFrame.LookVector
+			moveDir = Vector3.new(lookVector.X, 0, lookVector.Z)
+	        if moveDir.Magnitude > 0 then
+	            moveDir = moveDir.Unit
+	            root.Velocity = Vector3.new(moveDir.X * 100, root.Velocity.Y, moveDir.Z * 100)
+	            root.CFrame = CFrame.new(root.Position, root.Position + moveDir)
+	        end
+		elseif _G.WalkSpeedc00kiddAimbot then
+			local targetSur = ClosestSurvivor()
+			if targetSur then
+		        local dir = targetSur.HumanoidRootPart.Position - root.Position
+		        local horizontal = Vector3.new(dir.X, 0, dir.Z)
+		        if horizontal.Magnitude > 0.1 then
+		            root.CFrame = CFrame.new(root.Position, Vector3.new(targetSur.HumanoidRootPart.Position.X, root.Position.Y, targetSur.HumanoidRootPart.Position.Z))
+		            root.AssemblyLinearVelocity = horizontal.Unit * 80
+		        else
+		            root.AssemblyLinearVelocity = Vector3.zero
+		        end
 			end
-		else
-			if hum then
-				hum.AutoRotate = true
+		end
+	end
+end
+if Toggles["Demonic Pursuit Aimbot"] and Toggles["Demonic Pursuit Aimbot"].Value then
+	if AnimationTrack then
+	    for _, v in ipairs(AnimationTrack:GetPlayingAnimationTracks()) do
+	        if table.find(Animations["Aimbot Killer"].Sixer["Demonic Pursuit"], tostring(v.Animation.AnimationId):match("%d+")) then
+				local targetSur = ClosestSurvivor()
+				if targetSur and targetSur:FindFirstChild("HumanoidRootPart") then
+					local dir = targetSur.HumanoidRootPart.Position - root.Position
+			        local horizontal = Vector3.new(dir.X, 0, dir.Z)
+			        if horizontal.Magnitude > 0 then
+			            root.CFrame = CFrame.new(root.Position, Vector3.new(targetSur.HumanoidRootPart.Position.X, root.Position.Y, targetSur.HumanoidRootPart.Position.Z))
+			            root.AssemblyLinearVelocity = horizontal.Unit * 80
+			        else
+			            root.AssemblyLinearVelocity = Vector3.zero
+			        end
+				end
 			end
 		end
 	end
@@ -578,7 +738,36 @@ if Toggles["Slash Aura"] and Toggles["Slash Aura"].Value then
 	if hum then
 		local Aura = SurviveTarget(_G.DetectionRangeAura or 7)
 		if Aura then
-			KillersAttack()
+			if Aura.Parent and Aura.Parent.Name:lower():find("guest") then
+				local humplr = Aura.Parent:FindFirstChildOfClass("Humanoid")
+				local animTracks = humplr and humplr:FindFirstChildOfClass("Animator") and humplr:FindFirstChildOfClass("Animator"):GetPlayingAnimationTracks()
+				for _, v in ipairs(animTracks or {}) do
+			        if not tostring(v.Animation.AnimationId):match("%d+"):find(Animations["Aura Hit"]) then
+						HitNow = true
+					end
+				end
+			else
+				HitNow = true
+			end
+		end
+	end
+	if HitNow then
+		KillersAttack()
+		if not _G.AutoMove then
+			Aimbot(Aura, 0.01)
+		end
+	end
+end
+if Toggles["Aimbot Corrupt Energy"] and Toggles["Aimbot Corrupt Energy"].Value then
+	if hum then
+		if char and string.find(char.Name:lower(), "johndoe") then
+			if tonumber(hum.WalkSpeed) < 0.05 then
+				local targetSur = ClosestSurvivor()
+		        if targetSur then
+			        local Sharpness = (Options["Sharpness Corrupt Energy"].Value or 1)
+		            Aimbot(targetSur.HumanoidRootPart, Sharpness)
+		        end
+			end
 		end
 	end
 end
@@ -607,30 +796,30 @@ if hum then
 			        end
 				end
 			end
-			if Toggles["Two Time Aimbot"] and Toggles["Two Time Aimbot"].Value then
-				if table.find(Animations["Aimbot Two Time"], tostring(v.Animation.AnimationId):match("%d+")) then
-					RootWhat()
-			        if targetKill then
-				       Aimbot(targetKill, 0.1)
-			        end
-				end
-			end
 			if Toggles["Pizza Aimbot"] and Toggles["Pizza Aimbot"].Value then
 				if table.find(Animations["Aimbot Pizza"], tostring(v.Animation.AnimationId):match("%d+")) then
 					RootWhat()
 					local targetSur = nil
+					local TabletSur = {}
 			        local SurvivorsFolder = workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild("Survivors")
 				    if SurvivorsFolder then
 				        for _, v in ipairs(SurvivorsFolder:GetChildren()) do
-				            if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health < (_G.HealthPizzaPlayer or 70) and Distance(v.HumanoidRootPart.Position) <= (Options["Distance Aimbot Pizza"].Value or 50) then
-				                targetSur = v
+				            if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and Distance(v.HumanoidRootPart.Position) <= (Options["Distance Aimbot Pizza"].Value or 50) then
+				                table.insert(TabletSur, {v.HumanoidRootPart, v.Humanoid.Health})
 				            end
 				        end
 				    end
-			        if targetSur and targetSur:FindFirstChild("HumanoidRootPart") then
-				        local Sharpness = (Options["Sharpness Pizza"].Value or 1)
-			            Aimbot(targetSur.HumanoidRootPart, Sharpness)
-			        end
+					if TabletSur then
+						table.sort(TabletSur, function(a, b)
+							return a[2] > b[2]
+						end)
+					end
+					for _, v in ipairs(TabletSur or {}) do
+						if v[1] and v[2] <= (_G.HealthPizzaPlayer or 50) then
+							local Sharpness = (Options["Sharpness Pizza"].Value or 1)
+				            Aimbot(v[1], Sharpness)
+						end
+					end
 				end
 			end
 			if Toggles["Infernal Cry Aimbot"] and Toggles["Infernal Cry Aimbot"].Value then
@@ -645,6 +834,29 @@ if hum then
 			        end
 				end
 			end
+			if Toggles["Two Time Crouch Stab"] and Toggles["Two Time Crouch Stab"].Value then
+				if tostring(v.Animation.AnimationId):match("%d+"):find("89448354637442") then
+					local targetKill = KillerTarget()
+					if targetKill and Distance2(targetKill.Position) <= (_G.DetectionRangeTwoTime or 9) then
+						RootWhat()
+						if not ConnectWaitAimbot then
+							clock = os.clock()
+							ConnectWaitAimbot = true
+							while os.clock() - clock < 1 do
+								if os.clock() - clock < 0.2 then
+									Aimbot(targetKill, 5.2)
+								end
+								if os.clock() - clock < 0.4 then
+									local look = targetKill.CFrame.LookVector
+							        local KillerPosUhh = targetKill.Position - look * 3
+							        root.CFrame = CFrame.new(KillerPosUhh, KillerPosUhh + look)
+								end
+								task.wait()
+							end
+						end
+					end
+				end
+			end
 	    end
 	end
 end
@@ -652,40 +864,39 @@ if Toggles["Two Time Teleport"] and Toggles["Two Time Teleport"].Value then
 	if root then
 		local Dagger = maingui and maingui:FindFirstChild("AbilityContainer") and maingui.AbilityContainer:FindFirstChild("Dagger")
 	    local cooldown = Dagger and Dagger:FindFirstChild("CooldownTime")
-		if cooldown and cooldown.Text == "" then
+		local NoChanges = Dagger and Dagger:FindFirstChild("NoChanges")
+		if cooldown and cooldown.Text == "" and not NoChanges then
 			local targetKill = KillerTarget()
 			if targetKill and Distance2(targetKill.Position) <= (_G.DetectionRangeTwoTime or 9) then
-				local look = targetKill.CFrame.LookVector
-		        local KillerPosUhh = targetKill.Position - look * 3
-		        root.CFrame = CFrame.new(KillerPosUhh, KillerPosUhh + look)
+				if not ConnectWait then
+					clock = os.clock()
+					ConnectWait = true
+					while os.clock() - clock < 1 do
+						if os.clock() - clock < 0.5 then
+							if AnimationTrack then
+							    for _, v in ipairs(AnimationTrack:GetPlayingAnimationTracks()) do
+									if not tostring(v.Animation.AnimationId):match("%d+"):find("89448354637442") then
+										local look = targetKill.CFrame.LookVector
+								        local KillerPosUhh = targetKill.Position - look * 3
+								        root.CFrame = CFrame.new(KillerPosUhh, KillerPosUhh + look)
+									end
+								end
+							end
+						end
+						if os.clock() - clock > 0.25 then
+							if cooldown and cooldown.Text == "" and not NoChanges then
+								Remote:FireServer("UseActorAbility", {buffer.fromstring(charAb("Dagger"))})
+							end
+						end
+						task.wait()
+					end
+					ConnectWait = false
+				end
 			end
 		end
 	end
 end
-end)
-
-if not getgenv()._oldFun and require and hookfunction then
-    getgenv()._oldFun = hookfunction(require(game:GetService("ReplicatedStorage").Systems.Player.Miscellaneous.GetPlayerMousePosition).GetMousePos, function(...)
-	    if Toggles["Dusk Aimbot Assist"] and Toggles["Dusk Aimbot Assist"].Value then
-			if KillerTarget() and char and char.Name == "Dusekkar" then
-				return KillerTarget().Position
-			elseif not KillerTarget() or not char or not char.Name == "Dusekkar" then
-				return getgenv()._oldFun
-			end
-		end
-    end)
-	getgenv()._oldFunScreen = hookfunction(require(game:GetService("ReplicatedStorage").Modules.Util).IsOnScreen, function(...)
-		if Toggles["Protection Bypass"] and Toggles["Protection Bypass"].Value then
-			if char and char.Name == "Dusekkar" then
-				return true
-			else
-				return getgenv()._oldFunScreen
-			end
-		else
-			return getgenv()._oldFunScreen
-		end
-	end)
-end
+end))
 
 table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 	if Toggles["Auto Skate Trick"] and Toggles["Auto Skate Trick"].Value then
@@ -702,18 +913,8 @@ local Nopath = false
 table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 	if _G.AutoMove then
 		if tick() - LastPathTime < 1 then return end
-		local Destination, ClosestDist = nil, math.huge
-		local survivors = workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild(Options.Move.Value)
-		if not survivors then return end		
-		for _, v in ipairs(survivors:GetChildren()) do
-			if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v:GetAttribute("Username") ~= player.Name then
-				local dist = (root.Position - v.HumanoidRootPart.Position).Magnitude
-				if dist < ClosestDist then
-					Destination = v.HumanoidRootPart
-					ClosestDist = dist
-				end
-			end
-		end
+		local Survivor = (Options["Move"] and Options["Move"].Value == "Survivors" and ClosestSurvivor() or KillerTarget().Parent)
+		local Destination = Survivor and Survivor:FindFirstChild("HumanoidRootPart")
 		if Destination and hum and root and not Nopath then
 			LastPathTime = tick()
 			CurrentTarget = Destination
@@ -749,23 +950,23 @@ table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 					end
 					for i, Waypoint in pairs(Waypoints) do
 						if i == 1 then continue end
-						if not (hum and root) then break end
 						hum:MoveTo(Waypoint.Position)
-						local reached = false
-						local conn
-						conn = hum.MoveToFinished:Connect(function(s)
-							reached = s
-							if conn then conn:Disconnect() end
-						end)
-						local start = tick()
-						repeat task.wait() until reached or tick() - start > 3
-						if not reached then
-							break
-						end
+			            hum.MoveToFinished:Wait()
 					end
 				end
 			end)
 		end
+	end
+end))
+
+for i, v in ipairs(game.Workspace:GetDescendants()) do
+    if v:IsA("Sound") then 
+		HookSound(v) 
+	end
+end
+table.insert(_G.Connect, game.Workspace.DescendantAdded:Connect(function(v)
+    if v:IsA("Sound") then 
+		HookSound(v) 
 	end
 end))
 
@@ -788,7 +989,6 @@ table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 		if _G.GenFarm == "Walk" then
 			local ok, err = pcall(function()
 				if okgen and Destination and Distance(Destination.Position) > 7 then
-					LastPathTimeGen = tick()
 					local path = PFS:CreatePath({
 						AgentRadius = 2,
 						WaypointSpacing = 12,
@@ -800,6 +1000,7 @@ table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 					})
 					path:ComputeAsync(root.Position + Vector3.new(0, 5, 0), Destination.Position)
 					if path and path.Status == Enum.PathStatus.Success then
+						LastPathTimeGen = tick()
 						local Waypoints = path:GetWaypoints()
 						local pathFolder = workspace:FindFirstChild("PathFindPartsFolder")
 						if not pathFolder then
@@ -820,19 +1021,8 @@ table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 						end
 						for i, Waypoint in pairs(Waypoints) do
 							if i == 1 then continue end
-							if not (hum and root) then break end
 							hum:MoveTo(Waypoint.Position)
-							local reached = false
-							local conn
-							conn = hum.MoveToFinished:Connect(function(s)
-								reached = s
-								if conn then conn:Disconnect() end
-							end)
-							local start = tick()
-							repeat task.wait() until reached or tick() - start > 3
-							if not reached then
-								break
-							end
+				            hum.MoveToFinished:Wait()
 						end
 					end
 				end
@@ -847,41 +1037,7 @@ table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 end))
 
 table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
-if Toggles["Dusk Aimbot Assist"] and Toggles["Dusk Aimbot Assist"].Value then
-	if hum then
-		if AutoRotate then
-	        hum.AutoRotate = AutoRotate
-	        AutoRotate = nil
-	    end
-		if AnimationTrack then
-		    for _, v in ipairs(AnimationTrack:GetPlayingAnimationTracks()) do
-		        if tostring(v.Animation.AnimationId):match("%d+"):find("77894750279891") then
-					if not (hookfunction and newcclosure) then
-						if not AutoRotate then
-				            AutoRotate = hum.AutoRotate
-				        end
-				        hum.AutoRotate = false
-				        root.AssemblyAngularVelocity = Vector3.zero
-				        local Distan = (Options["Distance Aimbot Dusk"].Value or 50)
-						if Options.Dusk and Options.Dusk.Value == "Survivors" then
-					        targetplrs = SurviveTarget(Distan)
-						else
-							targetplrs = KillerTarget()
-						end
-				        if targetplrs then
-					        local Sharpness = (Options["Sharpness Dusk"].Value or 1)
-				            Aimbot(targetplrs, Sharpness)
-							AimbotCam(targetplrs, Sharpness)
-				        end
-					end
-				end
-		    end
-		end
-	end
-end
-end))
-
-table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
+if char.Name:lower():find("guest") then
 	if hum then
 		if AutoRotate then
 	        hum.AutoRotate = AutoRotate
@@ -897,8 +1053,9 @@ table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 				        hum.AutoRotate = false
 				        root.AssemblyAngularVelocity = Vector3.zero
 				        local targetKill = KillerTarget()
+						local Sharpness = (Options["Sharpness Punch"].Value or 0.1)
 				        if targetKill then
-				            Aimbot(targetKill, 0.1)
+				            Aimbot(targetKill, Sharpness)
 				        end
 					end
 				end
@@ -912,10 +1069,11 @@ table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 	            root.CFrame = targetKill.CFrame + Vector3.new(0, 8, 0)
 			end
 			if _G.Punch then
-				Remote:FireServer("UseActorAbility", {buffer.fromstring("\"Punch\"")})
+				Remote:FireServer("UseActorAbility", {buffer.fromstring(charAb("Punch"))})
 			end
         end
 	end
+end
 end))
 
 table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
@@ -929,12 +1087,25 @@ if _G.AutoBlock then
 	        local humplr = v.Character:FindFirstChildOfClass("Humanoid")
 	        local animTracks = humplr and humplr:FindFirstChildOfClass("Animator") and humplr:FindFirstChildOfClass("Animator"):GetPlayingAnimationTracks()
 	        if hrp and Distance2(hrp.Position) <= (_G.DetectionRange or 18) then
+				if v.Character.Parent.Name == "Killers" and Distance2(hrp.Position) <= 10 then
+					if char and char.Name:lower():find("guest") then
+						Remote:FireServer("StopEmote", {buffer.fromstring(charAb("Animations")), buffer.fromstring(charAb("Hello"))})
+						if char:FindFirstChildOfClass("Tool") then
+							Remote:FireServer("UpdateItemParent", {char:FindFirstChildOfClass("Tool")})
+						end
+					end
+				end
 	            for _, track in ipairs(animTracks or {}) do
 	                if table.find(Animations["KillerAnima"], tostring(track.Animation.AnimationId):match("%d+")) then
                         if _G.AutoBlock and Distance2(hrp.Position) <= (_G.DetectionRange or 18) then
-                            if isFacing(hrp) then
+                            if hrp.CFrame.LookVector:Dot((root.Position - hrp.Position).Unit) > 0 then
 	                            if cooldown and cooldown.Text == "" then
-                                    Remote:FireServer("UseActorAbility", {buffer.fromstring("\"Block\"")})
+                                    Remote:FireServer("UseActorAbility", {buffer.fromstring(charAb("Block"))})
+                                    if Toggles["Block Teleport"].Value then
+										if root then
+				                            root.CFrame = hrp.CFrame * CFrame.new(0, 0, -5)
+				                        end
+									end
                                 end
                             end
                         end
@@ -1039,9 +1210,9 @@ end
 
 Main1Group:AddSlider("FastSprint", {
     Text = "Fast Sprint",
-    Default = 26,
+    Default = 28,
     Min = 2,
-    Max = 80,
+    Max = 50,
     Rounding = 0,
     Compact = false,
     Callback = function(Value)
@@ -1195,7 +1366,6 @@ if char and char.Parent and char.Parent.Name == "Killers" then
 	end)
 	if okgotkill and DestinationPlr then
 		KillersAttack()
-		root.AssemblyAngularVelocity = Vector3.zero
 		char:PivotTo(DestinationPlr.CFrame)
 	end
 end
@@ -1305,9 +1475,10 @@ if char and char.Name ~= "Elliot" then
 		local pizza = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ingame") and workspace.Map.Ingame:FindFirstChild("Pizza")
 		if pizza and pizza:IsA("BasePart") then
 			root.CFrame = pizza.CFrame
-			task.wait(0.5)
-			root.CFrame = OldCFrame
-			wait(0.3)
+			task.delay(0.2, function()
+                root.CFrame = OldCFrame
+            end)
+			wait(0.5)
 		end
 	end
 end
@@ -1389,7 +1560,7 @@ for i, v in pairs(game.Workspace.Players:GetChildren()) do
 							end)
 							wait(0.2)
 							repeat task.wait()
-								Remote:FireServer("UseActorAbility", {buffer.fromstring("\"ThrowPizza\"")})
+								Remote:FireServer("UseActorAbility", {buffer.fromstring(charAb("ThrowPizza"))})
 							until not cooldown or cooldown.Text ~= ""
 							wait(1.2)
 							ThrowSuccess = true
@@ -1419,6 +1590,11 @@ _G.AutoBlock = Value
     end
 })
 
+Main6Group:AddToggle("Block Teleport", {
+    Text = "Auto Block Teleport",
+    Default = false
+})
+
 Main6Group:AddToggle("Auto Punch", {
     Text = "Auto Punch",
     Default = false, 
@@ -1435,6 +1611,20 @@ _G.FallPunch = Value
     end
 })
 
+if hookmetamethod then
+Main6Group:AddToggle("Charge Bypass", {
+    Text = "Charge Bypass",
+    Default = false, 
+    Callback = function(Value) 
+if Value then
+	HookCreated(player.Name.."Guest1337Collision", "Guest1337Bypass")
+else
+	HookRemove("Guest1337Bypass")
+end
+    end
+})
+end
+
 Main6Group:AddSlider("Auto Fall Punch", {
     Text = "Detection Range Punch",
     Default = 15,
@@ -1445,6 +1635,15 @@ Main6Group:AddSlider("Auto Fall Punch", {
     Callback = function(Value)
 _G.DetectionRangeFallPush = Value
     end
+})
+
+Main6Group:AddSlider("Sharpness Punch", {
+    Text = "Sharpness (Punch)",
+    Default = 4,
+    Min = 1,
+    Max = 10,
+    Rounding = 1,
+    Compact = false
 })
 
 Main6Group:AddToggle("Aimbot Punch", {
@@ -1485,9 +1684,9 @@ Main6Group:AddDivider()
 
 Main6Group:AddSlider("Detection Range Two Time", {
     Text = "Detection Range Two Time",
-    Default = 9,
+    Default = 6,
     Min = 4,
-    Max = 15,
+    Max = 9,
     Rounding = 0,
     Compact = false,
     Callback = function(Value)
@@ -1496,27 +1695,12 @@ _G.DetectionRangeTwoTime = Value
 })
 
 Main6Group:AddToggle("Two Time Teleport", {
-    Text = "Two Time Teleport",
-    Default = false,
-    Callback = function(Value) 
-_G.TwoTimeTp = Value
-while _G.TwoTimeTp do
-local Dagger = maingui and maingui:FindFirstChild("AbilityContainer") and maingui.AbilityContainer:FindFirstChild("Dagger")
-local cooldown = Dagger and Dagger:FindFirstChild("CooldownTime")
-if cooldown and cooldown.Text == "" then
-	local targetKill = KillerTarget()
-	if targetKill and Distance2(targetKill.Position) <= (_G.DetectionRangeTwoTime or 9) then
-		wait(0.07)
-		Remote:FireServer("UseActorAbility", {buffer.fromstring("\"Dagger\"")})
-	end
-end
-task.wait()
-end
-    end
+    Text = "Two Time Stab",
+    Default = false
 })
 
-Main6Group:AddToggle("Two Time Aimbot", {
-    Text = "Two Time Aimbot",
+Main6Group:AddToggle("Two Time Crouch Stab", {
+    Text = "Two Time Crouch Stab",
     Default = false
 })
 
@@ -1544,33 +1728,6 @@ getgenv()._BlockSkateRebound = Value
 })
 end
 
-Main6Group:AddDivider()
-Main6Group:AddLabel("Dusekkar", true)
-Main6Group:AddDivider()
-
-if not hookfunction then
-	Main6Group:AddSlider("Sharpness Dusk", {
-	    Text = "Sharpness (Dusekkar)",
-	    Default = 4,
-	    Min = 1,
-	    Max = 10,
-	    Rounding = 1,
-	    Compact = false
-	})
-end
-
-Main6Group:AddToggle("Dusk Aimbot Assist", {
-    Text = "Aimbot Assist",
-    Default = false
-})
-
-if hookfunction then
-	Main6Group:AddToggle("Protection Bypass", {
-	    Text = "Protection Bypass (100%)",
-	    Default = false
-	})
-end
-
 local Main7Group = TabBoxSurvive:AddTab("Killer")
 
 Main7Group:AddLabel("Guest 666", true)
@@ -1590,6 +1747,11 @@ Main7Group:AddToggle("Infernal Cry Aimbot", {
     Default = false
 })
 
+Main7Group:AddToggle("Demonic Pursuit Aimbot", {
+    Text = "Demonic Pursuit Aimbot",
+    Default = false
+})
+
 Main7Group:AddToggle("Demonic Pursuit Random", {
     Text = "Demonic Pursuit Random",
     Default = false
@@ -1604,7 +1766,11 @@ Main7Group:AddToggle("VoidRushBypass", {
     Text = "Void Rush Bypass",
     Default = false, 
     Callback = function(Value) 
-getgenv()._VoidRushBypass = Value
+if Value then
+	HookCreated(player.Name.."VoidRushCollision", "VoidRushBypass")
+else
+	HookRemove("VoidRushBypass")
+end
     end
 })
 end
@@ -1632,6 +1798,14 @@ _G.VoidRushTeleport = Value
     end
 })
 
+Main7Group:AddToggle("VoidRushAimbot", {
+    Text = "Void Rush Aimbot",
+    Default = false, 
+    Callback = function(Value) 
+_G.VoidRushAimbot = Value
+    end
+})
+
 Main7Group:AddDivider()
 
 if hookmetamethod then
@@ -1639,7 +1813,11 @@ Main7Group:AddToggle("VoidRushBypass", {
     Text = "Walkspeed Override Bypass",
     Default = false, 
     Callback = function(Value) 
-getgenv()._WalkspeedOverrideBypass = Value
+if Value then
+	HookCreated(player.Name.."C00lkiddCollision", "CoolBypass")
+else
+	HookRemove("CoolBypass")
+end
     end
 })
 end
@@ -1650,6 +1828,52 @@ Main7Group:AddToggle("Walkspeed Override Controll", {
     Callback = function(Value) 
 _G.WalkSpeedc00kiddControl = Value
     end
+})
+
+Main7Group:AddToggle("Walkspeed Override Aimbot", {
+    Text = "Walkspeed Override Aimbot",
+    Default = false, 
+    Callback = function(Value) 
+_G.WalkSpeedc00kiddAimbot = Value
+    end
+})
+
+Main7Group:AddDivider()
+Main7Group:AddLabel("John Doe", true)
+Main7Group:AddDivider()
+
+Main7Group:AddSlider("Distance Parry Error", {
+    Text = "Distance Error404",
+    Default = 15,
+    Min = 1,
+    Max = 25,
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+_G.DistanceParry = Value
+    end
+})
+
+Main7Group:AddToggle("Auto Error 404", {
+    Text = "Auto Error404",
+    Default = false,
+    Callback = function(Value) 
+_G.AutoParryError = Value
+    end
+})
+
+Main7Group:AddSlider("Sharpness Corrupt Energy", {
+    Text = "Sharpness Corrupt Energy",
+    Default = 1,
+    Min = 1,
+    Max = 10,
+    Rounding = 0,
+    Compact = false
+})
+
+Main7Group:AddToggle("Aimbot Corrupt Energy", {
+    Text = "Aimbot Corrupt Energy",
+    Default = false
 })
 
 local Main2Group = Tabs.Tab:AddRightGroupbox("Esp")
@@ -1727,7 +1951,7 @@ for i, v in pairs(game.Workspace.Players:GetChildren()) do
 		for y, z in pairs(v:GetChildren()) do
 			if z:GetAttribute("Username") ~= player.Name then
 				local KillerColor = _G.ColorLightKill or Color3.new(255, 0, 0)
-				local TextKiller = z.Name.." ("..z:GetAttribute("Username")..")"
+				local TextKiller = z.Name.." ("..(z:GetAttribute("IsFakeNoli") and "Fake" or z:GetAttribute("Username"))..")"
 				ESPLibrary:AddESP({
 					Object = z,
 					Text = TextKiller,
@@ -1750,21 +1974,21 @@ _G.ColorLightKill = Value
      end
 })
 
-Main2Group:AddToggle("Killer", {
+Main2Group:AddToggle("KillerClone", {
     Text = "Esp Clone c00lkid",
     Default = false, 
     Callback = function(Value) 
 _G.EspKillerPizza = Value
 if _G.EspKillerPizza == false then
 	for i, v in pairs(workspace.Map.Ingame:GetChildren()) do
-		if v.Name:find("Delivery") then
+		if v:GetAttribute("Team") == "Killers" then
 			ESPLibrary:RemoveESP(v)
 		end
 	end
 end
 while _G.EspKillerPizza do
 for i, v in pairs(workspace.Map.Ingame:GetChildren()) do
-	if v.Name:find("Delivery") then
+	if v:GetAttribute("Team") == "Killers" then
 		local KillerColor = _G.ColorLightKillPizza or Color3.new(255, 0, 0)
 		local TextKiller = "C00lkidd Clone"
 		ESPLibrary:AddESP({
@@ -2178,25 +2402,17 @@ Misc1Group:AddToggle("Auto Move", {
 _G.AutoMove = Value
 while _G.AutoMove do
 local ok, err = pcall(function()
-	local Destination, ClosestDist = nil, math.huge
-	local survivors = workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild(Options.Move.Value)
-	if not survivors then return end		
-	for _, v in ipairs(survivors:GetChildren()) do
-		if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v:GetAttribute("Username") ~= player.Name then
-			local dist = (root.Position - v.HumanoidRootPart.Position).Magnitude
-			if dist < ClosestDist then
-				Destination = v.HumanoidRootPart
-				ClosestDist = dist
-			end
+	local Survivor = (Options["Move"].Value == "Survivors" and ClosestSurvivor() or KillerTarget().Parent)
+	local Destination = Survivor and Survivor:FindFirstChild("HumanoidRootPart")
+	if Destination and hum then
+		if Distance(Destination.Position) <= 20 then
+			Nopath = true
+		else
+			Nopath = false
 		end
-	end
-	if Distance(Destination.Position) <= 20 then
-		Nopath = true
-	else
-		Nopath = false
-	end
-	if Nopath and Destination and hum then
-		hum:MoveTo(Destination.Position)
+		if Nopath and Destination and hum then
+			hum:MoveTo(Destination.Position)
+		end
 	end
 end)
 task.wait()
@@ -2288,7 +2504,7 @@ end
 task.wait()
 end
 for _, v in ipairs(playerout:GetPlayers()) do
-	if v ~= player and v.Character and char.Parent.Name == "Survivors" then
+	if v ~= player and v.Character then
 		for j, n in pairs(v.Character:GetChildren()) do
 			if n:IsA("BasePart") and n.CanCollide == false then
 				n.CanCollide = true
@@ -2304,33 +2520,6 @@ Misc2Group:AddToggle("Anti Footsteps", {
     Default = false, 
     Callback = function(Value) 
 getgenv()._AntiFootsteps = Value
-    end
-})
-
-Misc2Group:AddToggle("Anti 1x1x1x1 Popup", {
-    Text = "Anti 1x1x1x1 Popup",
-    Default = false, 
-    Callback = function(Value) 
-_G.AntiPopup = Value
-while _G.AntiPopup do
-local TemporaryUI = playergui:FindFirstChild("TemporaryUI")
-if TemporaryUI and TemporaryUI:FindFirstChild("1x1x1x1Popup") then
-    TemporaryUI["1x1x1x1Popup"]:Destroy()
-end
-if char:FindFirstChild("SpeedMultipliers") then
-	local SlowNumber = char.SpeedMultipliers:FindFirstChild("SlowedStatus")
-    if SlowNumber and SlowNumber:IsA("NumberValue") and SlowNumber.Value < 1 then
-        SlowNumber.Value = 1
-	end
-end
-if char:FindFirstChild("FOVMultipliers") then
-	local SlowNumber = char.FOVMultipliers:FindFirstChild("SlowedStatus")
-    if SlowNumber and SlowNumber:IsA("NumberValue") and SlowNumber.Value < 1 then
-        SlowNumber.Value = 1
-	end
-end
-task.wait()
-end
     end
 })
 
@@ -2395,77 +2584,9 @@ end
 })
 
 ------------------------------------------------------------------------
-local Credit = Window:AddTab("Credit / Join", "rbxassetid://7733955511")
-local CreditTab = Credit:AddLeftGroupbox("Credit")
-local CreditScript = {
-	["Giang Hub"] = {
-		Text = '[<font color="rgb(73, 230, 133)">Giang Hub</font>] Co-Owner Of Article Hub and Nihahaha Hub',
-		Image = "rbxassetid://138779531145636"
-	},
-	["Nova Hoang"] = {
-		Text = '[<font color="rgb(73, 230, 133)">Nova Hoang (Nguyễn Tn Hoàng)</font>] Owner Of Article Hub and Nihahaha Hub',
-		Image = "rbxassetid://77933782593847",
-	}
-}
-
-if CreditScript then
-	for i, v in pairs(CreditScript) do
-		CreditTab:AddLabel(CreditScript[i].Text, true)
-		CreditTab:AddImage("Image "..i, {Image = CreditScript[i].Image, Height = 200})
-	end
-else
-	CreditTab:AddLabel("[N/A]", true)
-end
-
-local CreditTab2 = Credit:AddRightGroupbox("Join Server")
-
-local quest = request or http_request or (syn and syn.request) or (http and http.request) or (fluxus and fluxus.request)
-local HttpService = game:GetService("HttpService")
-local InviteCode = "aD7gjtvPmv"
-local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
-local success, result = pcall(function()
-    return HttpService:JSONDecode(quest({
-        Url = DiscordAPI,
-        Method = "GET",
-        Headers = {
-            ["User-Agent"] = "RobloxBot/1.0",
-            ["Accept"] = "application/json"
-        }
-    }).Body)
-end)
-
-if success and result and result.guild then
-	CreditTab2:AddLabel(result.guild.name, true)
-	local InfoDiscord = CreditTab2:AddLabel('<font color="#52525b">•</font> Member Count : '..tostring(result.approximate_member_count)..'\n<font color="#16a34a">•</font> Online Count : ' .. tostring(result.approximate_presence_count), true)
-	CreditTab2:AddImage("Image Discord", {Image = "rbxassetid://138779531145636", Height = 200})
-
-	CreditTab2:AddButton("Update Info", function()
-	    local updated, updatedResult = pcall(function()
-            return HttpService:JSONDecode(quest({
-                Url = DiscordAPI,
-                Method = "GET",
-            }).Body)
-        end)            
-        if updated and updatedResult and updatedResult.guild then
-            InfoDiscord:SetText(
-                '<font color="#52525b">•</font> Member Count : ' .. tostring(updatedResult.approximate_member_count) ..
-                '\n<font color="#16a34a">•</font> Online Count : ' .. tostring(updatedResult.approximate_presence_count)
-            )
-        end
-	end)
-
-    CreditTab2:AddButton("Copy Discord Invite", function()
-        setclipboard("https://discord.gg/"..InviteCode)
-    end)
-else
-    CreditTab2:AddLabel("Error fetching Discord Info", true)
-    CreditTab2:AddButton("Copy Discord Invite", function()
-        setclipboard("https://discord.gg/"..InviteCode)
-    end)
-end
-
-CreditTab2:AddButton("Copy Zalo", function()
-    setclipboard("https://zalo.me/g/qlukiy407")
+local success, err = pcall(function()
+	getgenv().WindowNah = Window
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/File-Script/CreditJoin.Lua"))()
 end)
 
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
@@ -2527,6 +2648,7 @@ MenuGroup:AddDropdown("DPIDropdown", {
 })
 MenuGroup:AddDivider()
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {Default = "RightShift", NoUI = true, Text = "Menu keybind"})
+MenuGroup:AddToggle("watermark", {Text = "Show Watermark", Default = true, Callback = function(Value) Library:SetWatermarkVisibility(Value) end})
 MenuGroup:AddButton("Unload", function() Library:Unload(); ESPLibrary:Unload() end)
 Info:AddLabel("Counter [ "..game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(game.Players.LocalPlayer).." ]", true)
 Info:AddLabel("Executor [ "..identifyexecutor().." ]", true)
@@ -2557,7 +2679,7 @@ end)
 
 Info:AddButton("Copy Join JobId", function()
     if setclipboard then
-        setclipboard('game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, '..game.JobId..", game.Players.LocalPlayer)")
+        setclipboard('game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, '..'"'..game.JobId..'"'..", game.Players.LocalPlayer)")
         Library:Notify("Copied Success") 
     else
         Library:Notify(tostring(game.JobId), 10)
@@ -2590,16 +2712,8 @@ Library:OnUnload(function()
 			hookmetamethod(game, "__namecall", getgenv()._oldFireServer)
 			getgenv()._oldFireServer = nil
 		end
-		if getgenv()._oldFun then
-			hookfunction(getgenv()._oldFun)
-			getgenv()._oldFun = nil
-		end
-		if getgenv()._oldFunScreen then
-			hookfunction(getgenv()._oldFunScreen)
-			getgenv()._oldFunScreen = nil
-		end
 	end
 	if Animations then
 		Animations = nil
 	end
-end)
+end) 
