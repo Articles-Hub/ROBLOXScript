@@ -896,7 +896,7 @@ if Toggles["Two Time Teleport"] and Toggles["Two Time Teleport"].Value then
 		end
 	end
 end
-end))
+end)
 
 table.insert(_G.Connect, RunService.RenderStepped:Connect(function()
 	if Toggles["Auto Skate Trick"] and Toggles["Auto Skate Trick"].Value then
