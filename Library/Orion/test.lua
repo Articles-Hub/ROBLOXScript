@@ -1929,11 +1929,13 @@ function OrionLib:MakeWindow(WindowConfig)
 	local function GetKeyList(tbl)
 		local keys = {}
 		for k, v in pairs(tbl) do
-			if type(k) == "string" then
-				table.insert(keys, k)
-			else
-				if type(v) ~= "table" then
-					table.insert(keys, v)
+			if not (type(v) == "table" and v.Diviner) then
+				if type(k) == "string" then
+					table.insert(keys, k)
+				else
+					if type(v) ~= "table" then
+						table.insert(keys, v)
+					end
 				end
 			end
 		end
@@ -2039,146 +2041,177 @@ function OrionLib:MakeWindow(WindowConfig)
 			local Data = (type(v) == "table" and v) or {}
 			local HasData = (type(v) == "table")
 			
-			local TitleStr = HasData and (Data.Title or Data.Value or OptionVal) or OptionVal
-			local DescStr = HasData and (Data.Desc or Data.Description or nil) or nil
-			local IconStr = HasData and (Data.Icon or nil) or nil
-			local ThumbStr = HasData and (Data.Thumbnail or nil) or nil
-			
-			local Type = DropdownConfig.Type
-			local ButtonHeight = 36
-			
-			if Type == "Card" then
-				ButtonHeight = 130
-				if not ThumbStr then ThumbStr = "rbxassetid://3033152795" end
-			elseif Type == "Advanced" then
-				ButtonHeight = 50
-			elseif Type == "Icon" then
-				ButtonHeight = 45
-			end
-
-			local ItemContainer = SetProps(MakeElement("Button", Color3.fromRGB(32, 32, 32)), {
-				Parent = DropdownContainer,
-				Size = UDim2.new(1, -4, 0, ButtonHeight),
-				Name = tostring(OptionVal),
-				ClipsDescendants = true
-			})
-			
-			AddThemeObject(ItemContainer, "Second")
-			MakeElement("Corner", 0, 6).Parent = ItemContainer
-			local Stroke = MakeElement("Stroke")
-			Stroke.Parent = ItemContainer
-			
-			if Type == "Card" then
-				Stroke.Transparency = 0
-				Stroke.Color = Color3.fromRGB(60, 60, 60)
-				Stroke.Thickness = 1
-			else
-				Stroke.Transparency = 1
-			end
-
-			if Type == "Card" then
-				local CardImage = SetProps(MakeElement("Image", ThumbStr), {
-					Size = UDim2.new(1, 0, 1, 0),
-					Parent = ItemContainer,
-					ScaleType = Enum.ScaleType.Crop,
-					ImageColor3 = Color3.fromRGB(200, 200, 200)
+			if HasData and Data.Diviner then
+				local TitleStr = Data.Title or Data.Value or OptionVal
+				local DividerHeight = 30
+				local DivFrame = SetProps(MakeElement("Frame"), {
+					Parent = DropdownContainer,
+					Size = UDim2.new(1, -4, 0, DividerHeight),
+					Name = "div_" .. tostring(OptionVal),
+					BackgroundTransparency = 1,
+					ClipsDescendants = true
 				})
-				MakeElement("Corner", 0, 6).Parent = CardImage
-				
-				local Overlay = SetProps(MakeElement("Frame", Color3.fromRGB(20, 20, 20)), {
-					Size = UDim2.new(1, 0, 0, 45),
-					Position = UDim2.new(0, 0, 1, 0),
-					AnchorPoint = Vector2.new(0, 1),
-					Parent = ItemContainer,
-					BackgroundTransparency = 0.2,
-					ZIndex = 2
-				})
-				SetProps(MakeElement("Corner", 0, 6), {
-					CornerRadius = UDim.new(0, 6)
-				}).Parent = Overlay
-				
-				local TextX = 10
-				if IconStr then
-					SetProps(MakeElement("Image", IconStr), {
-						Size = UDim2.new(0, 28, 0, 28),
-						Position = UDim2.new(0, 8, 0.5, 0),
-						AnchorPoint = Vector2.new(0, 0.5),
-						Parent = Overlay,
-						BackgroundTransparency = 1
-					})
-					TextX = 44
-				end
-
-				AddThemeObject(SetProps(MakeElement("Label", tostring(TitleStr), 13), {
-					Parent = Overlay,
-					Position = UDim2.new(0, TextX, 0, 6),
-					Size = UDim2.new(1, -(TextX + 5), 0, 14),
-					TextXAlignment = Enum.TextXAlignment.Left,
+				local lbl = SetProps(MakeElement("Label", tostring(TitleStr), 12), {
+					Parent = DivFrame,
+					Size = UDim2.new(0, 140, 0, 18),
+					Position = UDim2.new(0.5, 0, 0, 6),
+					AnchorPoint = Vector2.new(0.5, 0),
 					Font = Enum.Font.GothamBold,
-					ZIndex = 3
-				}), "Text")
+					TextXAlignment = Enum.TextXAlignment.Center
+				})
+				AddThemeObject(lbl, "TextDark")
+				SetProps(MakeElement("Frame", Color3.fromRGB(120,120,120)), {
+					Parent = DivFrame,
+					Size = UDim2.new(0.5, -90, 0, 1),
+					Position = UDim2.new(0, 12, 0, DividerHeight/2),
+				})
+				SetProps(MakeElement("Frame", Color3.fromRGB(120,120,120)), {
+					Parent = DivFrame,
+					Size = UDim2.new(0.5, -90, 0, 1),
+					Position = UDim2.new(1, -12 - (lbl.Size.X.Offset / 2), 0, DividerHeight/2),
+				})
+			else
+				local TitleStr = HasData and (Data.Title or Data.Value or OptionVal) or OptionVal
+				local DescStr = HasData and (Data.Desc or Data.Description or nil) or nil
+				local IconStr = HasData and (Data.Icon or nil) or nil
+				local ThumbStr = HasData and (Data.Thumbnail or nil) or nil
 				
-				AddThemeObject(SetProps(MakeElement("Label", tostring(DescStr or ""), 11), {
-					Parent = Overlay,
-					Position = UDim2.new(0, TextX, 0, 22),
-					Size = UDim2.new(1, -(TextX + 5), 0, 14),
-					TextXAlignment = Enum.TextXAlignment.Left,
-					Font = Enum.Font.Gotham,
-					TextColor3 = Color3.fromRGB(180, 180, 180),
-					ZIndex = 3
-				}), "Text")
-
-			elseif Type == "Icon" or Type == "Advanced" then
-				local TextX = 12
+				local Type = DropdownConfig.Type
+				local ButtonHeight = 36
 				
-				if Type == "Icon" and IconStr then
-					SetProps(MakeElement("Image", IconStr), {
-						Size = UDim2.new(0, 24, 0, 24),
-						Position = UDim2.new(0, 10, 0.5, 0),
-						AnchorPoint = Vector2.new(0, 0.5),
-						Parent = ItemContainer,
-						ImageTransparency = 0.2
-					})
-					TextX = 42
+				if Type == "Card" then
+					ButtonHeight = 130
+					if not ThumbStr then ThumbStr = "rbxassetid://3033152795" end
+				elseif Type == "Advanced" then
+					ButtonHeight = 50
+				elseif Type == "Icon" then
+					ButtonHeight = 45
 				end
+
+				local ItemContainer = SetProps(MakeElement("Button", Color3.fromRGB(32, 32, 32)), {
+					Parent = DropdownContainer,
+					Size = UDim2.new(1, -4, 0, ButtonHeight),
+					Name = tostring(OptionVal),
+					ClipsDescendants = true
+				})
 				
-				local TitleY = (DescStr and 8 or 0)
-				if Type == "Icon" and DescStr then TitleY = 8 elseif Type == "Icon" then TitleY = 11 end
+				AddThemeObject(ItemContainer, "Second")
+				MakeElement("Corner", 0, 6).Parent = ItemContainer
+				local Stroke = MakeElement("Stroke")
+				Stroke.Parent = ItemContainer
+				
+				if Type == "Card" then
+					Stroke.Transparency = 0
+					Stroke.Color = Color3.fromRGB(60, 60, 60)
+					Stroke.Thickness = 1
+				else
+					Stroke.Transparency = 1
+				end
 
-				AddThemeObject(SetProps(MakeElement("Label", tostring(TitleStr), 13), {
-					Parent = ItemContainer,
-					Position = UDim2.new(0, TextX, 0, TitleY),
-					Size = UDim2.new(1, -(TextX + 10), 0, 14),
-					TextXAlignment = Enum.TextXAlignment.Left,
-					Font = Enum.Font.GothamBold
-				}), "Text")
-
-				if DescStr then
-					AddThemeObject(SetProps(MakeElement("Label", tostring(DescStr), 11), {
+				if Type == "Card" then
+					local CardImage = SetProps(MakeElement("Image", ThumbStr), {
+						Size = UDim2.new(1, 0, 1, 0),
 						Parent = ItemContainer,
-						Position = UDim2.new(0, TextX, 0, TitleY + 16),
-						Size = UDim2.new(1, -(TextX + 10), 0, 14),
+						ScaleType = Enum.ScaleType.Crop,
+						ImageColor3 = Color3.fromRGB(200, 200, 200)
+					})
+					MakeElement("Corner", 0, 6).Parent = CardImage
+					
+					local Overlay = SetProps(MakeElement("Frame", Color3.fromRGB(20, 20, 20)), {
+						Size = UDim2.new(1, 0, 0, 45),
+						Position = UDim2.new(0, 0, 1, 0),
+						AnchorPoint = Vector2.new(0, 1),
+						Parent = ItemContainer,
+						BackgroundTransparency = 0.2,
+						ZIndex = 2
+					})
+					SetProps(MakeElement("Corner", 0, 6), {
+						CornerRadius = UDim.new(0, 6)
+					}).Parent = Overlay
+					
+					local TextX = 10
+					if IconStr then
+						SetProps(MakeElement("Image", IconStr), {
+							Size = UDim2.new(0, 28, 0, 28),
+							Position = UDim2.new(0, 8, 0.5, 0),
+							AnchorPoint = Vector2.new(0, 0.5),
+							Parent = Overlay,
+							BackgroundTransparency = 1
+						})
+						TextX = 44
+					end
+
+					AddThemeObject(SetProps(MakeElement("Label", tostring(TitleStr), 13), {
+						Parent = Overlay,
+						Position = UDim2.new(0, TextX, 0, 6),
+						Size = UDim2.new(1, -(TextX + 5), 0, 14),
+						TextXAlignment = Enum.TextXAlignment.Left,
+						Font = Enum.Font.GothamBold,
+						ZIndex = 3
+					}), "Text")
+					
+					AddThemeObject(SetProps(MakeElement("Label", tostring(DescStr or ""), 11), {
+						Parent = Overlay,
+						Position = UDim2.new(0, TextX, 0, 22),
+						Size = UDim2.new(1, -(TextX + 5), 0, 14),
 						TextXAlignment = Enum.TextXAlignment.Left,
 						Font = Enum.Font.Gotham,
-						TextColor3 = Color3.fromRGB(160, 160, 160)
+						TextColor3 = Color3.fromRGB(180, 180, 180),
+						ZIndex = 3
+					}), "Text")
+
+				elseif Type == "Icon" or Type == "Advanced" then
+					local TextX = 12
+					
+					if Type == "Icon" and IconStr then
+						SetProps(MakeElement("Image", IconStr), {
+							Size = UDim2.new(0, 24, 0, 24),
+							Position = UDim2.new(0, 10, 0.5, 0),
+							AnchorPoint = Vector2.new(0, 0.5),
+							Parent = ItemContainer,
+							ImageTransparency = 0.2
+						})
+						TextX = 42
+					end
+					
+					local TitleY = (DescStr and 8 or 0)
+					if Type == "Icon" and DescStr then TitleY = 8 elseif Type == "Icon" then TitleY = 11 end
+
+					AddThemeObject(SetProps(MakeElement("Label", tostring(TitleStr), 13), {
+						Parent = ItemContainer,
+						Position = UDim2.new(0, TextX, 0, TitleY),
+						Size = UDim2.new(1, -(TextX + 10), 0, 14),
+						TextXAlignment = Enum.TextXAlignment.Left,
+						Font = Enum.Font.GothamBold
+					}), "Text")
+
+					if DescStr then
+						AddThemeObject(SetProps(MakeElement("Label", tostring(DescStr), 11), {
+							Parent = ItemContainer,
+							Position = UDim2.new(0, TextX, 0, TitleY + 16),
+							Size = UDim2.new(1, -(TextX + 10), 0, 14),
+							TextXAlignment = Enum.TextXAlignment.Left,
+							Font = Enum.Font.Gotham,
+							TextColor3 = Color3.fromRGB(160, 160, 160)
+						}), "Text")
+					end
+				else
+					AddThemeObject(SetProps(MakeElement("Label", tostring(TitleStr), 13), {
+						Parent = ItemContainer,
+						Position = UDim2.new(0, 12, 0, 0),
+						Size = UDim2.new(1, -20, 1, 0),
+						TextXAlignment = Enum.TextXAlignment.Left,
+						Font = Enum.Font.GothamBold
 					}), "Text")
 				end
-			else
-				AddThemeObject(SetProps(MakeElement("Label", tostring(TitleStr), 13), {
-					Parent = ItemContainer,
-					Position = UDim2.new(0, 12, 0, 0),
-					Size = UDim2.new(1, -20, 1, 0),
-					TextXAlignment = Enum.TextXAlignment.Left,
-					Font = Enum.Font.GothamBold
-				}), "Text")
+
+				AddConnection(ItemContainer.MouseButton1Click, function()
+					Dropdown:Set(OptionVal)
+					SaveCfg(game.GameId)
+				end)
+
+				Dropdown.Buttons[OptionVal] = ItemContainer
 			end
-
-			AddConnection(ItemContainer.MouseButton1Click, function()
-				Dropdown:Set(OptionVal)
-				SaveCfg(game.GameId)
-			end)
-
-			Dropdown.Buttons[OptionVal] = ItemContainer
 		end
 	end
 
@@ -2227,7 +2260,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				table.insert(Dropdown.Value, Value)
 				if btn then
 					TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play()
-					if btn:FindFirstChild("Stroke") then 
+					if btn:FindFirstChild("Stroke") then
 						TweenService:Create(btn.Stroke, TweenInfo.new(0.2), {Transparency = 0, Color = Color3.fromRGB(200, 200, 200)}):Play()
 					end
 				end
@@ -3136,4 +3169,5 @@ function OrionLib:OnDestroy(fn)
 		table.insert(OrionLib.OnDestroyTo, fn)
 	end
 end
-        return OrionLib
+
+return OrionLib
