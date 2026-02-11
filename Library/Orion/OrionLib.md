@@ -15,6 +15,23 @@ local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Art
 ```
 
 
+## Change a Key Toggles
+```lua
+OrionLib:SetKeyToggleUI(Enum.KeyCode.RightShift) --- https://create.roblox.com/docs/vi-vn/reference/engine/enums/KeyCode
+```
+
+
+## Change a Link Video
+```lua
+OrionLib:SetVideoLink(<http>)
+```
+
+
+## Change a All Font
+```lua
+OrionLib:SetFont(Enum.Font.GothamBold) --- https://create.roblox.com/docs/vi-vn/reference/engine/enums/Font
+```
+
 
 ## Creating a Window
 ```lua
@@ -27,6 +44,7 @@ SaveConfig = <bool> - Toggles the config saving in the UI.
 ConfigFolder = <string> - The name of the folder where the configs are saved.
 IntroEnabled = <bool> - Whether or not to show the intro animation.
 IntroText = <string> - Text to show in the intro animation.
+LinkVideo = <link> - You have copy link on the website to create a video
 SearchBar = {
         Default = <string> - The name of the search.
         ClearTextOnFocus = <bool> - The clean text focus of the search.
@@ -104,6 +122,8 @@ Time = <number> - The duration of the notfication.
 ```lua
 ButtonClick = Tab:AddButton({
         Name = "Button!",
+        Disabled = false,
+        Visible = true,
         Callback = function()
                       print("button pressed")
           end    
@@ -111,22 +131,37 @@ ButtonClick = Tab:AddButton({
 
 --[[
 Name = <string> - The name of the button.
+Disabled = <bool> - Disabled of the button.
+Visible = <bool> - Show or hide of the button.
 Callback = <function> - The function of the button.
 ]]
 ```
 
+## Remote Click a Button
+```lua
+ButtonClick:Click()
+```
 
 ## Change label a Button
 ```lua
 ButtonClick:Set("Button?")
 ```
 
-
 ## Change script a Button
 ```lua
 ButtonClick:SetCallback(function()
         print("is button!")
 end)
+```
+
+## Set Disabled a Button
+```lua
+ButtonClick:SetDisabled(true)
+```
+
+## Set Visible a Button
+```lua
+ButtonClick:SetVisible(false)
 ```
 
 
@@ -137,6 +172,8 @@ Tab:AddToggle({
         Default = false,
         Type = "Switch", --- Type "Switch" or "CheckBox"
         Flag = "Toggles",
+        Visible = true,
+        Disabled = false,
         Callback = function(Value)
                 print(Value)
         end    
@@ -148,14 +185,16 @@ Tab:AddToggle({
 Name = <string> - The name of the toggle.
 Default = <bool> - The default value of the toggle.
 Callback = <function> - The function of the toggle.
-Type = <string> - Change the toggle switch to the <type>
-Flag = <string> - flag remote of the toggle
-Save = <bool> - The save of the toggle in turn on/off
+Type = <string> - Change the toggle switch to the <type>.
+Flag = <string> - flag remote of the toggle.
+Disabled = <bool> - Disabled of the toggle.
+Visible = <bool> - Show or hide of the toggle.
+Save = <bool> - The save of the toggle in turn on/off.
 
 AddBind:
 Default = <keycode> - The default value of the bind toggles.
-Flag = <string> - flag remote of the bind toggles
-Save = <bool> - The save of the bind in <key>
+Flag = <string> - flag remote of the bind toggles.
+Save = <bool> - The save of the bind in <key>.
 ]]
 ```
 
@@ -180,6 +219,18 @@ end)
 OrionLib.Flags["Toggles"]:SetCallback(function(Value)
         print("This is a toggle!", Value)
 end)
+```
+
+### Set Disabled Toggles
+```lua
+CoolToggle:SetDisabled(true)
+OrionLib.Flags["Toggles"]:SetDisabled(true)
+```
+
+### Set Visible Toggles
+```lua
+CoolToggle:SetVisible(true)
+OrionLib.Flags["Toggles"]:SetVisible(true)
 ```
 
 
@@ -232,6 +283,8 @@ Tab:AddSlider({
         Color = Color3.fromRGB(255,255,255),
         Increment = 1,
         ValueName = "bananas",
+        Disabled = false,
+        Visible = true,
         Flag = "SliderTo",
         Callback = function(Value)
                 print(Value)
@@ -246,6 +299,8 @@ Increment = <number> - How much the slider will change value when dragging.
 Default = <number> - The default value of the slider.
 ValueName = <string> - The text after the value number.
 Flag = <string> - The flag remote to the slider.
+Disabled = <bool> - Disabled of the slider.
+Visible = <bool> - Show or hide of the slider.
 Callback = <function> - The function of the slider.
 ]]
 ```
@@ -280,6 +335,18 @@ end)
 OrionLib.Flags["SliderTo"]:SetCallback(function(Value)
         print(Value, "Good")
 end)
+```
+
+### Set Disabled a Slider
+```lua
+Slider:SetDisabled(true)
+OrionLib.Flags["SliderTo"]:SetDisabled(true)
+```
+
+### Set Visible a Slider
+```lua
+Slider:SetVisible(false)
+OrionLib.Flags["SliderTo"]:SetVisible(false)
 ```
 Make sure you make your slider a variable (local CoolSlider = Tab:AddSlider...) for this to work.
 
@@ -408,8 +475,9 @@ end)
 ## Creating a Image
 ```lua
 local Img = Tab:AddImage({
-	Icon = "rbxassetid://3944703587",
-	Size = 50
+        Icon = "rbxassetid://3944703587",
+        Visible = true,
+        Size = 50
 })
 
 --[[
@@ -429,6 +497,11 @@ Img:SetIcon("rbxassetid://{id icon}")
 Img:SetSize(100)
 ```
 
+### Set Visible a Icon
+```
+Img:SetVisible(false)
+```
+
 
 ## Creating a Dropdown menu
 ```lua
@@ -437,6 +510,8 @@ Tab:AddDropdown({
         Default = "1",
         Options = {"1", "2"},
         Multi = false,
+        Disabled = false,
+        Visible = true,
         Flag = "Dropdown",
         Callback = function(Value)
                 print(Value)
@@ -450,6 +525,8 @@ Tab:AddDropdown({
         Default = {"4", "5"},
         Options = {"4", "5", "6"},
         Multi = true,
+        Disabled = false,
+        Visible = true,
         Flag = "Dropdown",
         Callback = function(Value)
                 print(Value)
@@ -462,6 +539,8 @@ Default = <string> - The default value of the dropdown.
 Options = <table> - The options in the dropdown.
 Flag = <string> - The flag remote to the dropdown.
 Multi = <bool> - the multi of the dropdown.
+Disabled = <bool> - Disabled of the dropdown.
+Visible = <bool> - Show or hide of the dropdown.
 Callback = <function> - The function of the dropdown.
 ]]
 ```
@@ -501,7 +580,17 @@ OrionLib.Flags["Dropdown"]:SetCallback(function(Value)
 end)
 ```
 
+### Set Visible a Dropdown
+```lua
+Dropdown:SetVisible(false)
+OrionLib.Flags["Dropdown"]:SetVisible(false)
+```
 
+### Set Disabled a Dropdown
+```lua
+Dropdown:SetDisabled(true)
+OrionLib.Flags["Dropdown"]:SetDisabled(true)
+```
 
 ## Creating a Watermark 
 ```lua
@@ -593,6 +682,35 @@ Then you need to add the `Flag` and `Save` values to every toggle, slider, dropd
 The `Flag = <string>` argument is the ID of an element in the config file.
 The `Save = <bool>` argument includes the element in the config file.
 Config files are made for every game the library is launched in.
+
+### Script Hookmetamethod Toggle
+```lua
+Tab1:AddToggle({
+    Name = "Toggle",
+    Default = true,
+    Save = true,
+    Flag = "toggle"
+})
+
+-- Unhook the __namecall method
+if hookmetamethod and getHook then
+	hookmetamethod(game, "__namecall", getHook)
+	getHook = nil
+end
+
+-- Hook the __namecall method for silent aim
+if hookmetamethod and not getHook then
+    local getHook
+    getHook = hookmetamethod(game, "__namecall", function(...)
+        local self = ...
+        if OrionLib.Flags["toggle"].Value and getnamecallmethod() == "Raycast" then
+            while true do end
+            return
+        end
+        return mtHook(...)
+    end)
+end
+```
 
 ## Destroying the Interface
 ```lua
