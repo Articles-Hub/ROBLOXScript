@@ -8,6 +8,7 @@ local UserInputService: UserInputService = cloneref(game:GetService("UserInputSe
 local TweenService: TweenService = cloneref(game:GetService("TweenService"))
 local RunService: RunService = cloneref(game:GetService("RunService"))
 local HttpService: HttpService = cloneref(game:GetService("HttpService"))
+local ContentProvider: ContentProvider = cloneref(game:GetService("ContentProvider"))
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = cloneref(LocalPlayer:GetMouse())
 
@@ -66,6 +67,54 @@ function OrionLib:SetKeyToggleUI(key: Enum.KeyCode)
 		return Enum.KeyCode[key]
 	end)
 	_currentKey = (success and keyui or Enum.KeyCode.RightShift)
+end
+
+function OrionLib:SetVideoLink(link: string)
+    if typeof(link) == "string" then
+	    if not MainWindowVideo then
+		    for i, v in pairs(Orion:GetChildren()) do
+				if v:IsA("ImageLabel") then
+					MainWindowVideo = v
+				end
+			end
+		end
+		if MainWindowVideo and MainWindowVideo:IsA("ImageLabel") then
+			local success, video = pcall(function()
+				return VideoID(link)
+			end)
+			if success and video and video.Icon then
+				MainWindowVideo.Image = video.Icon
+				MainWindowVideo.ImageColor3 = Color3.new(255, 255, 255)
+				
+				spawn(function()
+					repeat task.wait() until MainWindowVideo and MainWindowVideo:FindFirstChild("ItemContainer")
+					for i, v in pairs(MainWindowVideo:GetChildren()) do
+						if v.Name == "ItemContainer" then
+							for k, j in pairs(v:GetChildren()) do
+								if j:IsA("Frame") then
+									v.BackgroundTransparency = 0.15
+								end
+							end
+						end
+					end
+				end)
+			else
+				spawn(function()
+					repeat task.wait() until MainWindowVideo and MainWindowVideo:FindFirstChild("ItemContainer")
+					for i, v in pairs(MainWindowVideo:GetChildren()) do
+						if v.Name == "ItemContainer" then
+							for k, j in pairs(v:GetChildren()) do
+								if j:IsA("Frame") then
+									v.BackgroundTransparency = 0
+								end
+							end
+						end
+					end
+				end)
+				pcall(function() MainWindowVideo.Image = "rbxassetid://0" end)
+			end
+		end
+	end
 end
 
 function OrionLib:SetFont(font: Enum.Font)
@@ -144,6 +193,133 @@ local function MakeDraggable(DragPoint, Main)
                 end)
         end)
 end    
+
+function LoadAssets(list, options)
+    local cfg = options or {}
+    local Root = cfg.root or "AssetsHub"
+    local AssetsDir = cfg.assets or (Root .. "/Assets")
+    local Prefix = cfg.prefix or ""
+    local Suffix = cfg.suffix or ""
+    local ForceExt = cfg.forceExt
+    local Retries = cfg.retries or 5
+    local RetryDelay = cfg.retryDelay or 0.2
+    local PreloadBatch = cfg.preloadBatch or 6
+    local MinSize = cfg.minSize or 20
+    local UserAgent = cfg.userAgent or "LoadAssets"
+
+    local function ensureFolder(p) if not isfolder(p) then makefolder(p) end end
+    local function sanitize(s) return tostring(s):gsub("[^%w%-%_%.]","_") end
+
+    local function getExt(url)
+        if ForceExt then return ForceExt end
+        local clean = url:match("^[^%?]+") or url
+        local ext = clean:match("%.([%w_%-]+)$")
+        return ext and ("." .. ext) or ""
+    end
+
+    local function get_request_fn()
+        if cfg.request and type(cfg.request) == "function" then return cfg.request end
+        if syn and syn.request then return function(r) return syn.request(r) end end
+        if request and type(request) == "function" then return request end
+        if http_request and type(http_request) == "function" then return http_request end
+        return nil
+    end
+
+    local function request_body(url)
+        local reqfn = get_request_fn()
+        if reqfn then
+            local ok, res = pcall(function()
+                return reqfn({ Url = url, Method = "GET", Headers = { ["User-Agent"] = UserAgent } })
+            end)
+            if ok and res then
+                if type(res) == "table" and res.Body and #res.Body > 0 then return res.Body end
+                if type(res) == "string" and #res > 0 then return res end
+            end
+            local ok2, res2 = pcall(function() return reqfn(url) end)
+            if ok2 and type(res2) == "string" and #res2 > 0 then return res2 end
+        end
+        local ok, body = pcall(function() return game:HttpGet(url) end)
+        if ok and type(body) == "string" and #body > 0 then return body end
+        local ok2, body2 = pcall(function() return HttpService:GetAsync(url) end)
+        if ok2 and type(body2) == "string" and #body2 > 0 then return body2 end
+        return nil
+    end
+
+    local function get_write()
+        if writefile then return writefile end
+        if write_file then return write_file end
+        if syn and syn.write_file then return syn.write_file end
+        return nil
+    end
+
+    local function safe_write(path, data)
+        local wf = get_write()
+        if not wf then return false end
+        return pcall(function() wf(path, data) end)
+    end
+
+    local function safe_getasset(path)
+        if getcustomasset then
+            local ok, a = pcall(function() return getcustomasset(path) end)
+            if ok and a then return a end
+        end
+        if getsynasset then
+		local ok, a = pcall(function() return getsynasset(path) end)
+            if ok and a then return a end
+        end
+        return "rbxasset://" .. path
+    end
+
+    ensureFolder(Root)
+    ensureFolder(AssetsDir)
+
+    if cfg.nomedia ~= false and not isfile(AssetsDir .. "/.nomedia") then
+        local wf = get_write()
+        if wf then pcall(function() wf(AssetsDir .. "/.nomedia", "") end) end
+    end
+
+    local result = {}
+    local preloadQueue = {}
+
+    for id, url in pairs(list) do
+        local name = Prefix .. sanitize(id) .. Suffix .. getExt(url)
+        local path = AssetsDir .. "/" .. name
+        local okFile = isfile(path) and (#readfile(path) or 0) >= MinSize
+        if not okFile then
+            local body
+            for _ = 1, Retries do
+                body = request_body(url)
+                if body then
+                    safe_write(path, body)
+                    okFile = isfile(path) and (#readfile(path) or 0) >= MinSize
+                    if okFile then break end
+                end
+                task.wait(RetryDelay)
+            end
+        end
+        if okFile then
+            local asset = safe_getasset(path)
+            result[id] = asset
+            preloadQueue[#preloadQueue + 1] = asset
+        else
+            result[id] = nil
+        end
+        if #preloadQueue >= PreloadBatch then
+            pcall(function() ContentProvider:PreloadAsync(preloadQueue) end)
+            table.clear(preloadQueue)
+            task.wait()
+        end
+    end
+    if #preloadQueue > 0 then
+        pcall(function() ContentProvider:PreloadAsync(preloadQueue) end)
+    end
+    return result
+end
+
+function VideoID(link)
+	local Assets = LoadAssets({Icon = link},{root = "ResidenceMassacreMasion", prefix = "ui_"})
+	return Assets
+end
 
 local function Create(Name, Properties, Children)
         local Object = Instance.new(Name)
@@ -727,6 +903,7 @@ function OrionLib:MakeWindow(WindowConfig)
         WindowConfig.Icon = WindowConfig.Icon or "rbxassetid://14229447778"
         WindowConfig.IntroIcon = WindowConfig.IntroIcon or "rbxassetid://14229447778"
         WindowConfig.SearchBar = WindowConfig.SearchBar or nil
+        WindowConfig.LinkVideo = WindowConfig.LinkVideo or nil
         OrionLib.Folder = WindowConfig.ConfigFolder
         OrionLib.SaveCfg = WindowConfig.SaveConfig
 
@@ -739,7 +916,7 @@ function OrionLib:MakeWindow(WindowConfig)
         local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4),
                 WindowConfig.SearchBar and WindowConfig.SearchBar.Tabs == true and {
                         Size = UDim2.new(1, 0, 1, -90),
-                        Position = UDim2.new(0, 0, 0, 40)
+                        Position = UDim2.new(0, 0, 0, 40),
                 } or {
                         Size = UDim2.new(1, 0, 1, -50)
                 }),
@@ -747,6 +924,10 @@ function OrionLib:MakeWindow(WindowConfig)
                         MakeElement("List"),
                         MakeElement("Padding", 8, 0, 0, 8)
                 }), "Divider")
+                
+        if TabHolder then
+	        TabHolder.BackgroundTransparency = typeof(WindowConfig.LinkVideo) == "string" and 1 or 0
+		end
 
         AddConnection(TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
                 TabHolder.CanvasSize = UDim2.new(0, 0, 0, TabHolder.UIListLayout.AbsoluteContentSize.Y + 16)
@@ -759,7 +940,7 @@ function OrionLib:MakeWindow(WindowConfig)
         }), {
                 AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072725342"), {
                         Position = UDim2.new(0, 9, 0, 6),
-                        Size = UDim2.new(0, 18, 0, 18)
+                        Size = UDim2.new(0, 18, 0, 18),
                 }), "Text")
         })
 
@@ -777,22 +958,26 @@ function OrionLib:MakeWindow(WindowConfig)
         local DragPoint = SetProps(MakeElement("TFrame"), {
                 Size = UDim2.new(1, 0, 0, 50)
         })
-
+		
+		local hasLinkVideo = typeof(WindowConfig.LinkVideo) == "string"
         local WindowStuff = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
                 Size = UDim2.new(0, 150, 1, -50),
-                Position = UDim2.new(0, 0, 0, 50)
+                Position = UDim2.new(0, 0, 0, 50),
+                BackgroundTransparency = hasLinkVideo and 1 or 0
         }), {
                 AddThemeObject(SetProps(MakeElement("Frame"), {
                         Size = UDim2.new(1, 0, 0, 10),
-                        Position = UDim2.new(0, 0, 0, 0)
+                        Position = UDim2.new(0, 0, 0, 0),
+                        Visible = not hasLinkVideo
                 }), "Second"), 
                 AddThemeObject(SetProps(MakeElement("Frame"), {
                         Size = UDim2.new(0, 10, 1, 0),
-                        Position = UDim2.new(1, -10, 0, 0)
+                        Position = UDim2.new(1, -10, 0, 0),
+                        Visible = not hasLinkVideo
                 }), "Second"), 
                 AddThemeObject(SetProps(MakeElement("Frame"), {
                         Size = UDim2.new(0, 1, 1, 0),
-                        Position = UDim2.new(1, -1, 0, 0)
+                        Position = UDim2.new(1, -1, 0, 0),
                 }), "Stroke"), 
                 TabHolder,
                 SetChildren(SetProps(MakeElement("TFrame"), {
@@ -807,12 +992,12 @@ function OrionLib:MakeWindow(WindowConfig)
                                 Size = UDim2.new(0, 32, 0, 32),
                                 Position = UDim2.new(0, 10, 0.5, 0)
                         }), {
-                                SetProps(MakeElement("Image", "https://www.roblox.com/headshot-thumbnail/image?userId=".. LocalPlayer.UserId .."&width=420&height=420&format=png"), {
+                                SetChildren(SetProps(MakeElement("Image", "https://www.roblox.com/headshot-thumbnail/image?userId=".. LocalPlayer.UserId .."&width=420&height=420&format=png"), {
                                         Size = UDim2.new(1, 0, 1, 0)
-                                }),
-                                AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://4031889928"), {
+                                }), {MakeElement("Corner", 1)}),
+                                AddThemeObject(SetChildren(SetProps(MakeElement("Image", "rbxassetid://4031889928"), {
                                         Size = UDim2.new(1, 0, 1, 0),
-                                }), "Second"),
+                                }), {MakeElement("Corner", 1)}), "Second"),
                                 MakeElement("Corner", 1)
                         }), "Divider"),
                         SetChildren(SetProps(MakeElement("TFrame"), {
@@ -858,6 +1043,7 @@ function OrionLib:MakeWindow(WindowConfig)
                         Parent = WindowStuff,
                         Size = UDim2.new(0, 130, 0, 24),
                         Position = UDim2.new(1.013, -12, 0.075, 0),
+                        BackgroundTransparency = typeof(WindowConfig.LinkVideo) == "string" and 0.5 or 0,
                         AnchorPoint = Vector2.new(1, 0.5)
                 }), {
                         AddThemeObject(MakeElement("Stroke"), "Stroke"),
@@ -881,19 +1067,24 @@ function OrionLib:MakeWindow(WindowConfig)
                 AddConnection(TextboxActual:GetPropertyChangedSignal("Text"), SearchHandle);
         end
 
-        local WindowName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
+        local WindowName = AddThemeObject(SetChildren(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
                 Size = UDim2.new(1, -30, 2, 0),
                 Position = UDim2.new(0, 25, 0, -24),
                 Font = Enum.Font.GothamBlack,
                 TextSize = 20
-        }), "Text")
+        }), AddThemeObject(MakeElement("Stroke"), "Stroke")}), "Text")
 
         local WindowTopBarLine = AddThemeObject(SetProps(MakeElement("Frame"), {
                 Size = UDim2.new(1, 0, 0, 1),
                 Position = UDim2.new(0, 0, 1, -1)
         }), "Stroke")
-
-        local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
+		
+		if typeof(WindowConfig.LinkVideo) == "string" then
+			RoundMainWindow = "RoundVideo" 
+		else
+			RoundMainWindow = "RoundFrame"
+		end
+        local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement(RoundMainWindow or "RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
                 Parent = Orion,
                 Position = UDim2.new(0.5, -307, 0.5, -172),
                 Size = UDim2.new(0, 615, 0, 344),
@@ -907,11 +1098,13 @@ function OrionLib:MakeWindow(WindowConfig)
                         WindowTopBarLine,
                         AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
                                 Size = UDim2.new(0, 70, 0, 30),
+                                BackgroundTransparency = typeof(WindowConfig.LinkVideo) == "string" and 0.2 or 0,
                                 Position = UDim2.new(1, -90, 0, 10)
                         }), {
                                 AddThemeObject(MakeElement("Stroke"), "Stroke"),
                                 AddThemeObject(SetProps(MakeElement("Frame"), {
                                         Size = UDim2.new(0, 1, 1, 0),
+                                        BackgroundTransparency = typeof(WindowConfig.LinkVideo) == "string" and 0.2 or 0,
                                         Position = UDim2.new(0.5, 0, 0, 0)
                                 }), "Stroke"), 
                                 CloseBtn,
@@ -941,6 +1134,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
                 local SearchBar = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 1, 6), {
                         Parent = MainWindow,
+                        BackgroundTransparency = typeof(WindowConfig.LinkVideo) == "string" and 0.5 or 0,
                         Size = UDim2.new(0, 447, 0, 24),
                         Position = UDim2.new(0, 606, 0, 72),
                         AnchorPoint = Vector2.new(1, 0.5)
@@ -1170,6 +1364,10 @@ function OrionLib:MakeWindow(WindowConfig)
 		if WindowConfig.IntroEnabled then
 			LoadSequence()
 		end
+		
+		if typeof(WindowConfig.LinkVideo) == "string" then
+			OrionLib:SetVideoLink(WindowConfig.LinkVideo)
+		end
 
         local Functions = {}
 		local TabName = {}
@@ -1200,13 +1398,13 @@ function OrionLib:MakeWindow(WindowConfig)
 					Name = "Ico"
 				}), "Text"),
 		
-				AddThemeObject(SetProps(MakeElement("Label", TabConfig.Name, 14), {
+				AddThemeObject(SetChildren(SetProps(MakeElement("Label", TabConfig.Name, 14), {
 					Size = UDim2.new(1, -35, 1, 0),
 					Position = UDim2.new(0, 35, 0, 0),
 					Font = Enum.Font.GothamSemibold,
 					TextTransparency = TabConfig.Disabled and 0.7 or 0.4,
 					Name = "Title"
-				}), "Text")
+				}), {AddThemeObject(MakeElement("Stroke"), "Stroke")}) "Text")
 			})
 		
 			AddItemTable(Tabs, TabConfig.Name, TabFrame)
@@ -1288,7 +1486,6 @@ function OrionLib:MakeWindow(WindowConfig)
                         function ElementFunction:AddLabel(Text)
                                 local LabelFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
                                         Size = UDim2.new(1, 0, 0, 30),
-                                        BackgroundTransparency = 0.7,
                                         Parent = ItemParent
                                 }), {
                                         AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
@@ -1359,10 +1556,12 @@ function OrionLib:MakeWindow(WindowConfig)
                         end    
                         function ElementFunction:AddButton(ButtonConfig)
                                 ButtonConfig = ButtonConfig or {}
+                                ButtonConfig.Visible = ButtonConfig.Visible or false
+                                ButtonConfig.Disabled = ButtonConfig.Disabled or false
                                 ButtonConfig.Name = ButtonConfig.Name or "Button"
                                 ButtonConfig.Callback = ButtonConfig.Callback or function() end
                                 ButtonConfig.Icon = ButtonConfig.Icon or "rbxassetid://3944703587"
-                                local Button = {}
+                                local Button = {Disabled = ButtonConfig.Disabled, Visible = ButtonConfig.Visible}
 
                                 local Click = SetProps(MakeElement("Button"), {
                                         Size = UDim2.new(1, 0, 1, 0)
@@ -1370,6 +1569,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 
                                 local ButtonFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
                                         Size = UDim2.new(1, 0, 0, 33),
+                                        Visible = ButtonConfig.Visible,
                                         Parent = ItemParent
                                 }), {
                                         AddThemeObject(SetProps(MakeElement("Label", ButtonConfig.Name, 15), {
@@ -1387,14 +1587,17 @@ function OrionLib:MakeWindow(WindowConfig)
                                 }), "Second")
 
                                 AddConnection(Click.MouseEnter, function()
+		                                if ButtonConfig.Disabled then return end
                                         TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
                                 end)
 
                                 AddConnection(Click.MouseLeave, function()
+		                                if ButtonConfig.Disabled then return end
                                         TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Second}):Play()
                                 end)
 
                                 AddConnection(Click.MouseButton1Up, function()
+		                                if ButtonConfig.Disabled then return end
                                         TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
                                         spawn(function()
                                                 Button:Click()
@@ -1402,18 +1605,43 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end)
 
                                 AddConnection(Click.MouseButton1Down, function()
+		                                if ButtonConfig.Disabled then return end
                                         TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 6)}):Play()
                                 end)
 
                                 function Button:Set(ButtonText)
-	                                if getgenv().Destroy then return end
+	                                if getgenv().Destroy or ButtonConfig.Disabled then return end
 	                                if ButtonFrame and ButtonFrame:FindFirstChild("Content") then
                                         ButtonFrame.Content.Text = ButtonText
                                     end
                                 end
                                 
+                                function Button:SetDisabled(state)
+									if getgenv().Destroy then return end
+									Button.Disabled = state
+									ButtonConfig.Disabled = state
+									if ButtonFrame then
+										TweenService:Create(ButtonFrame, TweenInfo.new(0.2), {BackgroundTransparency = state and 0.5 or 0}):Play()
+									end
+									if Click then
+										Click.Active = not state
+										Click.AutoButtonColor = not state
+									end
+									if ButtonFrame and ButtonFrame:FindFirstChild("Content") then
+										ButtonFrame.Content.TextTransparency = state and 0.5 or 0
+									end
+								end
+                                
+                                function Button:SetVisible(state)
+									if getgenv().Destroy then return end
+									if ButtonFrame then
+										ButtonFrame.Visible = state
+										Button.Visible = state
+									end
+								end
+                                
                                 function Button:Click()
-								    if ButtonConfig.Callback then
+								    if ButtonConfig.Callback and not ButtonConfig.Disabled then
 								        local success, err = pcall(ButtonConfig.Callback)
 								        if not success then
 								            OrionLib:MakeNotification({Name = "Error Script", Content = err, Time = 5})
@@ -1422,7 +1650,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								end
                                 
                                 function Button:SetCallback(callback)
-	                                if getgenv().Destroy then return end
+	                                if getgenv().Destroy or ButtonConfig.Disabled then return end
 								    ButtonConfig.Callback = callback
 								end
                                 return Button
@@ -1433,6 +1661,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							ImageConfig.Icon = ImageConfig.Icon or "rbxassetid://0"
 							ImageConfig.Size = ImageConfig.Size or 20
 							ImageConfig.Flag = ImageConfig.Flag or false
+							ImageConfig.Visible = ImageConfig.Visible or true
 							ImageConfig.Padding = ImageConfig.Padding or 8
 						
 							local Image = {Default = ImageConfig.Icon, Size = ImageConfig.Size, Type = "Image"}
@@ -1444,6 +1673,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							local ImageFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 									Name = ImageConfig.Name,
 									Size = UDim2.new(1, 0, 0, FrameHeight(ImageConfig.Size)),
+									Visible = ImageConfig.Visible,
 									Parent = ItemParent
 								}), {
 								AddThemeObject(SetProps(MakeElement("Image", ImageConfig.Icon), {
@@ -1472,6 +1702,13 @@ function OrionLib:MakeWindow(WindowConfig)
 									IconImage.Image = tostring(iconId)
 								end
 							end
+							
+							function Image:SetVisible(ToChange)
+								if getgenv().Destroy then return end
+								if ImageFrame then
+									ImageFrame.Visible = ToChange
+								end
+							end
 						
 							function Image:SetSize(size)
 								if getgenv().Destroy then return end
@@ -1489,6 +1726,8 @@ function OrionLib:MakeWindow(WindowConfig)
 							ToggleConfig.Default = ToggleConfig.Default or false
 							ToggleConfig.Callback = ToggleConfig.Callback or function() end
 							ToggleConfig.Color = ToggleConfig.Color or Color3.fromRGB(9, 99, 195)
+							ToggleConfig.Visible = ToggleConfig.Visible or true
+							ToggleConfig.Disabled = ToggleConfig.Disabled or false
 							ToggleConfig.Type = ToggleConfig.Type or "CheckBox"
 							ToggleConfig.Flag = ToggleConfig.Flag or nil
 							ToggleConfig.Save = ToggleConfig.Save or false
@@ -1497,6 +1736,8 @@ function OrionLib:MakeWindow(WindowConfig)
 								Value = ToggleConfig.Default,
 								Save = ToggleConfig.Save,
 								Type = ToggleConfig.Type,
+								Visible = ToggleConfig.Visible,
+								Disabled = ToggleConfig.Disabled,
 								["__DisplayName"] = {}
 							}
 						
@@ -1620,7 +1861,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							end
 							
 							function Toggle:Set(Value)
-								if getgenv().Destroy then return end
+								if getgenv().Destroy or ToggleConfig.Disabled then return end
 								Toggle.Value = Value
 								UpdateTweenKeyBindToggles(ToggleFrame, Toggle.Value)
 								local ok, err = pcall(function()
@@ -1631,11 +1872,83 @@ function OrionLib:MakeWindow(WindowConfig)
 								end
 							end
 							
+							function Toggle:SetDisabled(state)
+								if getgenv().Destroy then return end
+								ToggleConfig.Disabled = state
+								Toggle.Disabled = state
+								if ToggleFrame then
+									ToggleFrame.BackgroundTransparency = state and 0.6 or 0
+									if ToggleFrame:FindFirstChild("Content") then
+										ToggleFrame.Content.TextTransparency = state and 0.5 or 0
+									end
+								end
+								if Click then
+									Click.Active = not state
+									Click.AutoButtonColor = not state
+								end
+								if ToggleBox then
+									if ToggleConfig.Type == "Switch" and ToggleBox:FindFirstChild("Knob") then
+										TweenService:Create(ToggleBox, TweenInfo.new(0.2), {
+											BackgroundColor3 = state and Color3.fromRGB(120,120,120)
+												or (Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider)
+										}):Play()
+									elseif ToggleBox:FindFirstChild("Stroke") then
+										TweenService:Create(ToggleBox.Stroke, TweenInfo.new(0.2), {
+											Color = state and Color3.fromRGB(120,120,120) or (Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Stroke)
+										}):Play()
+									end
+								end
+								if Toggle.__DisplayName and getgenv().TogglesSaveTable[Toggle.__DisplayName] then
+									local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
+									if data then
+										data.BackgroundTransparency = state and 0.6 or 0
+										if data:FindFirstChild("Content", true) then
+											data:FindFirstChild("Content", true).TextTransparency = state and 0.5 or 0
+										end
+									end
+								end
+							end
+							
+							function Toggle:SetVisible(state)
+								if getgenv().Destroy then return end
+								Toggle.Visible = state
+								if ToggleFrame then
+									ToggleFrame.Visible = state
+								end
+								if Toggle.__DisplayName and getgenv().TogglesSaveTable[Toggle.__DisplayName] then
+									local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
+									if data then
+										data.Visible = state
+									end
+								end
+							end
+							
+							function Toggle:SetCallback(ToChange)
+								if getgenv().Destroy or ToggleConfig.Disabled then return end
+								ToggleConfig.Callback = ToChange
+							end
+							
+							function Toggle:SetText(ToChange)
+								if getgenv().Destroy or ToggleConfig.Disabled then return end
+								if ToggleFrame and ToggleFrame:FindFirstChild("Content") then
+									ToggleFrame.Content.Text = ToChange
+								end
+								if Toggle.__DisplayName then
+									if getgenv().TogglesSaveTable[Toggle.__DisplayName] then
+										local FrameToHere = getgenv().TogglesSaveTable[Toggle.__DisplayName]
+										if FrameToHere and FrameToHere:FindFirstChild("Content", true) then
+											FrameToHere:FindFirstChild("Content", true).Text = ToChange
+										end
+									end
+								end
+							end
+							
 							if ToggleConfig.Default == true then
 								Toggle:Set(true)
 							end
 							
 							AddConnection(Click.MouseButton1Up, function()
+								if ToggleConfig.Disabled then return end
 								SaveCfg()
 								Toggle:Set(not Toggle.Value)
 								if Toggle.__DisplayName then
@@ -1686,10 +1999,6 @@ function OrionLib:MakeWindow(WindowConfig)
 											ZIndex = 1
 										}), "Text")
 									}), "Main")
-									
-								function CheckBindTo()
-									return ToggleFrame and ToggleFrame:FindFirstChild("Frame") and ToggleFrame.Frame:FindFirstChild("Value") and true or false
-								end
 						
 								AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
 									local width = BindBox.Value.TextBounds.X + 20
@@ -1698,6 +2007,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								end)
 						
 								AddConnection(Click.InputEnded, function(Input)
+									if ToggleConfig.Disabled then return end
 									if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 										if Bind.Binding then return end
 										Bind.Binding = true
@@ -1706,6 +2016,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								end)
 						
 								AddConnection(UserInputService.InputBegan, function(Input, gp)
+									if ToggleConfig.Disabled then return end
 									if gp then return end
 									if UserInputService:GetFocusedTextBox() then return end
 									if Bind.Binding then
@@ -1736,7 +2047,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								end)
 						
 								function Bind:Set(Key)
-									if getgenv().Destroy then return end
+									if ToggleConfig.Disabled then return end
 									Bind.Value = Key.Name or Key
 									BindBox.Value.Text = Bind.Value
 									if Toggle.__DisplayName then
@@ -1764,6 +2075,8 @@ function OrionLib:MakeWindow(WindowConfig)
 						function ElementFunction:AddSlider(SliderConfig)
 							SliderConfig = SliderConfig or {}
 							SliderConfig.Name = SliderConfig.Name or "Slider"
+							SliderConfig.Visible = SliderConfig.Visible or true
+							SliderConfig.Disabled = SliderConfig.Disabled or false
 							SliderConfig.Min = SliderConfig.Min or 0
 							SliderConfig.Max = SliderConfig.Max or 100
 							SliderConfig.Increment = SliderConfig.Increment or 1
@@ -1774,7 +2087,12 @@ function OrionLib:MakeWindow(WindowConfig)
 							SliderConfig.Flag = SliderConfig.Flag or nil
 							SliderConfig.Save = SliderConfig.Save or false
 							
-							local Slider = {Value = SliderConfig.Default, Save = SliderConfig.Save}  
+							local Slider = {
+								Value = SliderConfig.Default,
+								Save = SliderConfig.Save,
+								Disabled = SliderConfig.Disabled,
+								Visible = SliderConfig.Visible
+							}
 							local Dragging = false  
 						  
 							local SliderDrag = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {  
@@ -1809,6 +2127,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						  
 							local SliderFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {  
 								Size = UDim2.new(1, 0, 0, 65),  
+								Visible = SliderConfig.Visible,
 								Parent = ItemParent  
 							}), {  
 								AddThemeObject(SetProps(MakeElement("Label", SliderConfig.Name, 15), {  
@@ -1836,13 +2155,13 @@ function OrionLib:MakeWindow(WindowConfig)
 							end  
 							  
 							DraggingUi(SliderBar)  
-							AddConnection(UserInputService.InputChanged, function(Input)  
-								if Dragging then   
-									local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)  
-									Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))   
-									SaveCfg(game.GameId)  
-								end  
-							end)  
+							AddConnection(UserInputService.InputChanged, function(Input)
+								if Dragging and not Slider.Disabled then
+									local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+									Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))
+									SaveCfg(game.GameId)
+								end
+							end)
 						  
 							local function Update()  
 								if getgenv().Destroy then return end
@@ -1858,6 +2177,29 @@ function OrionLib:MakeWindow(WindowConfig)
 								Update()  
 								SaveCfg()
 							end  
+							
+							function Slider:SetDisabled(state)
+								if getgenv().Destroy then return end
+								Slider.Disabled = state
+								SliderConfig.Disabled = state
+								if SliderFrame then
+									TweenService:Create(SliderFrame, TweenInfo.new(0.2), {BackgroundTransparency = state and 0.5 or 0}):Play()
+								end
+								if SliderBar then
+									TweenService:Create(SliderBar, TweenInfo.new(0.2), {BackgroundTransparency = state and 0.95 or 0.9}):Play()
+								end
+								if SliderFrame:FindFirstChild("Content") then
+									SliderFrame.Content.TextTransparency = state and 0.5 or 0
+								end
+							end
+							
+							function Slider:SetVisible(state)
+								if getgenv().Destroy then return end
+								Slider.Visible = state
+								if SliderFrame then
+									SliderFrame.Visible = state
+								end
+							end
 							  
 							function Slider:SetMax(Value: number)  
 								if getgenv().Destroy then return end
@@ -1892,6 +2234,13 @@ function OrionLib:MakeWindow(WindowConfig)
 								if getgenv().Destroy then return end
 								SliderConfig.Callback = ToChange  
 							end  
+							
+							if SliderConfig.Disabled then
+								Slider:SetDisabled(true)
+							end
+							if SliderConfig.Visible == false then
+								Slider:SetVisible(false)
+							end
 						  
 							Slider.Value = math.clamp(Slider.Value, SliderConfig.Min, SliderConfig.Max)  
 							TweenService:Create(SliderDrag, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.fromScale((Slider.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}):Play()  
@@ -1912,6 +2261,8 @@ function OrionLib:MakeWindow(WindowConfig)
 							DropdownConfig.Callback = DropdownConfig.Callback or function() end
 							DropdownConfig.Flag = DropdownConfig.Flag or nil
 							DropdownConfig.Save = DropdownConfig.Save or false
+							DropdownConfig.Visible = DropdownConfig.Visible ~= false
+							DropdownConfig.Disabled = DropdownConfig.Disabled or false
 						
 							local Dropdown = {
 								Value = DropdownConfig.Default,
@@ -1920,7 +2271,9 @@ function OrionLib:MakeWindow(WindowConfig)
 								Buttons = {},
 								Toggled = false,
 								Type = "Dropdown",
-								Save = DropdownConfig.Save
+								Save = DropdownConfig.Save,
+								Disabled = DropdownConfig.Disabled or false,
+								Visible = DropdownConfig.Visible ~= false
 							}
 						
 							local MaxElementsHeight = 250
@@ -2103,11 +2456,45 @@ function OrionLib:MakeWindow(WindowConfig)
 									}), "Divider")
 						
 									AddConnection(OptionBtn.MouseButton1Click, function()
+										if Dropdown.Disabled then return end
 										Dropdown:Set(OptionVal)
 										SaveCfg(game.GameId)
 									end)
 						
 									Dropdown.Buttons[OptionVal] = OptionBtn
+								end
+							end
+							
+							function Dropdown:SetDisabled(state)
+								if getgenv().Destroy then return end
+								Dropdown.Disabled = state
+								DropdownConfig.Disabled = state
+								if state and Dropdown.Toggled then
+									Dropdown.Toggled = false
+									TweenService:Create(DropdownFrame.F.Ico, TweenInfo.new(.15), {Rotation = 0}):Play()
+									TweenService:Create(DropdownFrame, TweenInfo.new(.15), {
+										Size = UDim2.new(1, 0, 0, 38)
+									}):Play()
+								end
+								if DropdownFrame then
+									TweenService:Create(DropdownFrame, TweenInfo.new(0.2), {
+										BackgroundTransparency = state and 0.5 or 0
+									}):Play()
+								end
+								if DropdownFrame:FindFirstChild("F") and DropdownFrame.F:FindFirstChild("Content") then
+									DropdownFrame.F.Content.TextTransparency = state and 0.5 or 0
+								end
+								if DropdownFrame.F:FindFirstChild("Selected") then
+									DropdownFrame.F.Selected.TextTransparency = state and 0.5 or 0
+								end
+							end
+							
+							function Dropdown:SetVisible(state)
+								if getgenv().Destroy then return end
+								Dropdown.Visible = state
+								DropdownConfig.Visible = state
+								if DropdownFrame then
+									DropdownFrame.Visible = state
 								end
 							end
 						
@@ -2191,6 +2578,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							end
 						
 							AddConnection(Click.MouseButton1Click, function()
+								if Dropdown.Disabled then return end
 								Dropdown.Toggled = not Dropdown.Toggled
 								DropdownFrame.F.Line.Visible = Dropdown.Toggled
 								TweenService:Create(DropdownFrame.F.Ico, TweenInfo.new(.15), {Rotation = Dropdown.Toggled and 180 or 0}):Play()
@@ -2207,7 +2595,12 @@ function OrionLib:MakeWindow(WindowConfig)
 							end)
 						
 							Dropdown:Refresh(DropdownConfig.Options, false)
-						
+							if DropdownConfig.Disabled then
+								Dropdown:SetDisabled(true)
+							end
+							if DropdownConfig.Visible == false then
+								Dropdown:SetVisible(false)
+							end
 							if DropdownConfig.Multi then
 								for _, v in ipairs(Dropdown.Value) do
 									Dropdown:Set(v)
