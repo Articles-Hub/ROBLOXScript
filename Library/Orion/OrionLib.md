@@ -495,18 +495,18 @@ Size = <number> - Enlarge the image
 ```
 
 ### Changing the Icon (Id)
-```lua
+```
 Img:SetIcon("rbxassetid://{id icon}")
 ```
 
 
 ### Changing the Size Icon
-```lua
+```
 Img:SetSize(100)
 ```
 
 ### Set Visible a Icon
-```lua
+```
 Img:SetVisible(false)
 ```
 
@@ -539,6 +539,33 @@ Tab:AddDropdown({
         Callback = function(Value)
                 print(Value)
         end    
+})
+
+----- V2.6 -----
+
+Tab:AddDropdown({
+	Name = "Skibidi",
+	Default = "dragon",
+	Options = {
+		["dragon"] = {
+			Title = "We i uhhhh ok",
+			Desc = "Hello I not uhhhh idk",
+			Icon = "rbxassetid://4483345998",
+			Thumbnail = "rbxassetid://4483345998"
+		},
+		["water"] = {
+			Title = "Water uhhh?",
+			Desc = "Skin Food",
+			Icon = "rbxassetid://3944703587",
+		},
+		["basic"] = {
+			Title = "You need to know",
+			Desc = "Uhhh",
+		}
+	},
+	Callback = function(Value)
+		print(Value)
+	end
 })
 
 --[[
@@ -728,6 +755,12 @@ OrionLib:BuildSettings(Tab)
 ```lua
 OrionLib:LoadAutoloadConfig()
 ```
+
+### How Build Settings and Load Autoload work.
+- Build Settings are useful when the mechanism involves flags that will save and load the process, etc.,
+but you need to put Build Settings in a specific tab.
+- Load Autoload If so, you can put it anywhere as long as it works, and you need to include a Config drive in the Build Settings and turn on the auto-load switch.
+Then auto-loading will work for that.
 
 ## Destroying the Interface
 ```lua
