@@ -30,9 +30,9 @@ OrionLib = {
                         TextDark = Color3.fromRGB(150, 150, 150)
                 }
         },
+        NotifyVolume = 3,
         SelectedTheme = "Default",
-        Folder = "",
-        SaveCfg = false
+        Folder = "OrionLibSave",
 }
 
 getgenv().Destroy = false
@@ -91,8 +91,8 @@ function OrionLib:SetVideoLink(link: string)
 					for i, v in pairs(MainWindowVideo:GetChildren()) do
 						if v.Name == "ItemContainer" then
 							for k, j in pairs(v:GetChildren()) do
-								if j:IsA("Frame") then
-									v.BackgroundTransparency = 0.15
+								if j:IsA("Frame") and j.BackgroundTransparency < 1 then
+									j.BackgroundTransparency = 0.15
 								end
 							end
 						end
@@ -104,8 +104,8 @@ function OrionLib:SetVideoLink(link: string)
 					for i, v in pairs(MainWindowVideo:GetChildren()) do
 						if v.Name == "ItemContainer" then
 							for k, j in pairs(v:GetChildren()) do
-								if j:IsA("Frame") then
-									v.BackgroundTransparency = 0
+								if j:IsA("Frame") and j.BackgroundTransparency < 1 then
+									j.BackgroundTransparency = 0
 								end
 							end
 						end
@@ -163,36 +163,39 @@ task.spawn(function()
         end
 end)
 
-local function MakeDraggable(DragPoint, Main)
-        pcall(function()
-                local Dragging, DragInput, MousePos, FramePos = false
-                AddConnection(DragPoint.InputBegan, function(Input)
-                        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                Dragging = true
-                                MousePos = Input.Position
-                                FramePos = Main.Position
+local function MakeDraggable(instance: Instance, main: Instance)
+    local dragging = false
+    local dragInput
+    local mousePos
+    local framePos
 
-                                Input.Changed:Connect(function()
-                                        if Input.UserInputState == Enum.UserInputState.End then
-                                                Dragging = false
-                                        end
-                                end)
-                        end
-                end)
-                AddConnection(DragPoint.InputChanged, function(Input)
-                        if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-                                DragInput = Input
-                        end
-                end)
-                AddConnection(UserInputService.InputChanged, function(Input)
-                        if Input == DragInput and Dragging then
-                                local Delta = Input.Position - MousePos
-                                TweenService:Create(Main, TweenInfo.new(0.05, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)}):Play()
-                                Main.Position = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
-                        end
-                end)
-        end)
-end    
+    AddConnection(instance.InputBegan, function(input: InputObject)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            mousePos = input.Position
+            framePos = main.Position
+
+            AddConnection(input.Changed, function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    AddConnection(instance.InputChanged, function(input: InputObject)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
+            dragInput = input
+        end
+    end)
+
+    AddConnection(UserInputService.InputChanged, function(input: InputObject)
+        if dragging and input == dragInput then
+            local delta = input.Position - mousePos
+            main.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+        end
+    end)
+end
 
 function LoadAssets(list, options)
     local cfg = options or {}
@@ -427,44 +430,163 @@ local function UnpackColor(Color)
         return Color3.fromRGB(Color.R, Color.G, Color.B)
 end
 
-local function LoadCfg(Config)
-        if isfile and isfile(Config) then
-			local ok, decoded = pcall(function()
-				return HttpService:JSONDecode(readfile(Config))
-			end)
-			if ok and typeof(decoded) == "table" then
-				Data = decoded
-			end
-		end
-        table.foreach(Data, function(a,b)
-                if OrionLib.Flags[a] then
-                        spawn(function() 
-                                if OrionLib.Flags[a].Type == "Colorpicker" then
-                                        OrionLib.Flags[a]:Set(UnpackColor(b))
-                                else
-                                        OrionLib.Flags[a]:Set(b)
-                                end    
-                        end)
-                else
-                        warn("Orion Library Config Loader - Could not find ", a ,b)
-                end
-        end)
+parser = {
+    Toggle = {
+        Save = function(data)
+            return {Type = "Toggle", Value = data.Value}
+        end,
+        Load = function(flag, data)
+            if OrionLib.Flags[flag] then
+                OrionLib.Flags[flag]:Set(data.Value)
+            end
+        end
+    },
+    Slider = {
+        Save = function(data)
+            return {Type = "Slider", Value = data.Value}
+        end,
+        Load = function(flag, data)
+            if OrionLib.Flags[flag] then
+                OrionLib.Flags[flag]:Set(data.Value)
+            end
+        end
+    },
+    Input = {
+        Save = function(data)
+            return {Type = "Input", Text = data.Value}
+        end,
+        Load = function(flag, data)
+            if OrionLib.Flags[flag] then
+                OrionLib.Flags[flag]:Set(data.Text)
+            end
+        end
+    },
+    Dropdown = {
+        Save = function(data)
+            return {Type = "Dropdown", Value = data.Value}
+        end,
+        Load = function(flag, data)
+            if OrionLib.Flags[flag] then
+                OrionLib.Flags[flag]:SetValue(data.Value)
+            end
+        end
+    },
+    Bind = {
+        Save = function(data)
+            return {Type = "Bind", Keybind = tostring(data.Value)}
+        end,
+        Load = function(flag, data)
+            if OrionLib.Flags[flag] then
+                OrionLib.Flags[flag]:Set(GetKeybindFromString(data.Keybind))
+            end
+        end
+    },
+    Colorpicker = {
+        Save = function(data)
+            return {Type = "Colorpicker", Color = data.Value:ToHex()}
+        end,
+        Load = function(flag, data)
+            if OrionLib.Flags[flag] then
+                OrionLib.Flags[flag]:Set(Color3.fromHex(data.Color))
+            end
+        end
+    }
+}
+
+function CheckSaveFolder()
+    if OrionLib.Folder == nil then return false end    
+    if not isfolder(OrionLib.Folder) then
+        makefolder(OrionLib.Folder)
+    end
+    if not isfolder(OrionLib.Folder.."/configs") then
+        makefolder(OrionLib.Folder.."/configs")
+    end
+    return true
 end
 
-local function SaveCfg()
-        local Data = {}
-        for i,v in pairs(OrionLib.Flags) do
-                if v.Save then
-                        if v.Type == "Colorpicker" then
-                                Data[i] = PackColor(v.Value)
-                        else
-                                Data[i] = v.Value
-                        end
-                end        
+function SaveConfig(name)
+    if not CheckSaveFolder() then return false, "Save is nil" end
+    if not writefile then return false, "Where a writefile?" end
+    if name:gsub(" ", "") == "" then return OrionLib:MakeNotification({Name = "[Save Config]", Content = "Config Name can't be empty", Time = 5}) end
+    local data = {}
+    for i, v in pairs(OrionLib.Flags) do
+        if v.Type and parser[v.Type] then
+            data[i] = parser[v.Type].Save(v)
         end
-    pcall(function()
-        writefile(OrionLib.Folder .. "/" .. game.GameId .. ".json", HttpService:JSONEncode(Data))
-	end)
+    end
+	writefile(OrionLib.Folder.."/configs/"..name..".json", tostring(HttpService:JSONEncode(data)))
+    return true
+end
+
+function LoadConfig(name)
+    if not CheckSaveFolder() then return false, "Save is nil" end
+    if not isfile then return false, "Where a isfile?" end
+    if name:gsub(" ", "") == "" then return OrionLib:MakeNotification({Name = "[Save Config]", Content = "Config Name can't be empty", Time = 5}) end
+    local file = OrionLib.Folder.."/configs/"..name..".json"
+    if not isfile(file) then 
+        return false, "Invalid file"
+    end
+    local data = HttpService:JSONDecode(readfile(file))
+    for i, v in pairs(data) do
+        if not (v.Type and parser[v.Type]) then continue end
+        task.spawn(parser[v.Type].Load, i, v)
+    end
+    return true
+end
+
+function GetSavedConfigs()
+    if not CheckSaveFolder() then return false, "Save is nil" end
+    local path = OrionLib.Folder.."/configs"
+    local configsList = listfiles(path)
+    local configs = {}
+    for i = 1, #configsList do
+        local config = configsList[i]
+        if config:sub(-5) == ".json" then
+            table.insert(configs, config:sub(#path + 2, -6))
+        end
+    end
+    return configs
+end
+		
+function OrionLib:LoadAutoloadConfig()
+    if not CheckSaveFolder() then return end
+    local settingsData = {}
+    if isfile(OrionLib.Folder.."/settings.json") then
+        settingsData = HttpService:JSONDecode(readfile(OrionLib.Folder.."/settings.json"))
+    end
+    if settingsData["Autoload"] then
+        LoadConfig(settingsData["Autoload"])
+    end
+end
+
+function OrionLib:SetAutoloadConfig(name)
+    if not CheckSaveFolder() then return end
+    if name:gsub(" ", "") == "" then return OrionLib:MakeNotification({Name = "[Save Config]", Content = "Autoload can't be empty", Time = 5}) end
+    local data = {["Autoload"] = name}
+    writefile(OrionLib.Folder.."/settings.json", tostring(HttpService:JSONEncode(data)))
+end
+
+function OrionLib:SetUnAutoloadConfig(name)
+    if not CheckSaveFolder() then return end
+    if name:gsub(" ", "") == "" then return OrionLib:MakeNotification({Name = "[Save Config]", Content = "Unautoload can't be empty", Time = 5}) end
+    if not isfile then return end
+    local path = OrionLib.Folder.."/settings.json"
+    local data = {}
+    if isfile(path) then
+        local raw = readfile(path)
+        local ok, decoded = pcall(function()
+            return HttpService:JSONDecode(raw)
+        end)
+        if ok and typeof(decoded) == "table" then
+            data = decoded
+        end
+    end
+    if data.Autoload == name then
+	    data.Autoload = nil
+	else
+		return OrionLib:MakeNotification({Name = "[Save Config]", Content = "Config Name can't be autoload", Time = 5})
+	end
+    writefile(path, HttpService:JSONEncode(data))
 end
 
 local WhitelistedMouse = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,Enum.UserInputType.MouseButton3}
@@ -536,6 +658,18 @@ CreateElement("RoundFrame", function(Color, Scale, Offset)
                 })
         })
         return Frame
+end)
+
+CreateElement("RoundImage", function(Color, Scale, Offset)
+        local Image = Create("ImageLabel", {
+                BackgroundColor3 = Color or Color3.fromRGB(255, 255, 255),
+                BorderSizePixel = 0
+        }, {
+                Create("UICorner", {
+                        CornerRadius = UDim.new(Scale, Offset)
+                })
+        })
+        return Image
 end)
 
 CreateElement("Button", function()
@@ -618,7 +752,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 		NotificationConfig.Content = NotificationConfig.Content or "Content"
 		NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://14229447778"
 		NotificationConfig.Time = NotificationConfig.Time or 5
-		NotificationConfig.Volume = NotificationConfig.Volume or 1
+		NotificationConfig.Volume = NotificationConfig.Volume or OrionLib.NotifyVolume
 		
 		local function ParseText(Str)
 			if type(Str) ~= "string" then return Str end
@@ -753,7 +887,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 			if sId then
 				local s = Instance.new("Sound", workspace)
 				s.SoundId = "rbxassetid://" .. sId
-				s.Volume = tonumber(NotificationConfig.Volume)
+				s.Volume = NotificationConfig.Volume
 				s.PlayOnRemove = true
 				s:Destroy()
 			end
@@ -768,21 +902,6 @@ function OrionLib:MakeNotification(NotificationConfig)
 		NotificationParent:Destroy()
 	end)
 end
-
-function OrionLib:Init()
-        if OrionLib.SaveCfg and (isfile and readfile) then        
-                pcall(function()
-                        if isfile(OrionLib.Folder .. "/" .. game.GameId .. ".json") then
-                                LoadCfg(OrionLib.Folder .. "/" .. game.GameId .. ".json")
-                                OrionLib:MakeNotification({
-                                        Name = "Configuration",
-                                        Content = "Auto-loaded configuration for the game " .. game.GameId .. ".",
-                                        Time = 5
-                                })
-                        end
-                end)                
-        end        
-end        
 
 getgenv().TogglesSaveTable = {}
 getgenv().NameBindKey = {}
@@ -904,14 +1023,6 @@ function OrionLib:MakeWindow(WindowConfig)
         WindowConfig.IntroIcon = WindowConfig.IntroIcon or "rbxassetid://14229447778"
         WindowConfig.SearchBar = WindowConfig.SearchBar or nil
         WindowConfig.LinkVideo = WindowConfig.LinkVideo or nil
-        OrionLib.Folder = WindowConfig.ConfigFolder
-        OrionLib.SaveCfg = WindowConfig.SaveConfig
-
-        if WindowConfig.SaveConfig then
-                if (isfolder and makefolder) and not isfolder(WindowConfig.ConfigFolder) then
-                        makefolder(WindowConfig.ConfigFolder)
-                end        
-        end
 
         local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4),
                 WindowConfig.SearchBar and WindowConfig.SearchBar.Tabs == true and {
@@ -1067,23 +1178,12 @@ function OrionLib:MakeWindow(WindowConfig)
                 AddConnection(TextboxActual:GetPropertyChangedSignal("Text"), SearchHandle);
         end
 
-        local WindowName = AddThemeObject(
-    SetChildren(
-        SetProps(
-            MakeElement("Label", WindowConfig.Name, 14),
-            {
+        local WindowName = AddThemeObject(SetChildren(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
                 Size = UDim2.new(1, -30, 2, 0),
                 Position = UDim2.new(0, 25, 0, -24),
                 Font = Enum.Font.GothamBlack,
                 TextSize = 20
-            }
-        ),
-        {
-            AddThemeObject(MakeElement("Stroke"), "Stroke")
-        }
-    ),
-    "Text"
-)
+        }), {AddThemeObject(MakeElement("Stroke"), "Stroke")}), "Text")
 
         local WindowTopBarLine = AddThemeObject(SetProps(MakeElement("Frame"), {
                 Size = UDim2.new(1, 0, 0, 1),
@@ -1091,7 +1191,7 @@ function OrionLib:MakeWindow(WindowConfig)
         }), "Stroke")
 		
 		if typeof(WindowConfig.LinkVideo) == "string" then
-			RoundMainWindow = "RoundVideo" 
+			RoundMainWindow = "RoundImage" 
 		else
 			RoundMainWindow = "RoundFrame"
 		end
@@ -1415,7 +1515,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					Font = Enum.Font.GothamSemibold,
 					TextTransparency = TabConfig.Disabled and 0.7 or 0.4,
 					Name = "Title"
-				}), {AddThemeObject(MakeElement("Stroke"), "Stroke")}) "Text")
+				}), {AddThemeObject(MakeElement("Stroke"), "Stroke")}), "Text")
 			})
 		
 			AddItemTable(Tabs, TabConfig.Name, TabFrame)
@@ -1469,6 +1569,29 @@ function OrionLib:MakeWindow(WindowConfig)
 			
                 local function GetElements(ItemParent)
                         local ElementFunction = {}
+                        function ElementFunction:AddDivider()
+					        local DividerHolder = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+					            BackgroundTransparency = 1,
+					            Size = UDim2.new(1, 0, 0, 14),
+					            Parent = ItemParent
+					        }), {
+						        MakeElement("Padding"),
+								Create("Frame", {
+						            BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+						            Size = UDim2.fromScale(1, 1)
+						        }),
+						        Create("UICorner", {CornerRadius = UDim.new(1, 0)}),
+						        AddThemeObject(MakeElement("Stroke"), "Stroke")
+							}), "Second")
+							
+							local DividerFunction = {}
+                            function DividerFunction:Remove()
+	                            if DividerHolder then
+		                            DividerHolder:Destroy()
+	                            end
+                            end
+                            return DividerFunction 
+					    end
                         function ElementFunction:AddLog(Text)
                                 local Label = MakeElement("Label", Text, 15)
                                 local LogFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
@@ -1567,7 +1690,7 @@ function OrionLib:MakeWindow(WindowConfig)
                         end    
                         function ElementFunction:AddButton(ButtonConfig)
                                 ButtonConfig = ButtonConfig or {}
-                                ButtonConfig.Visible = ButtonConfig.Visible or false
+                                ButtonConfig.Visible = ButtonConfig.Visible or true
                                 ButtonConfig.Disabled = ButtonConfig.Disabled or false
                                 ButtonConfig.Name = ButtonConfig.Name or "Button"
                                 ButtonConfig.Callback = ButtonConfig.Callback or function() end
@@ -1744,9 +1867,9 @@ function OrionLib:MakeWindow(WindowConfig)
 							ToggleConfig.Save = ToggleConfig.Save or false
 						
 							local Toggle = {
+								Type = "Toggle",
 								Value = ToggleConfig.Default,
 								Save = ToggleConfig.Save,
-								Type = ToggleConfig.Type,
 								Visible = ToggleConfig.Visible,
 								Disabled = ToggleConfig.Disabled,
 								["__DisplayName"] = {}
@@ -1857,7 +1980,6 @@ function OrionLib:MakeWindow(WindowConfig)
 									end
 									if KeyBindAdd:FindFirstChild("TextButton") then
 										AddConnection(KeyBindAdd:FindFirstChild("TextButton").MouseButton1Up, function()
-											SaveCfg()
 											Toggle:Set(not Toggle.Value)
 											UpdateTweenKeyBindToggles(KeyBindAdd, Toggle.Value)
 										end)
@@ -1960,7 +2082,6 @@ function OrionLib:MakeWindow(WindowConfig)
 							
 							AddConnection(Click.MouseButton1Up, function()
 								if ToggleConfig.Disabled then return end
-								SaveCfg()
 								Toggle:Set(not Toggle.Value)
 								if Toggle.__DisplayName then
 									local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
@@ -2099,6 +2220,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							SliderConfig.Save = SliderConfig.Save or false
 							
 							local Slider = {
+								Type = "Slider",
 								Value = SliderConfig.Default,
 								Save = SliderConfig.Save,
 								Disabled = SliderConfig.Disabled,
@@ -2170,7 +2292,6 @@ function OrionLib:MakeWindow(WindowConfig)
 								if Dragging and not Slider.Disabled then
 									local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
 									Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))
-									SaveCfg(game.GameId)
 								end
 							end)
 						  
@@ -2186,7 +2307,6 @@ function OrionLib:MakeWindow(WindowConfig)
 								if getgenv().Destroy then return end
 								Slider.Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)  
 								Update()  
-								SaveCfg()
 							end  
 							
 							function Slider:SetDisabled(state)
@@ -2469,7 +2589,6 @@ function OrionLib:MakeWindow(WindowConfig)
 									AddConnection(OptionBtn.MouseButton1Click, function()
 										if Dropdown.Disabled then return end
 										Dropdown:Set(OptionVal)
-										SaveCfg(game.GameId)
 									end)
 						
 									Dropdown.Buttons[OptionVal] = OptionBtn
@@ -2584,7 +2703,6 @@ function OrionLib:MakeWindow(WindowConfig)
 									if selBtn:FindFirstChild("Desc") then TweenService:Create(selBtn.Desc, TweenInfo.new(.15), {TextTransparency = 0.2}):Play() end
 									if selBtn:FindFirstChild("Icon") then TweenService:Create(selBtn.Icon, TweenInfo.new(.15), {ImageTransparency = 0}):Play() end
 								end
-								SaveCfg()
 								return DropdownConfig.Callback(Dropdown.Value)
 							end
 						
@@ -2707,7 +2825,6 @@ function OrionLib:MakeWindow(WindowConfig)
                                                 end)
                                                 Key = Key or Bind.Value
                                                 Bind:Set(Key)
-                                                SaveCfg(game.GameId)
                                         end
                                 end)
 
@@ -2742,7 +2859,6 @@ function OrionLib:MakeWindow(WindowConfig)
                                         Bind.Value = Key or Bind.Value
                                         Bind.Value = Bind.Value.Name or Bind.Value
                                         BindBox.Value.Text = Bind.Value
-                                        SaveCfg()
                                 end
                                 
                                 function Bind:SetText(ToChange)
@@ -3177,7 +3293,6 @@ function OrionLib:MakeWindow(WindowConfig)
 								end
 								
 								UpdateInputDisplays()
-								SaveCfg(game.GameId)
 							end
 							
 							ColorH, ColorS, ColorV = Color3.toHSV(Colorpicker.Value)
@@ -3307,7 +3422,6 @@ function OrionLib:MakeWindow(WindowConfig)
 									UpdateColorPicker(true)
 								end
 								if Alpha then
-									SaveCfg()
 									AlphaValue = Alpha
 									AlphaSelection.Position = UDim2.new(0.5, 0, 1 - AlphaValue, 0)
 									ColorpickerConfig.Callback(Colorpicker.Value, AlphaValue)
@@ -3429,6 +3543,117 @@ function OrionLib:MakeWindow(WindowConfig)
         end        
         return Functions
 end   
+
+function OrionLib:BuildSettings(Tab: table)
+    Tab:AddToggle({
+		Name = "Toggle Keybind",
+		Default = false,
+		Callback = function(Value)
+			OrionLib:SetKeyBindVisible(Value)
+		end    
+	})
+    
+    Tab:AddSlider({
+        Name = "Notify Volume",
+        Min = 0,
+        Max = 10,
+        Increment = 0.5,
+        Value = OrionLib.NotifyVolume,
+        Color = Color3.fromRGB(255,255,255),
+        ValueName = "Volume:",
+        Callback = function(value)
+            OrionLib.NotifyVolume = value
+        end
+    })
+
+    Tab:AddButton({
+        Name = "Destroy Orion",
+        Callback = function()
+            OrionLib:Destroy()
+        end
+    })
+    
+    local configName = Tab:AddTextbox({
+        Name = "Config Name"
+    })
+
+    local configList = Tab:AddDropdown({
+        Name = "Configs List",
+        Options = GetSavedConfigs()
+    })
+
+    Tab:AddDivider()
+    Tab:AddButton({
+        Name = "Create Config",
+        Callback = function()
+            local name = configName.Value
+            if name:gsub(" ", "") == "" then return  end
+            local success, error = SaveConfig(name)
+            if success then
+	            OrionLib:MakeNotification({Name = "[Save Config]", Content = string.format("Created config: %s", name), Time = 5})
+            else
+                OrionLib:MakeNotification({Name = "[Save Config]", Content = string.format("Failed to create config: %s", name), Time = 5})
+            end            
+            configList:Refresh(GetSavedConfigs(), true)
+        end
+    })
+
+    Tab:AddButton({
+        Name = "Load Config",
+        Callback = function()
+            local name = configList.Value
+            if not name then return OrionLib:MakeNotification({Name = "[Save Config]", Content = "Select a config to load", Time = 5}) end
+            local success, error = LoadConfig(name)
+            if success then
+	            OrionLib:MakeNotification({Name = "[Save Config]", Content = string.format("Loaded config: %s", name), Time = 5})
+            else
+                OrionLib:MakeNotification({Name = "[Save Config]", Content = string.format("Failed to load config: %s\nError: %s", name, error), Time = 5})
+            end
+        end
+    })
+
+    Tab:AddButton({
+        Name = "Overwrite Config",
+        DoubleClick = true,
+        Callback = function()
+            local name = configList.Value
+            if not name then return OrionLib:MakeNotification({Name = "[Save Config]", Content = "Select a config to load", Time = 5}) end
+            local success, error = SaveConfig(name)
+            if success then
+	            OrionLib:MakeNotification({Name = "[Save Config]", Content = string.format("Overwrote config: %s", name), Time = 5})
+            else
+                OrionLib:MakeNotification({Name = "[Save Config]", Content = string.format("Failed to overwrite config: %s", name), Time = 5})
+            end
+        end
+    })
+
+    Tab:AddButton({
+        Name = "Set as Autoload",
+        Callback = function()
+            local name = configList.Value
+            if not name then return OrionLib:MakeNotification({Name = "[Save Config]", Content = "Select a config to autoload", Time = 5}) end
+            OrionLib:SetAutoloadConfig(name)
+            OrionLib:MakeNotification({Name = "[Save Config]", Content = string.format('Set "%s" to autoload', name), Time = 5})
+        end
+    })
+    
+    Tab:AddButton({
+        Name = "Set as Unautoload",
+        Callback = function()
+            local name = configList.Value
+            if not name then return OrionLib:MakeNotification({Name = "[Save Config]", Content = "Select a config to Unautoload", Time = 5}) end
+            OrionLib:SetUnAutoloadConfig(name)
+            OrionLib:MakeNotification({Name = "[Save Config]", Content = string.format('Set "%s" to Unautoload', name), Time = 5})
+        end
+    })
+
+    Tab:AddButton({
+        Name = "Refresh List",
+        Callback = function()
+            configList:Refresh(GetSavedConfigs(), true)
+        end
+    })
+end
 
 function OrionLib:Destroy()
 	for _, fn in next, OrionLib.OnDestroyTo do
