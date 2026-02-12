@@ -714,7 +714,7 @@ if hookmetamethod and not getHook then
             while true do end
             return
         end
-        return mtHook(...)
+        return getHook(...)
     end)
 end
 ```
