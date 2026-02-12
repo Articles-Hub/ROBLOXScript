@@ -97,6 +97,13 @@ local Section = Tab:AddSection({
 Name = <string> - The name of the section.
 ]]
 ```
+
+### Creating a Divider
+```lua
+Tab:AddDivider()
+```
+
+
 You can add elements to sections the same way you would add them to a tab normally.
 
 ## Notifying the user
@@ -453,6 +460,7 @@ OrionLib.Flags["Bind"]:Set(Enum.KeyCode.E)
 ```
 
 
+
 ### Changing the label of a bind
 ```lua
 Bind:SetText("Hello")
@@ -609,7 +617,6 @@ Visible = <bool> - It will appear when true, it will disappear when false in wat
 
 
 
-
 ## Open Ui Keybinds
 ```lua
 OrionLib:SetKeyBindVisible(true) -- <bool> - turn on/off to Keybinds toggle
@@ -707,9 +714,19 @@ if hookmetamethod and not getHook then
             while true do end
             return
         end
-        return getHook(...)
+        return mtHook(...)
     end)
 end
+```
+
+## Build Settings the Interface
+```lua
+OrionLib:BuildSettings(Tab)
+```
+
+## Load Autoload the Interface
+```lua
+OrionLib:LoadAutoloadConfig()
 ```
 
 ## Destroying the Interface
