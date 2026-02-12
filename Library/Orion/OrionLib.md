@@ -495,18 +495,18 @@ Size = <number> - Enlarge the image
 ```
 
 ### Changing the Icon (Id)
-```
+```lua
 Img:SetIcon("rbxassetid://{id icon}")
 ```
 
 
 ### Changing the Size Icon
-```
+```lua
 Img:SetSize(100)
 ```
 
 ### Set Visible a Icon
-```
+```lua
 Img:SetVisible(false)
 ```
 
