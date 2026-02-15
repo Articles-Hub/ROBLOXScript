@@ -13,6 +13,10 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = cloneref(LocalPlayer:GetMouse())
 
 local PARENT = (gethui and gethui()) or cloneref(game:GetService("CoreGui"))
+local request = http_request or request or (syn and syn.request) or (fluxus and fluxus.request)
+local getcustomasset = getcustomasset or getsynasset
+local makefolder = makefolder or function() end
+
 
 OrionLib = {
         Elements = {},
@@ -73,18 +77,16 @@ function OrionLib:SetVideoLink(link: string)
     if typeof(link) == "string" then
 	    if not MainWindowVideo then
 		    for i, v in pairs(Orion:GetChildren()) do
-				if v:IsA("ImageLabel") then
+				if v:IsA("VideoFrame") then
 					MainWindowVideo = v
 				end
 			end
 		end
-		if MainWindowVideo and MainWindowVideo:IsA("ImageLabel") then
-			local success, video = pcall(function()
-				return VideoID(link)
-			end)
-			if success and video and video.Icon then
-				MainWindowVideo.Image = video.Icon
-				MainWindowVideo.ImageColor3 = Color3.new(255, 255, 255)
+		if MainWindowVideo and MainWindowVideo:IsA("VideoFrame") then
+			local loaded = MakeAsset({Icon = "https://raw.githubusercontent.com/caomod2077/test-public/main/ca0f0ed42f907be80e8fd356400a9c96.webm"}, {Root = "OrionLibSave", Folder = "OrionVideo"})
+			if loaded then
+				MainWindowVideo.Video = loaded.Icon
+				MainWindowVideo.BackgroundColor3 = Color3.new(255, 255, 255)
 				
 				spawn(function()
 					repeat task.wait() until MainWindowVideo and MainWindowVideo:FindFirstChild("ItemContainer")
@@ -111,7 +113,7 @@ function OrionLib:SetVideoLink(link: string)
 						end
 					end
 				end)
-				pcall(function() MainWindowVideo.Image = "rbxassetid://0" end)
+				pcall(function() MainWindowVideo.Video = "" end)
 			end
 		end
 	end
@@ -197,131 +199,54 @@ local function MakeDraggable(instance: Instance, main: Instance)
     end)
 end
 
-function LoadAssets(list, options)
-    local cfg = options or {}
-    local Root = cfg.root or "AssetsHub"
-    local AssetsDir = cfg.assets or (Root .. "/Assets")
-    local Prefix = cfg.prefix or ""
-    local Suffix = cfg.suffix or ""
-    local ForceExt = cfg.forceExt
-    local Retries = cfg.retries or 5
-    local RetryDelay = cfg.retryDelay or 0.2
-    local PreloadBatch = cfg.preloadBatch or 6
-    local MinSize = cfg.minSize or 20
-    local UserAgent = cfg.userAgent or "LoadAssets"
+function MakeAsset(list, options)
+    options = options or {}
+    local root = options.Root or "AssetsHub"
+    local folder = root .. "/" .. (options.Folder or "Cache")
+    local retries = options.Retries or 3
+    local minSize = options.MinSize or 100
+    local proxy = options.Proxy or ""
 
-    local function ensureFolder(p) if not isfolder(p) then makefolder(p) end end
-    local function sanitize(s) return tostring(s):gsub("[^%w%-%_%.]","_") end
+    if not isfolder(root) then makefolder(root) end
+    if not isfolder(folder) then makefolder(folder) end
 
-    local function getExt(url)
-        if ForceExt then return ForceExt end
-        local clean = url:match("^[^%?]+") or url
-        local ext = clean:match("%.([%w_%-]+)$")
-        return ext and ("." .. ext) or ""
-    end
-
-    local function get_request_fn()
-        if cfg.request and type(cfg.request) == "function" then return cfg.request end
-        if syn and syn.request then return function(r) return syn.request(r) end end
-        if request and type(request) == "function" then return request end
-        if http_request and type(http_request) == "function" then return http_request end
-        return nil
-    end
-
-    local function request_body(url)
-        local reqfn = get_request_fn()
-        if reqfn then
-            local ok, res = pcall(function()
-                return reqfn({ Url = url, Method = "GET", Headers = { ["User-Agent"] = UserAgent } })
-            end)
-            if ok and res then
-                if type(res) == "table" and res.Body and #res.Body > 0 then return res.Body end
-                if type(res) == "string" and #res > 0 then return res end
-            end
-            local ok2, res2 = pcall(function() return reqfn(url) end)
-            if ok2 and type(res2) == "string" and #res2 > 0 then return res2 end
-        end
-        local ok, body = pcall(function() return game:HttpGet(url) end)
-        if ok and type(body) == "string" and #body > 0 then return body end
-        local ok2, body2 = pcall(function() return HttpService:GetAsync(url) end)
-        if ok2 and type(body2) == "string" and #body2 > 0 then return body2 end
-        return nil
-    end
-
-    local function get_write()
-        if writefile then return writefile end
-        if write_file then return write_file end
-        if syn and syn.write_file then return syn.write_file end
-        return nil
-    end
-
-    local function safe_write(path, data)
-        local wf = get_write()
-        if not wf then return false end
-        return pcall(function() wf(path, data) end)
-    end
-
-    local function safe_getasset(path)
-        if getcustomasset then
-            local ok, a = pcall(function() return getcustomasset(path) end)
-            if ok and a then return a end
-        end
-        if getsynasset then
-		local ok, a = pcall(function() return getsynasset(path) end)
-            if ok and a then return a end
-        end
-        return "rbxasset://" .. path
-    end
-
-    ensureFolder(Root)
-    ensureFolder(AssetsDir)
-
-    if cfg.nomedia ~= false and not isfile(AssetsDir .. "/.nomedia") then
-        local wf = get_write()
-        if wf then pcall(function() wf(AssetsDir .. "/.nomedia", "") end) end
-    end
-
-    local result = {}
-    local preloadQueue = {}
+    local assets = {}
+    local preloadBatch = {}
 
     for id, url in pairs(list) do
-        local name = Prefix .. sanitize(id) .. Suffix .. getExt(url)
-        local path = AssetsDir .. "/" .. name
-        local okFile = isfile(path) and (#readfile(path) or 0) >= MinSize
-        if not okFile then
-            local body
-            for _ = 1, Retries do
-                body = request_body(url)
-                if body then
-                    safe_write(path, body)
-                    okFile = isfile(path) and (#readfile(path) or 0) >= MinSize
-                    if okFile then break end
+        local cleanId = tostring(id):gsub("[^%w%-%_]", "_")
+        local ext = url:match("^[^%?]+"):match("%.([%w]+)$") or "png"
+        local path = folder .. "/" .. cleanId .. "." .. ext
+        local success, content = pcall(readfile, path)
+        if not success or #content < minSize then
+            for _ = 1, retries do
+                local response = request({
+                    Url = proxy .. url,
+                    Method = "GET"
+                })
+                if response and response.Body and #response.Body >= minSize then
+                    content = response.Body
+                    writefile(path, content)
+                    break
                 end
-                task.wait(RetryDelay)
+                task.wait(0.2)
             end
         end
-        if okFile then
-            local asset = safe_getasset(path)
-            result[id] = asset
-            preloadQueue[#preloadQueue + 1] = asset
-        else
-            result[id] = nil
-        end
-        if #preloadQueue >= PreloadBatch then
-            pcall(function() ContentProvider:PreloadAsync(preloadQueue) end)
-            table.clear(preloadQueue)
-            task.wait()
+        if isfile(path) then
+            local assetId = getcustomasset(path)
+            assets[id] = assetId
+            
+            if not ext:find("mp4") and not ext:find("webm") and not ext:find("mkv") then
+                table.insert(preloadBatch, assetId)
+            end
         end
     end
-    if #preloadQueue > 0 then
-        pcall(function() ContentProvider:PreloadAsync(preloadQueue) end)
+    if #preloadBatch > 0 then
+        task.spawn(function()
+            pcall(function() ContentProvider:PreloadAsync(preloadBatch) end)
+        end)
     end
-    return result
-end
-
-function VideoID(link)
-	local Assets = LoadAssets({Icon = link},{root = "ResidenceMassacreMasion", prefix = "ui_"})
-	return Assets
+    return assets
 end
 
 local function Create(Name, Properties, Children)
@@ -405,14 +330,17 @@ local function ReturnProperty(Object)
 end
 
 local function AddThemeObject(Object, Type)
-        if not OrionLib.ThemeObjects[Type] then
-                OrionLib.ThemeObjects[Type] = {}
-        end    
-        Total.AddThemeObject += 1;
-        table.insert(OrionLib.ThemeObjects[Type], Object)
-        Object[ReturnProperty(Object)] = OrionLib.Themes[OrionLib.SelectedTheme][Type]
-        return Object
-end    
+    if not OrionLib.ThemeObjects[Type] then
+        OrionLib.ThemeObjects[Type] = {}
+    end    
+    table.insert(OrionLib.ThemeObjects[Type], Object)
+    local property = ReturnProperty(Object)
+    local theme = OrionLib.Themes[OrionLib.SelectedTheme]
+    if property and theme and theme[Type] then
+        Object[property] = theme[Type]
+    end
+    return Object
+end
 
 local function SetTheme()
         for Name, Type in pairs(OrionLib.ThemeObjects) do
@@ -660,16 +588,18 @@ CreateElement("RoundFrame", function(Color, Scale, Offset)
         return Frame
 end)
 
-CreateElement("RoundImage", function(Color, Scale, Offset)
-        local Image = Create("ImageLabel", {
+CreateElement("RoundVideo", function(Color, Scale, Offset)
+        local Video = Create("VideoFrame", {
                 BackgroundColor3 = Color or Color3.fromRGB(255, 255, 255),
-                BorderSizePixel = 0
+                BorderSizePixel = 0,
+                Looped = true,
+                Playing = true
         }, {
                 Create("UICorner", {
                         CornerRadius = UDim.new(Scale, Offset)
                 })
         })
-        return Image
+        return Video
 end)
 
 CreateElement("Button", function()
@@ -1037,7 +967,7 @@ function OrionLib:MakeWindow(WindowConfig)
                 }), "Divider")
                 
         if TabHolder then
-	        TabHolder.BackgroundTransparency = typeof(WindowConfig.LinkVideo) == "string" and 1 or 0
+	        TabHolder.BackgroundTransparency = 1
 		end
 
         AddConnection(TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
@@ -1191,7 +1121,7 @@ function OrionLib:MakeWindow(WindowConfig)
         }), "Stroke")
 		
 		if typeof(WindowConfig.LinkVideo) == "string" then
-			RoundMainWindow = "RoundImage" 
+			RoundMainWindow = "RoundVideo" 
 		else
 			RoundMainWindow = "RoundFrame"
 		end
