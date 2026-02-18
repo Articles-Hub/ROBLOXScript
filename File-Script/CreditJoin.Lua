@@ -2,9 +2,63 @@ local cloneref = (cloneref or clonereference or function(instance: any)
     return instance
 end)
 
-local quest = request or http_request or (syn and syn.request) or (http and http.request) or (fluxus and fluxus.request)
 local HttpService: HttpService = cloneref(game:GetService("HttpService"))
-local InviteCode = "aD7gjtvPmv"
+local ContentProvider: ContentProvider = cloneref(game:GetService("ContentProvider"))
+local quest = http_request or request or (syn and syn.request) or (fluxus and fluxus.request)
+local getcustomasset = getcustomasset or getsynasset
+local makefolder = makefolder or function() end
+
+function MakeAsset(list, options)
+    options = options or {}
+    local root = options.Root or "AssetsHub"
+    local folder = root .. "/" .. (options.Folder or "Cache")
+    local retries = options.Retries or 3
+    local minSize = options.MinSize or 100
+    local proxy = options.Proxy or ""
+
+    if not isfolder(root) then makefolder(root) end
+    if not isfolder(folder) then makefolder(folder) end
+
+    local assets = {}
+    local preloadBatch = {}
+
+    for id, url in pairs(list) do
+        local cleanId = tostring(id):gsub("[^%w%-%_]", "_")
+        local ext = url:match("^[^%?]+"):match("%.([%w]+)$") or "png"
+        local path = folder .. "/" .. cleanId .. "." .. ext
+        local success, content = pcall(readfile, path)
+        if not success or #content < minSize then
+            for _ = 1, retries do
+                local response = request({
+                    Url = proxy .. url,
+                    Method = "GET"
+                })
+                if response and response.Body and #response.Body >= minSize then
+                    content = response.Body
+                    writefile(path, content)
+                    break
+                end
+                task.wait(0.2)
+            end
+        end
+        if isfile(path) then
+            local assetId = getcustomasset(path)
+            assets[id] = assetId
+            
+            if not ext:find("mp4") and not ext:find("webm") and not ext:find("mkv") then
+                table.insert(preloadBatch, assetId)
+            end
+        end
+    end
+    if #preloadBatch > 0 then
+        task.spawn(function()
+            pcall(function() ContentProvider:PreloadAsync(preloadBatch) end)
+        end)
+    end
+    return assets
+end
+
+local InviteCode = "KQAFmjw44H"
 local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
 success, result = pcall(function()
     return HttpService:JSONDecode(quest({
@@ -18,7 +72,18 @@ success, result = pcall(function()
 end)
 
 function UpdateDiscord()
-	return HttpService:JSONDecode(quest({Url = DiscordAPI, Method = "GET"}).Body)
+        return HttpService:JSONDecode(quest({Url = DiscordAPI, Method = "GET"}).Body)
+end
+
+if success and result and result.guild and result.guild.icon and result.guild.id then
+	local successicon, resulticon = pcall(function()
+		return MakeAsset({Icon = "https://cdn.discordapp.com/icons/"..result.guild.id.."/"..result.guild.icon..".png?size=1024"})
+	end)
+	if successicon then
+		IconInfo = resulticon.Icon
+	else
+		IconInfo = "rbxassetid://138779531145636"
+	end
 end
 
 CreditScript = {
@@ -47,16 +112,16 @@ TabCredits:AddSection({Name = "Join Server"})
 if success and result and result.guild then
     TabCredits:AddLabel(result.guild.name)
     local InfoDiscord = TabCredits:AddLabel('<font color="#52525b">•</font> Member Count : '..tostring(result.approximate_member_count)..'\n<font color="#16a34a">•</font> Online Count : ' .. tostring(result.approximate_presence_count))
-    TabCredits:AddImage({Icon = "rbxassetid://138779531145636", Size = 200})
-	TabCredits:AddButton({Name = "Update Info", Callback = function()
-		local updated, updatedResult = pcall(UpdateDiscord())
+    TabCredits:AddImage({Icon = IconInfo, Size = 200})
+        TabCredits:AddButton({Name = "Update Info", Callback = function()
+                local updated, updatedResult = pcall(UpdateDiscord())
         if updated and updatedResult and updatedResult.guild then
             InfoDiscord:Set(
                 '<font color="#52525b">•</font> Member Count : ' .. tostring(updatedResult.approximate_member_count) ..
                 '\n<font color="#16a34a">•</font> Online Count : ' .. tostring(updatedResult.approximate_presence_count)
             )
         end
-	end})           
+        end})           
 
     TabCredits:AddButton({Name = "Copy Discord Invite", Callback = function()
         setclipboard("https://discord.gg/"..InviteCode)
@@ -89,7 +154,7 @@ local CreditTab2 = Credit:AddRightGroupbox("Join Server")
 if success and result and result.guild then
     CreditTab2:AddLabel(result.guild.name, true)
     local InfoDiscord = CreditTab2:AddLabel('<font color="#52525b">•</font> Member Count : '..tostring(result.approximate_member_count)..'\n<font color="#16a34a">•</font> Online Count : ' .. tostring(result.approximate_presence_count), true)
-    CreditTab2:AddImage("Image Discord", {Image = "rbxassetid://138779531145636", Height = 200})
+    CreditTab2:AddImage("Image Discord", {Image = IconInfo, Height = 200})
 
     CreditTab2:AddButton("Update Info", function()
         local updated, updatedResult = pcall(UpdateDiscord())
