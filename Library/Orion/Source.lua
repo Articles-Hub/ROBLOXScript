@@ -17,7 +17,6 @@ local request = http_request or request or (syn and syn.request) or (fluxus and 
 local getcustomasset = getcustomasset or getsynasset
 local makefolder = makefolder or function() end
 
-
 OrionLib = {
         Elements = {},
         ThemeObjects = {},
@@ -83,7 +82,7 @@ function OrionLib:SetVideoLink(link: string)
 			end
 		end
 		if MainWindowVideo and MainWindowVideo:IsA("VideoFrame") then
-			local loaded = MakeAsset({Icon = "https://raw.githubusercontent.com/caomod2077/test-public/main/ca0f0ed42f907be80e8fd356400a9c96.webm"}, {Root = "OrionLibSave", Folder = "OrionVideo"})
+			local loaded = OrionLib:MakeAsset({Icon = link}, {Root = "OrionLibSave", Folder = "OrionVideo"})
 			if loaded then
 				MainWindowVideo.Video = loaded.Icon
 				MainWindowVideo.BackgroundColor3 = Color3.new(255, 255, 255)
@@ -199,7 +198,7 @@ local function MakeDraggable(instance: Instance, main: Instance)
     end)
 end
 
-function MakeAsset(list, options)
+function OrionLib:MakeAsset(list, options)
     options = options or {}
     local root = options.Root or "AssetsHub"
     local folder = root .. "/" .. (options.Folder or "Cache")
@@ -484,6 +483,7 @@ function OrionLib:LoadAutoloadConfig()
     end
     if settingsData["Autoload"] then
         LoadConfig(settingsData["Autoload"])
+        OrionLib:MakeNotification({Name = "[Save Config]", Content = "Autoload "..'"'..settingsData["Autoload"]..'"'.." Success", Time = 5})
     end
 end
 
@@ -591,7 +591,6 @@ end)
 CreateElement("RoundVideo", function(Color, Scale, Offset)
         local Video = Create("VideoFrame", {
                 BackgroundColor3 = Color or Color3.fromRGB(255, 255, 255),
-                BorderSizePixel = 0,
                 Looped = true,
                 Playing = true
         }, {
@@ -1547,36 +1546,98 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end
                                 return LogFunction
                         end
-                        function ElementFunction:AddLabel(Text)
-                                local LabelFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-                                        Size = UDim2.new(1, 0, 0, 30),
-                                        Parent = ItemParent
-                                }), {
-                                        AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
-                                                Size = UDim2.new(1, -12, 1, 0),
-                                                Position = UDim2.new(0, 8, 0, 0),
-                                                Font = Enum.Font.GothamBold,
-                                                TextWrapped = true,
-                                                Name = "Content"
-                                        }), "Text"),
-                                        AddThemeObject(MakeElement("Stroke"), "Stroke")
-                                }), "Second")
-                                
-                                AddConnection(LabelFrame.Content:GetPropertyChangedSignal("Text"), function()
-	                                if LabelFrame then
-                                        LabelFrame.Size = UDim2.new(1, 0, 0, LabelFrame.Content.TextBounds.Y + 25)
-                                    end
-                                end)
-
-                                local LabelFunction = {}
-                                function LabelFunction:Set(ToChange)
-	                                if getgenv().Destroy then return end
-	                                if LabelFrame and LabelFrame:FindFirstChild("Content") then
-                                        LabelFrame.Content.Text = ToChange
-                                    end
-                                end
-                                return LabelFunction
-                        end
+                        function ElementFunction:AddLabel(Text, Log)
+						    Log = Log or {}
+						    local DefaultBackground = OrionLib.Themes[OrionLib.SelectedTheme].Second
+						    local LabelFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255,255,255), 0, 5), {
+						            Size = UDim2.new(1, 0, 0, 30),
+						            Parent = ItemParent,
+						            BackgroundColor3 = DefaultBackground
+						        }), {
+						        Create("ImageLabel", {
+						            Name = "Icon",
+						            Size = UDim2.new(0, 18, 0, 18),
+						            Position = UDim2.new(0, 8, 0.5, -9),
+						            BackgroundTransparency = 1,
+						            Image = "",
+						            Visible = false
+						        }),
+						        AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
+						            Size = UDim2.new(1, -12, 1, 0),
+						            Position = UDim2.new(0, 8, 0, 0),
+						            Font = Enum.Font.GothamBold,
+						            TextWrapped = true,
+						            Name = "Content",
+						            TextXAlignment = Enum.TextXAlignment.Left
+						        }), "Text"),
+						        AddThemeObject(MakeElement("Stroke"), "Stroke")
+						    }), "Second")
+						
+						    AddConnection(LabelFrame.Content:GetPropertyChangedSignal("Text"), function()
+						        if LabelFrame then
+						            LabelFrame.Size = UDim2.new(1, 0, 0, LabelFrame.Content.TextBounds.Y + 25)
+						        end
+						    end)
+						
+						    local Icons = {
+						        success = "rbxassetid://3926305904",
+						        error = "rbxassetid://3926307971",
+						        warning = "rbxassetid://3926305904",
+						        fail = "rbxassetid://7743878857"
+						    }
+						    
+						    local StateColors = {
+						        success = Color3.fromRGB(0, 120, 60),
+						        error = Color3.fromRGB(150, 40, 40),
+						        warning = Color3.fromRGB(150, 110, 0),
+						        fail = Color3.fromRGB(120, 0, 0)
+						    }
+						    
+						    local function ResetState()
+						        Log.Error = nil
+						        Log.Warning = nil
+						        Log.Success = nil
+						        Log.Fail = nil
+								
+								if LabelFrame and LabelFrame:FindFirstChild("UIStroke") then
+									LabelFrame:FindFirstChild("UIStroke"):Destroy()
+								end
+						        LabelFrame.Icon.Visible = false
+						        LabelFrame.Icon.Image = ""
+								LabelFrame.BackgroundTransparency = 0
+								LabelFrame.Content.Size = UDim2.new(1, -12, 1, 0)
+								LabelFrame.Content.Position = UDim2.new(0, 8, 0, 0)
+						        LabelFrame.BackgroundColor3 = DefaultBackground
+						    end
+						    
+						    local LabelFunction = {}
+						    function LabelFunction:Set(ToChange, State)
+						        if getgenv().Destroy then return end
+						        if not LabelFrame then return end
+						        ResetState()
+						        LabelFrame.Content.Text = ToChange
+						        if State then
+						            State = string.lower(State)
+						            if Icons[State] then
+										LabelFrame.Content.Size = UDim2.new(1,-36,1,0)
+										LabelFrame.Content.Position = UDim2.new(0,30,0,0)
+						                LabelFrame.Icon.Visible = true
+										LabelFrame.BackgroundTransparency = 0.6
+						                LabelFrame.Icon.Image = Icons[State]
+										local Stroke = Create("UIStroke", {
+							                Color = StateColors[State],
+							                Thickness = 1.6,
+											Parent = LabelFrame
+								        })
+						            end
+						            if StateColors[State] then
+						                LabelFrame.BackgroundColor3 = StateColors[State]
+						            end
+						            Log[State:sub(1,1):upper()..State:sub(2)] = true
+						        end
+						    end
+						    return LabelFunction
+						end
                         function ElementFunction:AddParagraph(Text, Content)
                                 Text = Text or "Text"
                                 Content = Content or "Content"
@@ -1964,6 +2025,10 @@ function OrionLib:MakeWindow(WindowConfig)
 								if Toggle.__DisplayName and getgenv().TogglesSaveTable[Toggle.__DisplayName] then
 									local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
 									if data then
+										if data:FindFirstChild("TextButton", true) then
+											data:FindFirstChild("TextButton", true).Active = not state
+											data:FindFirstChild("TextButton", true).AutoButtonColor = not state
+										end
 										data.BackgroundTransparency = state and 0.6 or 0
 										if data:FindFirstChild("Content", true) then
 											data:FindFirstChild("Content", true).TextTransparency = state and 0.5 or 0
@@ -2029,7 +2094,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								BindConfig.Save = BindConfig.Save or false
 						
 								local Bind = {
-									Value = BindConfig.Default.Name or BindConfig.Default,
+									Value = BindConfig.Default,
 									Type = "Bind",
 									Save = BindConfig.Save,
 									Binding = false
@@ -2125,7 +2190,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								AddTogglesKeyBind(ToggleConfig.Name)
 						
 								if BindConfig.Flag then
-									OrionLib.Flags[Toggle][BindConfig.Flag] = Bind
+									OrionLib.Flags[BindConfig.Flag] = Bind
 								end
 								return Bind
 							end
@@ -2318,12 +2383,17 @@ function OrionLib:MakeWindow(WindowConfig)
 							DropdownConfig.Name = DropdownConfig.Name or "Dropdown"
 							DropdownConfig.Options = DropdownConfig.Options or {}
 							DropdownConfig.Multi = DropdownConfig.Multi or false
+							DropdownConfig.MultiTrue = DropdownConfig.MultiTrue or false
 							DropdownConfig.Default = DropdownConfig.Default or (DropdownConfig.Multi and {} or nil)
 							DropdownConfig.Callback = DropdownConfig.Callback or function() end
 							DropdownConfig.Flag = DropdownConfig.Flag or nil
 							DropdownConfig.Save = DropdownConfig.Save or false
 							DropdownConfig.Visible = DropdownConfig.Visible ~= false
 							DropdownConfig.Disabled = DropdownConfig.Disabled or false
+							
+							if DropdownConfig.MultiTrue then
+							    DropdownConfig.Multi = true
+							end
 						
 							local Dropdown = {
 								Value = DropdownConfig.Default,
@@ -2354,9 +2424,17 @@ function OrionLib:MakeWindow(WindowConfig)
 							Dropdown.Options = GetKeyList(DropdownConfig.Options)
 						
 							if DropdownConfig.Multi then
-								if type(Dropdown.Value) ~= "table" then
-									Dropdown.Value = {}
-								end
+							    if type(Dropdown.Value) ~= "table" then
+							        Dropdown.Value = {}
+							    end
+							
+							    if DropdownConfig.MultiTrue then
+							        for _, v in ipairs(Dropdown.Options) do
+							            if Dropdown.Value[v] == nil then
+							                Dropdown.Value[v] = false
+							            end
+							        end
+							    end
 							else
 								if Dropdown.Value ~= nil and not table.find(Dropdown.Options, Dropdown.Value) then
 									Dropdown.Value = nil
@@ -2579,7 +2657,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							end
 						
 							function Dropdown:Set(Value)
-								if getgenv().Destroy then return end
+								if getgenv().Destroy or Dropdown.Disabled then return end
 								if not table.find(Dropdown.Options, Value) then
 									Dropdown.Value = DropdownConfig.Multi and {} or nil
 									DropdownFrame.F.Selected.Text = "..."
@@ -2593,27 +2671,79 @@ function OrionLib:MakeWindow(WindowConfig)
 								end
 						
 								if DropdownConfig.Multi then
-									local index = table.find(Dropdown.Value, Value)
-									local btn = Dropdown.Buttons[Value]
-									if index then
-										table.remove(Dropdown.Value, index)
-										TweenService:Create(btn, TweenInfo.new(.15), {BackgroundTransparency = 1}):Play()
-										TweenService:Create(btn.Title, TweenInfo.new(.15), {TextTransparency = 0.4}):Play()
-										if btn:FindFirstChild("Desc") then TweenService:Create(btn.Desc, TweenInfo.new(.15), {TextTransparency = 0.5}):Play() end
-										if btn:FindFirstChild("Icon") then TweenService:Create(btn.Icon, TweenInfo.new(.15), {ImageTransparency = 0.4}):Play() end
-									else
-										table.insert(Dropdown.Value, Value)
-										TweenService:Create(btn, TweenInfo.new(.15), {BackgroundTransparency = 0}):Play()
-										TweenService:Create(btn.Title, TweenInfo.new(.15), {TextTransparency = 0}):Play()
-										if btn:FindFirstChild("Desc") then TweenService:Create(btn.Desc, TweenInfo.new(.15), {TextTransparency = 0}):Play() end
-										if btn:FindFirstChild("Icon") then TweenService:Create(btn.Icon, TweenInfo.new(.15), {ImageTransparency = 0}):Play() end
-									end
-									DropdownFrame.F.Selected.Text = (#Dropdown.Value == 0 and "...") or table.concat(Dropdown.Value, ", ")
-									return DropdownConfig.Callback(Dropdown.Value)
+								    local btn = Dropdown.Buttons[Value]
+								    if not btn then return end
+								    if DropdownConfig.MultiTrue then
+								        Dropdown.Value[Value] = not Dropdown.Value[Value]
+								        local state = Dropdown.Value[Value]
+								        if state then
+								            TweenService:Create(btn, TweenInfo.new(.15), {BackgroundTransparency = 0}):Play()
+								            TweenService:Create(btn.Title, TweenInfo.new(.15), {TextTransparency = 0}):Play()
+								            if btn:FindFirstChild("Desc") then
+								                TweenService:Create(btn.Desc, TweenInfo.new(.15), {TextTransparency = 0}):Play()
+								            end
+								            if btn:FindFirstChild("Icon") then
+								                TweenService:Create(btn.Icon, TweenInfo.new(.15), {ImageTransparency = 0}):Play()
+								            end
+								        else
+								            TweenService:Create(btn, TweenInfo.new(.15), {BackgroundTransparency = 1}):Play()
+								            TweenService:Create(btn.Title, TweenInfo.new(.15), {TextTransparency = 0.4}):Play()
+								            if btn:FindFirstChild("Desc") then
+								                TweenService:Create(btn.Desc, TweenInfo.new(.15), {TextTransparency = 0.5}):Play()
+								            end
+								            if btn:FindFirstChild("Icon") then
+								                TweenService:Create(btn.Icon, TweenInfo.new(.15), {ImageTransparency = 0.4}):Play()
+								            end
+								        end
+								        local selectedList = {}
+								        for k, v in pairs(Dropdown.Value) do
+								            if v == true then
+								                table.insert(selectedList, k)
+								            end
+								        end
+								        if #selectedList == 0 then
+								            DropdownFrame.F.Selected.Text = "..."
+								        else
+								            local text = table.concat(selectedList, ", ")
+								            DropdownFrame.F.Selected.Text =
+								                (#text > 20) and string.sub(text, 1, 17) .. "..." or text
+								        end
+								        return DropdownConfig.Callback(Dropdown.Value)
+								    else
+								        local index = table.find(Dropdown.Value, Value)
+								        if index then
+								            table.remove(Dropdown.Value, index)
+								            TweenService:Create(btn, TweenInfo.new(.15), {BackgroundTransparency = 1}):Play()
+								            TweenService:Create(btn.Title, TweenInfo.new(.15), {TextTransparency = 0.4}):Play()
+								            if btn:FindFirstChild("Desc") then
+								                TweenService:Create(btn.Desc, TweenInfo.new(.15), {TextTransparency = 0.5}):Play()
+								            end
+								            if btn:FindFirstChild("Icon") then
+								                TweenService:Create(btn.Icon, TweenInfo.new(.15), {ImageTransparency = 0.4}):Play()
+								            end
+								        else
+								            table.insert(Dropdown.Value, Value)
+								            TweenService:Create(btn, TweenInfo.new(.15), {BackgroundTransparency = 0}):Play()
+								            TweenService:Create(btn.Title, TweenInfo.new(.15), {TextTransparency = 0}):Play()
+								            if btn:FindFirstChild("Desc") then
+								                TweenService:Create(btn.Desc, TweenInfo.new(.15), {TextTransparency = 0}):Play()
+								            end
+								            if btn:FindFirstChild("Icon") then
+								                TweenService:Create(btn.Icon, TweenInfo.new(.15), {ImageTransparency = 0}):Play()
+								            end
+								        end
+								        if #Dropdown.Value == 0 then
+								            DropdownFrame.F.Selected.Text = "..."
+								        else
+								            local text = table.concat(Dropdown.Value, ", ")
+								            DropdownFrame.F.Selected.Text =
+								                (#text > 20) and string.sub(text, 1, 17) .. "..." or text
+								        end
+								        return DropdownConfig.Callback(Dropdown.Value)
+								    end
 								end
-						
-								Dropdown.Value = Value
 								
+								Dropdown.Value = Value
 								local dataInfo = Dropdown.RawOptions[Value]
 								local titleShow = Value
 								if type(dataInfo) == "table" and dataInfo.Title then titleShow = dataInfo.Title end
@@ -2683,8 +2813,18 @@ function OrionLib:MakeWindow(WindowConfig)
                                 BindConfig.Callback = BindConfig.Callback or function() end
                                 BindConfig.Flag = BindConfig.Flag or nil
                                 BindConfig.Save = BindConfig.Save or false
+                                BindConfig.Visible = BindConfig.Visible ~= false
+                                BindConfig.Disabled = BindConfig.Disabled or false
 
-                                local Bind = {Value, Binding = false, Type = "Bind", Save = BindConfig.Save}
+                                local Bind = {
+								    Value,
+								    Binding = false,
+								    Type = "Bind",
+								    Save = BindConfig.Save,
+								    Visible = BindConfig.Visible,
+								    Disabled = BindConfig.Disabled
+								}
+								
                                 local Holding = false
 
                                 local Click = SetProps(MakeElement("Button"), {
@@ -2713,6 +2853,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                                 Size = UDim2.new(1, -12, 1, 0),
                                                 Position = UDim2.new(0, 12, 0, 0),
                                                 Font = Enum.Font.GothamBold,
+                                                Visible = BindConfig.Visible,
                                                 Name = "Content"
                                         }), "Text"),
                                         AddThemeObject(MakeElement("Stroke"), "Stroke"),
@@ -2725,6 +2866,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end)
 
                                 AddConnection(Click.InputEnded, function(Input)
+		                                if Bind.Disabled then return end
                                         if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                                                 if Bind.Binding then return end
                                                 Bind.Binding = true
@@ -2733,6 +2875,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end)
 
                                 AddConnection(UserInputService.InputBegan, function(Input)
+		                                if Bind.Disabled then return end
                                         if UserInputService:GetFocusedTextBox() then return end
                                         if (Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value) and not Bind.Binding then
                                                 if BindConfig.Hold then
@@ -2759,6 +2902,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end)
 
                                 AddConnection(UserInputService.InputEnded, function(Input)
+		                                if Bind.Disabled then return end
                                         if Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value then
                                                 if BindConfig.Hold and Holding then
                                                         Holding = false
@@ -2784,7 +2928,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end)
 
                                 function Bind:Set(Key)
-		                                if getgenv().Destroy then return end
+		                                if getgenv().Destroy or Bind.Disabled then return end
                                         Bind.Binding = false
                                         Bind.Value = Key or Bind.Value
                                         Bind.Value = Bind.Value.Name or Bind.Value
@@ -2792,16 +2936,39 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end
                                 
                                 function Bind:SetText(ToChange)
-	                                if getgenv().Destroy then return end
+	                                if getgenv().Destroy or Bind.Disabled then return end
 	                                if BindFrame and BindFrame:FindFirstChild("Content") then
 										BindFrame.Content.Text = ToChange
 									end
                                 end
                                 
                                 function Bind:SetCallback(ToChange)
-	                                if getgenv().Destroy then return end
+	                                if getgenv().Destroy or Bind.Disabled then return end
 	                                BindConfig.Callback = ToChange
                                 end
+                                
+                                function Bind:SetVisible(State)
+								    if getgenv().Destroy then return end
+								    Bind.Visible = State
+								    if BindFrame then
+								        BindFrame.Visible = State
+								    end
+								end
+								
+								function Bind:SetDisabled(State)
+								    if getgenv().Destroy then return end
+								    Bind.Disabled = State
+								    
+								    if State then
+								        TweenService:Create(BindFrame, TweenInfo.new(.2), {
+								            BackgroundTransparency = 0.5
+								        }):Play()
+								    else
+								        TweenService:Create(BindFrame, TweenInfo.new(.2), {
+								            BackgroundTransparency = 0
+								        }):Play()
+								    end
+								end
 
                                 Bind:Set(BindConfig.Default)
                                 if BindConfig.Flag then                                
@@ -2819,8 +2986,16 @@ function OrionLib:MakeWindow(WindowConfig)
                                 TextboxConfig.Default = TextboxConfig.Default or ""
                                 TextboxConfig.TextDisappear = TextboxConfig.TextDisappear or false
                                 TextboxConfig.Callback = TextboxConfig.Callback or function() end
+                                TextboxConfig.Visible = TextboxConfig.Visible ~= false
+                                TextboxConfig.Disabled = TextboxConfig.Disabled or false
                                 
-                                local Textbox = {Value = TextboxConfig.Default, Type = "Input", Save = TextboxConfig.Save}
+                                local Textbox = {
+								    Value = TextboxConfig.Default,
+								    Type = "Input",
+								    Save = TextboxConfig.Save,
+								    Visible = TextboxConfig.Visible,
+								    Disabled = TextboxConfig.Disabled
+								}
 
                                 local Click = SetProps(MakeElement("Button"), {
                                         Size = UDim2.new(1, 0, 1, 0)
@@ -2858,6 +3033,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                                 Size = UDim2.new(1, -12, 1, 0),
                                                 Position = UDim2.new(0, 12, 0, 0),
                                                 Font = Enum.Font.GothamBold,
+                                                Visible = TextboxConfig.Visible,
                                                 Name = "Content"
                                         }), "Text"),
                                         AddThemeObject(MakeElement("Stroke"), "Stroke"),
@@ -2866,6 +3042,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 }), "Second")
                                 
                                 local function SetValue()
+	                                if Textbox.Disabled then return end
 		                            if TextboxConfig.Numeric then
 										if #TextboxActual.Text > 0 and not tonumber(TextboxActual.Text) then
 											TextboxActual.Text = TextboxActual.Text:match("%d+") or ""
@@ -2886,7 +3063,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end
                                 
                                 function Textbox:SetText(ToChange)
-	                                if getgenv().Destroy then return end
+	                                if getgenv().Destroy or Textbox.Disabled then return end
 	                                if TextboxActual then
 										TextboxActual.Text = ToChange
 										if TextboxConfig.Finished == false then
@@ -2896,16 +3073,41 @@ function OrionLib:MakeWindow(WindowConfig)
                                 end
                                 
                                 function Textbox:SetLabel(ToChange)
-	                                if getgenv().Destroy then return end
+	                                if getgenv().Destroy or Textbox.Disabled then return end
 	                                if TextboxFrame and TextboxFrame:FindFirstChild("Content") then
 										TextboxFrame.Content.Text = ToChange
 									end
                                 end
                                 
                                 function Textbox:SetCallback(ToChange)
-	                                if getgenv().Destroy then return end
+	                                if getgenv().Destroy or Textbox.Disabled then return end
 	                                TextboxConfig.Callback = ToChange
                                 end
+                                
+                                function Textbox:SetVisible(State)
+								    if getgenv().Destroy then return end
+								    Textbox.Visible = State
+								    if TextboxFrame then
+								        TextboxFrame.Visible = State
+								    end
+								end
+								
+								function Textbox:SetDisabled(State)
+								    if getgenv().Destroy then return end
+								    Textbox.Disabled = State
+								    if State then
+								        TweenService:Create(TextboxFrame, TweenInfo.new(.2), {
+								            BackgroundTransparency = 0.5
+								        }):Play()
+								    else
+								        TweenService:Create(TextboxFrame, TweenInfo.new(.2), {
+								            BackgroundTransparency = 0
+								        }):Play()
+								    end
+									if TextboxActual then
+										TextboxActual.TextEditable = not State
+									end
+								end
 
                                 AddConnection(Click.MouseEnter, function()
                                         TweenService:Create(TextboxFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
@@ -3490,7 +3692,7 @@ function OrionLib:BuildSettings(Tab: table)
         Increment = 0.5,
         Value = OrionLib.NotifyVolume,
         Color = Color3.fromRGB(255,255,255),
-        ValueName = "Volume:",
+        ValueName = "Volume",
         Callback = function(value)
             OrionLib.NotifyVolume = value
         end
