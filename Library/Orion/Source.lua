@@ -31,7 +31,7 @@ OrionLib = {
                         Divider = Color3.fromRGB(60, 60, 60),
                         Text = Color3.fromRGB(240, 240, 240),
                         TextDark = Color3.fromRGB(150, 150, 150)
-                }
+                },
         },
         NotifyVolume = 3,
         SelectedTheme = "Default",
@@ -215,7 +215,7 @@ function OrionLib:MakeAsset(list, options)
     for id, url in pairs(list) do
         local cleanId = tostring(id):gsub("[^%w%-%_]", "_")
         local ext = url:match("^[^%?]+"):match("%.([%w]+)$") or "png"
-        local path = folder .. "/" .. cleanId .. ".webm"
+        local path = folder .. "/" .. cleanId .. "." .. ext
         local success, content = pcall(readfile, path)
         if not success or #content < minSize then
             for _ = 1, retries do
@@ -1925,7 +1925,7 @@ function OrionLib:MakeWindow(WindowConfig)
 									Click
 							}), "Second")
 							
-							function UpdateTweenKeyBindToggles(Object, bool)
+							function Toggle:UpdateTweenKeyBindToggles(Object, bool)
 								if Object:FindFirstChild("Switch") and Object.Switch:FindFirstChild("Knob") then
 									TweenService:Create(Object.Switch, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
 										BackgroundColor3 = bool and ToggleConfig.Color or OrionLib.Themes.Default.Divider
@@ -1971,8 +1971,8 @@ function OrionLib:MakeWindow(WindowConfig)
 									end
 									if KeyBindAdd:FindFirstChild("TextButton") then
 										AddConnection(KeyBindAdd:FindFirstChild("TextButton").MouseButton1Up, function()
+											Toggle:UpdateTweenKeyBindToggles(KeyBindAdd, Toggle.Value)
 											Toggle:Set(not Toggle.Value)
-											UpdateTweenKeyBindToggles(KeyBindAdd, Toggle.Value)
 										end)
 									end
 									if KeyBindAdd:FindFirstChild("Frame") and KeyBindAdd.Frame:FindFirstChild("Value") then
@@ -1987,7 +1987,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							function Toggle:Set(Value)
 								if getgenv().Destroy or ToggleConfig.Disabled then return end
 								Toggle.Value = Value
-								UpdateTweenKeyBindToggles(ToggleFrame, Toggle.Value)
+								Toggle:UpdateTweenKeyBindToggles(ToggleFrame, Toggle.Value)
 								local ok, err = pcall(function()
 									ToggleConfig.Callback(Toggle.Value)
 								end)
@@ -2077,13 +2077,13 @@ function OrionLib:MakeWindow(WindowConfig)
 							
 							AddConnection(Click.MouseButton1Up, function()
 								if ToggleConfig.Disabled then return end
-								Toggle:Set(not Toggle.Value)
 								if Toggle.__DisplayName then
 									local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
 									if data then
-										UpdateTweenKeyBindToggles(data, Toggle.Value)
+										Toggle:UpdateTweenKeyBindToggles(data, Toggle.Value)
 									end
 								end
+								Toggle:Set(not Toggle.Value)
 							end)
 						
 							function Toggle:AddBind(BindConfig)
@@ -2163,13 +2163,13 @@ function OrionLib:MakeWindow(WindowConfig)
 										return
 									end
 									if Input.KeyCode.Name == Bind.Value then
-										Toggle:Set(not Toggle.Value)
 										if Toggle.__DisplayName then
 											local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
 											if data then
-												UpdateTweenKeyBindToggles(data, Toggle.Value)
+												Toggle:UpdateTweenKeyBindToggles(data, Toggle.Value)
 											end
 										end
+										Toggle:Set(not Toggle.Value)
 									end
 								end)
 						
