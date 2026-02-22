@@ -1328,7 +1328,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ZIndex = 999
 			})
 			
-			local LoadSequenceLogo = SetProps(MakeElement("Image", "rbxassetid://"..WindowConfig.IntroIcon:match("%d+")), {
+			local LoadSequenceLogo = SetChildren(SetProps(MakeElement("Image", "rbxassetid://"..WindowConfig.IntroIcon:match("%d+")), {
 				Parent = BaseFrame,
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.new(0.5, 0, 0.4, 0),
@@ -1337,7 +1337,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ImageTransparency = 1,
 				Rotation = -180,
 				ZIndex = 101
-			})
+			}), {MakeElement("Corner", 0, 5)})
 			
 			local LoadSequenceGlow = SetProps(MakeElement("Image", "rbxassetid://7072706859"), {
 				Parent = BaseFrame,
@@ -2094,7 +2094,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								BindConfig.Save = BindConfig.Save or false
 						
 								local Bind = {
-									Value = BindConfig.Default,
+									Value = BindConfig.Default.Name or BindConfig.Default,
 									Type = "Bind",
 									Save = BindConfig.Save,
 									Binding = false
@@ -2190,7 +2190,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								AddTogglesKeyBind(ToggleConfig.Name)
 						
 								if BindConfig.Flag then
-									OrionLib.Flags[BindConfig.Flag] = Bind
+									OrionLib.Flags[Toggle][BindConfig.Flag] = Bind
 								end
 								return Bind
 							end
