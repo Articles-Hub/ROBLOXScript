@@ -215,7 +215,7 @@ function OrionLib:MakeAsset(list, options)
     for id, url in pairs(list) do
         local cleanId = tostring(id):gsub("[^%w%-%_]", "_")
         local ext = url:match("^[^%?]+"):match("%.([%w]+)$") or "png"
-        local path = folder .. "/" .. cleanId .. "." .. ext
+        local path = folder .. "/" .. cleanId .. ".webm"
         local success, content = pcall(readfile, path)
         if not success or #content < minSize then
             for _ = 1, retries do
