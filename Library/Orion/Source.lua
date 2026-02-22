@@ -214,7 +214,7 @@ function OrionLib:MakeAsset(list, options)
 
     for id, url in pairs(list) do
         local cleanId = tostring(id):gsub("[^%w%-%_]", "_")
-        local ext = url:match("^[^%?]+"):match("%.([%w]+)$") or "png"
+        local ext = url:match("^[^%?]+"):match("%.([%w]+)$") or "webm"
         local path = folder .. "/" .. cleanId .. "." .. ext
         local success, content = pcall(readfile, path)
         if not success or #content < minSize then
@@ -1971,7 +1971,6 @@ function OrionLib:MakeWindow(WindowConfig)
 									end
 									if KeyBindAdd:FindFirstChild("TextButton") then
 										AddConnection(KeyBindAdd:FindFirstChild("TextButton").MouseButton1Up, function()
-											Toggle:UpdateTweenKeyBindToggles(KeyBindAdd, Toggle.Value)
 											Toggle:Set(not Toggle.Value)
 										end)
 									end
@@ -1988,6 +1987,12 @@ function OrionLib:MakeWindow(WindowConfig)
 								if getgenv().Destroy or ToggleConfig.Disabled then return end
 								Toggle.Value = Value
 								Toggle:UpdateTweenKeyBindToggles(ToggleFrame, Toggle.Value)
+								if Toggle.__DisplayName then
+									local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
+									if data then
+										Toggle:UpdateTweenKeyBindToggles(data, Toggle.Value)
+									end
+								end
 								local ok, err = pcall(function()
 									ToggleConfig.Callback(Toggle.Value)
 								end)
@@ -2077,12 +2082,6 @@ function OrionLib:MakeWindow(WindowConfig)
 							
 							AddConnection(Click.MouseButton1Up, function()
 								if ToggleConfig.Disabled then return end
-								if Toggle.__DisplayName then
-									local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
-									if data then
-										Toggle:UpdateTweenKeyBindToggles(data, Toggle.Value)
-									end
-								end
 								Toggle:Set(not Toggle.Value)
 							end)
 						
@@ -2163,12 +2162,6 @@ function OrionLib:MakeWindow(WindowConfig)
 										return
 									end
 									if Input.KeyCode.Name == Bind.Value then
-										if Toggle.__DisplayName then
-											local data = getgenv().TogglesSaveTable[Toggle.__DisplayName]
-											if data then
-												Toggle:UpdateTweenKeyBindToggles(data, Toggle.Value)
-											end
-										end
 										Toggle:Set(not Toggle.Value)
 									end
 								end)
@@ -3809,3 +3802,156 @@ function OrionLib:OnDestroy(fn)
 end
 
 return OrionLib
+----[[
+Window = OrionLib:MakeWindow({Name = "Orion Rework", LinkVideo = "https://github.com/Articles-Hub/ROBLOXScript/raw/refs/heads/main/File/Image/Chill.webm", SearchBar = {Default = "Search Tabs", DefaultMain = "Search Group", ClearTextOnFocus = true, Tabs = true, Mains = true}, IntroText = "Article Hub 🅰️", IntroIcon = "rbxassetid://125448486325517", IntroToggleIcon = "rbxassetid://7734091286", HidePremium = false, SaveConfig = true, ConfigFolder = "Article Hub"})
+Tab, SetTab = Window:MakeTab({
+	Name = "Tab 1",
+	Icon = "eGg",
+	PremiumOnly = false
+})
+
+UIsetting = Window:MakeTab({
+	Name = "UI Setting",
+	Icon = "eGg",
+	PremiumOnly = false
+})
+
+ButtonClick = Tab:AddButton({
+	Name = "Button!",
+	Callback = function()
+SetTab:SetDisabled(true)
+	end    
+})
+
+Tab:AddDivider()
+
+Huh = Tab:AddButton({
+	Name = "Button!",
+	Callback = function()
+LabelText:Set("Hello", "Success")
+	end    
+})
+
+Tab:AddToggle({
+	Name = "This is a toggle!",
+	Default = false,
+	Flag = "HelloIAmToggles"
+}):AddBind({
+	Default = Enum.KeyCode.E
+})
+
+Tab:AddToggle({
+	Name = "This is a toggle!",
+	Default = false,
+	Type = "Switch",
+	Callback = function(Value)
+_G.Get = Value
+while _G.Get and task.wait() do
+end
+	end    
+}):AddBind({
+	Default = Enum.KeyCode.E
+})
+
+Tab:AddDropdown({
+	Name = "Dropdown",
+	Multi = true,
+	MultiTrue = true,
+	Default = {},
+	Options = {"Hello", "jj", "ll", "++(", "kjk", "ọh"},
+	Callback = function(Value)
+for i, v in Value do
+print(i, v)
+end
+	end    
+})
+
+Tab:AddDropdown({
+	Name = "Dropdown",
+	Multi = false,
+	Default = "1",
+	Options = {"1", "2", "4", "8", "1.6", "9"},
+	Callback = function(Value)
+print(Value)
+	end    
+})
+
+Tab:AddTextbox({
+	Name = "Textbox",
+	Finished = false,
+	Numeric = false,
+	Default = "default box input",
+	TextDisappear = true,
+	Callback = function(Value)
+		print(Value)
+	end	  
+})
+
+Tab:AddTextbox({
+	Name = "Textbox",
+	Finished = true,
+	Numeric = false,
+	Default = "default box input",
+	TextDisappear = true,
+	Callback = function(Value)
+		print(Value)
+	end	  
+})
+
+Tab:AddTextbox({
+	Name = "Textbox",
+	Finished = false,
+	Numeric = true,
+	Default = "default box input",
+	TextDisappear = true,
+	Callback = function(Value)
+		TestSl:SetMax(Value)
+	end	  
+})
+
+local Img = Tab:AddImage({
+	Icon = "rbxassetid://3944703587",
+	Size = 50
+})
+
+TestSl = Tab:AddSlider({
+        Name = "Slider",
+        Min = 0,
+        Max = 20,
+        Default = 5,
+        Color = Color3.fromRGB(255,255,255),
+        Increment = 0.1,
+        ValueName = "bananas",
+        Callback = function(Value)
+                Img:SetSize(Value)
+        end    
+})
+
+LabelText = Tab:AddLabel("Hello")
+
+OrionLib:OnDestroy(function()
+	print("Hello Bro")
+end)
+
+OrionLib:MakeWatermark({
+	Text = "Skibidi Toool",
+	Visible = true,
+	Flag = "Hello"
+})
+
+local FrameTimer = tick()
+local CurrentRooms = 0
+local FrameCounter = 0
+local FPS = 60
+OrionLib:AddConnect(game:GetService("RunService").RenderStepped, function()
+FrameCounter += 1
+if (tick() - FrameTimer) >= 1 then
+    FPS = FrameCounter
+    FrameTimer = tick()
+    FrameCounter = 0
+end
+OrionLib.Flags["Hello"]:SetText(("%s FPS | %s Ping"):format(FPS, math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())))
+end)
+
+OrionLib:LoadAutoloadConfig()
+OrionLib:BuildSettings(UIsetting)--]]
