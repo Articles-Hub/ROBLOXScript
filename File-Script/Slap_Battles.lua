@@ -9,39 +9,87 @@ end
 if LoadingScriptSlap then return end
 LoadingScriptSlap = true
 _G.ConnectFun = {}
-function TweenTp(Part, CFnew, Body, Speed)
-BodyEnter = Body
-if BodyEnter == true then
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil then
-local bv = Instance.new("BodyVelocity")
-bv.Name = "VelocityHandler"
-bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-bv.MaxForce = Vector3.new(100000, 100000, 100000)
-bv.Velocity = Vector3.new(0, 0, 0)
+function Create(className: string?, props: table?, children: table?)
+	local obj = Instance.new(className)
+	if props then
+		for k, v in pairs(props) do
+			pcall(function()
+				obj[k] = v
+			end)
+		end
+	end
+	if children then
+		for _, child in ipairs(children) do
+			if typeof(child) == "Instance" then
+				child.Parent = obj
+			end
+		end
+	end
+	return obj
 end
+function VectorTween(Tween)
+	Tween = Tween or {}
+	Tween.Part = Tween.Part or nil
+	Tween.Place = Tween.Place or nil
+	Tween.Speed = Tween.Speed or 80
+	
+	local Players = game:GetService("Players")
+	local player = Players.LocalPlayer
+	local char = player.Character or player.CharacterAdded:Wait()
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	local movePart = Tween.Part or hrp
+	if not movePart or not movePart:IsA("BasePart") or not movePart:IsA("VehicleSeat") or not movePart:IsA("Seat") then return end
+	local bv = movePart:FindFirstChild("FreezeBV")
+	if not bv then
+		bv = Create("BodyVelocity", {
+			Name = "FreezeBV",
+			P = 10000,
+			MaxForce = Vector3.new(1e9, 1e9, 1e9),
+			Velocity = Vector3.zero,
+			Parent = movePart
+		})
+	end
+	repeat task.wait()
+		local direction = Tween.Place - movePart.Position
+		local distance = direction.Magnitude
+		if distance > 0 then
+			bv.Velocity = direction.Unit * Tween.Speed
+		else
+			bv.Velocity = Vector3.zero
+		end
+	until (movePart.Position - Tween.Place).Magnitude < 5
+	bv.Velocity = Vector3.zero
+	bv:Destroy()
 end
-local Tween = game:GetService("TweenService"):Create(Part, TweenInfo.new(Speed, Enum.EasingStyle.Linear), {CFrame = CFnew})
-Tween:Play()
-Tween.Completed:Wait()
-Tween:Cancel()
-if BodyEnter == true then
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler:Destroy()
-end
-end
+function CreateFreezeBV(remove: boolean?, Name: string?, Velocity: Vector3?, MaxForce: Vector3?)
+	local player = game.Players.LocalPlayer
+	local character = player.Character
+	if not character then return nil end
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return nil end
+	local nameBV = Name or "FreezeBV"
+	local velocityBV = typeof(Velocity) == "Vector3" and Velocity or Vector3.zero
+	local maxForceBV = typeof(MaxForce) == "Vector3" and MaxForce or Vector3.new(1e9,1e9,1e9)
+	local existing = hrp:FindFirstChild(nameBV)
+	if remove then
+		if existing then
+			existing:Destroy()
+		end
+		return nil
+	end
+	if not existing then
+		return Create("BodyVelocity", {
+			Name = nameBV,
+			Parent = hrp,
+			P = 10000,
+			MaxForce = maxForceBV,
+			Velocity = velocityBV
+		})
+	end
+	return existing
 end
 local UserInputService = game:GetService("UserInputService")
 MobileOn = table.find({Enum.Platform.Android, Enum.Platform.IOS}, UserInputService:GetPlatform())
-local function Create(Name, Properties, Children)
-    local Object = Instance.new(Name)
-    for i, v in next, Properties or {} do
-        Object[i] = v
-    end
-    for i, v in next, Children or {} do
-        v.Parent = Object
-    end
-    return Object
-end
 local TweenService = game:GetService("TweenService")
 if game.CoreGui:FindFirstChild("Cooldown Script") == nil then
 local gui = Create("ScreenGui", {Name = "Cooldown Script", IgnoreGuiInset = true, Parent = game.CoreGui})
@@ -134,17 +182,6 @@ local TweenService = game:GetService("TweenService")
 local lp = Players.LocalPlayer
 local AnimationRoll = Instance.new("Animation")
 AnimationRoll.AnimationId = "rbxassetid://16299510063"
-
-local function Create(Name, Properties, Children)
-    local Object = Instance.new(Name)
-    for i, v in next, Properties or {} do
-        Object[i] = v
-    end
-    for i, v in next, Children or {} do
-        v.Parent = Object
-    end
-    return Object
-end
 
 local Frame = Create("Frame", {
     Name = "UAbilityFrame",
@@ -266,11 +303,7 @@ table.insert(_G.ConnectFun, UserInputService.InputBegan:Connect(function(input, 
 	        local humanoid = LocalPlr.Character:WaitForChild("Humanoid")
 	        local hrp = LocalPlr.Character:WaitForChild("HumanoidRootPart")
 	        humanoid.Animator:LoadAnimation(AnimationRoll):Play()
-	        local BV = Instance.new("BodyVelocity")
-	        BV.Name = "FreezeBV"
-	        BV.MaxForce = Vector3.new(1e6, 0, 1e6)
-	        BV.Velocity = hrp.CFrame.LookVector * 100
-	        BV.Parent = hrp
+	        local BV = CreateFreezeBV(Vector3.new(hrp.CFrame.LookVector * 100), Vector3.new(1e6, 0, 1e6))
 	        game:GetService("Debris"):AddItem(BV, 0.17)
 	        for _, v in pairs(LocalPlr.Character:GetDescendants()) do
 	            if v:IsA("BasePart") then
@@ -292,72 +325,76 @@ table.insert(_G.ConnectFun, UserInputService.InputBegan:Connect(function(input, 
 	    end
 	end
 end))
-if game.CoreGui:FindFirstChild("Gui Track") == nil then
-local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.Name = "Gui Track"
-gui.Enabled = false
+if not game.CoreGui:FindFirstChild("Gui Track") then
+    local gui = Create("ScreenGui", {Name = "Gui Track", Enabled = false, Parent = game.CoreGui})
+    local Frame = Create("Frame", {
+        Size = UDim2.new(0.2, 0, 0.1, 0),
+        Position = UDim2.new(0.02, 0, 0.87, 0),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BorderColor3 = Color3.new(0, 0, 0),
+        BorderSizePixel = 1,
+        Active = true,
+        BackgroundTransparency = 0,
+        Parent = gui
+    }, {
+        Create("UIStroke", {
+            Color = Color3.new(0, 0, 0),
+            Thickness = 2.5
+        }),
+        Create("UICorner", {
+            CornerRadius = UDim.new(0, 8)
+        })
+    })
 
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0.2, 0, 0.1, 0)
-Frame.Position = UDim2.new(0.02, 0, 0.87, 0)
-Frame.BackgroundColor3 = Color3.new(1, 1, 1)
-Frame.BorderColor3 = Color3.new(0, 0, 0)
-Frame.BorderSizePixel = 1
-Frame.Active = true
-Frame.BackgroundTransparency = 0 
-Frame.Parent = gui
+    local Frame1 = Create("Frame", {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+        BorderColor3 = Color3.new(0, 0, 0),
+        BorderSizePixel = 1,
+        Active = true,
+        BackgroundTransparency = 0.3,
+        Parent = Frame
+    }, {
+        Create("UICorner", {
+            CornerRadius = UDim.new(0, 8)
+        })
+    })
 
-local UICorner = Instance.new("UIStroke")
-UICorner.Color = Color3.new(0, 0, 0)
-UICorner.Thickness = 2.5
-UICorner.Parent = Frame
+    local Frame2 = Create("Frame", {
+        Name = "Frame1",
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = Color3.fromRGB(0, 255, 0),
+        BorderColor3 = Color3.new(0, 0, 0),
+        BorderSizePixel = 1,
+        Active = true,
+        BackgroundTransparency = 0.15,
+        Parent = Frame1
+    }, {
+        Create("UICorner", {
+            CornerRadius = UDim.new(0, 8)
+        })
+    })
 
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 8)
-UICorner.Parent = Frame
-
-local Frame1 = Instance.new("Frame")
-Frame1.Size = UDim2.new(1, 0, 1, 0)
-Frame1.Position = UDim2.new(0, 0, 0, 0)
-Frame1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-Frame1.BorderColor3 = Color3.new(0, 0, 0)
-Frame1.BorderSizePixel = 1
-Frame1.Active = true
-Frame1.BackgroundTransparency = 0.3
-Frame1.Parent = Frame
-
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 8)
-UICorner.Parent = Frame1
-
-local Frame2 = Instance.new("Frame")
-Frame2.Name = "Frame1"
-Frame2.Size = UDim2.new(1, 0, 1, 0)
-Frame2.Position = UDim2.new(0, 0, 0, 0)
-Frame2.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-Frame2.BorderColor3 = Color3.new(0, 0, 0)
-Frame2.BorderSizePixel = 1
-Frame2.Active = true
-Frame2.BackgroundTransparency = 0.15
-Frame2.Parent = Frame1
-
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 8)
-UICorner.Parent = Frame2
-
-local TextLabel = Instance.new("TextLabel")
-TextLabel.Size = UDim2.new(1, 0, 1, 0)
-TextLabel.Position = UDim2.new(0, 0, 0, 0)
-TextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
-TextLabel.BorderColor3 = Color3.new(0, 0, 0)
-TextLabel.BorderSizePixel = 1
-TextLabel.Text = ""
-TextLabel.TextSize = 15
-TextLabel.BackgroundTransparency = 1
-TextLabel.TextColor3 = Color3.new(0, 0, 0)
-TextLabel.Font = Enum.Font.Code
-TextLabel.TextWrapped = true
-TextLabel.Parent = Frame
+    local TextLabel = Create("TextLabel", {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = Color3.new(0, 0, 0),
+        BorderColor3 = Color3.new(0, 0, 0),
+        BorderSizePixel = 1,
+        Text = "",
+        TextSize = 16,
+        BackgroundTransparency = 1,
+        TextColor3 = Color3.new(0, 0, 0),
+        Font = Enum.Font.Code,
+        TextWrapped = true,
+        Parent = Frame
+    }, {
+        Create("UITextSizeConstraint", {
+            MaxTextSize = 35
+        })
+    })
 end
 ctrl = {f = 0, b = 0, l = 0, r = 0}
 ctrlCould = {f = 0, b = 0, l = 0, r = 0}
@@ -435,20 +472,24 @@ while _G.StartFly do
 				VectorBVRoot = VectorBVRoot + (game.Workspace.CurrentCamera.CFrame.LookVector * (ctrl.f + ctrl.b)) + (game.Workspace.CurrentCamera.CFrame.RightVector * (ctrl.r + ctrl.l))
 			end
 			game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = VectorBVRoot
-		elseif game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") == nil then
-			local bv = Instance.new("BodyVelocity")
-			local bg = Instance.new("BodyGyro")
-			
-			bv.Name = "VelocityHandler"
-			bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-			bv.MaxForce = Vector3.new(0,0,0)
-			bv.Velocity = Vector3.new(0,0,0)
-			
-			bg.Name = "GyroHandler"
-			bg.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-			bg.MaxTorque = Vector3.new(0,0,0)
-			bg.P = 1000
-			bg.D = 50
+		elseif game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and (game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil or game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") == nil) then
+			if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil then
+				local bv = Create("BodyVelocity", {
+					Name = "VelocityHandler",
+					Parent = game.Players.LocalPlayer.Character.HumanoidRootPart,
+					MaxForce = Vector3.new(0,0,0),
+					Velocity = Vector3.new(0,0,0),
+				})
+			end
+			if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") == nil then
+				local bg = Create("BodyGyro", {
+					Name = "GyroHandler",
+					Parent = game.Players.LocalPlayer.Character.HumanoidRootPart,
+					MaxTorque = Vector3.new(0,0,0),
+					P = 1000,
+					D = 50,
+				})
+			end
 		end
 	end)
 	task.wait()
@@ -757,412 +798,361 @@ end
 
 ---SafeSpotSpace---
 
-if workspace:FindFirstChild("SafeBoxSpace") == nil then
-local S = Instance.new("Part")
-S.Name = "SafeBoxSpace"
-S.Anchored = true
-S.CanCollide = true
-S.Transparency = .5
-S.Position = Vector3.new(0, 15000, 0)
-S.Size = Vector3.new(150, 5, 150)
-S.Parent = workspace
+if not workspace:FindFirstChild("SafeBoxSpace") then
+	Create("Part", {
+		Name = "SafeBoxSpace",
+		Anchored = true,
+		CanCollide = true,
+		Transparency = 0.5,
+		Position = Vector3.new(0, 15000, 0),
+		Size = Vector3.new(150, 5, 150),
+		Parent = workspace
+	})
 end
 
----SafeSpotBox---
+---SafeBox---
 
-if workspace:FindFirstChild("SafeBox") == nil then
-local S = Instance.new("Part")
-S.Name = "SafeBox"
-S.Anchored = true
-S.CanCollide = true
-S.Transparency = .5
-S.Position = Vector3.new(-5500, -5000, -5000)
-S.Size = Vector3.new(21, 5, 21)
-S.Parent = workspace
-
-local S1 = Instance.new("Part")
-S1.Name = "S1"
-S1.Anchored = true
-S1.CanCollide = true
-S1.Transparency = .5
-S1.Position = Vector3.new(-5499.91, -4991.5, -4989.09)
-S1.Size = Vector3.new(20, 13, 2)
-S1.Parent = workspace:FindFirstChild("SafeBox")
-
-local S2 = Instance.new("Part")
-S2.Name = "S2"
-S2.Anchored = true
-S2.CanCollide = true
-S2.Transparency = .5
-S2.Position = Vector3.new(-5510.27979, -4991.5, -5000.08984, -4.47034836e-07, 0, 0.999999881, 0, 1, 0, -0.999999881, 0, -3.69319451e-07)
-S2.Size = Vector3.new(21, 14, 2)
-S2.Rotation = Vector3.new(0, -90, 0)
-S2.Parent = workspace:FindFirstChild("SafeBox")
-
-local S3 = Instance.new("Part")
-S3.Name = "S3"
-S3.Anchored = true
-S3.CanCollide = true
-S3.Transparency = .5
-S3.Position = Vector3.new(-5499.3, -4991.5, -5011.12)
-S3.Size = Vector3.new(21, 13, 2)
-S3.Parent = workspace:FindFirstChild("SafeBox")
-
-local S4 = Instance.new("Part")
-S4.Name = "S4"
-S4.Anchored = true
-S4.CanCollide = true
-S4.Transparency = .5
-S4.Position = Vector3.new(-5489.97559, -4991.5, -4999.52637, -4.37113883e-08, 0, 1, 0, 1, 0, -1, 0, -4.37113883e-08)
-S4.Size = Vector3.new(22, 13, 2)
-S4.Rotation = Vector3.new(0, -90, 0)
-S4.Parent = workspace:FindFirstChild("SafeBox")
-
-local S5 = Instance.new("Part")
-S5.Name = "S5"
-S5.Anchored = true
-S5.CanCollide = true
-S5.Transparency = .5
-S5.Position = Vector3.new(-5499.39, -4984, -5000.07)
-S5.Size = Vector3.new(24, 3, 24)
-S5.Parent = workspace:FindFirstChild("SafeBox")
+if not workspace:FindFirstChild("SafeBox") then
+	local SafeBox = Create("Part", {
+		Name = "SafeBox",
+		Anchored = true,
+		CanCollide = true,
+		Transparency = 0.5,
+		Position = Vector3.new(-5500, -5000, -5000),
+		Size = Vector3.new(21, 5, 21),
+		Parent = workspace
+	}, {
+		Create("Part", {
+			Name = "S1",
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5,
+			Position = Vector3.new(-5499.91, -4991.5, -4989.09),
+			Size = Vector3.new(20, 13, 2)
+		}),
+		Create("Part", {
+			Name = "S2",
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5,
+			Size = Vector3.new(21, 14, 2),
+			CFrame = CFrame.new(-5510.27979, -4991.5, -5000.08984) * CFrame.Angles(0, math.rad(-90), 0),
+		}),
+		Create("Part", {
+			Name = "S3",
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5,
+			Position = Vector3.new(-5499.3, -4991.5, -5011.12),
+			Size = Vector3.new(21, 13, 2)
+		}),
+		Create("Part", {
+			Name = "S4",
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5,
+			Size = Vector3.new(22, 13, 2),
+			CFrame = CFrame.new(-5489.97559, -4991.5, -4999.52637) * CFrame.Angles(0, math.rad(-90), 0)
+		}),
+		Create("Part", {
+			Name = "S5",
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5,
+			Position = Vector3.new(-5499.39, -4984, -5000.07),
+			Size = Vector3.new(24, 3, 24)
+		})
+	})
 end
 
 ---Bed---
 
-if workspace:FindFirstChild("Bed") == nil then
-local Bed = Instance.new("Part")
-Bed.Name = "Bed"
-Bed.Anchored = true
-Bed.Position = Vector3.new(-100019.5, 104, -1500)
-Bed.Size = Vector3.new(0.01, 0.01, 10)
-Bed.Parent = workspace
-
-local B1 = Instance.new("Part")
-B1.Name = "Bed1"
-B1.Anchored = true
-B1.Position = Vector3.new(-100025, 104, -1500)
-B1.Size = Vector3.new(1, 6, 7)
-B1.BrickColor = BrickColor.new("Burnt Sienna")
-B1.Parent = workspace:FindFirstChild("Bed")
-
-local B2 = Instance.new("Part")
-B2.Name = "Bed2"
-B2.Anchored = true
-B2.Position = Vector3.new(-100023, 104.5, -1500)
-B2.Size = Vector3.new(2, 1, 6)
-B2.BrickColor = BrickColor.new("Mid gray")
-B2.Parent = workspace:FindFirstChild("Bed")
-
-local B3 = Instance.new("Part")
-B3.Name = "Bed3"
-B3.Anchored = true
-B3.Position = Vector3.new(-100019, 104, -1500)
-B3.Size = Vector3.new(11, 1, 7)
-B3.BrickColor = BrickColor.new("Crimson")
-B3.Parent = workspace:FindFirstChild("Bed")
-
-local B4 = Instance.new("Part")
-B4.Name = "Bed4"
-B4.Anchored = true
-B4.Position = Vector3.new(-100013, 104, -1500)
-B4.Size = Vector3.new(1, 6, 7)
-B4.BrickColor = BrickColor.new("Burnt Sienna")
-B4.Parent = workspace:FindFirstChild("Bed")
-
-local B5 = Instance.new("Part")
-B5.Name = "Bed5"
-B5.Anchored = true
-B5.Position = Vector3.new(-100019, 103, -1500)
-B5.Size = Vector3.new(11, 1, 7)
-B5.BrickColor = BrickColor.new("Dark orange")
-B5.Parent = workspace:FindFirstChild("Bed")
+if not workspace:FindFirstChild("Bed") then
+	local Bed = Create("Part", {
+		Name = "Bed",
+		Anchored = true,
+		Position = Vector3.new(-100019.5, 104, -1500),
+		Size = Vector3.new(0.01, 0.01, 10),
+		Parent = workspace
+	}, {
+		Create("Part", {
+			Name = "Bed1",
+			Anchored = true,
+			Position = Vector3.new(-100025, 104, -1500),
+			Size = Vector3.new(1, 6, 7),
+			BrickColor = BrickColor.new("Burnt Sienna")
+		}),
+		Create("Part", {
+			Name = "Bed2",
+			Anchored = true,
+			Position = Vector3.new(-100023, 104.5, -1500),
+			Size = Vector3.new(2, 1, 6),
+			BrickColor = BrickColor.new("Mid gray")
+		}),
+		Create("Part", {
+			Name = "Bed3",
+			Anchored = true,
+			Position = Vector3.new(-100019, 104, -1500),
+			Size = Vector3.new(11, 1, 7),
+			BrickColor = BrickColor.new("Crimson")
+		}),
+		Create("Part", {
+			Name = "Bed4",
+			Anchored = true,
+			Position = Vector3.new(-100013, 104, -1500),
+			Size = Vector3.new(1, 6, 7),
+			BrickColor = BrickColor.new("Burnt Sienna")
+		}),
+		Create("Part", {
+			Name = "Bed5",
+			Anchored = true,
+			Position = Vector3.new(-100019, 103, -1500),
+			Size = Vector3.new(11, 1, 7),
+			BrickColor = BrickColor.new("Dark orange")
+		})
+	})
 end
 
 ---SafeSpot---
 
-if workspace:FindFirstChild("Safespot") == nil then
-local Safespot = Instance.new("Part",workspace)
-Safespot.Name = "Safespot"
-Safespot.Position = Vector3.new(10000,-50,10000)
-Safespot.Size = Vector3.new(500,10,500)
-Safespot.Anchored = true
-Safespot.CanCollide = true
-Safespot.Transparency = .5
-
-local Safespot1 = Instance.new("Part",workspace)
-Safespot1.Name = "DefendPart"
-Safespot1.Position = Vector3.new(10000.2, 13, 9752.45)
-Safespot1.Size = Vector3.new(500, 117, 5)
-Safespot1.Anchored = true
-Safespot1.CanCollide = true
-Safespot1.Transparency = .5
-Safespot1.Parent = game.workspace.Safespot
-
-local Safespot2 = Instance.new("Part",workspace)
-Safespot2.Name = "DefendPart1"
-Safespot2.Position = Vector3.new(10248.2, 13, 10002.4)
-Safespot2.Size = Vector3.new(5, 117, 496)
-Safespot2.Anchored = true
-Safespot2.CanCollide = true
-Safespot2.Transparency = .5
-Safespot2.Parent = game.workspace.Safespot
-
-local Safespot3 = Instance.new("Part",workspace)
-Safespot3.Name = "DefendPart2"
-Safespot3.Position = Vector3.new(9998.13, 13, 10247.2)
-Safespot3.Size = Vector3.new(497, 117, 6)
-Safespot3.Anchored = true
-Safespot3.CanCollide = true
-Safespot3.Transparency = .5
-Safespot3.Parent = game.workspace.Safespot
-
-local Safespot4 = Instance.new("Part",workspace)
-Safespot4.Name = "DefendPart3"
-Safespot4.Position = Vector3.new(9752.71, 13, 9999.28)
-Safespot4.Size = Vector3.new(7, 117, 490)
-Safespot4.Anchored = true
-Safespot4.CanCollide = true
-Safespot4.Transparency = .5
-Safespot4.Parent = game.workspace.Safespot
-
-local Safespot5 = Instance.new("Part",workspace)
-Safespot5.Name = "DefendPart4"
-Safespot5.Position = Vector3.new(10001.1, 76, 9999.66)
-Safespot5.Size = Vector3.new(491, 10, 491)
-Safespot5.Anchored = true
-Safespot5.CanCollide = true
-Safespot5.Transparency = .5
-Safespot5.Parent = game.workspace.Safespot
+if not workspace:FindFirstChild("Safespot") then
+	local Safespot = Create("Part", {
+		Name = "Safespot",
+		Position = Vector3.new(10000,-50,10000),
+		Size = Vector3.new(500,10,500),
+		Anchored = true,
+		CanCollide = true,
+		Transparency = 0.5,
+		Parent = workspace
+	}, {
+		Create("Part", {
+			Name = "DefendPart",
+			Position = Vector3.new(10000.2, 13, 9752.45),
+			Size = Vector3.new(500, 117, 5),
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5
+		}),
+		Create("Part", {
+			Name = "DefendPart1",
+			Position = Vector3.new(10248.2, 13, 10002.4),
+			Size = Vector3.new(5, 117, 496),
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5
+		}),
+		Create("Part", {
+			Name = "DefendPart2",
+			Position = Vector3.new(9998.13, 13, 10247.2),
+			Size = Vector3.new(497, 117, 6),
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5
+		}),
+		Create("Part", {
+			Name = "DefendPart3",
+			Position = Vector3.new(9752.71, 13, 9999.28),
+			Size = Vector3.new(7, 117, 490),
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5
+		}),
+		Create("Part", {
+			Name = "DefendPart4",
+			Position = Vector3.new(10001.1, 76, 9999.66),
+			Size = Vector3.new(491, 10, 491),
+			Anchored = true,
+			CanCollide = true,
+			Transparency = 0.5
+		})
+	})
 end
 
 ---AntiVoidBadge---
 
-if workspace:FindFirstChild("Psycho") == nil then
-local Psycho = Instance.new("Part", workspace)
-Psycho.Position = Vector3.new(17800.9082, 2947, -226.017517, -0.248515129, 0.00487846136, -0.968615651, 0.966844261, -0.0594091415, -0.248359889, -0.0587562323, -0.998221755, 0.0100474358)
-Psycho.Name = "Psycho"
-Psycho.Size = Vector3.new(2000, 1, 2000)
-Psycho.Material = "ForceField"
-Psycho.Anchored = true
-Psycho.Transparency = 1
-Psycho.CanCollide = false
-
-local Kraken = Instance.new("Part", Psycho)
-Kraken.Position = Vector3.new(221, 29, -12632)
-Kraken.Name = "Kraken"
-Kraken.Size = Vector3.new(2000, 1, 2000)
-Kraken.Material = "ForceField"
-Kraken.Anchored = true
-Kraken.Transparency = 1
-Kraken.CanCollide = false
-
-local Retro1 = Instance.new("Part", Psycho)
-Retro1.Position = Vector3.new(-16643.62890625, 770.0464477539062, 4707.8193359375)
-Retro1.Name = "Retro1"
-Retro1.Size = Vector3.new(2000, 1, 2000)
-Retro1.Material = "ForceField"
-Retro1.Anchored = true
-Retro1.Transparency = 1
-Retro1.CanCollide = false
-
-local Retro2 = Instance.new("Part", Retro1)
-Retro2.Position = Vector3.new(-16862.791015625, -7.879573822021484, 4791.55517578125)
-Retro2.Name = "Retro2"
-Retro2.Size = Vector3.new(2000, 1, 2000)
-Retro2.Material = "ForceField"
-Retro2.Anchored = true
-Retro2.Transparency = 1
-Retro2.CanCollide = false
-
-local Retro3 = Instance.new("Part", Retro1)
-Retro3.Position = Vector3.new(-28023.3046875, -219.92381286621094, 4906.6015625)
-Retro3.Name = "Retro3"
-Retro3.Size = Vector3.new(2000, 1, 2000)
-Retro3.Material = "ForceField"
-Retro3.Anchored = true
-Retro3.Transparency = 1
-Retro3.CanCollide = false
+if not workspace:FindFirstChild("Psycho") then
+	Create("Part", {
+		Name = "Psycho",
+		Size = Vector3.new(2000,1,2000),
+		Material = Enum.Material.ForceField,
+		Anchored = true,
+		Transparency = 1,
+		CanCollide = false,
+		CFrame = CFrame.new(17800.9082, 2947, -226.017517, -0.248515129, 0.00487846136, -0.968615651, 0.966844261, -0.0594091415, -0.248359889, -0.0587562323, -0.998221755, 0.0100474358),
+		Parent = workspace
+	}, {
+		Create("Part", {
+			Name = "Kraken",
+			Size = Vector3.new(2000,1,2000),
+			Material = Enum.Material.ForceField,
+			Anchored = true,
+			Transparency = 1,
+			CanCollide = false,
+			Position = Vector3.new(221,29,-12632)
+		}),
+		Create("Part", {
+			Name = "Retro1",
+			Size = Vector3.new(2000,1,2000),
+			Material = Enum.Material.ForceField,
+			Anchored = true,
+			Transparency = 1,
+			CanCollide = false,
+			Position = Vector3.new(-16643.6289,770.0464,4707.8193)
+		}, {
+			Create("Part", {
+				Name = "Retro2",
+				Size = Vector3.new(2000,1,2000),
+				Material = Enum.Material.ForceField,
+				Anchored = true,
+				Transparency = 1,
+				CanCollide = false,
+				Position = Vector3.new(-16862.7910,-7.87957,4791.5551)
+			}),
+			Create("Part", {
+				Name = "Retro3",
+				Size = Vector3.new(2000,1,2000),
+				Material = Enum.Material.ForceField,
+				Anchored = true,
+				Transparency = 1,
+				CanCollide = false,
+				Position = Vector3.new(-28023.3046,-219.9238,4906.6015)
+			})
+		})
+	})
 end
 
 ---Anti Void---
 
 if workspace:FindFirstChild("BobWalk1") == nil then
-local BobWalk1 = Instance.new("Part", workspace)
-BobWalk1.CanCollide = false
-BobWalk1.Anchored = true
-BobWalk1.CFrame = CFrame.new(23.2798462, -19.8447475, 1.83554196, -1, 0, 0, 0, -1, 0, 0, 0, 1)
-BobWalk1.Size = Vector3.new(1139.2593994140625, 1.5, 2048)
-BobWalk1.Name = "BobWalk1"
-BobWalk1.Transparency = 1
+	local BobWalk1 = Create("Part", {
+		CanCollide = false,
+		Anchored = true,
+		CFrame = CFrame.new(23.2798462, -19.8447475, 1.83554196, -1, 0, 0, 0, -1, 0, 0, 0, 1),
+		Size = Vector3.new(1139.2593994140625, 1.5, 2048),
+		Name = "BobWalk1",
+		Transparency = 1,
+		Parent = workspace
+	})
+	
+	local ExtraWedges = {
+		{
+			CFrame = CFrame.new(-458.458344, -9.25, 1.83554196, -1, 0, 0, 0, -1, 0, 0, 0, 1),
+			Size = Vector3.new(1139.2593994140625, 1.5, 2048),
+			Name = "BobWalk2"
+		},
+		{
+			CFrame = CFrame.new(-690.65979, 47.25, 1.83554196, -1, 0, 0, 0, -1, 0, 0, 0, 1),
+			Size = Vector3.new(674.8563232421875, 0.6048492789268494, 2048),
+			Name = "BobWalk3"
+		},
+		{
+			CFrame = CFrame.new(402.964996, 29.25, 222.310089, -1, 0, 0, 0, -1, 0, 0, 0, 1),
+			Size = Vector3.new(379.88922119140625, 1.5, 160.8837127685547),
+			Name = "BobWalk4"
+		},
+		{
+			CFrame = CFrame.new(178.719162, -18.9417267, 1.83554196, -0.989596844, -0.143868446, 0, 0.143868446, -0.989596844, 0, 0, 0, 1),
+			Size = Vector3.new(143.94830322265625, 1.5, 2048),
+			Name = "BobWalk5"
+		},
+		{
+			CFrame = CFrame.new(-309.152832, 15.4761791, 1.83554196, -0.816968799, -0.576681912, 0, 0.576681912, -0.816968799, 0, 0, 0, 1),
+			Size = Vector3.new(110.13511657714844, 2.740000009536743, 2048),
+			Name = "BobWalk6"
+		},
+		{
+			CFrame = CFrame.new(174.971924, 5.34897423, 222.310089, -0.838688731, 0.544611216, 0, -0.544611216, -0.838688731, 0, 0, 0, 1),
+			Size = Vector3.new(89.76103210449219, 1.5, 160.8837127685547),
+			Name = "BobWalk7",
+		},
+		{
+			CFrame = CFrame.new(402.965027, 5.49165154, 74.8157959, 2.98023224e-05, -1.14142895e-05, -1, -0.668144584, -0.744031429, -1.14142895e-05, -0.744031489, 0.668144584, -2.98023224e-05),
+			Size = Vector3.new(74.23055267333984, 1, 379.88922119140625),
+			Name = "BobWalk8"
+		},
+		{
+			Size = Vector3.new(379.88922119140625, 1.5, 39.77305603027344),
+			CFrame = CFrame.new(402.964996, 29.9136467, 121.981705, -1,0,0,0,-1,0,0,0,1),
+			Name = "BobWalk9"
+		},
+		{
+			Size = Vector3.new(1, 88.66793823242188, 34.42972946166992),
+			CFrame = CFrame.new(134.084229, -17.8583984, 94.3953705, 0.541196942, -0.354067981, 0.762719929, -0.840263784, -0.192543149, 0.506837189, -0.0325982571, -0.915184677, -0.401714325),
+			Name = "BobWalk10"
+		},
+		{
+			CFrame = CFrame.new(168.441879, 2.46393585, 125.815231, -0.350553155, -0.534268022, 0.769201458, -0.198098332, 0.845035911, 0.496660322, -0.915352523, 0.0217281878, -0.402067661),
+			Size = Vector3.new(1, 0.9999924302101135, 82.1865463256836),
+			Name = "BobWalk11"
+		},
+		{
+			Name = "BobWalk12",
+			Size = Vector3.new(1, 13.53612232208252, 9.847718238830566),
+			CFrame = CFrame.new(206.315063, 26.9295502, 105.471031, 0.534210563, -0.415855825, -0.73599112, -0.845072925, -0.285055399, -0.452321947, -0.021697551, 0.863601387, -0.503708005)
+		},
+		{
+			Name = "BobWalk13",
+			Size = Vector3.new(1, 13.53612232208252, 99.8001480102539),
+			CFrame = CFrame.new(165.965088, 2.12955856, 77.8575592, -0.53421092, -0.415855944, 0.735991359, 0.845073164, -0.285055757, 0.452322066, 0.0216975808, 0.863601625, 0.503708005)
+		},
+		{
+			Name = "BobWalk14",
+			Size = Vector3.new(1, 74.23055267333984, 80.699951171875),
+			CFrame = CFrame.new(172.67041, 5.49164963, 74.8157959, -4.58955765e-05, 2.05039978e-05, 1, 0.743987858, 0.668193102, 2.05039978e-05, -0.668193102, 0.743987858, -4.58955765e-05)
+		},
+		{
+			Name = "BobWalk15",
+			Size = Vector3.new(1, 0.8520558476448059, 39.773048400878906),
+			CFrame = CFrame.new(212.753906, 30.0632439, 121.981705, -0.283976078, -0.95883137, 0, 0.95883137, -0.283976078, 0, 0, 0, 1)
+		},
+		{
+			Name = "BobWalk16",
+			Size = Vector3.new(1, 36.08900451660156, 16.739320755004883),
+			CFrame = CFrame.new(212.884216, 30.1233234, 121.984734, 0.544644356, 0.33412537, -0.769235253, -0.838644743, 0.223680317, -0.496630788, 0.00612583756, 0.915602207, 0.402038693)
+		},
+		{
+			Name = "BobWalk17",
+			Size = Vector3.new(1, 36.08900451660156, 82.1865463256836),
+			CFrame = CFrame.new(174.83577, 5.55865097, 141.871262, -0.544644356, 0.33412537, 0.769235253, 0.838644743, 0.223680317, 0.496630788, -0.00612583756, 0.915602207, -0.402038693)
+		},
+		{
+			Name = "BobWalk18",
+			Size = Vector3.new(1, 88.66793823242188, 47.76289749145508),
+			CFrame = CFrame.new(165.427338, 2.97219658, 77.884697, -0.541196942, -0.354067981, -0.762719929, 0.840263784, -0.192543149, -0.506837189, 0.0325982571, -0.915184677, 0.401714325)
+		}
+	}
 
-local BobWalk2 = Instance.new("Part", BobWalk1)
-BobWalk2.CanCollide = false
-BobWalk2.Anchored = true
-BobWalk2.CFrame = CFrame.new(-458.458344, -9.25, 1.83554196, -1, 0, 0, 0, -1, 0, 0, 0, 1)
-BobWalk2.Size = Vector3.new(1139.2593994140625, 1.5, 2048)
-BobWalk2.Name = "BobWalk2"
-BobWalk2.Transparency = 1
-
-local BobWalk3 = Instance.new("Part", BobWalk1)
-BobWalk3.CanCollide = false
-BobWalk3.Anchored = true
-BobWalk3.CFrame = CFrame.new(-690.65979, 47.25, 1.83554196, -1, 0, 0, 0, -1, 0, 0, 0, 1)
-BobWalk3.Size = Vector3.new(674.8563232421875, 0.6048492789268494, 2048)
-BobWalk3.Name = "BobWalk3"
-BobWalk3.Transparency = 1
-
-local BobWalk4 = Instance.new("Part", BobWalk1)
-BobWalk4.CanCollide = false
-BobWalk4.Anchored = true
-BobWalk4.CFrame = CFrame.new(402.964996, 29.25, 222.310089, -1, 0, 0, 0, -1, 0, 0, 0, 1)
-BobWalk4.Size = Vector3.new(379.88922119140625, 1.5, 160.8837127685547)
-BobWalk4.Name = "BobWalk4"
-BobWalk4.Transparency = 1
-
-local BobWalk5 = Instance.new("Part", BobWalk1)
-BobWalk5.CanCollide = false
-BobWalk5.Anchored = true
-BobWalk5.Orientation = Vector3.new(0, 0, 171.728)
-BobWalk5.CFrame = CFrame.new(178.719162, -18.9417267, 1.83554196, -0.989596844, -0.143868446, 0, 0.143868446, -0.989596844, 0, 0, 0, 1)
-BobWalk5.Size = Vector3.new(143.94830322265625, 1.5, 2048)
-BobWalk5.Name = "BobWalk5"
-BobWalk5.Transparency= 1
-
-local BobWalk6 = Instance.new("Part", BobWalk1)
-BobWalk6.CanCollide = false
-BobWalk6.Anchored = true
-BobWalk6.Orientation = Vector3.new(0, 0, 144.782)
-BobWalk6.CFrame = CFrame.new(-309.152832, 15.4761791, 1.83554196, -0.816968799, -0.576681912, 0, 0.576681912, -0.816968799, 0, 0, 0, 1)
-BobWalk6.Size = Vector3.new(110.13511657714844, 2.740000009536743, 2048)
-BobWalk6.Name = "BobWalk6"
-BobWalk6.Transparency = 1
-
-local BobWalk7 = Instance.new("Part", BobWalk1)
-BobWalk7.CanCollide = false
-BobWalk7.Anchored = true
-BobWalk7.Orientation = Vector3.new(0, 0, -147.002)
-BobWalk7.CFrame = CFrame.new(174.971924, 5.34897423, 222.310089, -0.838688731, 0.544611216, 0, -0.544611216, -0.838688731, 0, 0, 0, 1)
-BobWalk7.Size = Vector3.new(89.76103210449219, 1.5, 160.8837127685547)
-BobWalk7.Name = "BobWalk7"
-BobWalk7.Transparency = 1
-
-local BobWalk8 = Instance.new("Part", BobWalk1)
-BobWalk8.CanCollide = false
-BobWalk8.Anchored = true
-BobWalk8.Orientation = Vector3.new(0.001, -90.002, -138.076)
-BobWalk8.CFrame = CFrame.new(402.965027, 5.49165154, 74.8157959, 2.98023224e-05, -1.14142895e-05, -1, -0.668144584, -0.744031429, -1.14142895e-05, -0.744031489, 0.668144584, -2.98023224e-05)
-BobWalk8.Size = Vector3.new(74.23055267333984, 1, 379.88922119140625)
-BobWalk8.Name = "BobWalk8"
-BobWalk8.Transparency = 1
-
-local BobWalk9 = Instance.new("Part", BobWalk1)
-BobWalk9.CanCollide = false
-BobWalk9.Anchored = true
-BobWalk9.CFrame = CFrame.new(402.964996, 29.9136467, 121.981705, -1, 0, 0, 0, -1, 0, 0, 0, 1)
-BobWalk9.Size = Vector3.new(379.88922119140625, 1.5, 39.77305603027344)
-BobWalk9.Name = "BobWalk9"
-BobWalk9.Transparency = 1
-
-local BobWalk10 = Instance.new("WedgePart", BobWalk1)
-BobWalk10.CanCollide = false
-BobWalk10.Anchored = true
-BobWalk10.Orientation = Vector3.new(-30.453, 117.775, -102.906)
-BobWalk10.CFrame = CFrame.new(134.084229, -17.8583984, 94.3953705, 0.541196942, -0.354067981, 0.762719929, -0.840263784, -0.192543149, 0.506837189, -0.0325982571, -0.915184677, -0.401714325)
-BobWalk10.Size = Vector3.new(1, 88.66793823242188, 34.42972946166992)
-BobWalk10.Name = "BobWalk10"
-BobWalk10.Transparency = 1
-
-local BobWalk11 = Instance.new("WedgePart", BobWalk1)
-BobWalk11.CanCollide = false
-BobWalk11.Anchored = true
-BobWalk11.Orientation = Vector3.new(-29.779, 117.596, -13.193)
-BobWalk11.CFrame = CFrame.new(168.441879, 2.46393585, 125.815231, -0.350553155, -0.534268022, 0.769201458, -0.198098332, 0.845035911, 0.496660322, -0.915352523, 0.0217281878, -0.402067661)
-BobWalk11.Size = Vector3.new(1, 0.9999924302101135, 82.1865463256836)
-BobWalk11.Name = "BobWalk11"
-BobWalk11.Transparency = 1
-
-local BobWalk12 = Instance.new("WedgePart", BobWalk1)
-BobWalk12.CanCollide = false
-BobWalk12.Anchored = true
-BobWalk12.Orientation = Vector3.new(26.893, -124.388, -108.64)
-BobWalk12.CFrame = CFrame.new(206.315063, 26.9295502, 105.471031, 0.534210563, -0.415855825, -0.73599112, -0.845072925, -0.285055399, -0.452321947, -0.021697551, 0.863601387, -0.503708005)
-BobWalk12.Size = Vector3.new(1, 13.53612232208252, 9.847718238830566)
-BobWalk12.Name = "BobWalk12"
-BobWalk12.Transparency = 1
-
-local BobWalk13 = Instance.new("WedgePart", BobWalk1)
-BobWalk13.CanCollide = false
-BobWalk13.Anchored = true
-BobWalk13.Orientation = Vector3.new(-26.893, 55.613, 108.64)
-BobWalk13.CFrame = CFrame.new(165.965088, 2.12955856, 77.8575592, -0.53421092, -0.415855944, 0.735991359, 0.845073164, -0.285055757, 0.452322066, 0.0216975808, 0.863601625, 0.503708005)
-BobWalk13.Size = Vector3.new(1, 13.53612232208252, 99.8001480102539)
-BobWalk13.Name = "BobWalk13"
-BobWalk13.Transparency = 1
-
-local BobWalk14 = Instance.new("WedgePart", BobWalk1)
-BobWalk14.CanCollide = false
-BobWalk14.Anchored = true
-BobWalk14.Orientation = Vector3.new(-0.001, 90.003, 48.072)
-BobWalk14.CFrame = CFrame.new(172.67041, 5.49164963, 74.8157959, -4.58955765e-05, 2.05039978e-05, 1, 0.743987858, 0.668193102, 2.05039978e-05, -0.668193102, 0.743987858, -4.58955765e-05)
-BobWalk14.Size = Vector3.new(1, 74.23055267333984, 80.699951171875)
-BobWalk14.Name = "BobWalk14"
-BobWalk14.Transparency = 1
-
-local BobWalk15 = Instance.new("WedgePart", BobWalk1)
-BobWalk15.CanCollide = false
-BobWalk15.Anchored = true
-BobWalk15.Orientation = Vector3.new(0, 0, 106.498)
-BobWalk15.CFrame = CFrame.new(212.753906, 30.0632439, 121.981705, -0.283976078, -0.95883137, 0, 0.95883137, -0.283976078, 0, 0, 0, 1)
-BobWalk15.Size = Vector3.new(1, 0.8520558476448059, 39.773048400878906)
-BobWalk15.Name = "BobWalk15"
-BobWalk15.Transparency = 1
-
-local BobWalk16 = Instance.new("WedgePart", BobWalk1)
-BobWalk16.CanCollide = false
-BobWalk16.Anchored = true
-BobWalk16.Orientation = Vector3.new(29.777, -62.406, -75.066)
-BobWalk16.CFrame = CFrame.new(212.884216, 30.1233234, 121.984734, 0.544644356, 0.33412537, -0.769235253, -0.838644743, 0.223680317, -0.496630788, 0.00612583756, 0.915602207, 0.402038693)
-BobWalk16.Size = Vector3.new(1, 36.08900451660156, 16.739320755004883)
-BobWalk16.Name = "BobWalk16"
-BobWalk16.Transparency = 1
-
-local BobWalk17 = Instance.new("WedgePart", BobWalk1)
-BobWalk17.CanCollide = false
-BobWalk17.Anchored = true
-BobWalk17.Orientation = Vector3.new(-29.777, 117.594, 75.066)
-BobWalk17.CFrame = CFrame.new(174.83577, 5.55865097, 141.871262, -0.544644356, 0.33412537, 0.769235253, 0.838644743, 0.223680317, 0.496630788, -0.00612583756, 0.915602207, -0.402038693)
-BobWalk17.Size = Vector3.new(1, 36.08900451660156, 82.1865463256836)
-BobWalk17.Name = "BobWalk17"
-BobWalk17.Transparency = 1
-
-local BobWalk18 = Instance.new("WedgePart", BobWalk1)
-BobWalk18.CanCollide = false
-BobWalk18.Anchored = true
-BobWalk18.Orientation = Vector3.new(30.453, -62.225, 102.906)
-BobWalk18.CFrame = CFrame.new(165.427338, 2.97219658, 77.884697, -0.541196942, -0.354067981, -0.762719929, 0.840263784, -0.192543149, -0.506837189, 0.0325982571, -0.915184677, 0.401714325)
-BobWalk18.Size = Vector3.new(1, 88.66793823242188, 47.76289749145508)
-BobWalk18.Name = "BobWalk18"
-BobWalk18.Transparency = 1
+	for _, data in ipairs(ExtraWedges) do
+		Create("Part", {
+			Name = data.Name,
+			Size = data.Size,
+			CFrame = data.CFrame,
+			Anchored = true,
+			CanCollide = false,
+			Transparency = 1,
+			Parent = BobWalk1
+		})
+	end
 end
 
 if workspace:FindFirstChild("VoidPart") == nil then
-local VoidPart = Instance.new("Part", workspace)
-VoidPart.Position = Vector3.new(-80.5, -10.005, -246.5)
-VoidPart.Name = "VoidPart"
-VoidPart.Size = Vector3.new(2048, 1, 2048)
-VoidPart.Material = "ForceField"
-VoidPart.Anchored = true
-VoidPart.Transparency = 1
-VoidPart.CanCollide = false
-
-local TournamentAntiVoid = Instance.new("Part", VoidPart)
-TournamentAntiVoid.Name = "TAntiVoid"
-TournamentAntiVoid.Size = Vector3.new(2048, 15, 2048)
-TournamentAntiVoid.Position = Vector3.new(3393, 228, 97)
-TournamentAntiVoid.Anchored = true
-TournamentAntiVoid.Transparency = 1
-TournamentAntiVoid.CanCollide = false
+local VoidPart = Create("Part", {
+	Position = Vector3.new(-80.5, -10.005, -246.5),
+	Name = "VoidPart",
+	Size = Vector3.new(2048, 1, 2048),
+	Anchored = true,
+	Transparency = 1,
+	CanCollide = false,
+}, {
+	Create("Part", {
+		Name = "TAntiVoid",
+		Size = Vector3.new(2048, 15, 2048),
+		Position = Vector3.new(3393, 228, 97),
+		Anchored = true,
+		Transparency = 1,
+		CanCollide = false,
+	})
+})
 end
 elseif game.PlaceId == 9431156611 then
 	local Remotes = game.ReplicatedStorage.Remotes
@@ -1665,14 +1655,6 @@ Script1Group:AddButton({
 loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'),true))()
     end
 })
-
-spawn(function()
-	pcall(function()
-		if not AntiCrash then
-			AntiCrash = loadstring(game:HttpGet("https://pastefy.app/1RT18OLr/raw"))()
-		end
-	end)
-end)
 Script1Group:AddButton({
     Text = "Instance Lagging Script",
     Func = function()
@@ -1681,6 +1663,9 @@ spawn(function()
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
 	if LocalPlayer.Character then
+		if not AntiCrash then
+			AntiCrash = loadstring(game:HttpGet("https://pastefy.app/1RT18OLr/raw"))()
+		end
 	    AntiCrash()
 	    wait()
 		ReplicatedStorage.slapstick:FireServer("addarm", true)
@@ -1745,8 +1730,7 @@ local Anti1Group = Tabs.Tab2:AddLeftGroupbox("Toggle All")
 
 _G.AntiToggles = {}
 if game.Workspace:FindFirstChild("NoChanged") == nil then
-local NoChanged = Instance.new("BoolValue", workspace)
-NoChanged.Name = "NoChanged"
+	Create("BoolValue", {Name = "NoChanged", Parent = workspace})
 end
 _G.AntiToggles["Toggle Anti"] = Anti1Group:AddToggle("Toggle Anti", {
     Text = "Toggle Anti",
@@ -2514,17 +2498,11 @@ for i, v in pairs(game.Workspace:GetChildren()) do
 		else
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"].Part.CFrame * CFrame.new(0,30,0)
 			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiBobBV") == nil then
-				local bv = Instance.new("BodyVelocity")
-				bv.Name = "AntiBobBV"
-				bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-				bv.MaxForce = Vector3.new(100000, 100000, 100000)
-				bv.Velocity = Vector3.new(0, 0, 0)
+				CreateFreezeBV("AntiBobBV")
 			end
 		end
 	else
-		if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiBobBV") then
-			game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiBobBV"):Destroy()
-		end
+		CreateFreezeBV(true, "AntiBobBV")
 	end
 end
 task.wait()
@@ -2798,11 +2776,7 @@ if _G.AntiRagdoll then
 			end
 			if _G.AntiRagdolledV == "V2" then
 				if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV") == nil then
-					local bv = Instance.new("BodyVelocity")
-					bv.Name = "AntiRagBV"
-					bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-					bv.MaxForce = Vector3.new(100000, 100000, 100000)
-					bv.Velocity = Vector3.new(0, 0, 0)
+					CreateFreezeBV("AntiRagBV")
 				end
 			end
 			if _G.AntiRagdolledV == "V1" then
@@ -2827,9 +2801,7 @@ if _G.AntiRagdoll then
 		        end
 			end
 		elseif game.Players.LocalPlayer.Character:WaitForChild("Ragdolled").Value == false then
-			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV") then
-				game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV"):Destroy()
-			end
+			CreateFreezeBV(true, "AntiRagBV")
 			if game.Players.LocalPlayer.Character:FindFirstChild("Torso") then
 				game.Players.LocalPlayer.Character.Torso.Anchored = false
 			end
@@ -3830,35 +3802,14 @@ Badge2Group:AddButton({
     Func = function()
 if game.Workspace:FindFirstChild("RepressedMemoriesMap") then
 OldPlayerCF = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "FreezeBV"
-	bv.P = 10000
-	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-	bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
 PsychokiTrigger = workspace:FindFirstChild("RepressedMemoriesMap") and workspace.RepressedMemoriesMap:FindFirstChild("Psychokinesis"):FindFirstChild("Triggers")
 Start = PsychokiTrigger and PsychokiTrigger:FindFirstChild("StartPsychoEvent")
 Stop = PsychokiTrigger and PsychokiTrigger:FindFirstChild("StopPsychoEvent")
-local function BVTween(s)
-	repeat task.wait()
-		if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-			game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV").Velocity = (s.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Unit * 80
-		end
-	until s and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - s.Position).Magnitude < 5
-end
-if Start then
-	BVTween(Start)
-end
-if Stop then
-	BVTween(Stop)
-end
-if OldPlayerCF then
-	BVTween(OldPlayerCF)
-end
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-	game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
+
+if typeof(VectorTween) == "function" then
+	VectorTween({Place = Start.Position, Speed = 80})
+	VectorTween({Place = Stop.Position, Speed = 80})
+	VectorTween({Place = OldPlayerCF.Position, Speed = 80})
 end
 else
 Notification("You have enter limbo [ don't show all, not work ]", _G.TimeNotify)
@@ -3911,7 +3862,7 @@ Badge2Group:AddButton({
     Func = function()
 if CheckGlove() == "bus" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 3335299217032061) then
 OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-_G.AntiRagdolledV = "V2"
+_G.AntiRagdolledV = "V3"
 Toggles["Anti Ragdoll"]:SetValue(true)
 repeat
 if game.Players.LocalPlayer.Character.Humanoid.Health == 0 or game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then break end
@@ -4217,13 +4168,7 @@ Badge2Group:AddButton({
     Func = function()
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
 Notification("If you get glove lag you can reset", 5)
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "FreezeBV"
-	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV()
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,30,0)
 else
 Notification("You aren't in the arena", _G.TimeNotify)
@@ -4419,7 +4364,7 @@ end
 EquipGloveRemote("Extended")
 wait(0.3)
 if workspace:FindFirstChild("JobApplication") and workspace.JobApplication:FindFirstChild("paper") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.JobApplication.paper.CFrame * CFrame.new(0, 5, 0)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.JobApplication.paper.CFrame
 wait(0.3)
 fireclickdetector(workspace.JobApplication.paper.ClickDetector)
 end
@@ -4727,6 +4672,106 @@ end
 TabBoxMastery = Tabs.Tab3:AddRightTabbox()
 local Badge3Group = TabBoxMastery:AddTab("Mastery")
 
+Badge3Group:AddDropdown("Spring Mastery", {
+    Text = "Spring Mastery",
+    Values = {"Jump Over Player", "Evade Player", "Jump Land 2 Sec Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.SpringMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Spring Mastery", {
+    Text = "Auto Spring Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoSpringMastery = Value
+if CheckGlove() == "Spring" then
+while _G.AutoSpringMastery do
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.5)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.leaderstats.Slaps.Value >= 666 then
+	fireclickdetector(workspace.Lobby.Ghost.ClickDetector)
+	game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
+	fireclickdetector(workspace.Lobby["Spring"].ClickDetector)
+	task.wait(1)
+	for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+		if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+			v.Transparency = 0
+		end
+	end
+end
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+repeat task.wait()
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+end
+wait(0.35)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+wait(0.3)
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+local players = {}
+for i, v in pairs(game.Players:GetChildren()) do
+	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not v.Character:FindFirstChild("Counterd") and not v.Character:FindFirstChild("Mirage") and not v.Character:FindFirstChild("rock") and not v.Character:FindFirstChild("Reversed") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true then
+		table.insert(players, v)
+	end
+end
+if #players ~= 0 then
+	local RandomPlayer = players[math.random(#players)]
+	CreateFreezeBV()
+	if _G.SpringMastery == "Jump Over Player" then
+		game:GetService("ReplicatedStorage"):WaitForChild("SpringJump"):FireServer()
+		wait(0.56)
+		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 3, 5))
+		repeat task.wait() until _G.AutoSpringMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+		wait(0.3)
+		for i = 1, 3 do
+			gloveHits["Spring"]:FireServer(RandomPlayer.Character.HumanoidRootPart)
+			task.wait()
+		end
+		wait(0.2)
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+		wait(2.7)
+	elseif _G.SpringMastery == "Evade Player" then
+		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 3, 5))
+		repeat task.wait() until _G.AutoSpringMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+		wait(0.3)
+		for i = 1, 3 do
+			gloveHits["Spring"]:FireServer(RandomPlayer.Character.HumanoidRootPart)
+			task.wait()
+		end
+		game:GetService("ReplicatedStorage"):WaitForChild("SpringJump"):FireServer()
+		wait(0.1)
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+		wait(2.7)
+	elseif _G.SpringMastery == "Jump Land 2 Sec Player" then
+		game:GetService("ReplicatedStorage"):WaitForChild("SpringJump"):FireServer()
+		task.wait(1.4)
+		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 3, 5))
+		repeat task.wait() until _G.AutoSpringMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+		wait(0.3)
+		for i = 1, 3 do
+			gloveHits["Spring"]:FireServer(RandomPlayer.Character.HumanoidRootPart)
+			task.wait()
+		end
+		wait(0.2)
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+		wait(4.6)
+	end
+end
+end
+task.wait()
+end
+elseif _G.AutoSpringMastery == true then
+Notification("You don't have Spring equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Spring Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Acrobat Mastery", {
     Text = "Acrobat Mastery",
     Values = {"Roll Slap Player", "Slap Roll Player", "Combo Player"},
@@ -4775,13 +4820,7 @@ for i, v in pairs(game.Players:GetChildren()) do
 end
 if #players ~= 0 then
 	local RandomPlayer = players[math.random(#players)]
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	if _G.AcrobatMastery == "Roll Slap Player" then
 		game:GetService("ReplicatedStorage").Roll:FireServer()
 		wait(0.8)
@@ -4891,13 +4930,7 @@ for i, v in pairs(game.Players:GetChildren()) do
 end
 if #players ~= 0 then
 	local RandomPlayer = players[math.random(#players)]
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	PhantomTool = (game.Players.LocalPlayer.Character:FindFirstChild(CheckGlove()) or game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove())) or nil
 	if _G.PlankMastery == "Jumpscare Player" then
 		repeat task.wait()
@@ -5012,34 +5045,20 @@ for i, v in pairs(game.Players:GetChildren()) do
 end
 if #players ~= 0 then
 	local RandomPlayer = players[math.random(#players)]
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	if _G.PlankMastery == "Ambush Player" then
 		if not workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank") or workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank"):GetAttribute("collect") then
 			game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(CFrame.new(0, 0, 0), Vector3.new(math.huge, 0, 0))
 			wait(1.7)
 		end
 		if workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank") and not workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank"):GetAttribute("collect") then
-			if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-				game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-			end
+			CreateFreezeBV(true)
 			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank").CFrame * CFrame.new(0, 0, 3) * CFrame.Angles(math.rad(60), math.rad(0), math.rad(0)))
 			wait(1.7)
 			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank").CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(60), math.rad(0), math.rad(0)))
 		end
 		wait(2.5)
-		if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "FreezeBV"
-			bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV()
 		wait(0.25)
 		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
 		repeat task.wait() until _G.AutoPlankMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
@@ -5091,13 +5110,13 @@ if CheckGlove() == "Rage" then
 while _G.AutoRageMastery do
 if _G.RageMastery:match("Farm Rage") then
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+EquipGloveRemote("Replica")
+if fireclickdetector then
+	fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+end
 EquipGloveRemote("Baller")
 if fireclickdetector then
 	fireclickdetector(workspace.Lobby.Baller.ClickDetector)
-end
-EquipGloveRemote("Blink")
-if fireclickdetector then
-	fireclickdetector(workspace.Lobby.Blink.ClickDetector)
 end
 wait(0.5)
 repeat task.wait() until game.Players.LocalPlayer.Character
@@ -5112,8 +5131,9 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"
 wait(0.8)
 if CheckGlove() == "Baller" then
 game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
-elseif CheckGlove() == "Blink" then
-game:GetService("ReplicatedStorage").Blink:FireServer("OutOfBody", {["dir"] = Vector3.new(0, 0, 0),["ismoving"] = false,["mousebehavior"] = Enum.MouseBehavior.Default})
+end
+if CheckGlove() == "Replica" then
+game:GetService("ReplicatedStorage").Duplicate:FireServer(true)
 end
 game:GetService("Players").LocalPlayer.Reset:FireServer()
 wait(0.05)
@@ -5145,13 +5165,13 @@ wait(0.2)
 game:GetService("Players").LocalPlayer.Reset:FireServer()
 repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 if _G.AutoRageMastery == true then
+EquipGloveRemote("Replica")
+if fireclickdetector then
+	fireclickdetector(workspace.Lobby.Replica.ClickDetector)
+end
 EquipGloveRemote("Baller")
 if fireclickdetector then
 	fireclickdetector(workspace.Lobby.Baller.ClickDetector)
-end
-EquipGloveRemote("Blink")
-if fireclickdetector then
-	fireclickdetector(workspace.Lobby.Blink.ClickDetector)
 end
 else
 EquipGloveRemote("Rage")
@@ -5187,9 +5207,7 @@ Badge3Group:AddToggle("Auto Moon Mastery", {
     Callback = function(Value) 
 _G.AutoMoonMastery = Value
 if not _G.AutoMoonMastery then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 end
 if CheckGlove() == "Moon" then
 while _G.AutoMoonMastery do
@@ -5228,13 +5246,7 @@ for i, v in pairs(game.Players:GetChildren()) do
 end
 if #players ~= 0 then
 	local RandomPlayer = players[math.random(#players)]
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
 	repeat task.wait() until _G.AutoMoonMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
 	wait(0.3)
@@ -5255,13 +5267,7 @@ elseif _G.MoonMastery == "Unequip + Ragdoll Time" then
 		wait(0.3)
 	end
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = -99})
 	if game.Players.LocalPlayer.Character:FindFirstChild("Moon") then
 		game.Players.LocalPlayer.Character:FindFirstChild("Moon").Parent = game.Players.LocalPlayer.Backpack
@@ -5296,9 +5302,7 @@ Badge3Group:AddToggle("Auto Chain Mastery", {
     Callback = function(Value) 
 _G.AutoChainMastery = Value
 if not _G.AutoChainMastery then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 end
 if CheckGlove() == "Chain" then
 while _G.AutoChainMastery do
@@ -5341,13 +5345,7 @@ if _G.ChainMastery:find("lightning") or _G.ChainMastery:find("Lightning") then
 	if GroupPlayer then
 		local random = GroupPlayer[math.random(1, #GroupPlayer)]
 		if random.Character and random.Character:FindFirstChild("HumanoidRootPart") and random.Character:FindFirstChild("Head") and random.Character:FindFirstChild("Ragdolled") and not random.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and not random.Character:FindFirstChild("Counterd") and not random.Character:FindFirstChild("Mirage") and not random.Character:FindFirstChild("rock") and not random.Character:FindFirstChild("Reversed") and random.Character.Ragdolled.Value == false and random.Character.isInArena.Value == true then
-			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-				local bv = Instance.new("BodyVelocity")
-				bv.Name = "FreezeBV"
-				bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-				bv.MaxForce = Vector3.new(100000, 100000, 100000)
-				bv.Velocity = Vector3.new(0, 0, 0)
-			end
+			CreateFreezeBV()
 			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(random.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
 			repeat task.wait() until _G.AutoChainMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - random.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
 			wait(0.26)
@@ -5371,13 +5369,7 @@ elseif _G.ChainMastery:find("Slap") then
 		end
 		if #players ~= 0 then
 			local RandomPlayer = players[math.random(#players)]
-			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-				local bv = Instance.new("BodyVelocity")
-				bv.Name = "FreezeBV"
-				bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-				bv.MaxForce = Vector3.new(100000, 100000, 100000)
-				bv.Velocity = Vector3.new(0, 0, 0)
-			end
+			CreateFreezeBV()
 			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
 			repeat task.wait() until _G.AutoChainMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
 			task.wait(0.25)
@@ -5516,9 +5508,7 @@ Badge3Group:AddToggle("Auto Bonk Mastery", {
     Callback = function(Value) 
 _G.AutoBonkMastery = Value
 if not _G.AutoBonkMastery then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 end
 if CheckGlove() == "BONK" then
 while _G.AutoBonkMastery do
@@ -5557,13 +5547,7 @@ for i, v in pairs(game.Players:GetChildren()) do
 end
 if #players ~= 0 then
 	local RandomPlayer = players[math.random(#players)]
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
 	repeat task.wait() until _G.AutoBonkMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
 	task.wait(0.25)
@@ -5631,13 +5615,7 @@ for i, v in pairs(game.Players:GetChildren()) do
 end
 if #players ~= 0 then
 	local RandomPlayer = players[math.random(#players)]
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
 	repeat task.wait() until _G.AutoVoodooMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
 	task.wait(0.25)
@@ -6564,9 +6542,9 @@ function NextTweenRob()
 end
 game:GetService("ReplicatedStorage").rob:FireServer()
 for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
-if v.Name == "whiteframe" then
-v:Destroy()
-end
+	if v.Name == "whiteframe" then
+		v:Destroy()
+	end
 end
 repeat task.wait() until _G.AutoRobMastery == false or game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health > 0 and game.Players.LocalPlayer.Character:FindFirstChild("Head").Transparency == 1
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
@@ -6684,11 +6662,11 @@ function NextTween()
 end
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true then
     if GetCloudYour and GetCloudYour:FindFirstChild("VehicleSeat") then
-        TweenTp(GetCloudYour.VehicleSeat, NextTween(), false, 1.7)
+        VectorTween({Part = GetCloudYour.VehicleSeat, Place = NextTween().Position, Speed = 80})
     end
 elseif game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == false then
     if GetCloudYour and GetCloudYour:FindFirstChild("VehicleSeat") then
-        TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, GetCloudYour.VehicleSeat.CFrame, true, 0.6)
+        VectorTween({Place = GetCloudYour.VehicleSeat.Position, Speed = 80})
     end
 end
 end
@@ -6714,7 +6692,7 @@ end
 until game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") ~= nil and game.Players.LocalPlayer.Character.Humanoid.Sit == true
 task.wait(1)
 if GetCloudYour and GetCloudYour:FindFirstChild("VehicleSeat") then
-    TweenTp(GetCloudYour.VehicleSeat, CFrame.new(245, 129, -91), false, 1)
+    VectorTween({Part = GetCloudYour.VehicleSeat, Place = CFrame.new(245, 129, -91).Position, Speed = 80})
 end
 wait(0.3)
 game:GetService("ReplicatedStorage").Rockmode:FireServer()
@@ -6723,9 +6701,7 @@ end
 elseif _G.CloudMastery == "Pickup Player (100 Player)" then
 local players = game.Players:GetChildren()
 local RandomPlayer = players[math.random(1, #players)]
-if _G.GetPlayerSit[RandomPlayer] then
-  return
-end
+if _G.GetPlayerSit[RandomPlayer] then return end
 if RandomPlayer ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character then
 if RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("HumanoidRootPart") and RandomPlayer.Character:FindFirstChild("Humanoid") and RandomPlayer.Character:FindFirstChild("stevebody") == nil and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Humanoid.Sit == false and RandomPlayer.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and RandomPlayer.Character.Ragdolled.Value == false and RandomPlayer.Character:FindFirstChild("Mirage") == nil then
 repeat task.wait()
@@ -7101,9 +7077,7 @@ Badge3Group:AddToggle("Auto Stalker Mastery", {
     Callback = function(Value) 
 _G.AutoStalkerMastery = Value
 if not _G.AutoStalkerMastery then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 end
 if CheckGlove() == "Stalker" then
 while _G.AutoStalkerMastery do
@@ -7143,13 +7117,7 @@ end
 if #players ~= 0 then
 	repeat task.wait() until _G.AutoStalkerMastery == false or game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil or game.Players.LocalPlayer.Character:FindFirstChild("ReadyToBurst")
 	local RandomPlayer = players[math.random(#players)]
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
 	repeat task.wait() until _G.AutoStalkerMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
 	wait(0.3)
@@ -7308,9 +7276,7 @@ Badge3Group:AddToggle("Auto Killstreak Mastery", {
     Callback = function(Value) 
 _G.AutoKillstreakMastery = Value
 if Value == false then
-	if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 end
 if CheckGlove() == "Killstreak" then
 while _G.AutoKillstreakMastery do
@@ -7321,13 +7287,7 @@ for i, v in pairs(game.Players:GetChildren()) do
 	end
 end
 if #players ~= 0 then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	local target = players[math.random(#players)]
 	repeat task.wait()
 	if target.Character.Ragdolled.Value == false then
@@ -7492,20 +7452,12 @@ Badge4Group:AddToggle("Auto Mastery Acrobat", {
     Callback = function(Value) 
 _G.AutoAcrobatMasteryHelp = Value
 if not _G.AutoAcrobatMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Acrobat" then
 spawn(function()
 	while _G.AutoAcrobatMasteryHelp do
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV()
 		if not _G.Players1CloneHelp then
 			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
 				if _G.AcrobatMasteryHelp == "Roll + Slap" then
@@ -7517,13 +7469,7 @@ spawn(function()
 	end
 end)
 while _G.AutoAcrobatMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -7577,20 +7523,12 @@ Badge4Group:AddToggle("Auto Mastery Tinkerer", {
     Callback = function(Value) 
 _G.AutoTinkeverMasteryHelp = Value
 if not _G.AutoTinkeverMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Tinkerer" then
 spawn(function()
 	while _G.AutoTinkeverMasteryHelp do
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV("HelpMasteryFreezeBv")
 		if not _G.Players1CloneHelp then
 			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
 				if Players1 and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -7603,13 +7541,7 @@ spawn(function()
 	end
 end)
 while _G.AutoTinkeverMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -7659,9 +7591,7 @@ Badge4Group:AddToggle("Auto Mastery Bubble", {
     Callback = function(Value) 
 _G.AutoBubbleMasteryHelp = Value
 if not _G.AutoBubbleMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Bubble" then
 function BubbleChild()
@@ -7674,13 +7604,7 @@ function BubbleChild()
 end
 spawn(function()
 	while _G.AutoBubbleMasteryHelp do
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV("HelpMasteryFreezeBv")
 		if not _G.Players1CloneHelp then
 			if _G.BubbleMasteryHelp == "Bubble Clone" then
 				if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
@@ -7697,13 +7621,7 @@ spawn(function()
 	end
 end)
 while _G.AutoBubbleMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -7765,9 +7683,7 @@ Badge4Group:AddToggle("Auto Mastery Engineer", {
     Callback = function(Value) 
 _G.AutoEngineerMasteryHelp = Value
 if not _G.AutoEngineerMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp and not PlayersMain and Value == true then
 	Notification("You have input main account", _G.TimeNotify)
@@ -7786,13 +7702,7 @@ end
 spawn(function()
 	while _G.AutoEngineerMasteryHelp do
 		Turret = TurretSpawn()
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV("HelpMasteryFreezeBv")
 		if _G.Players1CloneHelp then
 			if PlayersMain and Players2 and Players2:FindFirstChild("entered") and PlayersMain:FindFirstChild("entered") then
 				if Players2:FindFirstChild("Ragdolled") and Players2.Ragdolled.Value == false then
@@ -7826,13 +7736,7 @@ spawn(function()
 	end
 end)
 while _G.AutoEngineerMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV()
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -7868,9 +7772,7 @@ Badge4Group:AddToggle("Auto Mastery Brick", {
     Callback = function(Value) 
 _G.AutoBrickMasteryHelp = Value
 if not _G.AutoTinkeverMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Brick" then
 spawn(function()
@@ -7895,13 +7797,7 @@ spawn(function()
 	end
 end)
 while _G.AutoBrickMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -7937,20 +7833,12 @@ Badge4Group:AddToggle("Auto Mastery Voodoo", {
     Callback = function(Value) 
 _G.AutoVoodooMasteryHelp = Value
 if not _G.AutoVoodooMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Voodoo" then
 spawn(function()
 	while _G.AutoVoodooMasteryHelp do
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV("HelpMasteryFreezeBv")
 		if not _G.Players1CloneHelp then
 			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
 				if Players1 and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -7965,13 +7853,7 @@ spawn(function()
 	end
 end)
 while _G.AutoVoodooMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8036,20 +7918,12 @@ Badge4Group:AddToggle("Auto Mastery Bus", {
     Callback = function(Value) 
 _G.AutoBusMasteryHelp = Value
 if not _G.AutoBusMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "bus" then
 spawn(function()
 	while _G.AutoBusMasteryHelp do
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV("HelpMasteryFreezeBv")
 		if not _G.Players1CloneHelp then
 			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
 				if Players1 and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8066,13 +7940,7 @@ spawn(function()
 	end
 end)
 while _G.AutoBusMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8125,20 +7993,12 @@ Badge4Group:AddToggle("Auto Mastery Shard", {
     Callback = function(Value) 
 _G.AutoShardMasteryHelp = Value
 if not _G.AutoShardMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Shard" then
 spawn(function()
 	while _G.AutoShardMasteryHelp do
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV("HelpMasteryFreezeBv")
 		if not _G.Players1CloneHelp then
 			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
 				if Players1 and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8153,13 +8013,7 @@ spawn(function()
 	end
 end)
 while _G.AutoShardMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8216,20 +8070,12 @@ Badge4Group:AddToggle("Auto Mastery BONK", {
     Callback = function(Value) 
 _G.AutoBonkMasteryHelp = Value
 if not _G.AutoBonkMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "BONK" then
 spawn(function()
 	while _G.AutoBonkMasteryHelp do
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV("HelpMasteryFreezeBv")
 		if not _G.Players1CloneHelp then
 			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
 				if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 200 then
@@ -8241,13 +8087,7 @@ spawn(function()
 	end
 end)
 while _G.AutoBonkMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8298,20 +8138,12 @@ Badge4Group:AddToggle("Auto Mastery Phantom", {
     Callback = function(Value) 
 _G.AutoPhantomMasteryHelp = Value
 if not _G.AutoPhantomMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Phantom" then
 spawn(function()
 	while _G.AutoPhantomMasteryHelp do
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV("HelpMasteryFreezeBv")
 		if not _G.Players1CloneHelp then
 			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
 				if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 200 then
@@ -8328,13 +8160,7 @@ spawn(function()
 	end
 end)
 while _G.AutoPhantomMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8398,9 +8224,7 @@ Badge4Group:AddToggle("Auto Mastery Rage", {
     Callback = function(Value) 
 _G.AutoRageMasteryHelp = Value
 if not _G.AutoRageMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp and not PlayersMain and Value == true then
 	if _G.RageMasteryHelp == "Murder Rage" then
@@ -8412,13 +8236,7 @@ end
 if _G.Players1CloneHelp or CheckGlove() == "Rage" then
 spawn(function()
 	while _G.AutoRageMasteryHelp do
-		if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-			local bv = Instance.new("BodyVelocity")
-			bv.Name = "HelpMasteryFreezeBv"
-			bv.Parent = root
-			bv.MaxForce = Vector3.new(100000, 100000, 100000)
-			bv.Velocity = Vector3.new(0, 0, 0)
-		end
+		CreateFreezeBV("HelpMasteryFreezeBv")
 		if not _G.Players1CloneHelp then
 			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
 				if (Players2 and Players2:GetAttribute("rage_percent") or 0) > 55 then
@@ -8432,13 +8250,7 @@ spawn(function()
 	end
 end)
 while _G.AutoRageMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8497,21 +8309,13 @@ Badge4Group:AddToggle("Auto Mastery Plank", {
     Callback = function(Value) 
 _G.AutoPlankMasteryHelp = Value
 if not _G.AutoPlankMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Plank" then
 spawn(function()
 	while _G.AutoPlankMasteryHelp do
 		if _G.Players1CloneHelp then
-			if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-				local bv = Instance.new("BodyVelocity")
-				bv.Name = "HelpMasteryFreezeBv"
-				bv.Parent = root
-				bv.MaxForce = Vector3.new(100000, 100000, 100000)
-				bv.Velocity = Vector3.new(0, 0, 0)
-			end
+			CreateFreezeBV("HelpMasteryFreezeBv")
 			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
 				if _G.PlankMasteryHelp == "Plank Kill" then
 					repeat task.wait() until _G.AutoPlankMasteryHelp == false or Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("Ragdolled") and Players2.Ragdolled.Value
@@ -8528,13 +8332,7 @@ spawn(function()
 	end
 end)
 while _G.AutoPlankMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8554,21 +8352,13 @@ if not _G.Players1CloneHelp then
 					wait(1.7)
 				end
 				if workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank") and not workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank"):GetAttribute("collect") then
-					if Players2 and Players2:FindFirstChild("HelpMasteryFreezeBv") then
-						Players2:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-					end
+					CreateFreezeBV(true, "HelpMasteryFreezeBv")
 					Players2:SetPrimaryPartCFrame(workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank").CFrame * CFrame.new(0, 0, 3) * CFrame.Angles(math.rad(60), math.rad(0), math.rad(0)))
 					task.wait(1)
 					Players2:SetPrimaryPartCFrame(workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s Plank").CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(60), math.rad(0), math.rad(0)))
 				end
 				wait(0.8)
-				if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-					local bv = Instance.new("BodyVelocity")
-					bv.Name = "HelpMasteryFreezeBv"
-					bv.Parent = root
-					bv.MaxForce = Vector3.new(100000, 100000, 100000)
-					bv.Velocity = Vector3.new(0, 0, 0)
-				end
+				CreateFreezeBV("HelpMasteryFreezeBv")
 				Players2:SetPrimaryPartCFrame(root1.CFrame * CFrame.new(0, 7, 0))
 				repeat task.wait() until _G.AutoPlankMasteryHelp == false or (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 8
 				wait(0.3)
@@ -8613,9 +8403,7 @@ Badge4Group:AddToggle("Auto Mastery Obby", {
     Callback = function(Value) 
 _G.AutoObbyMasteryHelp = Value
 if not _G.AutoObbyMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Obby" then
 if _G.Players1CloneHelp and not PlayersMain and Value == true then
@@ -8627,13 +8415,7 @@ end
 if not _G.Players1CloneHelp and _G.AutoObbyMasteryHelp and _G.ObbyMasteryHelp == "Kill Clone" then
 	repeat task.wait()
 		if Players2:FindFirstChild("HumanoidRootPart") and Players2:FindFirstChild("entered") == nil then
-			if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-				local bv = Instance.new("BodyVelocity")
-				bv.Name = "HelpMasteryFreezeBv"
-				bv.Parent = root
-				bv.MaxForce = Vector3.new(100000, 100000, 100000)
-				bv.Velocity = Vector3.new(0, 0, 0)
-			end
+			CreateFreezeBV("HelpMasteryFreezeBv")
 			if fireclickdetector then
 				fireclickdetector(workspace.Lobby["Fort"].ClickDetector) 
 			end
@@ -8678,13 +8460,7 @@ spawn(function()
 	while _G.AutoObbyMasteryHelp do
 		if _G.Players1CloneHelp then
 			if PlayersMain and Players2 and Players2:FindFirstChild("entered") and PlayersMain:FindFirstChild("entered") then
-				if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-					local bv = Instance.new("BodyVelocity")
-					bv.Name = "HelpMasteryFreezeBv"
-					bv.Parent = root
-					bv.MaxForce = Vector3.new(100000, 100000, 100000)
-					bv.Velocity = Vector3.new(0, 0, 0)
-				end
+				CreateFreezeBV("HelpMasteryFreezeBv")
 				if _G.ObbyMasteryHelp == "Kill Clone" then
 					repeat task.wait()
 						if workspace:FindFirstChild("ObbyItem".._G.HelpPlayer2.Name.."LavaBlock") then
@@ -8700,13 +8476,7 @@ spawn(function()
 	end
 end)
 while _G.AutoObbyMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8763,19 +8533,11 @@ Badge4Group:AddToggle("Auto Mastery Spring", {
     Callback = function(Value) 
 _G.AutoSpringMasteryHelp = Value
 if not _G.AutoSpringMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Spring" then
 while _G.AutoSpringMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8838,9 +8600,7 @@ Badge4Group:AddToggle("Auto Mastery Moai", {
     Callback = function(Value) 
 _G.AutoMoaiMasteryHelp = Value
 if not _G.AutoMoaiMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "🗿" then
 if _G.Players1CloneHelp and not PlayersMain and Value == true then
@@ -8852,13 +8612,7 @@ end
 if not _G.Players1CloneHelp and _G.AutoMoaiMasteryHelp then
 	repeat task.wait()
 		if Players2:FindFirstChild("HumanoidRootPart") and Players2:FindFirstChild("entered") == nil then
-			if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-				local bv = Instance.new("BodyVelocity")
-				bv.Name = "HelpMasteryFreezeBv"
-				bv.Parent = root
-				bv.MaxForce = Vector3.new(100000, 100000, 100000)
-				bv.Velocity = Vector3.new(0, 0, 0)
-			end
+			CreateFreezeBV("HelpMasteryFreezeBv")
 			if fireclickdetector then
 				fireclickdetector(workspace.Lobby["Fort"].ClickDetector) 
 			end
@@ -8905,13 +8659,7 @@ spawn(function()
 	while _G.AutoMoaiMasteryHelp do
 		if _G.Players1CloneHelp then
 			if PlayersMain and Players2 and Players2:FindFirstChild("entered") and PlayersMain:FindFirstChild("entered") then
-				if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-					local bv = Instance.new("BodyVelocity")
-					bv.Name = "HelpMasteryFreezeBv"
-					bv.Parent = root
-					bv.MaxForce = Vector3.new(100000, 100000, 100000)
-					bv.Velocity = Vector3.new(0, 0, 0)
-				end
+				CreateFreezeBV("HelpMasteryFreezeBv")
 				if _G.MoaiMasteryHelp == "Ragdoll Clone" or _G.MoaiMasteryHelp == "Kill Clone" then
 					repeat task.wait()
 						if workspace:FindFirstChild("ÅMoyaiStatue".._G.HelpPlayer2.Name) and workspace["ÅMoyaiStatue".._G.HelpPlayer2.Name]:FindFirstChild("Hitbox") then
@@ -8934,13 +8682,7 @@ spawn(function()
 	end
 end)
 while _G.AutoMoaiMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -8984,19 +8726,11 @@ Badge4Group:AddToggle("Auto Mastery Moon", {
     Callback = function(Value) 
 _G.AutoMoonMasteryHelp = Value
 if not _G.AutoMoonMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Moon" then
 while _G.AutoMoonMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -9034,21 +8768,13 @@ Badge4Group:AddToggle("Auto Mastery Killstreak", {
     Callback = function(Value) 
 _G.AutoKillstreakMasteryHelp = Value
 if not _G.AutoKillstreakMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Killstreak" then
 spawn(function()
 	while _G.AutoKillstreakMasteryHelp do
 		if _G.Players1CloneHelp then
-			if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-				local bv = Instance.new("BodyVelocity")
-				bv.Name = "HelpMasteryFreezeBv"
-				bv.Parent = root
-				bv.MaxForce = Vector3.new(100000, 100000, 100000)
-				bv.Velocity = Vector3.new(0, 0, 0)
-			end
+			CreateFreezeBV("HelpMasteryFreezeBv")
 			if Players2 and Players2:FindFirstChild("entered") then
 				repeat task.wait() until _G.AutoKillstreakMasteryHelp == false or Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("Ragdolled") and Players2.Ragdolled.Value
 				wait(1)
@@ -9062,13 +8788,7 @@ spawn(function()
 	end
 end)
 while _G.AutoKillstreakMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -9106,19 +8826,11 @@ Badge4Group:AddToggle("Auto Mastery Space", {
     Callback = function(Value) 
 _G.AutoSpaceMasteryHelp = Value
 if not _G.AutoSpaceMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Space" then
 while _G.AutoSpaceMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -9165,19 +8877,11 @@ Badge4Group:AddToggle("Auto Mastery Glovel", {
     Callback = function(Value) 
 _G.AutoGlovelMasteryHelp = Value
 if not _G.AutoGlovelMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Glovel" then
 while _G.AutoGlovelMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -9218,19 +8922,11 @@ Badge4Group:AddToggle("Auto Mastery Booster", {
     Callback = function(Value) 
 _G.AutoBoosterMasteryHelp = Value
 if not _G.AutoBoosterMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Booster" then
 while _G.AutoBoosterMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -9268,19 +8964,11 @@ Badge4Group:AddToggle("Auto Mastery Rob", {
     Callback = function(Value) 
 _G.AutoRobMasteryHelp = Value
 if not _G.AutoRobMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "rob" then
 while _G.AutoRobMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -9322,19 +9010,11 @@ Badge4Group:AddToggle("Auto Mastery Stalker", {
     Callback = function(Value) 
 _G.AutoStalkerMasteryHelp = Value
 if not _G.AutoStalkerMasteryHelp then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("HelpMasteryFreezeBv"):Destroy()
-	end
+	CreateFreezeBV(true, "HelpMasteryFreezeBv")
 end
 if _G.Players1CloneHelp or CheckGlove() == "Stalker" then
 while _G.AutoStalkerMasteryHelp do
-if root and root:FindFirstChild("HelpMasteryFreezeBv") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "HelpMasteryFreezeBv"
-	bv.Parent = root
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV("HelpMasteryFreezeBv")
 if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
 	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
 end
@@ -9861,23 +9541,44 @@ end
     Default = false, 
     Callback = function(Value) 
 _G.WriteCodeKeypad = Value
-while _G.WriteCodeKeypad do
-if game.Workspace:FindFirstChild("RoomsFolder") then
-for i,v in pairs(game.Workspace.RoomsFolder:GetChildren()) do
-if string.find(v.Name, "'s Room") and v:FindFirstChild("PocketKeypad") then
-fireclickdetector(v.PocketKeypad.Buttons:FindFirstChild("Reset").ClickDetector)
-local digits = "4553293"
-for i = 1, #digits do
-wait(0.26)
-_G.CodeOPad = digits:sub(i,i)
-fireclickdetector(v.PocketKeypad.Buttons:FindFirstChild(_G.CodeOPad).ClickDetector)
-end
-task.wait(0.15)
-fireclickdetector(v.PocketKeypad.Buttons:FindFirstChild("Enter").ClickDetector)
-end
-end
-end
-task.wait(3.23)
+if _G.WriteCodeKeypad then
+	local function WorkspaceChildRoom(v)
+		if typeof(fireclickdetector) == "function" then
+			if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then
+				game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
+				repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+				wait(0.5)
+				game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = workspace:FindFirstChild("SafeBoxSpace").CFrame * CFrame.new(0, 7, 0)
+				wait(0.5)
+			end
+			fireclickdetector(v.PocketKeypad.Buttons:FindFirstChild("Reset").ClickDetector)
+			local digits = "4553293"
+			for i = 1, #digits do
+				wait(0.26)
+				local CodeOPad = digits:sub(i,i)
+				fireclickdetector(v.PocketKeypad.Buttons:FindFirstChild(CodeOPad).ClickDetector)
+			end
+			task.wait(0.15)
+			fireclickdetector(v.PocketKeypad.Buttons:FindFirstChild("Enter").ClickDetector)
+		end
+	end
+	if game.Workspace:FindFirstChild("RoomsFolder") then
+		for i, v in pairs(game.Workspace:FindFirstChild("RoomsFolder"):GetChildren()) do
+			if string.find(v.Name, "'s Room") and v:FindFirstChild("PocketKeypad") then
+				WorkspaceChildRoom(v)
+			end
+		end
+		ChildRoom = workspace.ChildAdded:Connect(function(child)
+			if string.find(child.Name, "'s Room") and child:FindFirstChild("PocketKeypad") then
+				WorkspaceChildRoom(child)
+			end
+		end)
+	end
+else
+	if ChildRoom then
+		ChildRoom:Disconnect()
+		ChildRoom = nil
+	end
 end
     end
 })
@@ -10079,7 +9780,7 @@ for i,v in pairs(game.Players:GetChildren()) do
 					if _G.AutoFarmSlapBattles == "Teleport" then
 						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Character:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0,5,0)
 					elseif _G.AutoFarmSlapBattles == "Tween" then
-						TweenTp(game.Players.LocalPlayer.Character.HumanoidRootPart, v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0), true, 0.4)
+						VectorTween({Place = v.Character:FindFirstChild("HumanoidRootPart").Position + Vector3.new(0,5,0), Speed = 80})
 					elseif _G.AutoFarmSlapBattles == "Aimbot" then
 						local TargetDisPlrWhile = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
 						if TargetDisPlrWhile < HugeTargetWhile then
@@ -11879,21 +11580,13 @@ if tonumber(CheckGloveWheel) == 7 then
 	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players[_G.PlayerPut1].Character:FindFirstChild("entered") then
 		spawn(function()
 			repeat task.wait()
-				if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-					local bv = Instance.new("BodyVelocity")
-					bv.Name = "FreezeBV"
-					bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-					bv.MaxForce = Vector3.new(100000, 100000, 100000)
-					bv.Velocity = Vector3.new(0, 0, 0)
-				end
+				CreateFreezeBV()
 				if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
 					game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
 				end
 			until StopFreezeBV
 			wait(0.3)
-			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-				game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-			end
+			CreateFreezeBV(true)
 		end)
 		function EquipGloveHelp(name)
 			if fireclickdetector then
@@ -12429,13 +12122,7 @@ if _G.PlayerChoose == "Random" then
 end
 if game.Players.LocalPlayer.Character:FindFirstChild("Swapper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Swapper") then
 	OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	repeat task.wait()
 	if workspace[_G.PlayerButton]:FindFirstChild("HumanoidRootPart") then
 		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace[_G.PlayerButton].HumanoidRootPart.CFrame * CFrame.new(0, -70, 0)
@@ -12444,9 +12131,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("Swapper") or game.Players.
 	task.wait(0.6)
 	game:GetService("ReplicatedStorage").SLOC:FireServer()
 	wait(.25)
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 	task.wait(0.05)
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
 else
@@ -12467,13 +12152,7 @@ if _G.PlayerChoose == "Random" then
 	end
 end
 if CheckGlove() == "Home Run" and game.Players[_G.PlayerButton].Character:FindFirstChild("entered") then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	game.Players[_G.PlayerButton].Character.HumanoidRootPart.Size = Vector3.new(50,50,50)
 	game:GetService("ReplicatedStorage").HomeRun:FireServer({["start"] = true})
@@ -12483,9 +12162,7 @@ if CheckGlove() == "Home Run" and game.Players[_G.PlayerButton].Character:FindFi
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players[_G.PlayerButton].Character.HumanoidRootPart.CFrame
 	task.wait(0.25)
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 else
 	Notification("You don't have Home Run equipped", _G.TimeNotify)
 end
@@ -12504,13 +12181,7 @@ if _G.PlayerChoose == "Random" then
 	end
 end
 if CheckGlove() == "Hive" and game.Players[_G.PlayerButton].Character:FindFirstChild("entered") then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
 	task.wait(4.2)
@@ -12520,9 +12191,7 @@ if CheckGlove() == "Hive" and game.Players[_G.PlayerButton].Character:FindFirstC
 	game:GetService("ReplicatedStorage"):WaitForChild("GeneralHit"):FireServer(game.Players[_G.PlayerButton].Character:WaitForChild("HumanoidRootPart"))
 	wait(0.25)
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 else
 	Notification("You don't have Hive equipped", _G.TimeNotify)
 end
@@ -12541,13 +12210,7 @@ if _G.PlayerChoose == "Random" then
 	end
 end
 if CheckGlove() == "Quake" and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players[_G.PlayerButton].Character:FindFirstChild("entered") then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	repeat task.wait()
 		if game.Players.LocalPlayer.Backpack:FindFirstChild("Quake") then
@@ -12562,9 +12225,7 @@ if CheckGlove() == "Quake" and game.Players.LocalPlayer.Character:FindFirstChild
 	task.wait(0.35)
 	game:GetService("ReplicatedStorage"):WaitForChild("QuakeQuake"):FireServer({["finished"] = true})
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 else
 	Notification("You don't have Quake equipped.", _G.TimeNotify)
 end
@@ -12591,13 +12252,7 @@ end)
 
 Glove1Group:AddButton("Grab Player Teleport", function()
 if CheckGlove() == "Grab" and game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players[_G.PlayerButton].Character:FindFirstChild("entered") then
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FreezeBV"
-		bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.Velocity = Vector3.new(0, 0, 0)
-	end
+	CreateFreezeBV()
 	if game.Players.LocalPlayer.Backpack:FindFirstChild("Grab") then
 		game.Players.LocalPlayer.Backpack:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Character
 	end
@@ -12612,9 +12267,7 @@ if CheckGlove() == "Grab" and game.Players.LocalPlayer.Character:FindFirstChild(
 	if game.Players.LocalPlayer.Character:FindFirstChild("Grab") then
 		game.Players.LocalPlayer.Character:FindFirstChild("Grab").Parent = game.Players.LocalPlayer.Backpack
 	end
-	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") then
-		game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV"):Destroy()
-	end
+	CreateFreezeBV(true)
 else
 	Notification("You don't have Grab equipped, or you have to go Arena, or player go to Arena", _G.TimeNotify)
 end
@@ -12712,62 +12365,6 @@ Toggles["Auto Siphon Player"]:SetValue(false)
 end
     end
 })
-
-Glove1Group:AddToggle("Auto Sbeve All Player", {
-    Text = "Auto Sbeve All Player",
-    Default = false, 
-    Callback = function(Value) 
-_G.AutoSbeveAllPlayer = Value
-while _G.AutoSbeveAllPlayer do
-if CheckGlove() == "Sbeve" or game.Players.LocalPlayer.Character:FindFirstChild("stevebody") then
-for i,v in pairs(game.Players:GetChildren()) do
-         if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-              if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.Ragdolled.Value == false then
-                 v.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.stevebody.CFrame * CFrame.new(0,3.75,0)
-              end
-          end
-     end
- end
-task.wait()
-end
-    end
-})
-
-Glove1Group:AddButton("Sbeve All Player", function()
-if CheckGlove() == "Sbeve" or game.Players.LocalPlayer.Character:FindFirstChild("stevebody") then
-for i,v in pairs(game.Players:GetChildren()) do
-         if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-              if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.Ragdolled.Value == false then
-                 v.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.stevebody.CFrame
-              end
-          end
-     end
-elseif game.Players.LocalPlayer.Character:FindFirstChild("stevebody") == nil then
-for i,v in pairs(game.Players:GetChildren()) do
-         if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-              if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") then
-                 v.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-              end
-          end
-     end
- end
-end)
-
-Glove1Group:AddButton("Bring All Player (Lawnmower)", function()
-if CheckGlove() == "Lawnmower" then
-	game:GetService("ReplicatedStorage").GeneralAbility:FireServer("lawnmower")
-	for i,v in pairs(game.Players:GetChildren()) do
-         if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
-              if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("stevebody") == nil and v.Character:FindFirstChild("rock") == nil and v.Character.Ragdolled.Value == false then
-                 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Character.HumanoidRootPart.CFrame
-                 wait(0.2)
-              end
-          end
-     end
-else
-Notification("You don't have Lawnmower equipped.", _G.TimeNotify)
-end
-end)
 
 Glove1Group:AddDropdown("Black Hole", {
     Text = "Black Hole",
@@ -14649,13 +14246,7 @@ if _G.AntiRagdoll then
 				end
 			end
 			if _G.AntiRagdolledV == "V2" then
-				if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV") == nil then
-					local bv = Instance.new("BodyVelocity")
-					bv.Name = "AntiRagBV"
-					bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-					bv.MaxForce = Vector3.new(100000, 100000, 100000)
-					bv.Velocity = Vector3.new(0, 0, 0)
-				end
+				CreateFreezeBV("AntiRagBV")
 			end
 			if _G.AntiRagdolledV == "V1" then
 				if game.Players.LocalPlayer.Character:FindFirstChild("Torso") then
@@ -14679,9 +14270,7 @@ if _G.AntiRagdoll then
 		        end
 			end
 		else
-			if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV") then
-				game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiRagBV"):Destroy()
-			end
+			CreateFreezeBV(true, "AntiRagBV")
 			if game.Players.LocalPlayer.Character:FindFirstChild("Torso") then
 				game.Players.LocalPlayer.Character.Torso.Anchored = false
 			end
@@ -16856,13 +16445,7 @@ MainGroup:AddButton("Get Badge", function()
 repeat task.wait() until workspace:FindFirstChild("BossAreaSpawn") and workspace:FindFirstChild("Enemies")
 local Enemies = workspace:WaitForChild("Enemies")
 repeat task.wait(1)
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "FreezeBV"
-	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV()
 if workspace:FindFirstChild("BossAreaSpawn") then
 	game.Players.LocalPlayer.Character:PivotTo(workspace.BossAreaSpawn.CFrame * CFrame.new(0, 65, 0))
 end
@@ -16981,13 +16564,7 @@ Tabs = {
 local MainGroup = Tabs.Tab:AddLeftGroupbox("Badge")
 
 MainGroup:AddButton("Get Badge 1", function()
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("FreezeBV") == nil then
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = "FreezeBV"
-	bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
-	bv.MaxForce = Vector3.new(100000, 100000, 100000)
-	bv.Velocity = Vector3.new(0, 0, 0)
-end
+CreateFreezeBV()
 game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = workspace.KillPart.CFrame * CFrame.new(0, 150, 0)
 game:GetService("RunService").RenderStepped:Connect(function()
 	if workspace:FindFirstChild("Boss") and workspace.Boss:FindFirstChildOfClass("Humanoid") then
@@ -17441,6 +17018,128 @@ if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRoot
 	align.Position = Vector3.new(-1431, 425, -859)
 end
 end)
+elseif game.PlaceId == 113228834069218 or game.PlaceId == 95356852680586 then
+Window = Library:CreateWindow({
+    Title = "Cosplay Penguins 🐧",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+	Footer = "Omega X Article Hub Version: 1.0.5",
+	Icon = 83462777349222,
+	ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Main")
+
+if game.PlaceId == 113228834069218 then
+	MainGroup:AddButton("Collect All Fish", function()
+		if workspace:FindFirstChild("Fih") and game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			for i, v in pairs(workspace:FindFirstChild("Fih"):GetChildren()) do
+				if v:IsA("Model") and v.Name:lower() == "spinningfish" and v:FindFirstChild("Fish") and v.Fish:FindFirstChild("TouchInterest") then
+					if typeof(firetouchinterest) == "function" then
+						firetouchinterest(game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v.Fish, 0)
+						firetouchinterest(game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), v.Fish, 1)
+					end
+					v.Fish.CFrame = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+				end
+			end
+		end
+	end)
+	
+	MainGroup:AddButton("Teleport To Finish", function()
+		if workspace:FindFirstChild("FinishPart") and game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			if typeof(firetouchinterest) == "function" then
+				firetouchinterest(game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), workspace.FinishPart.TouchInterest.Parent, 0)
+				firetouchinterest(game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), workspace.FinishPart.TouchInterest.Parent, 1)
+			end
+			game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = workspace.FinishPart.CFrame * CFrame.new(0, -10, 0)
+		end
+	end)
+elseif game.PlaceId == 95356852680586 then
+	local ModelSnow = workspace:WaitForChild("Snowman"):WaitForChild("Models")
+	MainGroup:AddButton("Pickup Item Cosplay", function()
+		CosplayName = {}
+		for _, v in pairs(ModelSnow.DisplaySnowman.Accessories:GetChildren()) do
+			if v:IsA("Folder") then
+				for j, h in pairs(v:GetDescendants()) do
+					if h:IsA("Model") then
+						local handle = h:FindFirstChild("Handle")
+						if handle and handle.Transparency == 0 then
+							table.insert(CosplayName, h.Name)
+						end
+					end
+				end
+			end
+		end
+		if #CosplayName > 0 then
+			for i, v in pairs(CosplayName) do
+				for j, k in pairs(workspace:FindFirstChild("Accessories"):GetChildren()) do
+					if k.Name:lower() == v:lower() and k:FindFirstChild("Handle") and k:FindFirstChild("ProximityPrompt") then
+						local handle = k:FindFirstChild("Handle", true)
+						local prompt = k:FindFirstChild("ProximityPrompt", true)
+						repeat task.wait()
+							if typeof(fireproximityprompt) == "function" then
+								fireproximityprompt(prompt)
+							end
+							game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = handle.CFrame * CFrame.new(0, 3, 0)
+						until (game.Players.LocalPlayer.Character:FindFirstChild(k:GetAttribute("SnowmanPartType")) and game.Players.LocalPlayer.Character:FindFirstChild(k:GetAttribute("SnowmanPartType")):IsA("Tool")) or (game.Players.LocalPlayer.Backpack:FindFirstChild(k:GetAttribute("SnowmanPartType")) and game.Players.LocalPlayer.Backpack:FindFirstChild(k:GetAttribute("SnowmanPartType")):IsA("Tool"))
+					end
+				end
+			end
+		end
+	end)
+	
+	MainGroup:AddButton("Put Snowman", function()
+		if not (game.Players.LocalPlayer.Character:FindFirstChild("Snow") or game.Players.LocalPlayer.Backpack:FindFirstChild("Snow")) then
+			repeat task.wait()
+				if typeof(fireproximityprompt) == "function" then
+					fireproximityprompt(workspace.Interactables.SnowObject.ProximityPrompt)
+				end
+				game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = workspace.Interactables.SnowObject.CFrame * CFrame.new(0, 5, 0)
+			until game.Players.LocalPlayer.Character:FindFirstChild("Snow") or game.Players.LocalPlayer.Backpack:FindFirstChild("Snow")
+		end
+		local function PlayerSnow()
+			for i, v in pairs(ModelSnow.PlayerSnowman:GetChildren()) do
+				if v:IsA("BasePart") and v.Transparency > 0 then
+					return false
+				end
+			end
+			return true
+		end
+		repeat task.wait()
+			if ModelSnow.PlayerSnowman:FindFirstChildOfClass("ProximityPrompt") then
+				if typeof(fireproximityprompt) == "function" then
+					fireproximityprompt(ModelSnow.PlayerSnowman:FindFirstChildOfClass("ProximityPrompt"))
+				end
+				if game.Players.LocalPlayer.Backpack:FindFirstChild("Snow") then
+					game.Players.LocalPlayer.Backpack:FindFirstChild("Snow").Parent = game.Players.LocalPlayer.Character
+				end
+				game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = ModelSnow.PlayerSnowman:FindFirstChild("Head").CFrame * CFrame.new(0, 3, 0)
+			end
+		until PlayerSnow() == true
+		wait(0.5)
+		for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+			if v:IsA("Tool") then
+				game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = ModelSnow.PlayerSnowman:FindFirstChild("Head").CFrame * CFrame.new(0, 3, 0)
+				wait(0.3)
+				game.Players.LocalPlayer.Character.Humanoid:EquipTool(v)
+				wait(0.3)
+				if typeof(fireproximityprompt) == "function" then
+					fireproximityprompt(ModelSnow.PlayerSnowman:FindFirstChildOfClass("ProximityPrompt"))
+				end
+				v.Destroying:Wait()
+			end
+		end
+	end)
+end
 elseif game.PlaceId == 79885102123162 then
 function CheckGloveHide(j)
 	for i, v in pairs(workspace.Map.GloveLocation:GetDescendants()) do
@@ -18170,4 +17869,4 @@ gloveHits = {
 	["Custom"] = safe("CustomHit"),
 	["God's Hand"] = safe("Godshand"),
 	["Error"] = safe("Errorhit"),
-}
+} 
