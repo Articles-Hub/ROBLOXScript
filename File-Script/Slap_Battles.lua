@@ -1593,7 +1593,7 @@ _G.AutoSetInfo = Value
 })
 table.insert(_G.ConnectFun, game:GetService("RunService").RenderStepped:Connect(function()
 if not _G.AutoSetInfo then return end
-SafeScript(function()
+pcall(function()
 CanYouFps:SetText("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]")
 CanYouPing:SetText("Your Ping [ "..game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString().." ]")
 ServerPlayer:SetText("Player In Server [ "..#game.Players:GetPlayers().." / "..game.Players.MaxPlayers.." ]", true)
