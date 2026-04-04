@@ -94,8 +94,9 @@ function CreateFreezeBV(FreezeBV)
 	return existing
 end
 local UserInputService = game:GetService("UserInputService")
-MobileOn = table.find({Enum.Platform.Android, Enum.Platform.IOS}, UserInputService:GetPlatform())
 local TweenService = game:GetService("TweenService")
+MobileOn = table.find({Enum.Platform.Android, Enum.Platform.IOS}, UserInputService:GetPlatform())
+
 if game.CoreGui:FindFirstChild("Cooldown Script") == nil then
 local gui = Create("ScreenGui", {Name = "Cooldown Script", IgnoreGuiInset = true, Parent = game.CoreGui})
 local ImageLabel = Create("ImageLabel", {
@@ -178,14 +179,13 @@ function SpringText(label, startRotation)
 	end)
 end
 
-function Cooldown(time, text, call)
+function Cooldown(time, text)
 	if game.CoreGui:FindFirstChild("Cooldown Script") then
 		if game.CoreGui["Cooldown Script"].ImageLabel.Visible then return end
 		spawn(function()
 			local BarTween = TweenService:Create(game.CoreGui["Cooldown Script"].ImageLabel.Frame, TweenInfo.new(time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(0.001, 0, 0.98, 0)})
 			BarTween:Play()
 			BarTween.Completed:Wait()
-			pcall(call)
 			game.CoreGui["Cooldown Script"].ImageLabel.Visible = false
 			game.CoreGui["Cooldown Script"].ImageLabel.Frame.Size = UDim2.new(1, 0, 0.98, 0)
 			game.CoreGui["Cooldown Script"].ImageLabel.TextLabel.Rotation = 15
@@ -199,16 +199,21 @@ function Cooldown(time, text, call)
 		end)
 	end
 end
-if game.CoreGui:FindFirstChild("Gui Roll Script") == nil then
-local gui = Create("ScreenGui", {Name = "Gui Roll Script", Enabled = false, Parent = game.CoreGui})
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local lp = Players.LocalPlayer
-local AnimationRoll = Instance.new("Animation")
-AnimationRoll.AnimationId = "rbxassetid://16299510063"
+function CheckCooldown()
+	return game.CoreGui:FindFirstChild("Cooldown Script") and game.CoreGui["Cooldown Script"]:FindFirstChild("ImageLabel") and game.CoreGui["Cooldown Script"].ImageLabel.Visible
+end
+if game.CoreGui:FindFirstChild("Gui Button Script") == nil then
+local gui = Create("ScreenGui", {Name = "Gui Button Script", Enabled = false, Parent = game.CoreGui})
+
+function CreatedButton(edit)
+edit.ButtonName = edit.ButtonName or "U"
+edit.ButtonPosition = edit.ButtonPosition or UDim2.new(0.175, 0, 0.175, 0)
+edit.ButtonSize = edit.ButtonSize or UDim2.new(0.65, 0, 0.65, 0)
+edit.ButtonImage = edit.ButtonImage or "rbxassetid://82648533253503"
+edit.Callback = edit.Callback or function() end
 
 local Frame = Create("Frame", {
-    Name = "UAbilityFrame",
+    Name = edit.ButtonName.."AbilityFrame",
     Size = UDim2.new(0.3, 0, 0.5, 0),
     Position = UDim2.new(0.65, 0, 0.5, 0),
     BackgroundTransparency = 1,
@@ -217,7 +222,7 @@ local Frame = Create("Frame", {
 })
 
 local FrameB = Create("ImageButton", {
-    Name = "ButtonU",
+    Name = "Button"..edit.ButtonName,
     AnchorPoint = Vector2.new(0.5, 0.5),
     Size = UDim2.new(0.45, 0, 0.45, 0),
     Position = UDim2.new(0.7, -25, -0.25, -25),
@@ -234,11 +239,11 @@ local FrameB = Create("ImageButton", {
 })
 
 local UButton = Create("ImageLabel", {
-    Name = "UButton",
+    Name = edit.ButtonName.."Button",
     Position = UDim2.new(0.175, 0, 0.175, 0),
     Size = UDim2.new(0.65, 0, 0.65, 0),
     BackgroundTransparency = 1,
-    Image = "rbxassetid://82648533253503",
+    Image = edit.ButtonImage,
     ImageColor3 = Color3.fromRGB(255, 255, 255),
     ZIndex = 1,
     Parent = FrameB
@@ -271,36 +276,58 @@ end)
 FrameB.MouseButton1Click:Connect(function()
 	PlayHoverSound(10066936758)
 	UButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
-    local LocalPlr = Players.LocalPlayer
-    if not RollStart and LocalPlr.Character and LocalPlr.Character:FindFirstChild("Humanoid") and LocalPlr.Character.Humanoid.Health > 0 and not LocalPlr.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FreezeBV") then
-        RollStart = true
-        local humanoid = LocalPlr.Character:WaitForChild("Humanoid")
-        local hrp = LocalPlr.Character:WaitForChild("HumanoidRootPart")
-        humanoid.Animator:LoadAnimation(AnimationRoll):Play()
-        local BV = CreateFreezeBV({Velocity = hrp.CFrame.LookVector * 100, MaxForce = Vector3.new(1e6, 0, 1e6)})
-        game:GetService("Debris"):AddItem(BV, 0.17)
-        for _, v in pairs(LocalPlr.Character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.Massless = true
-            end
-        end
-        task.delay(0.6, function()
-            if LocalPlr.Character then
-                for _, v in pairs(LocalPlr.Character:GetChildren()) do
-                    if v:IsA("BasePart") then
-                        v.Massless = false
-                    end
-                end
-            end
-        end)
-		Cooldown(2, "Roll Script", function()
-            RollStart = false
-        end)
-    end
+	if CheckCooldown() then return end
+	local suc, error = pcall(edit.Callback)
+	if not suc then
+		print(error)
+	end
 end)
 end
+end
+
+if MobileOn and CreatedButton then
+CreatedButton({
+	Callback = function()
+		if not AnimationRoll then
+			AnimationRoll = Instance.new("Animation")
+			AnimationRoll.AnimationId = "rbxassetid://16299510063"
+		end
+	    local LocalPlr = game:GetService("Players").LocalPlayer
+	    if LocalPlr.Character and LocalPlr.Character:FindFirstChild("Humanoid") and LocalPlr.Character.Humanoid.Health > 0 and not LocalPlr.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FreezeBV") then
+	        Cooldown(2, "Roll Script")
+	        local humanoid = LocalPlr.Character:WaitForChild("Humanoid")
+	        local hrp = LocalPlr.Character:WaitForChild("HumanoidRootPart")
+	        humanoid.Animator:LoadAnimation(AnimationRoll):Play()
+	        local BV = CreateFreezeBV({Velocity = hrp.CFrame.LookVector * 100, MaxForce = Vector3.new(1e6, 0, 1e6)})
+	        game:GetService("Debris"):AddItem(BV, 0.17)
+	        for _, v in pairs(LocalPlr.Character:GetDescendants()) do
+	            if v:IsA("BasePart") then
+	                v.Massless = true
+	            end
+	        end
+	        task.delay(0.6, function()
+	            if LocalPlr.Character then
+	                for _, v in pairs(LocalPlr.Character:GetChildren()) do
+	                    if v:IsA("BasePart") then
+	                        v.Massless = false
+	                    end
+	                end
+	            end
+	        end)
+	    end
+	end
+})
+end
+
 if not game.CoreGui:FindFirstChild("Keybind Script") then
 local gui = Create("ScreenGui", {Name = "Keybind Script", Enabled = false, IgnoreGuiInset = true, Parent = game.CoreGui})
+
+function CreatedKeybind(edit)
+edit.Name = edit.Name or "U"
+edit.Key = edit.Key or Enum.KeyCode.U
+edit.Text = edit.Text or "Keybind"
+edit.Callback = edit.Callback or function() end
+
 local Frame = Create("Frame", {
     Size = UDim2.new(0.198, 0, 0.094, 0),
     Position = UDim2.new(0.98, 0, 0.6, -50),
@@ -336,7 +363,7 @@ local Folder = Create("Folder", {Parent = Button}, {
 	    BackgroundTransparency = 1,
 		TextColor3 = Color3.new(255,255,255),
 		Font = "FredokaOne",
-		Text = "U",
+		Text = edit.Name,
 		TextScaled = true,
 		ZIndex = 2,
 	    Visible = true
@@ -371,7 +398,7 @@ local ButtonName = Create("TextLabel", {
     BackgroundTransparency = 1,
 	TextColor3 = Color3.new(255,255,255),
 	Font = "FredokaOne",
-	Text = "Roll Start",
+	Text = edit.Text,
 	TextScaled = true,
     Visible = true,
 	Parent = Button
@@ -385,7 +412,7 @@ local textLabel = Folder:FindFirstChildOfClass("TextLabel")
 local innerImage = ButtonTop:FindFirstChildOfClass("ImageLabel")
 local TweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
 table.insert(_G.ConnectFun, UserInputService.InputEnded:Connect(function(input, gameProcessed)
-	if input.KeyCode == Enum.KeyCode.U then
+	if input.KeyCode == edit.Key then
 		TweenService:Create(textLabel, TweenInfo, {Position = UDim2.new(0.051,0,0.001,0)}):Play()
 		TweenService:Create(innerImage, TweenInfo, {Position = UDim2.new(0.5,0,0,0), ImageColor3 = Color3.fromRGB(84,84,84)}):Play()
 	end
@@ -393,17 +420,26 @@ end))
 
 table.insert(_G.ConnectFun, UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
-	if (game.CoreGui:FindFirstChild("Keybind Script") and not game.CoreGui:FindFirstChild("Keybind Script").Enabled) or (game.CoreGui:FindFirstChild("Gui Roll Script") and not game.CoreGui:FindFirstChild("Gui Roll Script").Enabled) then return end
-	if input.KeyCode == Enum.KeyCode.U then
+	if CheckCooldown() and (game.CoreGui:FindFirstChild("Keybind Script") and game.CoreGui:FindFirstChild("Keybind Script").Enabled) or (game.CoreGui:FindFirstChild("Gui Roll Script") and not game.CoreGui:FindFirstChild("Gui Roll Script").Enabled) then return end
+	if input.KeyCode == edit.Key then
 		TweenService:Create(textLabel, TweenInfo, {Position = UDim2.new(0.05,0,0.001,3)}):Play()
 		TweenService:Create(innerImage, TweenInfo, {Position = UDim2.new(0.5,0,0,4), ImageColor3 = Color3.fromRGB(122,122,122)}):Play()
-		
+		pcall(edit.Callback)
+	end
+end))
+end
+end
+
+if not MobileOn and CreatedKeybind then
+CreatedKeybind({
+	Text = "Roll Script",
+	Callback = function()
 		local Players = game:GetService("Players")
 		local AnimationRoll = Instance.new("Animation")
 		AnimationRoll.AnimationId = "rbxassetid://16299510063"
 		local LocalPlr = Players.LocalPlayer
-	    if not RollStart and LocalPlr.Character and LocalPlr.Character:FindFirstChild("Humanoid") and LocalPlr.Character.Humanoid.Health > 0 and not LocalPlr.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FreezeBV") then
-	        RollStart = true
+	    if LocalPlr.Character and LocalPlr.Character:FindFirstChild("Humanoid") and LocalPlr.Character.Humanoid.Health > 0 and not LocalPlr.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FreezeBV") then
+			Cooldown(2, "Roll Script")
 	        local humanoid = LocalPlr.Character:WaitForChild("Humanoid")
 	        local hrp = LocalPlr.Character:WaitForChild("HumanoidRootPart")
 	        humanoid.Animator:LoadAnimation(AnimationRoll):Play()
@@ -423,17 +459,15 @@ table.insert(_G.ConnectFun, UserInputService.InputBegan:Connect(function(input, 
 	                end
 	            end
 	        end)
-			Cooldown(1.5, "Roll Script", function()
-	            RollStart = false
-	        end)
 	    end
 	end
-end))
+})
 end
+
 function ShowButtonU(show)
 	if MobileOn then
-		if game.CoreGui:FindFirstChild("Gui Roll Script") then
-			game.CoreGui:FindFirstChild("Gui Roll Script").Enabled = show
+		if game.CoreGui:FindFirstChild("Gui Button Script") then
+			game.CoreGui:FindFirstChild("Gui Button Script").Enabled = show
 		end
 	else
 		if game.CoreGui:FindFirstChild("Keybind Script") then
@@ -441,6 +475,7 @@ function ShowButtonU(show)
 		end
 	end
 end
+
 if not game.CoreGui:FindFirstChild("Gui Track") then
     local gui = Create("ScreenGui", {Name = "Gui Track", Enabled = false, Parent = game.CoreGui})
     local Frame = Create("Frame", {
@@ -476,22 +511,28 @@ if not game.CoreGui:FindFirstChild("Gui Track") then
             CornerRadius = UDim.new(0, 8)
         })
     })
-
+    
     local Frame2 = Create("Frame", {
         Name = "Frame1",
         Size = UDim2.new(1, 0, 1, 0),
         Position = UDim2.new(0, 0, 0, 0),
-        BackgroundColor3 = Color3.fromRGB(0, 255, 0),
-        BorderColor3 = Color3.new(0, 0, 0),
-        BorderSizePixel = 1,
-        Active = true,
-        BackgroundTransparency = 0.15,
+        BackgroundTransparency = 1,
+        ClipsDescendants = true,
         Parent = Frame1
+    })
+
+    local Frame3 = Create("Frame", {
+        Name = "FrameTo",
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = Color3.fromRGB(0, 255, 0),
+        BackgroundTransparency = 0.15,
+        Parent = Frame2
     }, {
-        Create("UICorner", {
+		Create("UICorner", {
             CornerRadius = UDim.new(0, 8)
         })
-    })
+	})
 
     local TextLabel = Create("TextLabel", {
         Size = UDim2.new(1, 0, 1, 0),
@@ -501,6 +542,7 @@ if not game.CoreGui:FindFirstChild("Gui Track") then
         BorderSizePixel = 1,
         Text = "",
         TextSize = 16,
+        ZIndex = 5,
         BackgroundTransparency = 1,
         TextColor3 = Color3.new(0, 0, 0),
         Font = Enum.Font.Code,
@@ -511,6 +553,27 @@ if not game.CoreGui:FindFirstChild("Gui Track") then
             MaxTextSize = 35
         })
     })
+end
+function GuiTrackUpdate(enabled, update)
+	update = update or {}
+	update.Text = update.Text or "Bruh"
+	update.Size = update.Size or 1
+	if update.Size > 1 then
+		update.Size = 1
+	end
+	local enabledGui = enabled or false
+	if not enabledGui then
+		game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Nah"
+		game.CoreGui["Gui Track"].Frame.Frame.Frame1.Size = UDim2.new(0, 0, 1, 0)
+	end
+	if game.CoreGui:FindFirstChild("Gui Track") then
+		game.CoreGui["Gui Track"].Enabled = enabledGui
+		if game.CoreGui["Gui Track"].Enabled then
+			game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = update.Text
+			local TweenBar = game:GetService("TweenService"):Create(game.CoreGui["Gui Track"].Frame.Frame.Frame1, TweenInfo.new(1.5), {Size = UDim2.new(update.Size, 0, 1, 0)})
+			TweenBar:Play()
+		end
+	end
 end
 ctrl = {f = 0, b = 0, l = 0, r = 0}
 ctrlCould = {f = 0, b = 0, l = 0, r = 0}
@@ -791,6 +854,15 @@ function CheckSlap()
 end
 function IsNetworkOwner(Part)
     return Part.ReceiveAge == 0
+end
+function couldfound()
+	GetCloudYour = nil
+	for i,v in pairs(game.Workspace:GetChildren()) do
+	    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
+	        GetCloudYour = v
+	    end
+	end
+	return GetCloudYour
 end
 
 if hookmetamethod and getnamecallmethod then
@@ -1306,8 +1378,7 @@ elseif game.PlaceId == 9431156611 then
 		Remotes:FindFirstChild("LegacyAntiCheatFunction"):Destroy()
 	end
 end
-
-local ESPLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/SCRIPT/Esp.lua"))()
+local ESPLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/bocaj111004/ESPLibrary/refs/heads/main/Library.lua"))()
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/Test.lua"))()
 local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/ThemeManagerCopy.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/Library/LinoriaLib/addons/SaveManagerCopy.lua"))()
@@ -1329,7 +1400,6 @@ if _G.NotificationSound then
         end
     end
 
-Library:SetDPIScale(100)
 if MobileOn then
 	Library:SetDPIScale(85)
 end
@@ -1341,7 +1411,6 @@ Window = Library:CreateWindow({
     Resizable = true,
 	Footer = "Omega X Article Hub Version: 1.0.5",
 	Icon = 83462777349222,
-	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
     MenuFadeTime = 0
@@ -1523,8 +1592,8 @@ _G.AutoSetInfo = Value
     end
 })
 table.insert(_G.ConnectFun, game:GetService("RunService").RenderStepped:Connect(function()
-if _G.AutoSetInfo == true then
-pcall(function()
+if not _G.AutoSetInfo then return end
+SafeScript(function()
 CanYouFps:SetText("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]")
 CanYouPing:SetText("Your Ping [ "..game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString().." ]")
 ServerPlayer:SetText("Player In Server [ "..#game.Players:GetPlayers().." / "..game.Players.MaxPlayers.." ]", true)
@@ -1603,7 +1672,6 @@ PlateTime:SetText("Plate Time [ "..game.Players.LocalPlayer.Character:FindFirstC
 GravityYou:SetText("Gravity [ "..game.Workspace.Gravity.." ]", true)
 PositionYou:SetText("Position In Your [ "..tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", ".. math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)).." ]")
 end)
-end
 end))
 
 InfoServer2Group:AddButton("Copy Position", function()
@@ -1792,33 +1860,6 @@ Script1Group:AddButton({
 loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'),true))()
     end
 })
-Script1Group:AddButton({
-    Text = "Instance Lagging Script",
-    Func = function()
-spawn(function()
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local Players = game:GetService("Players")
-	local LocalPlayer = Players.LocalPlayer
-	if not AntiCrash then
-		AntiCrash = loadstring(game:HttpGet("https://pastefy.app/1RT18OLr/raw"))()
-	end
-	if LocalPlayer.Character then
-	    AntiCrash()
-	    wait()
-		ReplicatedStorage.slapstick:FireServer("addarm", true)
-	    for i = 1,3000 do
-	        ReplicatedStorage.slapstick:FireServer("fullcharged", true)
-	    end
-	    wait(4)
-	    game.Players.LocalPlayer.Reset:FireServer()
-	end
-end)
-if not LaggingBy then
-	LaggingBy = true
-	Notification("[Instance Lagging]: Script by donjoSX!.", 7)
-end
-    end
-})
 
 local Script2Group = Tabs.Tab1:AddRightGroupbox("Script")
 
@@ -1913,7 +1954,9 @@ end
     end
 })
 
-ButtonOldPos = Anti2Group:AddButton({
+local AntiDependencyBox = Anti2Group:AddDependencyBox()
+
+AntiDependencyBox:AddButton({
     Text = "Set Fall Pos",
     Visible = false,
     Func = function()
@@ -1945,7 +1988,7 @@ end
     end
 })
 
-ButtonOldPos = Anti2Group:AddButton({
+AntiDependencyBox:AddButton({
     Text = "Destroy Fall Pos",
     Visible = false,
     Func = function()
@@ -1959,9 +2002,9 @@ end
     end
 })
 
-if ButtonOldPos then
-	ButtonOldPos:SetVisible(false)
-end
+AntiDependencyBox:SetupDependencies({
+	{Options["Choose Anti Void"], "Fall"}
+})
 
 function partapply(part, enable)
 	part.CanCollide = enable and Value or false
@@ -3996,7 +4039,7 @@ Start = PsychokiTrigger and PsychokiTrigger:FindFirstChild("StartPsychoEvent")
 Stop = PsychokiTrigger and PsychokiTrigger:FindFirstChild("StopPsychoEvent")
 
 VectorTween({Place = Start.Position, Speed = 80})
-VectorTween({Place = Stop.Position, Speed = 70})
+VectorTween({Place = Stop.Position, Speed = 40})
 VectorTween({Place = OldPlayerCF.Position, Speed = 130})
 else
 Notification("You have enter limbo [ don't show all, not work ]", _G.TimeNotify)
@@ -4245,6 +4288,37 @@ end
 })
 
 Badge2Group:AddButton({
+    Text = "Get Undead",
+    Func = function()
+if CheckGlove() == "Clock" then
+	Notification("Ok, you have wait until revival you", _G.TimeNotify)
+	if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		repeat task.wait()
+			firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0)
+			firetouchinterest(game.Players.LocalPlayer.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+		until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+	end
+	wait(0.4)
+	game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(CFrame.new(17952.8671875, -125.5584487915039, -3477.072021484375))
+	CreateFreezeBV()
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,30,0)
+	wait(0.2)
+	repeat task.wait()
+		if workspace:FindFirstChild(game.Players.LocalPlayer.Name.."'s clock") and game.Players.LocalPlayer.Character:GetAttribute("CurrentAbility") and game.Players.LocalPlayer.Character:GetAttribute("CurrentAbility") == 7 then
+			game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Clock"):FireServer(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame)
+		end
+	until game.Players.LocalPlayer.Character:FindFirstChild("RevivalCharm") and game.Players.LocalPlayer.Character:FindFirstChild("RevivalCharm"):GetAttribute("clock")
+	wait(0.3)
+	repeat task.wait() until not game.Players.LocalPlayer.Character:FindFirstChild("RevivalCharm")
+	wait(0.1)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").DEATHBARRIER.CFrame
+else
+Notification("You don't have Clock", _G.TimeNotify)
+end
+    end
+})
+
+Badge2Group:AddButton({
     Text = "Get Debug",
     Func = function()
 if workspace:FindFirstChild("Debug Room") then
@@ -4386,8 +4460,8 @@ if CheckGlove() == "Reverse" then
 	if not workspace:FindFirstChild("Limbo Ducky Teleport") then
 		game:GetService("ReplicatedStorage"):WaitForChild("ClaimLimboFastTravel"):FireServer()
 	end
-	if workspace:FindFirstChild("Limbo Ducky Teleport") and not game.Players.LocalPlayer.Character:FindFirstChild("enteredRepressedMems") then
-		repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+	if not game.Players.LocalPlayer.Character:FindFirstChild("enteredRepressedMems") then
+		repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered") and workspace:FindFirstChild("Limbo Ducky Teleport") 
 		wait(0.2)
 		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Limbo Ducky Teleport"].CFrame
 		if fireclickdetector then
@@ -5311,6 +5385,136 @@ end
     end
 })
 
+Badge3Group:AddDropdown("Eggler Mastery", {
+    Text = "Eggler Mastery",
+    Values = {"Unegg Slap Player", "Deny Slap Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.EgglerMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Eggler Mastery", {
+    Text = "Auto Eggler Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoEgglerMastery = Value
+if not _G.AutoEgglerMastery then
+	CreateFreezeBV({Remove = true})
+end
+if CheckGlove() == "Eggler" then
+while _G.AutoEgglerMastery do
+local RandomPlayer = MasteryPlayers(CheckGlove(), true)
+if RandomPlayer then
+	CreateFreezeBV()
+	if _G.EgglerMastery == "Deny Slap Player" then
+		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+		repeat task.wait() until _G.AutoEgglerMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+		wait(0.3)
+		for i = 1, 3 do
+			slapglove(random.Character:FindFirstChild("Head"))
+			task.wait(0.2)
+		end
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+		repeat task.wait()
+			game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("EgglerRAbility"):FireServer()
+		until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:GetAttribute("isEgg")
+		repeat task.wait()
+			game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("EgglerRAbility"):FireServer()
+		until game.Players.LocalPlayer.Character and not game.Players.LocalPlayer.Character:GetAttribute("isEgg")
+	elseif _G.EgglerMastery == "Unegg Slap Player" then
+		repeat task.wait()
+			game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("EgglerRAbility"):FireServer()
+		until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:GetAttribute("isEgg")
+		repeat task.wait()
+			game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("EgglerRAbility"):FireServer()
+		until game.Players.LocalPlayer.Character and not game.Players.LocalPlayer.Character:GetAttribute("isEgg")
+		wait(0.3)
+		for i = 1, 3 do
+			slapglove(random.Character:FindFirstChild("Head"))
+			task.wait(0.2)
+		end
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+	end
+	task.wait(4.5)
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Eggler equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Eggler Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddDropdown("Thanos Mastery", {
+    Text = "Thanos Mastery",
+    Values = {"Ambush Player", "Combo Player"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.ThanosMastery = Value
+    end
+})
+
+Badge3Group:AddToggle("Auto Thanos Mastery", {
+    Text = "Auto Thanos Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoThanosMastery = Value
+if not _G.AutoThanosMastery then
+	CreateFreezeBV({Remove = true})
+end
+if CheckGlove() == "Thanos" then
+while _G.AutoThanosMastery do
+local RandomPlayer = MasteryPlayers(CheckGlove(), true)
+if RandomPlayer then
+	CreateFreezeBV()
+	if _G.ThanosMastery == "Ambush Player" then
+		game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(2)
+		task.wait(1.9)
+		for i = 1, 3 do
+			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+			repeat task.wait() until _G.AutoThanosMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+			wait(0.3)
+			slapglove(RandomPlayer.Character:FindFirstChild("Head"))
+			task.wait(0.8)
+		end
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+	elseif _G.ThanosMastery == "Combo Player" then
+		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+		repeat task.wait() until _G.AutoThanosMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+		wait(0.3)
+		for i = 1, 3 do
+			slapglove(RandomPlayer.Character:FindFirstChild("Head"))
+			task.wait(0.2)
+		end
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+		game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(2)
+		task.wait(1.9)
+		for i = 1, 3 do
+			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("Head").CFrame * CFrame.new(0, 7, 0))
+			repeat task.wait() until _G.AutoThanosMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+			wait(0.3)
+			slapglove(RandomPlayer.Character:FindFirstChild("Head"))
+			task.wait(0.9)
+		end
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+	end
+	task.wait(5.8)
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Thanos equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Thanos Mastery"]:SetValue(false)
+end
+    end
+})
+
 Badge3Group:AddDropdown("Chain Mastery", {
     Text = "Chain Mastery",
     Values = {"Arc lightning", "Lightning 3 player", "Lightning 6 player (7 player)", "Slap (No player group)"},
@@ -5771,24 +5975,15 @@ if _G.TycoonMastery == "15k Point Die" then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
 if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") < 15000 then
 for _,v in pairs(game.Workspace:GetChildren()) do
-if v.Name:match(game.Players.LocalPlayer.Name) then
-for i,x in pairs(v:GetChildren()) do
-if x.Name == "TycoonDrop" then
-x.CFrame = v.End.CFrame
-end
-end
-if v:FindFirstChild("Click") then
+if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("Click") then
 fireclickdetector(v.Click.ClickDetector, 0)
 fireclickdetector(v.Click.ClickDetector, 1)
 end
 end
-end
-if game.CoreGui:FindFirstChild("Gui Track").Enabled == false then
-game.CoreGui["Gui Track"].Enabled = true
-elseif game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
-game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Tycoon Your Point\n"..game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount").." / 15000"
-game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount") / 15000, 0, 1, 0)
-end
+GuiTrackUpdate(true, {
+	Text = "Tycoon Your Point\n"..game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount").." / 15000",
+	Size = game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount") / 15000
+})
 elseif game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) == nil then
 game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(CFrame.new(17894, -26.257728576660156, -3579.11279296875, 0.9996822476387024, -1.1041408759515647e-10, 0.02520809881389141, 2.8899729831444176e-10, 1, -7.080715569429685e-09, -0.02520809881389141, 7.085750652890965e-09, 0.9996822476387024))
 spawn(function()
@@ -5799,11 +5994,7 @@ end)
 wait(1)
 end
 if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") >= 15000 then
-if game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
-game.CoreGui["Gui Track"].Enabled = false
-game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Nah"
-game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
-end
+GuiTrackUpdate(false)
 repeat task.wait()
 game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
 until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
@@ -5865,24 +6056,15 @@ elseif _G.TycoonMastery == "Kill Player (Tycoon God)" then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
 if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") < 5000 then
 for _,v in pairs(game.Workspace:GetChildren()) do
-if v.Name:match(game.Players.LocalPlayer.Name) then
-for i,x in pairs(v:GetChildren()) do
-if x.Name == "TycoonDrop" then
-x.CFrame = v.End.CFrame
-end
-end
-if v:FindFirstChild("Click") then
+if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("Click") then
 fireclickdetector(v.Click.ClickDetector, 0)
 fireclickdetector(v.Click.ClickDetector, 1)
 end
 end
-end
-if game.CoreGui:FindFirstChild("Gui Track").Enabled == false then
-game.CoreGui["Gui Track"].Enabled = true
-elseif game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
-game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Tycoon Your Point\n"..game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount").." / 5000"
-game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount") / 5000, 0, 1, 0)
-end
+GuiTrackUpdate(true, {
+	Text = "Tycoon Your Point\n"..game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount").." / 5000",
+	Size = game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount") / 5000
+})
 elseif game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) == nil then
 game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(CFrame.new(17894, -26.257728576660156, -3579.11279296875, 0.9996822476387024, -1.1041408759515647e-10, 0.02520809881389141, 2.8899729831444176e-10, 1, -7.080715569429685e-09, -0.02520809881389141, 7.085750652890965e-09, 0.9996822476387024))
 spawn(function()
@@ -5893,11 +6075,7 @@ end)
 wait(1)
 end
 if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") >= 5000 then
-if game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
-game.CoreGui["Gui Track"].Enabled = false
-game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Nah"
-game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
-end
+GuiTrackUpdate(false)
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 for i,v in pairs(game.Players:GetChildren()) do
 if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
@@ -5924,11 +6102,7 @@ end
 end
 task.wait()
 end
-if game.CoreGui:FindFirstChild("Gui Track").Enabled == true then
-game.CoreGui["Gui Track"].Enabled = false
-game.CoreGui["Gui Track"].Frame:FindFirstChild("TextLabel").Text = "Nah"
-game.CoreGui["Gui Track"].Frame.Frame:FindFirstChild("Frame1").Size = UDim2.new(1, 0, 1, 0)
-end
+GuiTrackUpdate(false)
 elseif Value == true then
 Notification("You don't have Tycoon equipped", _G.TimeNotify)
 wait(0.05)
@@ -6435,15 +6609,6 @@ Badge3Group:AddToggle("Auto Cloud Mastery", {
 _G.AutoCloudMastery = Value
 if CheckGlove() == "Cloud" then
 while _G.AutoCloudMastery do
-local function couldfound()
-	GetCloudYour = nil
-	for i,v in pairs(game.Workspace:GetChildren()) do
-	    if v.Name:match(game.Players.LocalPlayer.Name) and v:FindFirstChild("VehicleSeat") then
-	        GetCloudYour = v
-	    end
-	end
-	return GetCloudYour
-end
 if _G.CloudMastery == "Studs (200k Fly)" then
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
 local GetCloudYour = couldfound()
@@ -7137,8 +7302,31 @@ spawn(function()
 	end
 end)
 
+function HelpMasteryJoin(data)
+	data = data or {}
+	data.NoCF = data.NoCF or false
+	data.CloneCF = data.CloneCF or CFrame.new(0,5,0)
+	data.MainCF = data.MainCF or CFrame.new(0,4,-3)
+	data.PlaceCF = data.PlaceCF or workspace["SafeBox"].S5
+	
+	if Players2 then
+		CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+		if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
+			game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
+		end
+		if not data.NoCF then
+			if Players2 and Players2:FindFirstChild("entered") then
+				root.CFrame = data.PlaceCF.CFrame * (_G.Players1CloneHelp and data.CloneCF or data.CloneCF)
+			end
+		end
+		if Players2 and Players2:FindFirstChild("entered") == nil then
+			root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
+		end
+	end
+end
+
 Badge4Group:AddLabel("[<font color=\"rgb(73, 230, 133)\">Mastery Help</font>] Please have a input Account Clone ready to help.", true)
-Badge4Group:AddInput("Players", {
+CloneAcc = Badge4Group:AddInput("Players", {
     Text = "Clone Account",
     Finished = true,
     Placeholder = "Username",
@@ -7187,6 +7375,9 @@ Badge4Group:AddToggle("Enabled Players 1 Help", {
     Default = false, 
     Callback = function(Value) 
 _G.Players1CloneHelp = Value
+if CloneAcc then
+	CloneAcc:SetVisible(not _G.Players1CloneHelp)
+end
     end
 })
 
@@ -7229,16 +7420,10 @@ spawn(function()
 	end
 end)
 while _G.AutoAcrobatMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,5,5))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,5),
+})
 if not _G.Players1CloneHelp then
 	if Players1 and Players1:FindFirstChild("entered") and root1 and root and (root.Position - root1.Position).Magnitude <= 80 then
 		if Players1 and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -7298,16 +7483,11 @@ spawn(function()
 	end
 end)
 while _G.AutoTinkeverMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace.SafeBoxSpace.CFrame * (_G.Players1CloneHelp and CFrame.new(0,2,0) or CFrame.new(0,4,3))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,2,0),
+	MainCF = CFrame.new(0,4,3),
+	PlaceCF = workspace.SafeBoxSpace
+})
 if not _G.Players1CloneHelp then
 	if Players1 and Players1:FindFirstChild("entered") and root1 and root and (root.Position - root1.Position).Magnitude >= 80 then
 		if _G.TinkeverMasteryHelp == "Bomb + Slap Clone" then
@@ -7493,67 +7673,13 @@ spawn(function()
 	end
 end)
 while _G.AutoEngineerMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace.SafeBoxSpace.CFrame * CFrame.new(0,5.5,0)
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin()
 task.wait()
 end
 elseif Value == true then
 Notification("You don't have Engineer equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Mastery Engineer"]:SetValue(false)
-end
-    end
-})
-
-Badge4Group:AddToggle("Auto Mastery Brick", {
-    Text = "Auto Mastery Brick",
-    Default = false, 
-    Callback = function(Value) 
-_G.AutoBrickMasteryHelp = Value
-if not _G.AutoTinkeverMasteryHelp then
-	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
-end
-if _G.Players1CloneHelp or CheckGlove() == "Brick" then
-spawn(function()
-	while _G.AutoBrickMasteryHelp do
-		CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-		if not _G.Players1CloneHelp then
-			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
-				if Players1 and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
-					if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
-						game:GetService("ReplicatedStorage").lbrick:FireServer()
-					end
-				end
-			end
-		end
-		task.wait()
-	end
-end)
-while _G.AutoBrickMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,7,3))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
-task.wait()
-end
-elseif Value == true then
-Notification("You don't have Brick equipped", _G.TimeNotify)
-wait(0.05)
-Toggles["Auto Mastery Brick"]:SetValue(false)
 end
     end
 })
@@ -7594,23 +7720,26 @@ spawn(function()
 	end
 end)
 while _G.AutoVoodooMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
+local function FoundDollPlr(object)
+	local DollPlr
+	for i, v in pairs(object:GetChildren()) do
+		if v.Name:lower():find("doll") then
+			DollPlr = v
+		end
+	end
+	return DollPlr
 end
 if Players2 and Players2:FindFirstChild("entered") then
-	if Players2 and Players2:FindFirstChild("DOLLPART") then
+	if Players2 and FoundDollPlr(Players2) then
 		TpGetDoll = CFrame.new(0,8,0)
 	else
 		TpGetDoll = CFrame.new(0,5,0)
 	end
-	if TpGetDoll then
-		root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and TpGetDoll or CFrame.new(0,7,0))
-	end
 end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = TpGetDoll,
+	MainCF = CFrame.new(0,5,0),
+})
 local function HasEnabledParticle()
 	if Players2 and Players2:FindFirstChild(CheckGlove()) and Players2[CheckGlove()]:FindFirstChild("Glove") and Players2[CheckGlove()].Glove:FindFirstChild("ParticleAttachement") then
 		for _, v in ipairs(Players2[CheckGlove()].Glove.ParticleAttachement:GetChildren()) do
@@ -7628,10 +7757,11 @@ if not _G.Players1CloneHelp then
 				if HasEnabledParticle() then
 					slapglove(root1)
 					wait(0.3)
-					repeat task.wait() until Players2:FindFirstChild("DOLLPART")
+					repeat task.wait() until FoundDollPlr(Players1)
 					wait(0.3)
-					if Players2:FindFirstChild("DOLLPART") then
-						slapglove(Players2:FindFirstChild("DOLLPART"))
+					local DollPlrTo = FoundDollPlr(Players1)
+					if DollPlrTo then
+						slapglove(DollPlrTo)
 					end
 					task.wait(0.5)
 				end
@@ -7687,16 +7817,10 @@ spawn(function()
 	end
 end)
 while _G.AutoBusMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,5,6.5))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,6.5),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -7760,24 +7884,10 @@ spawn(function()
 	end
 end)
 while _G.AutoShardMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	if _G.Players1CloneHelp then
-		if _G.ShardMasteryHelp:find("Shard Clone") then
-			root.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0, 5, 0)
-		elseif _G.ShardMasteryHelp == "150 Studs Clone" then
-			root.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0, 5, -200)
-		end
-	else
-		root.CFrame = workspace["SafeBox"].S5.CFrame * CFrame.new(0, 5, 8)
-	end
-end
+HelpMasteryJoin({
+	CloneCF = (_G.ShardMasteryHelp:find("Shard Clone") and CFrame.new(0,5,0) or CFrame.new(0, 5, -200)),
+	MainCF = CFrame.new(0,5,8)
+})
 if not _G.Players1CloneHelp then
 	if _G.AutoShardMasteryHelp == "Slap + Shard Clone" then
 		if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
@@ -7834,16 +7944,10 @@ spawn(function()
 	end
 end)
 while _G.AutoBonkMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,5,5))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,5),
+})
 if Players2 and Players2:FindFirstChild("entered") then
 	if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
 		if _G.BonkMasteryHelp == "BONK + Slap" then
@@ -7865,6 +7969,195 @@ elseif Value == true then
 Notification("You don't have BONK equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Mastery BONK"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddDropdown("Thanos Mastery", {
+    Text = "Thanos Mastery",
+    Values = {"Ambush Clone", "Recover/Save Yourself", "Combo Clone"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.ThanosMasteryHelp = Value
+if Value == "Recover/Save Yourself" then
+	Notification("Clone account have choose Recover/Save Yourself", 5)
+end
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Thanos", {
+    Text = "Auto Mastery Thanos",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoThanosMasteryHelp = Value
+if not _G.AutoThanosMasteryHelp then
+	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
+end
+if _G.Players1CloneHelp or CheckGlove() == "Thonas" then
+if _G.Players1CloneHelp and not PlayersMain and Value == true then
+	Notification("You have input main account", _G.TimeNotify)
+	wait(0.05)
+	Toggles["Auto Mastery Thanos"]:SetValue(false)
+	return
+end
+spawn(function()
+	while _G.AutoThanosMasteryHelp do
+		CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+		if _G.Players1CloneHelp then
+			if PlayersMain and Players2 and Players2:FindFirstChild("entered") and PlayersMain:FindFirstChild("entered") and PlayersMain:FindFirstChild("Ragdolled") and PlayersMain.Ragdolled.Value == false then
+				if (root and rootmain and (root.Position - rootmain.Position).Magnitude or 0) < 200 then
+					if _G.ThanosMasteryHelp == "Recover/Save Yourself" then
+						slapglove(rootmain)
+						task.wait(6.2)
+					end
+				end
+			end
+		end
+		task.wait()
+	end
+end)
+while _G.AutoThanosMasteryHelp do
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,5),
+})
+if not _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") then
+		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+			if _G.ThanosMasteryHelp == "Ambush Clone" then
+				game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(2)
+				task.wait(1.9)
+				for i = 1, 9 do
+					slapglove(root1)
+					task.wait(0.8)
+				end
+			elseif _G.ThanosMasteryHelp == "Combo Clone" then
+				slapglove(root1)
+				game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(2)
+				task.wait(1.9)
+				slapglove(root1)
+			else
+				repeat task.wait() until Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("Ragdolled") and Players2.Ragdolled.Value == true
+				wait(0.3)
+				repeat task.wait() until Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("Ragdolled") and Players2.Ragdolled.Value == false
+				wait(0.3)
+				game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(2)
+				task.wait(6.3)
+			end
+			wait(0.5)
+			repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
+			task.wait(0.5)
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Thanos equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Thanos"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddDropdown("Eggler Mastery", {
+    Text = "Eggler Mastery",
+    Values = {"Kill Clone 5 Time", "Eggler Clone", "Unegg Slap Clone", "Deny Slap Eggler"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.EgglerMasteryHelp = Value
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Eggler", {
+    Text = "Auto Mastery Eggler",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoEgglerMasteryHelp = Value
+if not _G.AutoEgglerMasteryHelp then
+	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
+end
+if _G.Players1CloneHelp or CheckGlove() == "Eggler" then
+local function FoundEggVictim(target)
+	for i, v in pairs(workspace:GetChildren()) do
+		if v.Name:lower() == "egg_victim" and v:GetAttribute("target") == target.Name then
+			return v
+		end
+	end
+	return nil
+end
+spawn(function()
+	while _G.AutoEgglerMasteryHelp do
+		CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+		if not _G.Players1CloneHelp then
+			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
+				if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 200 then
+					if _G.EgglerMasteryHelp == "Eggler Clone" or _G.EgglerMasteryHelp == "Kill Clone 5 Time" then
+						if not FoundEggVictim(Players2) then
+							game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer()
+						end
+					end
+				end
+			end
+		end
+		task.wait()
+	end
+end)
+while _G.AutoEgglerMasteryHelp do
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,5),
+})
+if not _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") then
+		if Players1 and Players1:FindFirstChild("entered") and not FoundEggVictim(Players1) and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+			if _G.EgglerMasteryHelp == "Unegg Slap Clone" then
+				repeat task.wait()
+					game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("EgglerRAbility"):FireServer()
+				until Players2 and Players2:GetAttribute("isEgg")
+				wait(0.3)
+				repeat task.wait()
+					game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("EgglerRAbility"):FireServer()
+				until Players2 and not Players2:GetAttribute("isEgg")
+				wait(0.3)
+				for i = 1, 9 do
+					slapglove(root1)
+					task.wait(0.8)
+				end
+			elseif _G.EgglerMasteryHelp == "Deny Slap Eggler" then
+				slapglove(root1)
+				wait(0.3)
+				game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("EgglerRAbility"):FireServer()
+				wait(0.3)
+				repeat task.wait()
+					game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("EgglerRAbility"):FireServer()
+				until Players2 and not Players2:GetAttribute("isEgg")
+			end
+			wait(0.67)
+			repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
+			task.wait(0.5)
+		end
+	end
+elseif _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") then
+		if FoundEggVictim(Players2) then
+			wait(0.5)
+			repeat task.wait()
+				Players2:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
+			until not Players2 or Players2:FindFirstChild("Humanoid") and Players2:FindFirstChild("Humanoid").Health <= 0
+			repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+			wait(0.65)
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Eggler equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Eggler"]:SetValue(false)
 end
     end
 })
@@ -7907,41 +8200,37 @@ spawn(function()
 	end
 end)
 while _G.AutoPhantomMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,5,5))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
-		if _G.PhantomMasteryHelp == "Jumpscare Clone" then
-			if Players2:GetAttribute("phantom") then
-				task.wait(0.2)
-				repeat task.wait() until not _G.AutoPhantomMasteryHelp or not Players2 or not Players2:GetAttribute("phantom")
-				task.wait(0.3)
-				for i = 1, 4 do
-					slapglove(root1)
-					task.wait(0.9)
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,5),
+})
+if not _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") then
+		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+			if _G.PhantomMasteryHelp == "Jumpscare Clone" then
+				if Players2:GetAttribute("phantom") then
+					task.wait(0.2)
+					repeat task.wait() until not _G.AutoPhantomMasteryHelp or not Players2 or not Players2:GetAttribute("phantom")
+					task.wait(0.3)
+					for i = 1, 4 do
+						slapglove(root1)
+						task.wait(0.9)
+					end
+					wait(0.3)
+				end
+			else
+				slapglove(root1)
+				wait(0.3)
+				local PhantomTool = ((Players2 and Players2:FindFirstChild(CheckGlove())) or game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove())) or nil
+				if PhantomTool then
+					game:GetService("ReplicatedStorage").PhantomDash:InvokeServer(PhantomTool) 
 				end
 				wait(0.3)
+				repeat task.wait() until not _G.AutoPhantomMasteryHelp or not Players2 or not Players2:GetAttribute("phantom")
+				wait(0.2)
+				slapglove(root1)
+				wait(4)
 			end
-		else
-			slapglove(root1)
-			wait(0.3)
-			local PhantomTool = ((Players2 and Players2:FindFirstChild(CheckGlove())) or game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove())) or nil
-			if PhantomTool then
-				game:GetService("ReplicatedStorage").PhantomDash:InvokeServer(PhantomTool) 
-			end
-			wait(0.3)
-			repeat task.wait() until not _G.AutoPhantomMasteryHelp or not Players2 or not Players2:GetAttribute("phantom")
-			wait(0.2)
-			slapglove(root1)
-			wait(4)
 		end
 	end
 end
@@ -7997,16 +8286,11 @@ spawn(function()
 	end
 end)
 while _G.AutoRageMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,7,0))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+pcall(function()
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,7,0),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") then
 		if (Players2 and Players2:GetAttribute("rage_percent") or 0) < (_G.RageMasteryHelp == "Max Rage" and 100 or 55) then
@@ -8030,6 +8314,7 @@ else
 		task.wait(0.6)
 	end
 end
+end)
 task.wait()
 end
 elseif Value == true then
@@ -8079,16 +8364,11 @@ spawn(function()
 	end
 end)
 while _G.AutoPlankMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or (_G.PlankMasteryHelp:find("Plank") and CFrame.new(0,5,5) or CFrame.new(0,-20,0)))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+pcall(function()
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = (_G.PlankMasteryHelp:find("Plank") and CFrame.new(0,5,5) or CFrame.new(0,-20,0)),
+})
 if not _G.Players1CloneHelp then
 	if _G.PlankMasteryHelp == "Ambush Clone" then
 		if Players2 and Players2:FindFirstChild("entered") then
@@ -8124,6 +8404,7 @@ if not _G.Players1CloneHelp then
 		end
 	end
 end
+end)
 task.wait()
 end
 elseif Value == true then
@@ -8223,19 +8504,15 @@ spawn(function()
 	end
 end)
 while _G.AutoObbyMasteryHelp do
+pcall(function()
 CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
+HelpMasteryJoin({NoCF = true})
 if Players2 and Players2:FindFirstChild("entered") then
 	if _G.ObbyMasteryHelp == "Kill Clone" then
 		root.CFrame = (not _G.Players1CloneHelp and CFrame.new(360, -28006, 1))
 	else
 		root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,5,8))
 	end
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
 end
 if not _G.Players1CloneHelp then
 	if _G.ObbyMasteryHelp == "Slap Clone" then
@@ -8254,12 +8531,288 @@ if not _G.Players1CloneHelp then
 		end
 	end
 end
+end)
 task.wait()
 end
 elseif Value == true then
 Notification("You don't have Obby equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Mastery Obby"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddDropdown("Tycoon Mastery", {
+    Text = "Tycoon Mastery",
+    Values = {"Defense Tycoon", "Kill Clone (Tycoon God)"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.TycoonMasteryHelp = Value
+    end
+})
+
+function FoundTycoon(rootp)
+	local TargetTycoon
+	for i, v in pairs(game.Workspace:GetChildren()) do
+		if v.Name:match("ÅTycoon") and v:FindFirstChild("End") and (rootp.Position - v.End.Position) <= 100 then
+			TargetTycoon = v
+		end
+	end
+	return TargetTycoon
+end
+Badge4Group:AddToggle("Auto Mastery Tycoon", {
+    Text = "Auto Mastery Tycoon",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoTycoonMasteryHelp = Value
+if not _G.AutoTycoonMasteryHelp then
+	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
+end
+if _G.Players1CloneHelp or CheckGlove() == "Tycoon" then
+	if not _G.Players1CloneHelp and not game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) then
+		game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer(CFrame.new(17894, -26.257728576660156, -3579.11279296875, 0.9996822476387024, -1.1041408759515647e-10, 0.02520809881389141, 2.8899729831444176e-10, 1, -7.080715569429685e-09, -0.02520809881389141, 7.085750652890965e-09, 0.9996822476387024))
+	end
+	wait(0.3)
+	if not _G.Players1CloneHelp and _G.AutoTycoonMasteryHelp and _G.TycoonMasteryHelp == "Kill Clone (Tycoon God)" then
+		wait(0.2)
+		if _G.TycoonMasteryHelp == "Kill Clone (Tycoon God)" then
+			repeat task.wait()
+				if Players2 and Players2:FindFirstChild("entered") == nil then
+					root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
+				end
+				if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) then
+					GuiTrackUpdate(true, {
+						Text = "Tycoon Your Point\n"..game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount").." / 5000",
+						Size = game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name):GetAttribute("LastCount") / 5000
+					})
+				end
+				CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+				root.CFrame = CFrame.new(350, -28006, 1)
+				for _, v in pairs(workspace:GetChildren()) do
+				    local hasClick = v:FindFirstChild("Click")
+				    if hasClick then
+					    if v.Name:match(game.Players.LocalPlayer.Name) then
+					        local cd = hasClick:FindFirstChildOfClass("ClickDetector")
+					        if cd then
+					            fireclickdetector(cd, 0)
+					            fireclickdetector(cd, 1)
+					        end
+					    end
+					end
+				end
+			until not _G.AutoTycoonMasteryHelp or _G.TycoonMasteryHelp ~= "Kill Clone (Tycoon God)" or (game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") >= 5000)
+			GuiTrackUpdate(false)
+		end
+	end
+wait(0.3)
+spawn(function()
+	while _G.AutoTycoonMasteryHelp do
+		if _G.Players1CloneHelp then
+			if Players2 and Players2:FindFirstChild("entered") then
+				CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+				if _G.TycoonMasteryHelp == "Kill Clone (Tycoon God)" then
+					repeat task.wait() until Players2 and Players2:FindFirstChild("Ragdolled") and Players2.Ragdolled.Value
+					wait(0.4)
+					repeat task.wait()
+						Players2:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
+					until not Players2 or Players2:FindFirstChild("Humanoid") and Players2:FindFirstChild("Humanoid").Health <= 0
+					wait(0.1)
+					repeat task.wait() until not _G.AutoTycoonMasteryHelp or game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+					wait(0.5)
+				end
+			end
+		end
+		task.wait()
+	end
+end)
+while _G.AutoTycoonMasteryHelp do
+pcall(function()
+local TycoonF
+CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+pcall(function() TycoonF = FoundTycoon(root) end)
+HelpMasteryJoin({NoCF = true})
+if Players2 and Players2:FindFirstChild("entered") then
+	if _G.TycoonMasteryHelp == "Kill Clone (Tycoon God)" then
+		root.CFrame = (not _G.Players1CloneHelp and CFrame.new(360, -28006, 1) or CFrame.new(350, -28006, 1))
+	else
+		if TycoonF and TycoonF:FindFirstChild("End") then
+			root.CFrame = TycoonF:FindFirstChild("End").CFrame * (_G.Players1CloneHelp and CFrame.new(0,20,0) or CFrame.new(0,25,0))
+		else
+			root.CFrame = CFrame.new(17894, -26, -3579)
+		end
+	end
+end
+if not _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") then
+		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
+				if _G.TycoonMasteryHelp == "Defense Tycoon" then
+					for i = 1, 9 do
+						slapglove(root1)
+						task.wait(0.9)
+					end
+				elseif _G.TycoonMasteryHelp == "Kill Clone (Tycoon God)" then
+					if game.Workspace:FindFirstChild("ÅTycoon"..game.Players.LocalPlayer.Name) and game.Workspace["ÅTycoon"..game.Players.LocalPlayer.Name]:GetAttribute("LastCount") >= 5000 then
+						wait(0.5)
+						slapglove(root1)
+					end
+				end
+				wait(0.3)
+				repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
+				task.wait(0.6)
+			end
+		end
+	end
+end
+end)
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Tycoon equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Tycoon"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddDropdown("Hive Mastery", {
+    Text = "Hive Mastery",
+    Values = {"Honey Clone", "Swarm Clone", "Kill Clone Honey"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.HiveMasteryHelp = Value
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Hive", {
+    Text = "Auto Mastery Hive",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoHiveMasteryHelp = Value
+if not _G.AutoHiveMasteryHelp then
+	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
+end
+if _G.Players1CloneHelp or CheckGlove() == "Hive" then
+spawn(function()
+	while _G.AutoHiveMasteryHelp do
+		if _G.Players1CloneHelp then
+			if Players2 and Players2:FindFirstChild("entered") then
+				CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+				if _G.HiveMasteryHelp == "Kill Clone Honey" then
+					repeat task.wait() until Players2 and Players2:GetAttribute("honey_mark")
+					wait(0.4)
+					repeat task.wait()
+						Players2:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
+					until not Players2 or Players2:FindFirstChild("Humanoid") and Players2:FindFirstChild("Humanoid").Health <= 0
+					wait(0.1)
+					repeat task.wait() until not _G.AutoHiveMasteryHelp or game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+					wait(0.8)
+				end
+			end
+		end
+		task.wait()
+	end
+end)
+while _G.AutoHiveMasteryHelp do
+pcall(function()
+	HelpMasteryJoin({
+		CloneCF = CFrame.new(0,5,0),
+		MainCF = CFrame.new(0,7,0)
+	})
+	if not _G.Players1CloneHelp then
+		if Players2 and Players2:FindFirstChild("entered") then
+			if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Humanoid") and Players1:FindFirstChild("Ragdolled") and Players1.Humanoid.Health > 0 and Players1.Ragdolled.Value == false then
+				if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
+					if _G.HiveMasteryHelp == "Honey Clone" then
+						for i = 1, 9 do
+							slapglove(root1)
+							task.wait(0.9)
+						end
+					elseif _G.HiveMasteryHelp == "Swarm Clone" then
+						repeat task.wait()
+							game:GetService("ReplicatedStorage"):WaitForChild("GeneralAbility"):FireServer()
+						until Players2 and Players2:GetAttribute("hiveability")
+						wait(0.2)
+						slapglove(root1)
+						wait(0.3)
+						repeat task.wait() until Players2 and not Players2:GetAttribute("glovebroken")
+					else
+						slapglove(root1)
+						task.wait(0.9)
+					end
+					repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
+					task.wait(0.6)
+				end
+			end
+		end
+	end
+end)
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Hive equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Hive"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddDropdown("Phase Mastery", {
+    Text = "Phase Mastery",
+    Values = {"Slap + Ability", "Ability + Slap (2 Sec)"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.PhaseMasteryHelp = Value
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Phase", {
+    Text = "Auto Mastery Phase",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoPhaseMasteryHelp = Value
+if not _G.AutoPhaseMasteryHelp then
+	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
+end
+if _G.Players1CloneHelp or CheckGlove() == "Phase" then
+while _G.AutoPhaseMasteryHelp do
+HelpMasteryJoin({CloneCF = CFrame.new(0,5,0), MainCF = CFrame.new(0,7,0)})
+if not _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") then
+		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
+				if _G.PhaseMasteryHelp == "Slap + Ability" then
+					slapglove(root1)
+					game:GetService("ReplicatedStorage").PhaseA:FireServer()
+					wait(0.2)
+					repeat task.wait() until root and root:FindFirstChild("BlackheartREAL") == nil
+					wait(0.15)
+				elseif _G.PhaseMasteryHelp == "Ability + Slap (2 Sec)" then
+					game:GetService("ReplicatedStorage").PhaseA:FireServer()
+					task.wait(0.2)
+					repeat task.wait() until root and root:FindFirstChild("BlackheartREAL") == nil
+					task.wait(0.25)
+					for i = 1, 5 do
+						slapglove(root1)
+						task.wait(0.73)
+					end
+				end
+				wait(0.56)
+				repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
+				task.wait(0.5)
+			end
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Phase equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Phase"]:SetValue(false)
 end
     end
 })
@@ -8285,15 +8838,10 @@ end
 if _G.Players1CloneHelp or CheckGlove() == "Spring" then
 while _G.AutoSpringMasteryHelp do
 CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,6,0) or CFrame.new(0,6,3.8))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,6,0),
+	MainCF = CFrame.new(0,6,3.8),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8364,13 +8912,22 @@ if not _G.Players1CloneHelp and _G.AutoMoaiMasteryHelp then
 				fireclickdetector(workspace.Lobby["Fort"].ClickDetector) 
 			end
 			EquipGloveRemote("Fort")
-			root.CFrame = CFrame.new(209, -28006, 1)
 			repeat task.wait() until not _G.AutoMoaiMasteryHelp or CheckGlove() == "Fort"
 			wait(0.3)
+			repeat task.wait()
+				if Players2 and Players2:FindFirstChild("entered") == nil then
+					root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
+				end
+			until Players2 and Players2:FindFirstChild("entered")
+			task.wait(0.1)
+			root.CFrame = CFrame.new(209, -28006, 1)
+			wait(0.5)
 			for i = 1, 2 do
 				game:GetService("ReplicatedStorage").Fortlol:FireServer()
 				wait(3.6)
 			end
+			wait(0.3)
+			repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 			wait(0.5)
 			if fireclickdetector then
 				fireclickdetector(workspace.Lobby["🗿"].ClickDetector) 
@@ -8430,16 +8987,11 @@ spawn(function()
 end)
 while _G.AutoMoaiMasteryHelp do
 CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
+HelpMasteryJoin({NoCF = true})
 if Players2 and Players2:FindFirstChild("entered") then
 	if not _G.Players1CloneHelp then
 		root.CFrame = CFrame.new(209, -28006, 1)
 	end
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
 end
 if not _G.Players1CloneHelp then
 	if _G.MoaiMasteryHelp == "Slap Clone" or _G.MoaiMasteryHelp == "Kill Clone" then
@@ -8478,15 +9030,10 @@ end
 if _G.Players1CloneHelp or CheckGlove() == "Moon" then
 while _G.AutoMoonMasteryHelp do
 CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,7,0))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,7,0),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8534,16 +9081,10 @@ spawn(function()
 	end
 end)
 while _G.AutoBrickMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,7,3))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,7,3),
+})
 task.wait()
 end
 elseif Value == true then
@@ -8580,16 +9121,10 @@ spawn(function()
 	end
 end)
 while _G.AutoKillstreakMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,7,0))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,7,0),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8622,16 +9157,10 @@ if not _G.AutoSpaceMasteryHelp then
 end
 if _G.Players1CloneHelp or CheckGlove() == "Space" then
 while _G.AutoSpaceMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,7,0))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,7,0),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8673,16 +9202,10 @@ if not _G.AutoGlovelMasteryHelp then
 end
 if _G.Players1CloneHelp or CheckGlove() == "Glovel" then
 while _G.AutoGlovelMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,5,-3))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,-3),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8718,16 +9241,10 @@ if not _G.AutoBoosterMasteryHelp then
 end
 if _G.Players1CloneHelp or CheckGlove() == "Booster" then
 while _G.AutoBoosterMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,5,-3))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,-3),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8760,16 +9277,10 @@ if not _G.AutoRobMasteryHelp then
 end
 if _G.Players1CloneHelp or CheckGlove() == "rob" then
 while _G.AutoRobMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,5,-3.7))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,-3),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8807,15 +9318,10 @@ end
 if _G.Players1CloneHelp or CheckGlove() == "Stalker" then
 while _G.AutoStalkerMasteryHelp do
 CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-if Players2 and game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()) then
-	game.Players.LocalPlayer.Backpack:FindFirstChild(CheckGlove()).Parent = Players2
-end
-if Players2 and Players2:FindFirstChild("entered") then
-	root.CFrame = workspace["SafeBox"].S5.CFrame * (_G.Players1CloneHelp and CFrame.new(0,5,0) or CFrame.new(0,4,-3))
-end
-if Players2 and Players2:FindFirstChild("entered") == nil then
-	root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
-end
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,4,-3),
+})
 if not _G.Players1CloneHelp then
 	if Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("ReadyToBurst") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
@@ -8837,6 +9343,54 @@ elseif Value == true then
 Notification("You don't have Stalker equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Mastery Stalker"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Stick", {
+    Text = "Auto Mastery Stick",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoStickMasteryHelp = Value
+if not _G.AutoStickMasteryHelp then
+	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
+end
+if _G.Players1CloneHelp or CheckGlove() == "Stick" then
+spawn(function()
+	while _G.AutoStickMasteryHelp do
+		if _G.Players1CloneHelp then
+			CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+			if Players2 and Players2:FindFirstChild("entered") then
+				repeat task.wait() until _G.AutoStickMasteryHelp == false or Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("Ragdolled") and Players2.Ragdolled.Value
+				game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = 0,["Direction"] = Vector3.new(0,0.01,0)})
+				wait(0.15)
+				repeat task.wait() until _G.AutoStickMasteryHelp == false or Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("Ragdolled") and not Players2.Ragdolled.Value
+			end
+		end
+		task.wait()
+	end
+end)
+while _G.AutoStickMasteryHelp do
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,7,0),
+})
+if not _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("ReadyToBurst") then
+		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
+				slapglove(root1)
+				task.wait(0.7)
+			end
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Stick equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Stick"]:SetValue(false)
 end
     end
 })
@@ -9041,7 +9595,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Orig
 elseif Value == "Lobby" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-800,328,-2.5)
 elseif Value == "Hunter Room" then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom.Build.Union.CFrame * CFrame.new(0,0,5)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom.BountyHunterBooth._bountyRoomWarpPart.CFrame
 elseif Value == "Brazil" then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Lobby.brazil.portal.CFrame
 elseif Value == "Island Slapple" then
@@ -10339,10 +10893,41 @@ end
 end
 
 Misc1Basic:AddToggle("Show Button Roll", {
-    Text = "Show Button Roll",
+    Text = "Show Button Roll (Custom)",
     Default = false, 
     Callback = function(Value)
 ShowButtonU(Value)
+    end
+})
+
+Misc1Basic:AddSlider("Delay Cooldown", {
+    Text = "Delay No Cooldown",
+    Default = 0.1,
+    Min = 0.1,
+    Max = 0.9,
+    Rounding = 1,
+    Compact = true,
+    Callback = function(Value)
+_G.DelayCooldown = Value
+    end
+})
+
+Misc1Basic:AddToggle("No Cooldown", {
+    Text = "No Cooldown",
+    Default = false, 
+    Callback = function(Value) 
+_G.NoCooldown = Value
+while _G.NoCooldown do
+local Tool = (game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")) or game.Players.LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+local CheckGlove = Tool and Tool:FindFirstChild("Glove")
+local CheckLocalScript = CheckGlove and Tool and Tool:FindFirstChildOfClass("LocalScript")
+if CheckLocalScript then
+	local CloneLocalScript = CheckLocalScript:Clone()
+	CheckLocalScript:Destroy()
+	CloneLocalScript.Parent = Tool
+end
+task.wait(_G.DelayCooldown or 0.1)
+end
     end
 })
 
@@ -10573,7 +11158,7 @@ while _G.AutoSlapFiveMore do
 if workspace:FindFirstChild(game.Players.LocalPlayer.Name.."_More") then
 	for i, v in pairs(workspace:FindFirstChild(game.Players.LocalPlayer.Name.."_More"):GetChildren()) do
 		if v:IsA("Model") then
-			v.clone_remote:FireServer()
+			game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("fivemore"):FireServer()			
 		end
 	end
 end
@@ -10841,8 +11426,8 @@ _G.HitboxPlayer = Value
 while _G.HitboxPlayer do
 for i,v in pairs(game.Players:GetChildren()) do
     if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-	    local seat = (v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("Humanoid").SeatPart) or nil
-	    if not v.Character:FindFirstChild("Horse") and not v.Character:FindFirstChild("stevebody") and v.Character:FindFirstChild("Mirage") == nil and (not seat or not (seat:IsA("Seat") or seat:IsA("VehicleSeat"))) then
+	    local seat = (v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("Humanoid").Sit and v.Character:FindFirstChild("Humanoid").SeatPart) or nil
+	    if not v.Character:FindFirstChild("Horse") and not v.Character:FindFirstChild("stevebody") and v.Character:FindFirstChild("Mirage") == nil and not seat then
 		    v.Character.HumanoidRootPart.Size = Vector3.new(_G.ReachHitbox,_G.ReachHitbox,_G.ReachHitbox)
 		    v.Character.HumanoidRootPart.Transparency = 0.75
 		else
@@ -10936,6 +11521,9 @@ local function GloveReachOn(v)
 	        GloveReachTo = Vector3.new(_G.GloveExtendReach,0,_G.GloveExtendReach)
         elseif GloveExtendOption == "Slight Extend" then
 	        GloveReachTo = Vector3.new(_G.GloveExtendReach, _G.GloveExtendReach, tonumber(_G.GloveExtendReach..".7"))
+		end
+		if GloveReachTo then
+			v:FindFirstChild("Glove").Size = GloveReachTo
 		end
     end
 end
@@ -11790,7 +12378,7 @@ while SlapstickSpam do
 game:GetService("ReplicatedStorage").slapstick:FireServer(SlapstickAbility)
 task.wait()
 end
-else
+elseif Value == true then
 Notification("You don't have Slapstick equipped", 5)
 wait(0.05)
 Toggles["Spam Slapstick"]:SetValue(false)
@@ -12981,10 +13569,10 @@ else
 Notification("Can't find player", _G.TimeNotify)
 end
     end
-})
+}) 
 
 Glove2Group:AddDropdown("Cloud Bring", {
-    Text = "Cloud Bring",
+    Text = "Cloud Seat",
     Values = {"Player","Your"},
     Default = "Player",
     Multi = false,
@@ -12994,7 +13582,7 @@ _G.CloudBring = Value
 })
 
 Glove2Group:AddToggle("Auto Bring Cloud", {
-    Text = "Auto Bring Cloud",
+    Text = "Auto Seat Cloud",
     Default = false, 
     Callback = function(Value)
 _G.BringCloud = Value
@@ -13028,7 +13616,7 @@ end
 })
 
 Glove2Group:AddDropdown("Firework Bring", {
-    Text = "Firework Bring",
+    Text = "Firework Seat",
     Values = {"Player","Your"},
     Default = "Player",
     Multi = false,
@@ -13038,7 +13626,7 @@ _G.FireworkBring = Value
 })
 
 Glove2Group:AddToggle("Auto Bring Firework", {
-    Text = "Auto Bring Firework",
+    Text = "Auto Seat Firework",
     Default = false, 
     Callback = function(Value)
 _G.BringFirework = Value
@@ -13091,7 +13679,7 @@ end
 
 Glove2Group:AddButton("Infinite Invisibility", function()
 if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.leaderstats.Slaps.Value >= 666 then
-OGlove = CheckGlove()
+local OGlove = CheckGlove()
 fireclickdetector(workspace.Lobby.Ghost.ClickDetector)
 game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
 fireclickdetector(workspace.Lobby[OGlove].ClickDetector)
@@ -13236,11 +13824,7 @@ CanYouPing = Misc1Group:AddLabel("Your Ping [ "..game:GetService("Stats").Networ
 TimeServer = Misc1Group:AddLabel("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]", true)
 TimeNow = Misc1Group:AddLabel("Now Time [ "..os.date("%X").." ]", true)
 Health = Misc1Group:AddLabel("Health [ "..game.Players.LocalPlayer.Character.Humanoid.Health.." ]", true)
-if game.Workspace:FindFirstChild("BossFolder") and game.Workspace.BossFolder:FindFirstChild("Health") then
-HealthBoss = Misc1Group:AddLabel("Health Boss [ "..game.Workspace.BossFolder.Health.Value.." ]", true)
-else
-HealthBoss = Misc1Group:AddLabel("Check Health Boss [ Not Started Yet ]", true)
-end
+HealthBoss = Misc1Group:AddLabel("Health Boss [ Nah ]", true)
 if tonumber(os.date("%H")) >= 5 and tonumber(os.date("%H")) < 12 then
 AlarmTime = Misc1Group:AddLabel("Good Morning [ "..tonumber(os.date("%H")).." Hour ]", true)
 elseif tonumber(os.date("%H")) >= 12 and tonumber(os.date("%H")) < 17 then
@@ -13257,31 +13841,51 @@ Misc1Group:AddToggle("Auto Set Info", {
     Default = false, 
     Callback = function(Value)
 _G.InfoServerSet = Value
-while _G.InfoServerSet do
-CanYouFps:SetText("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]", true)
-CanYouPing:SetText("Your Ping [ "..game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString().." ]", true)
-TimeServer:SetText("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]", true)
-TimeNow:SetText("Now Time [ "..os.date("%X").." ]", true)
-Health:SetText("Health [ "..game.Players.LocalPlayer.Character.Humanoid.Health.." ]", true)
-if game.Workspace:FindFirstChild("BossFolder") and game.Workspace.BossFolder:FindFirstChild("Health") then
-HealthBoss:SetText("Health Boss [ "..game.Workspace.BossFolder.Health.Value.." ]", true)
-else
-HealthBoss:SetText("Check Health Boss [ Not Started Yet ]", true)
-end
-if tonumber(os.date("%H")) >= 5 and tonumber(os.date("%H")) < 12 then
-AlarmTime:SetText("Good Morning [ "..tonumber(os.date("%H")).." Hour ]", true)
-elseif tonumber(os.date("%H")) >= 12 and tonumber(os.date("%H")) < 17 then
-AlarmTime:SetText("Good Afternoon [ "..tonumber(os.date("%H")).." Hour ]", true)
-elseif tonumber(os.date("%H")) >= 17 and tonumber(os.date("%H")) < 21 then
-AlarmTime:SetText("Good Evening [ "..tonumber(os.date("%H")).." Hour ]", true)
-else
-AlarmTime:SetText("Good Night [ "..tonumber(os.date("%H")).." Hour ]", true)
-end
-AgeAccYou:SetText("You Account Age [ "..game.Players.LocalPlayer.AccountAge.." ]", true)
-task.wait()
-end
     end
 })
+
+table.insert(_G.ConnectFun, game.RunService.Heartbeat:Connect(function()
+	if not _G.InfoServerSet then return end
+	pcall(function()
+		CanYouFps:SetText("Your Fps [ "..math.floor(workspace:GetRealPhysicsFPS()).." ]", true)
+		CanYouPing:SetText("Your Ping [ "..game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString().." ]", true)
+		TimeServer:SetText("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]", true)
+		TimeNow:SetText("Now Time [ "..os.date("%X").." ]", true)
+		Health:SetText("Health [ "..game.Players.LocalPlayer.Character.Humanoid.Health.." ]", true)
+		if game.Workspace:FindFirstChild("BossFolder") and game.Workspace.BossFolder:FindFirstChild("Health") then
+			HealthBoss:SetText("Health Boss [ "..game.Workspace.BossFolder.Health.Value.." ]", true)
+		else
+			HealthBoss:SetText("Check Health Boss [ Not Started Yet ]", true)
+		end
+		if tonumber(os.date("%H")) >= 5 and tonumber(os.date("%H")) < 12 then
+			AlarmTime:SetText("Good Morning [ "..tonumber(os.date("%H")).." Hour ]", true)
+		elseif tonumber(os.date("%H")) >= 12 and tonumber(os.date("%H")) < 17 then
+			AlarmTime:SetText("Good Afternoon [ "..tonumber(os.date("%H")).." Hour ]", true)
+		elseif tonumber(os.date("%H")) >= 17 and tonumber(os.date("%H")) < 21 then
+			AlarmTime:SetText("Good Evening [ "..tonumber(os.date("%H")).." Hour ]", true)
+		else
+			AlarmTime:SetText("Good Night [ "..tonumber(os.date("%H")).." Hour ]", true)
+		end
+		AgeAccYou:SetText("You Account Age [ "..game.Players.LocalPlayer.AccountAge.." ]", true)
+	end)
+end))
+
+table.insert(_G.ConnectFun, game.RunService.Heartbeat:Connect(function()
+	if _G.AntiRing then
+		if game.Workspace:FindFirstChild("Ring") then
+			game.Workspace:FindFirstChild("Ring"):Destroy()
+		end
+	end
+	if _G.AntiRagdoll then
+		if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart") then
+			if game.Players.LocalPlayer.Character:WaitForChild("Ragdolled").Value == true then
+				game.Players.LocalPlayer.Character.Torso.Anchored = true
+			else
+				game.Players.LocalPlayer.Character.Torso.Anchored = false
+			end
+		end
+	end
+end))
 
 local Misc2Group = Tabs.Tab1:AddLeftGroupbox("Combat")
 
@@ -13401,17 +14005,17 @@ ParticleEmitter.Speed = NumberRange.new(5, 10)
 ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255))
 local ParticleEmitterAmin = game:GetService("TweenService"):Create(Button, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 360})
 Button.MouseEnter:Connect(function()
-game:GetService("TweenService"):Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 65, 0, 65)}):Play()
+	game:GetService("TweenService"):Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 65, 0, 65)}):Play()
 end)
 Button.MouseLeave:Connect(function()
-game:GetService("TweenService"):Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)}):Play()
+	game:GetService("TweenService"):Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)}):Play()
 end)
 Button.MouseButton1Down:Connect(function()
-for i,v in pairs(workspace:GetChildren()) do
-if v.Name == "SpiritRock" and v:FindFirstChild("DamageEvent") then
-v.DamageEvent:FireServer()
-end
-end
+	for i,v in pairs(workspace:GetChildren()) do
+		if v.Name == "SpiritRock" and v:FindFirstChild("DamageEvent") then
+			v.DamageEvent:FireServer()
+		end
+	end
     ParticleEmitter.Rate = 100
     task.delay(1, function()
         ParticleEmitter.Rate = 0
@@ -13426,11 +14030,9 @@ end)
 
 local Misc3Group = Tabs.Tab1:AddRightGroupbox("Anti")
 
-Misc3Group:AddButton("Anti VFX", function()
+Misc3Group:AddButton("Remove VFX", function()
 if game.Players.LocalPlayer.PlayerScripts:FindFirstChild("VFXListener") then
-game.Players.LocalPlayer.PlayerScripts:FindFirstChild("VFXListener").Parent = game.ReplicatedStorage
-else
-game.ReplicatedStorage.VFXListener.Parent = game.Players.LocalPlayer.PlayerScripts
+	game.Players.LocalPlayer.PlayerScripts.VFXListener:Destroy()
 end
 end)
 
@@ -13439,38 +14041,10 @@ Misc3Group:AddToggle("Anti Ring", {
     Default = false, 
     Callback = function(Value)
 _G.AntiRing = Value
-while _G.AntiRing do
-if game.Workspace:FindFirstChild("Ring") then
-game.Workspace:FindFirstChild("Ring"):Destroy()
-end
-task.wait()
-end
     end
 }):AddKeyPicker("AntiRing", {
    Default = "X",
    Text = "Anti Ring",
-   Mode = "Toggle",
-   SyncToggleState = true
-})
-
-Misc3Group:AddToggle("Remove Meteors", {
-    Text = "Remove Meteor",
-    Default = false, 
-    Callback = function(Value)
-_G.AutoRemoveMeteors = Value
-while _G.AutoRemoveMeteors do
-if game:GetService("Players").LocalPlayer.PlayerScripts.VFXListener:FindFirstChild("BigExplosion") then
-game:GetService("Players").LocalPlayer.PlayerScripts.VFXListener.BigExplosion:Destroy()
-end
-if game:GetService("Players").LocalPlayer.PlayerScripts.VFXListener:FindFirstChild("SmallMeteorVFX") then
-game:GetService("Players").LocalPlayer.PlayerScripts.VFXListener.SmallMeteorVFX:Destroy()
-end
-task.wait()
-end
-    end
-}):AddKeyPicker("RemoveMeteors", {
-   Default = "X",
-   Text = "Remove Big Meteors",
    Mode = "Toggle",
    SyncToggleState = true
 })
@@ -13481,9 +14055,9 @@ Misc3Group:AddToggle("Anti Void Damage", {
     Callback = function(Value)
 game.Workspace["VoidPart"].CanCollide = Value
 if Value == true then
-game.Workspace["VoidPart"].Transparency = 0.5
+	game.Workspace["VoidPart"].Transparency = 0.5
 else
-game.Workspace["VoidPart"].Transparency = 1
+	game.Workspace["VoidPart"].Transparency = 1
 end
     end
 }):AddKeyPicker("AntiVoidDamage", {
@@ -13498,16 +14072,6 @@ Misc3Group:AddToggle("Anti Ragdoll", {
     Default = false, 
     Callback = function(Value)
 _G.AntiRagdoll = Value
-while _G.AntiRagdoll do
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart") then
-if game.Players.LocalPlayer.Character:WaitForChild("Ragdolled").Value == true then
-repeat task.wait() game.Players.LocalPlayer.Character.Torso.Anchored = true
-until game.Players.LocalPlayer.Character:WaitForChild("Ragdolled").Value == false
-game.Players.LocalPlayer.Character.Torso.Anchored = false
-end
-end
-task.wait()
-end
     end
 }):AddKeyPicker("AntiRagdoll", {
    Default = "X",
@@ -15228,28 +15792,6 @@ task.wait()
 end
     end
 })
-
-Misc1Group:AddToggle("AutoFarm Apple", {
-    Text = "AutoFarm Apple",
-    Default = false, 
-    Callback = function(Value) 
-_G.AutoFarmApple = Value
-while _G.AutoFarmApple do
-if game.Workspace:FindFirstChild("Game") and game.Workspace.Game:FindFirstChild("Buildings") then
-for i,v in pairs(workspace.Game.Buildings:GetChildren()) do
-if v.Name == "Farm" and v:FindFirstChild("Farm") then
-for i, b in pairs(v:GetChildren()) do
-if b.Name == "Farm" and b:FindFirstChild("Hitbox") then
-game:GetService("ReplicatedStorage").Remotes.GloveHit:FireServer(b.Hitbox)
-end
-end
-end
-end
-end
-task.wait()
-end
-    end
-})
 elseif game.PlaceId == 98726100529621 then
 Window = Library:CreateWindow({
     Title = "Map Obby Hexa 🔰",
@@ -15358,17 +15900,18 @@ if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki") 
 game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki").Parent = game:GetService("Players").LocalPlayer.Backpack
 end
 wait(0.5)
+local OldCF = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
 if fireclickdetector then
-if workspace.Microwave:FindFirstChild("HitBox") then
-fireclickdetector(workspace.Microwave.HitBox:FindFirstChild("ClickDetector"))
-end
+	if workspace.Microwave:FindFirstChild("HitBox") then
+		fireclickdetector(workspace.Microwave.HitBox:FindFirstChild("ClickDetector"))
+	end
 end
 wait(0.8)
 repeat task.wait()
 if fireclickdetector then
-if workspace.Microwave:FindFirstChild("HitBox") then
-fireclickdetector(workspace.Microwave.HitBox:FindFirstChild("ClickDetector"))
-end
+	if workspace.Microwave:FindFirstChild("HitBox") then
+		fireclickdetector(workspace.Microwave.HitBox:FindFirstChild("ClickDetector"))
+	end
 end
 until game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Brewzucki") or game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki")
 wait(0.2)
@@ -15381,11 +15924,11 @@ game:GetService("Players").LocalPlayer.Character:FindFirstChild("Brewzucki"):Act
 end
 wait(3.5)
 if fireclickdetector then
-fireclickdetector(workspace.BasementTable.HitBox:FindFirstChild("ClickDetector"))
+	fireclickdetector(workspace.BasementTable.HitBox:FindFirstChild("ClickDetector"))
 end
 wait(1)
 if fireproximityprompt then
-fireproximityprompt(workspace.BasementDoor.Door.Base:FindFirstChild("ProximityPrompt"))
+	fireproximityprompt(workspace.BasementDoor.Door.Base:FindFirstChild("ProximityPrompt"))
 end
 wait(0.5)
 if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("RealComputerScreenGui") ~= nil then
@@ -15476,12 +16019,13 @@ workspace.Map.Components.NPCs.FinalBoss.FinalBoss.HumanoidRootPart.CFrame = game
 game:GetService("ReplicatedStorage").Remotes.ToolSwingEvent:FireServer()
 end
 until game:GetService("Players").LocalPlayer.PlayerGui.SkipButton:FindFirstChild("SkipDialogueButton").Visible == true or game:GetService("Players").LocalPlayer.PlayerGui.FinalBossHealthBar:FindFirstChild("FinalBossHealthBar").Visible == false or workspace.Map.Components.NPCs.FinalBoss:FindFirstChild("BridgeToGlove").Transparency == 0
+wait(0.5)
 workspace.Map.Components.NPCs.FinalBoss.FinalBoss.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
 repeat task.wait()
 	if firesignal and game:GetService("Players").LocalPlayer.PlayerGui.SkipButton:FindFirstChild("SkipDialogueButton") then
 		firesignal(game:GetService("Players").LocalPlayer.PlayerGui.SkipButton:FindFirstChild("SkipDialogueButton").Activated)
 	end
-until workspace.Map.Components.NPCs.FinalBoss:FindFirstChild("BridgeToGlove").Transparency == 0
+until workspace.Map.Components.NPCs.FinalBoss:FindFirstChild("BridgeToGlove") and workspace.Map.Components.NPCs.FinalBoss:FindFirstChild("BridgeToGlove").Transparency == 0
 wait(1)
 if workspace.Map.Components:FindFirstChild("GloveIsland") and workspace.Map.Components.GloveIsland:FindFirstChild("ClaimGlove") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.Components.GloveIsland.ClaimGlove.CFrame
@@ -15611,7 +16155,7 @@ game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Button.CFrame
 if fireclickdetector then
 fireclickdetector(v.Hitbox:FindFirstChild("ClickDetector"))
 end
-until v.Button.Color3 ~= Color3.fromRGB(255, 0, 0)
+until v.Button.Color ~= Color3.fromRGB(255, 0, 0)
 end
 end
 end
@@ -15631,8 +16175,10 @@ end
 if MapStuff:FindFirstChild("Glass") then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = MapStuff.Glass.CFrame
 wait(0.3)
+if MapStuff:FindFirstChild("Glass") and MapStuff.Glass:FindFirstChild("ClickDetector") then
 if fireclickdetector then
 fireclickdetector(MapStuff.Glass:FindFirstChild("ClickDetector"))
+end
 end
 end
 wait(0.5)
@@ -15663,19 +16209,14 @@ local function CalculatePanel(number)
 	end
 	return result, needed
 end
-for _, v in pairs(result) do
-	if count[v] then
-		count[v] += 1
-	end
-end
 local Numberchar = {
 	["X"] = 10,
 	["V"] = 5,
 	["II"] = 2
 }
 repeat task.wait() 
-	repeat task.wait() until MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and (MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "unlocked" or MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "error")
-	repeat task.wait() until tonumber(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text)
+	repeat task.wait() until MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and (typeof(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text) == "number" or MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "unlocked" or MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "error")
+	repeat task.wait() until MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "unlocked" or tonumber(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text)
 	wait(0.7)
 	if MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() ~= "unlocked" then
 		local result, remainder = CalculatePanel(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text)
@@ -15691,6 +16232,11 @@ repeat task.wait()
 				end
 			end
 		else
+			for _, v in pairs(result) do
+				if count[v] then
+					count[v] += 1
+				end
+			end
 			for _, k in pairs(MapStuff.AddAmountsPanel:GetChildren()) do
 				if k.Name == "Key" then
 					local amount = k:GetAttribute("AddAmount")
@@ -15721,10 +16267,12 @@ wait(0.8)
 for i, v in pairs(MapStuff.RotatedPaintings:GetChildren()) do
 	if v.Name == "Painting" and tonumber(v:GetAttribute("RotationIndex")) ~= 0 then
 		repeat task.wait(0.85)
-			if fireclickdetector then
+			if tonumber(v:GetAttribute("RotationIndex")) > 0 and fireclickdetector then
 				fireclickdetector(v.ClickDetector)
 			end
 		until tonumber(v:GetAttribute("RotationIndex")) == 0
+		wait(0.25)
+		v.ClickDetector:Destroy()
 	end
 end
 wait(0.3)
@@ -17419,8 +17967,11 @@ Library:OnUnload(function()
 	if CoreGui:FindFirstChild("Gui Track") then
 		CoreGui:FindFirstChild("Gui Track"):Destroy()
 	end
-	if CoreGui:FindFirstChild("Gui Roll Script") then
-		CoreGui:FindFirstChild("Gui Roll Script"):Destroy()
+	if CoreGui:FindFirstChild("Gui Button Script") then
+		CoreGui:FindFirstChild("Gui Button Script"):Destroy()
+	end
+	if CoreGui:FindFirstChild("Keybind Script") then
+		CoreGui:FindFirstChild("Keybind Script"):Destroy()
 	end
 	if CoreGui:FindFirstChild("ClickButton") then
 		CoreGui:FindFirstChild("ClickButton"):Destroy()
