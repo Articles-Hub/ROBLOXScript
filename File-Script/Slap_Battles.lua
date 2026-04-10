@@ -785,8 +785,8 @@ end
 if game.ReplicatedStorage:FindFirstChild("Ban") then
 	game.ReplicatedStorage.Ban:Destroy()
 end
-if game.StarterPlayer.StarterPlayerScripts:FindFirstChild("ClientAnticheat", true) then
-	game.StarterPlayer.StarterPlayerScripts:FindFirstChild("ClientAnticheat", true):Destroy()
+if game.StarterPlayer.StarterPlayerScripts:FindFirstChild("AntiMobileExploits", true) then
+	game.StarterPlayer.StarterPlayerScripts:FindFirstChild("AntiMobileExploits", true):Destroy()
 end
 if game.ReplicatedStorage:FindFirstChild("GRAB") then
 	game.ReplicatedStorage.GRAB:Destroy()
@@ -1944,13 +1944,6 @@ Anti2Group:AddDropdown("Choose Anti Void", {
     Multi = false,
     Callback = function(Value)
 _G.AntiVoidChoose = Value
-if ButtonOldPos then
-	if Value == "Fall" then
-		ButtonOldPos:SetVisible(true)
-	else
-		ButtonOldPos:SetVisible(false)
-	end
-end
     end
 })
 
@@ -1960,6 +1953,8 @@ AntiDependencyBox:AddButton({
     Text = "Set Fall Pos",
     Visible = false,
     Func = function()
+if LoadSetFallPos then return end
+LoadSetFallPos = true
 if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	for i, v in pairs(workspace:GetChildren()) do
 		if v.Name == "Old Fall (Yourself)" then
@@ -1973,18 +1968,22 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	Yourself:SetPrimaryPartCFrame(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
 	Yourself.Humanoid:ApplyDescription(desc)
 	wait(0.1)
-	while workspace:FindFirstChild("Old Fall (Yourself)") and task.wait() do
-		if workspace:FindFirstChild("Old Fall (Yourself)") then
-			for i, v in pairs(workspace:FindFirstChild("Old Fall (Yourself)"):GetChildren()) do
-				if v:IsA("BasePart") then
-					v.Anchored = true
-					v.CanCollide = false
-					v.Transparency = _G.Transparency or 0.7
+	spawn(function()
+		while workspace:FindFirstChild("Old Fall (Yourself)") and task.wait() do
+			if workspace:FindFirstChild("Old Fall (Yourself)") then
+				for i, v in pairs(workspace:FindFirstChild("Old Fall (Yourself)"):GetChildren()) do
+					if v:IsA("BasePart") then
+						v.Anchored = true
+						v.CanCollide = false
+						v.Transparency = _G.Transparency or 0.7
+					end
 				end
 			end
 		end
-	end
+	end)
 end
+task.wait(0.8)
+LoadSetFallPos = false
     end
 })
 
@@ -4797,12 +4796,16 @@ Badge2Group:AddToggle("Orb Farm", {
     Callback = function(Value) 
 _G.FarmOrbTP = Value
 while _G.FarmOrbTP do
-if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
 	local ChooseOrbFarm = Options.OrbFarm and Options.OrbFarm.Value or nil
 	if ChooseOrbFarm then
 		for i,v in pairs(game.Workspace:GetChildren()) do
 	        if (ChooseOrbFarm["Jet"] and v.Name == "JetOrb") or (ChooseOrbFarm["Phase"] and v.Name == "PhaseOrb") or (ChooseOrbFarm["MATERIALIZE"] and v.Name == "MATERIALIZEOrb") or (ChooseOrbFarm["Siphon"] and v.Name == "SiphonOrb") or (ChooseOrbFarm["Glitch"] and v.Name:find("Orb") and v:FindFirstChild("Attachment") and v.Attachment:FindFirstChild("OrbGlitchEffect")) then
+				local CFOld = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
 				game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v.CFrame
+				wait(0.37)
+				game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFOld
+				wait(0.7)
 	        end
 	    end
 	end
@@ -7994,7 +7997,7 @@ _G.AutoThanosMasteryHelp = Value
 if not _G.AutoThanosMasteryHelp then
 	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
 end
-if _G.Players1CloneHelp or CheckGlove() == "Thonas" then
+if _G.Players1CloneHelp or CheckGlove() == "Thanos" then
 if _G.Players1CloneHelp and not PlayersMain and Value == true then
 	Notification("You have input main account", _G.TimeNotify)
 	wait(0.05)
@@ -10877,7 +10880,8 @@ end
 
 if hookmetamethod and getnamecallmethod then
 Misc1Basic:AddToggle("Method Glove", {
-    Text = "Method Glove One Hit",
+    Text = "Method Glove",
+    Tooltip = "Mathod: Glovel, Charge, Golden, Psython",
     Default = false, 
     Callback = function(Value) 
 _G.MethodGlove = Value
@@ -11018,7 +11022,7 @@ local function SetupCharacter(plr, char)
 	local humanoid = char:WaitForChild("Humanoid")
 	local animator = humanoid:WaitForChild("Animator")
 	animator.AnimationPlayed:Connect(function(track)
-		if not _G.RangeParry and CheckGlove() ~= "Parry" then return end
+		if not _G.AutoParry and CheckGlove() ~= "Parry" then return end
 		if char:FindFirstChild("entered") and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("stevebody") == nil and char:FindFirstChild("rock") == nil and char.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and char:FindFirstChild("Mirage") == nil then
 			if char.Head:FindFirstChild("UnoReverseCard") == nil then
 				local hrp = char:FindFirstChild("HumanoidRootPart")
@@ -11106,13 +11110,43 @@ table.insert(_G.ConnectFun, game:GetService("RunService").Heartbeat:Connect(func
 end))
 end)
 
-Misc1Basic:AddButton("Auto Play Rhythm", function()
-game.Players.LocalPlayer.PlayerGui.Rhythm.MainFrame.Bars.ChildAdded:Connect(function()
-task.delay(1.65, function()
-game.Players.LocalPlayer.Character:FindFirstChild("Rhythm"):Activate()
-end)
-end)
-end)
+Misc1Basic:AddToggle("Auto Play Rhythm", {
+    Text = "Auto Play Rhythm",
+    Default = false, 
+    Callback = function(Value) 
+if CheckGlove() ~= "Rhythm" and Value == true then
+Notification("You don't have Rhythm equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Infinite Rhythm"]:SetValue(false)
+end
+    end
+})
+local bar = {}
+table.insert(_G.ConnectFun, game:GetService("RunService").Heartbeat:Connect(function()
+	if not Toggles["Auto Play Rhythm"] or not Toggles["Auto Play Rhythm"].Value then return end
+	local rhythmGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("Rhythm")
+	local mainRhythm = (rhythmGui and rhythmGui:FindFirstChild("MainFrame"))
+	if not mainRhythm then return end
+	local pointer = mainRhythm:FindFirstChild("Pointer")
+	local bars = mainRhythm:FindFirstChild("Bars")
+	if not pointer or not bars then return end
+	for _, v in ipairs(bars:GetChildren()) do
+		if v:IsA("Frame") and v.Name ~= "BarHit" then
+			local id = v:GetDebugId(5)
+			local aPos, aSize = pointer.AbsolutePosition, pointer.AbsoluteSize
+			local bPos, bSize = v.AbsolutePosition, v.AbsoluteSize
+			local over = not (aPos.X + aSize.X < bPos.X or aPos.X > bPos.X + bSize.X or aPos.Y + aSize.Y < bPos.Y or aPos.Y > bPos.Y + bSize.Y)
+			if over and not bar[id] then
+				bar[id] = true
+				if game.Players.LocalPlayer.Character:FindFirstChild("Rhythm") then
+					game.Players.LocalPlayer.Character:FindFirstChild("Rhythm"):Activate()
+				end
+			elseif not over then
+				bar[id] = false
+			end
+		end
+	end
+end))
 
 Misc1Basic:AddButton("Get All Sword", function()
 if CheckGlove() == "Swordfighter" then
@@ -17817,6 +17851,71 @@ for _, j in pairs({"Plate", "Scythe", "Brick", "Jerry", "Prop", "Pineapple"}) do
 		end
 	end)
 end
+elseif game.PlaceId == 128229958211947 then
+Window = Library:CreateWindow({
+    Title = "Chicken Boss 🐣",
+    Center = true,
+    AutoShow = true,
+    Resizable = true,
+	Footer = "Omega X Article Hub Version: 1.0.5",
+	Icon = 83462777349222,
+	ShowCustomCursor = true,
+    NotifySide = "Right",
+    TabPadding = 2,
+    MenuFadeTime = 0
+})
+
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Main")
+
+MainGroup:AddButton("Get Badge", function()
+if not game.Workspace:GetAttribute("Phase") then
+	Notification("You have wait until fight", 5)
+	repeat task.wait() until game.Workspace:GetAttribute("Phase")
+end
+CreateFreezeBV()
+if game.Workspace:GetAttribute("Phase") == 1 then
+	repeat task.wait()
+		pcall(function()
+			if workspace:FindFirstChild("EasterMap"):FindFirstChild("Phase1"):FindFirstChild("MapObjects") then
+				for i, v in pairs(workspace.EasterMap.Phase1.MapObjects:GetChildren()) do
+					if v.Name:lower() == "slapapult" and v:FindFirstChild("ShootButton") and v:FindFirstChild("HandleButton") and not v:GetAttribute("Broken") then
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.ShootButton.CFrame * CFrame.new(0, 5, 0)
+						repeat task.wait()
+							game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Egg"):WaitForChild("GloveSwing"):FireServer()
+							game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Egg"):WaitForChild("GloveHit"):FireServer(v:FindFirstChild("HandleButton"))
+						until (v:GetAttribute("Charge") or 0) >= 2
+						wait(0.3)
+						repeat task.wait()
+							game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Egg"):WaitForChild("GloveSwing"):FireServer()
+							game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Egg"):WaitForChild("GloveHit"):FireServer(v:FindFirstChild("ShootButton"))
+						until v:GetAttribute("Broken")
+					end
+				end
+			end
+		end)
+	until game.Workspace:GetAttribute("Phase") >= 2
+end
+if game.Workspace:GetAttribute("Phase") >= 2 then
+	repeat task.wait()
+		if workspace:FindFirstChild("ChickenBoss") then
+			local cf, size = workspace.ChickenBoss:GetBoundingBox()
+			local pos = cf.Position + Vector3.new(0, size.Y/2 + 18, 0)
+			if pos then
+				game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(pos, cf.Position)
+				game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Egg"):WaitForChild("GloveSwing"):FireServer()
+				game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Egg"):WaitForChild("GloveHit"):FireServer(workspace:WaitForChild("ChickenBoss"):WaitForChild("Body_model"))
+			end
+		end
+	until workspace:FindFirstChild("RewardGlove")
+end
+CreateFreezeBV({Remove = true})
+Notification("Ok, Very done", 5)
+end)
 end
 
 local success, err = pcall(function()
