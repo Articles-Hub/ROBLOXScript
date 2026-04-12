@@ -4475,3 +4475,5 @@ function OrionLib:OnDestroy(fn)
 		table.insert(OrionLib.OnDestroyTo, fn)
 	end
 end
+
+return OrionLib
