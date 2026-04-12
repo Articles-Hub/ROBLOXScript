@@ -35,6 +35,7 @@ OrionLib = {
         },
         NotifyVolume = 3,
         SelectedTheme = "Default",
+        NotifyOnError = false,
         Folder = "OrionLibSave",
 }
 
@@ -137,6 +138,23 @@ function OrionLib:AddConnect(Signal, Function)
 	local SignalConnect = Signal:Connect(Function)
     table.insert(OrionLib.Connections, SignalConnect)
     return SignalConnect
+end
+
+function OrionLib:SafeScript(Func: (...any) -> ...any, ...: any)
+    if not (Func and typeof(Func) == "function") then
+        return
+    end
+    local Result = table.pack(xpcall(Func, function(Error)
+        task.defer(error, debug.traceback(Error, 2))
+        if OrionLib.NotifyOnError then
+            OrionLib:MakeNotification({Name = "Error Script", Content = Error, Time = 5})
+        end
+        return Error
+    end, ...))
+    if not Result[1] then
+        return nil
+    end
+    return table.unpack(Result, 2, Result.n)
 end
 
 OrionLib:SetFont("GothamBold")
@@ -250,6 +268,18 @@ end
 
 local function Create(Name, Properties, Children)
         local Object = Instance.new(Name)
+        for i, v in next, Properties or {} do
+                Object[i] = v
+        end
+        for i, v in next, Children or {} do
+                v.Parent = Object
+        end
+        return Object
+end
+
+local function Clone(Name, Properties, Children)
+		local ObjectName = Name
+        local Object = ObjectName:Clone()
         for i, v in next, Properties or {} do
                 Object[i] = v
         end
@@ -588,11 +618,12 @@ CreateElement("RoundFrame", function(Color, Scale, Offset)
         return Frame
 end)
 
-CreateElement("RoundVideo", function(Color, Scale, Offset)
+CreateElement("RoundVideo", function(Color, Video, Loop, Play, Scale, Offset)
         local Video = Create("VideoFrame", {
                 BackgroundColor3 = Color or Color3.fromRGB(255, 255, 255),
-                Looped = true,
-                Playing = true
+                Video = Video or "",
+                Looped = Loop or true,
+                Playing = Play or true
         }, {
                 Create("UICorner", {
                         CornerRadius = UDim.new(Scale, Offset)
@@ -883,7 +914,7 @@ end
 
 function OrionLib:MakeWatermark(Watermark)
 	Watermark = Watermark or {}
-	Watermark.Text = Watermark.Text or "Nah"
+	Watermark.Text = Watermark.Text or "No Text"
 	Watermark.Visible = Watermark.Visible or false
 	Watermark.Flag = Watermark.Flag or nil
 	
@@ -893,6 +924,7 @@ function OrionLib:MakeWatermark(Watermark)
 			Position = UDim2.fromOffset(6, 6),
 	        BackgroundTransparency = 0,
 			Visible = Watermark.Visible,
+			Name = "Watermark_LabelDagger_"..Watermark.Flag or "Orion",
 	        Parent = Orion
 	}), {
 	        AddThemeObject(SetProps(MakeElement("Label", Watermark.Text, 15), {
@@ -919,11 +951,15 @@ function OrionLib:MakeWatermark(Watermark)
 		end
 	end
 	if LabelFrame and LabelFrame:FindFirstChild("Content") then
-		AddConnection(LabelFrame.Content:GetPropertyChangedSignal("Text"), function()
+		local function UpdateSizeWatermaker()
 			local width = LabelFrame.Content.TextBounds.X + 20
 			TweenService:Create(LabelFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, width, 0, 35)}):Play()
 			TweenService:Create(LabelFrame.Content, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, width, 0, 35)}):Play()
+		end
+		AddConnection(LabelFrame.Content:GetPropertyChangedSignal("Text"), function()
+			UpdateSizeWatermaker()
 		end)
+		UpdateSizeWatermaker()
 	end	
 	if Watermark.Flag then
 		OrionLib.Flags[Watermark.Flag] = WatermarkHe
@@ -1185,7 +1221,6 @@ function OrionLib:MakeWindow(WindowConfig)
 
                 local function SearchHandleMain()
                         local Text = string.lower(SearchBox.Text)
-                        
 						for i, v in pairs(MainWindow:GetChildren()) do
 							if v.Name == "ItemContainer" and v.Visible == true then
 								for _, j in pairs(v:GetChildren()) do
@@ -1203,7 +1238,6 @@ function OrionLib:MakeWindow(WindowConfig)
 							end
 						end
                 end
-
                 AddConnection(TextboxActual:GetPropertyChangedSignal("Text"), SearchHandleMain)
         end
 
@@ -1267,7 +1301,7 @@ function OrionLib:MakeWindow(WindowConfig)
                         Content = (isMobile and "interact icon to reopen" or "Press Key ".._currentKey.Name).." To Repoen gui",
                         Time = 5
                 })
-                WindowConfig.CloseCallback()
+                OrionLib:SafeScript(WindowConfig.CloseCallback)
         end)
 
         AddConnection(UserInputService.InputBegan, function(Input)
@@ -1437,7 +1471,6 @@ function OrionLib:MakeWindow(WindowConfig)
 					ImageTransparency = TabConfig.Disabled and 0.7 or 0.4,
 					Name = "Ico"
 				}), "Text"),
-		
 				AddThemeObject(SetChildren(SetProps(MakeElement("Label", TabConfig.Name, 14), {
 					Size = UDim2.new(1, -35, 1, 0),
 					Position = UDim2.new(0, 35, 0, 0),
@@ -1498,29 +1531,82 @@ function OrionLib:MakeWindow(WindowConfig)
 			
                 local function GetElements(ItemParent)
                         local ElementFunction = {}
-                        function ElementFunction:AddDivider()
-					        local DividerHolder = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					            BackgroundTransparency = 1,
-					            Size = UDim2.new(1, 0, 0, 14),
-					            Parent = ItemParent
-					        }), {
-						        MakeElement("Padding"),
-								Create("Frame", {
-						            BackgroundColor3 = Color3.fromRGB(25, 25, 25),
-						            Size = UDim2.fromScale(1, 1)
-						        }),
-						        Create("UICorner", {CornerRadius = UDim.new(1, 0)}),
-						        AddThemeObject(MakeElement("Stroke"), "Stroke")
-							}), "Second")
+                        function ElementFunction:AddDivider(DividerConfig)
+							DividerConfig = DividerConfig or {}
+							DividerConfig.Text = DividerConfig.Text or nil
 							
+							local DividerFrame = SetProps(MakeElement("Frame"), {
+								Size = UDim2.new(1, 0, 0, 20),
+								Parent = ItemParent,
+								BackgroundTransparency = 1
+							})
+				
+							if DividerConfig and DividerConfig.Text then
+								local Label = AddThemeObject(SetProps(MakeElement("Label", Text, 14), {
+									Size = UDim2.new(0, 0, 1, 0),
+									Position = UDim2.new(0.5, 0, 0.5, 0),
+									AnchorPoint = Vector2.new(0.5, 0.5),
+									Parent = DividerFrame,
+									Font = Enum.Font.GothamBold,
+									AutomaticSize = Enum.AutomaticSize.X
+								}), "Text")
+								
+								local LeftLine = SetChildren(AddThemeObject(SetProps(MakeElement("Frame"), {
+									Size = UDim2.new(0.5, -10, 0, 1),
+									Position = UDim2.new(0, 0, 0.5, 0),
+									AnchorPoint = Vector2.new(0, 0.5),
+									Parent = DividerFrame
+								}), "Divider"), {
+									Create("UIGradient", {
+										Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1)}),
+										Rotation = 180
+									})
+								})
+								
+								local RightLine = SetChildren(AddThemeObject(SetProps(MakeElement("Frame"), {
+									Size = UDim2.new(0.5, -10, 0, 1),
+									Position = UDim2.new(1, 0, 0.5, 0),
+									AnchorPoint = Vector2.new(1, 0.5),
+									Parent = DividerFrame
+								}), "Divider"), {
+									Create("UIGradient", {
+										Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1)}),
+										Rotation = 180
+									})
+								})
+								
+								AddConnection(Label:GetPropertyChangedSignal("AbsoluteSize"), function()
+									local TextSize = Label.AbsoluteSize.X + 20
+									LeftLine.Size = UDim2.new(0.5, -(TextSize/2), 0, 1)
+									RightLine.Size = UDim2.new(0.5, -(TextSize/2), 0, 1)
+								end)
+							else
+								local Line = SetChildren(AddThemeObject(SetProps(MakeElement("Frame"), {
+									Size = UDim2.new(1, 0, 0, 1),
+									Position = UDim2.new(0.5, 0, 0.5, 0),
+									AnchorPoint = Vector2.new(0.5, 0.5),
+									Parent = DividerFrame
+								}), "Divider"), {
+									Create("UIGradient", {
+										Transparency = NumberSequence.new({
+											NumberSequenceKeypoint.new(0, 1),
+											NumberSequenceKeypoint.new(0.2, 0),
+											NumberSequenceKeypoint.new(0.8, 0),
+											NumberSequenceKeypoint.new(1, 1)
+										})
+									})
+								})
+							end
+				
 							local DividerFunction = {}
-                            function DividerFunction:Remove()
-	                            if DividerHolder then
-		                            DividerHolder:Destroy()
-	                            end
-                            end
-                            return DividerFunction 
-					    end
+							function DividerFunction:Set(NewText)
+								if getgenv().Destroy then return end
+								if HasText and DividerFrame:FindFirstChildOfClass("TextLabel") then
+									DividerFrame:FindFirstChildOfClass("TextLabel").Text = NewText
+								end
+							end
+							return DividerFunction
+						end
                         function ElementFunction:AddLog(Text)
                                 local Label = MakeElement("Label", Text, 15)
                                 local LogFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
@@ -1685,8 +1771,9 @@ function OrionLib:MakeWindow(WindowConfig)
                                 ButtonConfig.Disabled = ButtonConfig.Disabled or false
                                 ButtonConfig.Name = ButtonConfig.Name or "Button"
                                 ButtonConfig.Callback = ButtonConfig.Callback or function() end
+                                ButtonConfig.Flag = ButtonConfig.Flag or nil
                                 ButtonConfig.Icon = ButtonConfig.Icon or "rbxassetid://3944703587"
-                                local Button = {Disabled = ButtonConfig.Disabled, Visible = ButtonConfig.Visible}
+                                local Button = {Disabled = ButtonConfig.Disabled, Visible = ButtonConfig.Visible, Flag = ButtonConfig.Flag}
 
                                 local Click = SetProps(MakeElement("Button"), {
                                         Size = UDim2.new(1, 0, 1, 0)
@@ -1767,10 +1854,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                 
                                 function Button:Click()
 								    if ButtonConfig.Callback and not ButtonConfig.Disabled then
-								        local success, err = pcall(ButtonConfig.Callback)
-								        if not success then
-								            OrionLib:MakeNotification({Name = "Error Script", Content = err, Time = 5})
-								        end
+								        OrionLib:SafeScript(ButtonConfig.Callback)
 								    end
 								end
                                 
@@ -1778,8 +1862,346 @@ function OrionLib:MakeWindow(WindowConfig)
 	                                if getgenv().Destroy or ButtonConfig.Disabled then return end
 								    ButtonConfig.Callback = callback
 								end
+								
+								function Button:AddButton(ButtonConfigClone)
+									ButtonConfigClone = ButtonConfigClone or {}
+	                                ButtonConfigClone.Visible = ButtonConfigClone.Visible or true
+	                                ButtonConfigClone.Disabled = ButtonConfigClone.Disabled or false
+	                                ButtonConfigClone.Name = ButtonConfigClone.Name or "Button"
+	                                ButtonConfigClone.Callback = ButtonConfigClone.Callback or function() end
+									ButtonConfigClone.Flag = ButtonConfigClone.Flag or nil
+	                                ButtonConfigClone.Icon = ButtonConfigClone.Icon or "rbxassetid://3944703587"
+									local ButtonClone = {Disabled = ButtonConfigClone.Disabled, Visible = ButtonConfigClone.Visible, Flag = ButtonConfigClone.Flag}
+	
+									if ButtonFrame then
+										ButtonFrame.Size = UDim2.new(0.493, 0, 0, 33)
+										local ButtonCloneFrame = Clone(ButtonFrame, {
+											Size = UDim2.new(1, 0, 0, 33),
+											Position = UDim2.new(1.03, 0, 0, 0),
+											Parent = ButtonFrame
+										})
+										
+										local Click = ButtonCloneFrame and ButtonCloneFrame:FindFirstChildOfClass("TextButton")
+										AddConnection(Click.MouseEnter, function()
+				                                if ButtonConfigClone.Disabled then return end
+		                                        TweenService:Create(ButtonCloneFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
+		                                end)
+		
+		                                AddConnection(Click.MouseLeave, function()
+				                                if ButtonConfigClone.Disabled then return end
+		                                        TweenService:Create(ButtonCloneFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Second}):Play()
+		                                end)
+		
+		                                AddConnection(Click.MouseButton1Up, function()
+				                                if ButtonConfigClone.Disabled then return end
+		                                        TweenService:Create(ButtonCloneFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
+		                                        spawn(function()
+		                                                ButtonClone:Click()
+		                                        end)
+		                                end)
+		
+		                                AddConnection(Click.MouseButton1Down, function()
+				                                if ButtonConfigClone.Disabled then return end
+		                                        TweenService:Create(ButtonCloneFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 6)}):Play()
+		                                end)
+										
+										function ButtonClone:Set(ButtonText)
+			                                if getgenv().Destroy or ButtonConfigClone.Disabled then return end
+			                                if ButtonCloneFrame and ButtonCloneFrame:FindFirstChild("Content") then
+		                                        ButtonCloneFrame.Content.Text = ButtonText
+		                                    end
+		                                end
+		                                
+		                                function ButtonClone:SetDisabled(state)
+											if getgenv().Destroy then return end
+											ButtonClone.Disabled = state
+											ButtonConfigClone.Disabled = state
+											if ButtonCloneFrame then
+												TweenService:Create(ButtonCloneFrame, TweenInfo.new(0.2), {BackgroundTransparency = state and 0.5 or 0}):Play()
+											end
+											if Click then
+												Click.Active = not state
+												Click.AutoButtonColor = not state
+											end
+											if ButtonCloneFrame and ButtonCloneFrame:FindFirstChild("Content") then
+												ButtonCloneFrame.Content.TextTransparency = state and 0.5 or 0
+											end
+										end
+		                                
+		                                function ButtonClone:SetVisible(state)
+											if getgenv().Destroy then return end
+											if ButtonCloneFrame then
+												ButtonCloneFrame.Visible = state
+												ButtonClone.Visible = state
+												if not state and ButtonConfig.Visible then
+													ButtonFrame.Size = UDim2.new(1, 0, 0, 33)
+												else
+													ButtonFrame.Size = UDim2.new(0.493, 0, 0, 33)
+												end
+											end
+										end
+		                                
+		                                function ButtonClone:Click()
+										    if ButtonConfigClone.Callback and not ButtonConfigClone.Disabled then
+										        OrionLib:SafeScript(ButtonConfigClone.Callback)
+										    end
+										end
+		                                
+		                                function ButtonClone:SetCallback(callback)
+			                                if getgenv().Destroy or ButtonConfig.Disabled then return end
+										    ButtonConfigClone.Callback = callback
+										end
+									end
+									
+									if ButtonConfigClone.Visible == false then
+										ButtonClone:SetVisible(ButtonConfigClone.Visible)
+									end
+									if ButtonConfigClone.Flag then
+										OrionLib.Flags[ButtonConfig.Flag][ButtonConfigClone.Flag] = ButtonClone
+									end
+									return ButtonClone
+								end
+								if ButtonConfig.Flag then
+									OrionLib.Flags[ButtonConfig.Flag] = Button
+								end
                                 return Button
                         end    
+                        function ElementFunction:AddViewport(ViewportConfig)
+	                        ViewportConfig = ViewportConfig or {}
+							ViewportConfig.Object = ViewportConfig.Object or Instance.new("Part")
+							ViewportConfig.Camera = ViewportConfig.Camera or Instance.new("Camera")
+							ViewportConfig.Orbit = ViewportConfig.Orbit or false
+							ViewportConfig.Control = ViewportConfig.Control or false
+							ViewportConfig.Zoom = ViewportConfig.Zoom or false
+							ViewportConfig.Size = ViewportConfig.Size or 20
+							ViewportConfig.Flag = ViewportConfig.Flag or false
+							ViewportConfig.Visible = ViewportConfig.Visible or true
+							ViewportConfig.Padding = ViewportConfig.Padding or 8
+						
+							local Viewport = {Object = ViewportConfig.Object, Camera = ViewportConfig.Camera, Orbit = ViewportConfig.Orbit, Zoom = ViewportConfig.Zoom, Control = ViewportConfig.Control, Size = ViewportConfig.Size, Flag = ViewportConfig.Flag, Visible = ViewportConfig.Visible, Distance = 20, MinZoom = 5, MaxZoom = 50, Type = "Viewport"}
+							local function FrameViewHeight(ViewportSize)
+								return ViewportSize + ViewportConfig.Padding * 2
+							end
+							
+							local ViewportGui = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+								Size = UDim2.new(1, 0, 0, FrameViewHeight(ViewportConfig.Size)),
+								Visible = ViewportConfig.Visible,
+								Parent = ItemParent
+							}), {
+							Create("ViewportFrame", {
+								Name = "ViewportFrame",
+								AnchorPoint = Vector2.new(0.5, 0.5),
+								Size = UDim2.new(0, ViewportConfig.Size, 0, ViewportConfig.Size),
+								Position = UDim2.new(0.5, 0, 0.5, 0),
+								BackgroundTransparency = 1
+							}, {
+								AddThemeObject(MakeElement("Stroke"), "Stroke")
+							})
+						}), "Second")
+							
+							ViewportObject = ViewportGui:FindFirstChild("ViewportFrame", true)
+							ViewportConfig.Camera.Parent = ViewportObject
+							ViewportConfig.Object.Parent = ViewportObject
+							ViewportObject.CurrentCamera = Viewport.Camera
+							local function updateLayout(size)
+								if getgenv().Destroy then return end
+								if ViewportGui then
+									ViewportGui.Size = UDim2.new(1, 0, 0, FrameViewHeight(size))
+									ViewportObject.Size = UDim2.new(0, size, 0, size)
+									ViewportObject.Position = UDim2.new(0.5, 0, 0.5, 0)
+								end
+							end
+							
+							local hovering = false
+							AddConnection(ViewportObject.MouseEnter, function()
+								hovering = true
+							end)
+							
+							AddConnection(ViewportObject.MouseLeave, function()
+								hovering = false
+							end)
+							
+							function Viewport:SetObject(obj, Properties, Children)
+								if getgenv().Destroy then return end
+								if not obj then return end
+								for _, v in pairs(ViewportObject:GetChildren()) do
+									if not v:IsA("Camera") then
+										v:Destroy()
+									end
+								end
+								local Object
+								if typeof(obj) == "Instance" then
+									Object = obj:Clone()
+								elseif type(obj) == "string" then
+									Object = Instance.new(obj)
+									for i, v in next, Properties or {} do
+										Object[i] = v
+									end
+									for _, v in next, Children or {} do
+										v.Parent = Object
+									end
+								else
+									return
+								end
+								Object.Parent = ViewportObject
+								Viewport.Object = Object
+								local cam = ViewportObject:FindFirstChildOfClass("Camera")
+								if not cam then return end
+								local cf, size
+								if Object:IsA("Model") then
+									cf, size = Object:GetBoundingBox()
+								elseif Object:IsA("BasePart") then
+									cf = Object.CFrame
+									size = Object.Size
+								else
+									return
+								end
+								local max = math.max(size.X, size.Y, size.Z)
+								Viewport.Distance = max * 2
+								Viewport:UpdateCamera()
+								return Object
+							end
+							
+							function Viewport:UpdateCamera()
+								if not self.Object or not self.Camera then return end
+								local cf, size
+								if Viewport.Object:IsA("Model") then
+									cf, size = Viewport.Object:GetBoundingBox()
+								elseif Viewport.Object:IsA("BasePart") then
+									cf = Viewport.Object.CFrame
+									size = Viewport.Object.Size
+								else
+									return
+								end
+								local center = cf.Position
+								Viewport.Camera.CFrame = CFrame.new(center + Vector3.new(0, 0, Viewport.Distance), center)
+							end
+							
+							function Viewport:SetVisible(ToChange: boolean)
+								if getgenv().Destroy then return end
+								if ViewportGui then
+									ViewportGui.Visible = ToChange
+								end
+							end
+							
+							function Viewport:SetControl(ToChange: boolean)
+								if getgenv().Destroy then return end
+								Viewport.Control = ToChange 
+							end
+							
+							function Viewport:SetOrbit(ToChange: boolean)
+								if getgenv().Destroy then return end
+								Viewport.Orbit = ToChange 
+							end
+							
+							function Viewport:SetZoom(ToChange: boolean)
+								if getgenv().Destroy then return end
+								Viewport.Zoom = ToChange
+							end
+							
+							function Viewport:SetZoomCamera(zoom)
+								if getgenv().Destroy then return end
+								zoom = zoom or {}
+								zoom.MaxZoom = zoom.MaxZoom or Viewport.MaxZoom
+								zoom.MinZoom = zoom.MinZoom or Viewport.MinZoom
+								zoom.Distance = zoom.Distance or Viewport.Distance
+								
+								Viewport.MaxZoom = zoom.MaxZoom
+								Viewport.MinZoom = zoom.MinZoom
+								Viewport.Distance = zoom.Distance
+							end
+
+							local dragging = false
+							local lastPos
+							local lastDist
+							AddConnection(ViewportObject.InputBegan, function(input)
+								if Viewport.Control and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+									dragging = true
+									lastPos = input.Position
+								end
+							end)
+							AddConnection(ViewportObject.InputEnded, function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									dragging = false
+								end
+							end)
+							AddConnection(UserInputService.InputChanged, function(input)
+								if dragging and Viewport.Object then
+									if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+										local delta = input.Position - lastPos
+										lastPos = input.Position
+										local cf, size
+										if Viewport.Object:IsA("Model") then
+											cf, size = Viewport.Object:GetBoundingBox()
+										elseif Viewport.Object:IsA("BasePart") then
+											cf = Viewport.Object.CFrame
+											size = Viewport.Object.Size
+										else
+											return
+										end
+										local center = cf.Position
+										local rotY = delta.X * 0.5
+										local rotX = delta.Y * 0.5
+										local distance = Viewport.Distance
+										Viewport._Yaw = (Viewport._Yaw or 0) - delta.X * 0.3
+										Viewport._Pitch = math.clamp((Viewport._Pitch or 0) - delta.Y * 0.3, -80, 80)
+										Viewport.Camera.CFrame = CFrame.new(center) * CFrame.Angles(0, math.rad(Viewport._Yaw), 0) * CFrame.Angles(math.rad(Viewport._Pitch), 0, 0) * CFrame.new(0, 0, distance)
+									end
+								end
+							end)
+							AddConnection(UserInputService.InputChanged, function(input)
+								if not Viewport.Object then return end
+								if not hovering then return end
+								if Viewport.Zoom and input.UserInputType == Enum.UserInputType.MouseWheel then
+									Viewport.Distance = math.clamp(Viewport.Distance - input.Position.Z * 2, Viewport.MinZoom, Viewport.MaxZoom)
+									Viewport:UpdateCamera()
+								end
+							end)
+							local activeTouches = {}
+							AddConnection(UserInputService.InputBegan, function(input)
+								if input.UserInputType == Enum.UserInputType.Touch then
+									activeTouches[input] = input.Position
+								end
+							end)
+							AddConnection(UserInputService.InputEnded, function(input)
+								if input.UserInputType == Enum.UserInputType.Touch then
+									activeTouches[input] = nil
+									lastDist = nil
+								end
+							end)
+							AddConnection(UserInputService.InputChanged, function(input)
+								if not hovering then return end
+								if not Viewport.Zoom then return end
+								if input.UserInputType ~= Enum.UserInputType.Touch then return end
+								if activeTouches[input] then
+									activeTouches[input] = input.Position
+								end
+								local touches = {}
+								for i, v in pairs(activeTouches) do
+									table.insert(touches, v)
+								end
+								if #touches == 2 then
+									local dist = (touches[1] - touches[2]).Magnitude
+									if lastDist then
+										local delta = dist - lastDist
+										Viewport.Distance = math.clamp(Viewport.Distance - delta * 0.15, Viewport.MinZoom, Viewport.MaxZoom)
+										Viewport:UpdateCamera()
+									end
+									lastDist = dist
+								end
+							end)
+							AddConnection(RunService.RenderStepped, function(dt)
+								if not Viewport.Object or dragging or not Viewport.Orbit then return end
+								Viewport.Object:PivotTo(Viewport.Object:GetPivot() * CFrame.Angles(0, math.rad(30 * dt), 0))
+							end)
+							
+							Viewport:UpdateCamera()
+							
+							if ViewportConfig.Flag then
+								OrionLib.Flags[ViewportConfig.Flag] = Viewport
+							end
+							return Viewport
+                        end
                         function ElementFunction:AddImage(ImageConfig)
 							ImageConfig = ImageConfig or {}
 							ImageConfig.Name = ImageConfig.Name or "Image"
@@ -1828,12 +2250,47 @@ function OrionLib:MakeWindow(WindowConfig)
 								end
 							end
 							
-							function Image:SetVisible(ToChange)
+							function Image:SetVisible(ToChange: boolean)
 								if getgenv().Destroy then return end
 								if ImageFrame then
 									ImageFrame.Visible = ToChange
 								end
 							end
+							
+							function Image:SetColor(ToChange: Color3)
+								if getgenv().Destroy then return end
+								if ImageFrame then
+									ImageFrame.ImageColor3 = ToChange
+								end
+							end
+							
+							function Image:SetRectOffset(ToChange: Vector2)
+					            if getgenv().Destroy then return end
+								if ImageFrame then
+									ImageFrame.ImageRectOffset = ToChange
+								end
+					        end
+					
+					        function Image:SetRectSize(ToChange: Vector2)
+					            if getgenv().Destroy then return end
+								if ImageFrame then
+									ImageFrame.ImageRectSize = ToChange
+								end
+					        end
+					
+					        function Image:SetScaleType(ScaleType: Enum.ScaleType)
+					            if getgenv().Destroy then return end
+								if ImageFrame then
+									ImageFrame.ScaleType = ToChange
+								end
+					        end
+					
+					        function Image:SetTransparency(ToChange: number)
+					            if getgenv().Destroy then return end
+								if ImageFrame then
+									ImageFrame.ImageTransparency = ToChange
+								end
+					        end
 						
 							function Image:SetSize(size)
 								if getgenv().Destroy then return end
@@ -1844,6 +2301,130 @@ function OrionLib:MakeWindow(WindowConfig)
 								OrionLib.Flags[ImageConfig.Flag] = Image
 							end
 							return Image
+						end
+						function ElementFunction:AddVideo(VideoConfig)
+							VideoConfig = VideoConfig or {}
+							VideoConfig.Name = VideoConfig.Name or "VideoFrame"
+							VideoConfig.Video = VideoConfig.Video or "rbxassetid://0"
+							VideoConfig.Value = VideoConfig.Value or {}
+							VideoConfig.Size = VideoConfig.Size or 20
+							VideoConfig.Flag = VideoConfig.Flag or false
+							VideoConfig.Visible = VideoConfig.Visible ~= false
+							VideoConfig.Padding = VideoConfig.Padding or 8
+							local Video = {Default = VideoConfig.Icon, Size = VideoConfig.Size, Type = "Video"}
+						
+							local function FrameHeight(iconSize)
+								return iconSize + VideoConfig.Padding * 2
+							end
+						
+							local VideoFrameTo = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+									Name = VideoConfig.Name,
+									Size = UDim2.new(1, 0, 0, FrameHeight(VideoConfig.Size)),
+									Visible = VideoConfig.Visible,
+									Parent = ItemParent
+								}), {
+								AddThemeObject(SetProps(MakeElement("RoundVideo"), {
+									Name = "Video",
+									Video = VideoConfig.Video,
+									Playing = VideoConfig.Value.Playing or false,
+									Looped = VideoConfig.Value.Loop or true,
+									AnchorPoint = Vector2.new(0.5, 0.5),
+									Size = UDim2.new(0, VideoConfig.Size, 0, VideoConfig.Size),
+									Position = UDim2.new(0.5, 0, 0.5, 0),
+									BackgroundTransparency = 1
+								}), "TextDark"),
+								SetChildren(Create("ImageButton", {
+									Size = UDim2.new(1, 0, 1, 0),
+									BackgroundTransparency = 1,
+									ImageTransparency = 1,
+								}), {
+									Create("ImageButton", {
+										AnchorPoint = Vector2.new(0.5, 0.5),
+										Position = UDim2.new(0.5, 0, 0.5, 0),
+										Size = UDim2.new(0, 40, 0, 40),
+										BackgroundTransparency = 1,
+										Image = "rbxassetid://7072719338",
+									})
+								}),
+								AddThemeObject(MakeElement("Stroke"), "Stroke")
+							}), "Second")
+							
+							VideoFrame = VideoFrameTo:FindFirstChildOfClass("VideoFrame", true)
+							local function updateLayout(size)
+								if getgenv().Destroy then return end
+								if VideoFrame then
+									VideoFrameTo.Size = UDim2.new(1, 0, 0, FrameHeight(size))
+									VideoFrame.Size = UDim2.new(0, size, 0, size)
+									VideoFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+								end
+							end
+							
+							function Video:SetHeight(ToChange: number)
+								if getgenv().Destroy then return end
+								if VideoFrame then
+									VideoFrame.Height = tonumber(ToChange)
+									updateLayout(tonumber(ToChange))
+								end
+							end
+						
+							function Video:SetVideo(ToChange)
+								if getgenv().Destroy then return end
+								if VideoFrame then
+									VideoFrame.Video = tostring(ToChange)
+								end
+							end
+							
+							function Video:SetVisible(ToChange: boolean)
+								if getgenv().Destroy then return end
+								if VideoFrame then
+									VideoFrame.Visible = ToChange
+								end
+							end
+							
+							function Video:SetPlay(ToChange: boolean)
+								if getgenv().Destroy then return end
+								if VideoFrame then
+									VideoFrame.Playing = ToChange
+								end
+							end
+							
+							function Video:SetLoop(ToChange: boolean)
+					            if getgenv().Destroy then return end
+								if VideoFrame then
+									VideoFrame.Looped = ToChange
+								end
+					        end
+					
+					        function Video:SetVolume(ToChange: number)
+					            if getgenv().Destroy then return end
+								if VideoFrame then
+									VideoFrame.Volume = ToChange
+								end
+					        end
+						
+							function Video:SetSize(size)
+								if getgenv().Destroy then return end
+								updateLayout(tonumber(size))
+							end
+							
+							function Video:Play()
+								if getgenv().Destroy then return end
+								if VideoFrame then
+									VideoFrame.Playing = true
+								end
+							end
+							
+							function Video:Stop()
+								if getgenv().Destroy then return end
+								if VideoFrame then
+									VideoFrame.Playing = false
+								end
+							end
+							
+							if VideoConfig.Flag then
+								OrionLib.Flags[VideoConfig.Flag] = Video
+							end
+							return Video
 						end
                         function ElementFunction:AddToggle(ToggleConfig)
 							ToggleConfig = ToggleConfig or {}
@@ -1861,6 +2442,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								Type = "Toggle",
 								Value = ToggleConfig.Default,
 								Save = ToggleConfig.Save,
+								Mode = ToggleConfig.Type,
 								Visible = ToggleConfig.Visible,
 								Disabled = ToggleConfig.Disabled,
 								["__DisplayName"] = {}
@@ -1873,7 +2455,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							if ToggleConfig.Type == "Switch" then
 								ToggleBox = SetChildren(SetProps(MakeElement("RoundFrame", OrionLib.Themes.Default.Divider, 0, 12), {
 									Size = UDim2.new(0, 40, 0, 20),
-									Position = UDim2.new(1, -8, 0.5, 0),
+									Position = UDim2.new(1, -10, 0.5, 0),
 									AnchorPoint = Vector2.new(1, 0.5),
 									BackgroundColor3 = OrionLib.Themes.Default.Divider,
 									Name = "Switch"
@@ -1889,7 +2471,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							else
 								ToggleBox = SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
 									Size = UDim2.new(0, 24, 0, 24),
-									Position = UDim2.new(1, -24, 0.5, 0),
+									Position = UDim2.new(1, -30, 0.5, 0),
 									AnchorPoint = Vector2.new(0.5, 0.5),
 									BackgroundColor3 = OrionLib.Themes.Default.Divider,
 									Name = "Check"
@@ -1909,8 +2491,7 @@ function OrionLib:MakeWindow(WindowConfig)
 									})
 								})
 							end
-							local ToggleFrame = AddThemeObject(SetChildren(SetProps(
-								MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+							local ToggleFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 									Size = UDim2.new(1, 0, 0, 38),
 									Parent = ItemParent
 								}), {
@@ -1920,9 +2501,7 @@ function OrionLib:MakeWindow(WindowConfig)
 										Font = Enum.Font.GothamBold,
 										Name = "Content",
 									}), "Text"),
-									AddThemeObject(MakeElement("Stroke"), "Stroke"),
-									ToggleBox,
-									Click
+									AddThemeObject(MakeElement("Stroke"), "Stroke"), ToggleBox, Click,
 							}), "Second")
 							
 							function Toggle:UpdateTweenKeyBindToggles(Object, bool)
@@ -1956,6 +2535,18 @@ function OrionLib:MakeWindow(WindowConfig)
 								else
 									getgenv().ToggleNameCount[baseName] += 1
 									return string.format("%s (%d)", baseName, getgenv().ToggleNameCount[baseName])
+								end
+							end
+							
+							function UpdateLayout()
+								local hasBind = ToggleFrame:FindFirstChild("ButtonKey")
+								if hasBind then
+									if ToggleFrame:FindFirstChild("Switch") then
+										ToggleFrame.Switch.Position = UDim2.new(1, -60, 0.5, 0)
+									end
+									if ToggleFrame:FindFirstChild("Check") then
+										ToggleFrame.Check.Position = UDim2.new(1, -50, 0.5, 0)
+									end
 								end
 							end
 						
@@ -1993,12 +2584,57 @@ function OrionLib:MakeWindow(WindowConfig)
 										Toggle:UpdateTweenKeyBindToggles(data, Toggle.Value)
 									end
 								end
-								local ok, err = pcall(function()
-									ToggleConfig.Callback(Toggle.Value)
-								end)
-								if not ok then
-									OrionLib:MakeNotification({Name = "Error Script", Content = err, Time = 5})
+								OrionLib:SafeScript(ToggleConfig.Callback, Toggle.Value)
+							end
+							
+							function Toggle:SetMode(newMode)
+								if getgenv().Destroy then return end
+								if not newMode then return end
+								
+								Toggle.Mode = newMode
+								ToggleConfig.Type = newMode
+								
+								if ToggleFrame:FindFirstChild("Switch") then
+									ToggleFrame.Switch:Destroy()
 								end
+								if ToggleFrame:FindFirstChild("Check") then
+									ToggleFrame.Check:Destroy()
+								end
+								
+								if newMode == "Switch" then
+									local newSwitch = SetChildren(SetProps(MakeElement("RoundFrame", OrionLib.Themes.Default.Divider, 0, 12), {
+										Size = UDim2.new(0, 40, 0, 20),
+										Position = UDim2.new(1, -8, 0.5, 0),
+										AnchorPoint = Vector2.new(1, 0.5),
+										Name = "Switch",
+										Parent = ToggleFrame
+									}), {
+										SetProps(MakeElement("RoundFrame", Color3.new(1,1,1), 0, 10), {
+											Size = UDim2.new(0, 18, 0, 18),
+											Position = UDim2.new(0, 1, 0.5, 0),
+											AnchorPoint = Vector2.new(0, 0.5),
+											Name = "Knob"
+										})
+									})
+								else
+									local newCheck = SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
+										Size = UDim2.new(0, 24, 0, 24),
+										Position = UDim2.new(1, -24, 0.5, 0),
+										AnchorPoint = Vector2.new(0.5, 0.5),
+										Name = "Check",
+										Parent = ToggleFrame
+									}), {
+										SetProps(MakeElement("Image", "rbxassetid://3944680095"), {
+											Size = UDim2.new(0, 8, 0, 8),
+											AnchorPoint = Vector2.new(0.5, 0.5),
+											Position = UDim2.new(0.5, 0, 0.5, 0),
+											ImageTransparency = Toggle.Value and 0 or 1,
+											Name = "Ico"
+										})
+									})
+								end
+								Toggle:UpdateTweenKeyBindToggles(ToggleFrame, Toggle.Value)
+								UpdateLayout()
 							end
 							
 							function Toggle:SetDisabled(state)
@@ -2288,7 +2924,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								TweenService:Create(SliderDrag, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.fromScale((Slider.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}):Play()  
 								SliderBar.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
 								SliderDrag.Value.Text = tostring(Slider.Value) .. " " .. SliderConfig.ValueName  
-								SliderConfig.Callback(Slider.Value)  
+								OrionLib:SafeScript(SliderConfig.Callback, Slider.Value)
 							end  
 						  
 							function Slider:Set(Value)  
@@ -2701,7 +3337,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								            DropdownFrame.F.Selected.Text =
 								                (#text > 20) and string.sub(text, 1, 17) .. "..." or text
 								        end
-								        return DropdownConfig.Callback(Dropdown.Value)
+								        return OrionLib:SafeScript(DropdownConfig.Callback, Dropdown.Value)
 								    else
 								        local index = table.find(Dropdown.Value, Value)
 								        if index then
@@ -2732,7 +3368,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								            DropdownFrame.F.Selected.Text =
 								                (#text > 20) and string.sub(text, 1, 17) .. "..." or text
 								        end
-								        return DropdownConfig.Callback(Dropdown.Value)
+								        return OrionLib:SafeScript(DropdownConfig.Callback, Dropdown.Value)
 								    end
 								end
 								
@@ -2756,7 +3392,7 @@ function OrionLib:MakeWindow(WindowConfig)
 									if selBtn:FindFirstChild("Desc") then TweenService:Create(selBtn.Desc, TweenInfo.new(.15), {TextTransparency = 0.2}):Play() end
 									if selBtn:FindFirstChild("Icon") then TweenService:Create(selBtn.Icon, TweenInfo.new(.15), {ImageTransparency = 0}):Play() end
 								end
-								return DropdownConfig.Callback(Dropdown.Value)
+								return OrionLib:SafeScript(DropdownConfig.Callback, Dropdown.Value)
 							end
 						
 							AddConnection(Click.MouseButton1Click, function()
@@ -2873,9 +3509,9 @@ function OrionLib:MakeWindow(WindowConfig)
                                         if (Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value) and not Bind.Binding then
                                                 if BindConfig.Hold then
                                                         Holding = true
-                                                        BindConfig.Callback(Holding)
+                                                        OrionLib:SafeScript(BindConfig.Callback, Holding)
                                                 else
-                                                        BindConfig.Callback(Input)
+                                                        OrionLib:SafeScript(BindConfig.Callback, Input)
                                                 end
                                         elseif Bind.Binding then
                                                 local Key
@@ -2899,7 +3535,7 @@ function OrionLib:MakeWindow(WindowConfig)
                                         if Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value then
                                                 if BindConfig.Hold and Holding then
                                                         Holding = false
-                                                        BindConfig.Callback(Holding)
+                                                        OrionLib:SafeScript(BindConfig.Callback, Holding)
                                                 end
                                         end
                                 end)
@@ -3042,7 +3678,7 @@ function OrionLib:MakeWindow(WindowConfig)
 										end
 									end
 									Textbox.Value = TextboxActual.Text
-	                                TextboxConfig.Callback(TextboxActual.Text)
+	                                OrionLib:SafeScript(TextboxConfig.Callback, TextboxActual.Text)
                                 end
                                 
                                 if TextboxConfig.Finished then
@@ -3414,7 +4050,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								Colorpicker.Value = ColorpickerBox.BackgroundColor3
 								
 								if not BlockCallback then
-									ColorpickerConfig.Callback(Colorpicker.Value, AlphaValue)
+									OrionLib:SafeScript(ColorpickerConfig.Callback, Colorpicker.Value, AlphaValue)
 								end
 								
 								UpdateInputDisplays()
@@ -3525,7 +4161,7 @@ function OrionLib:MakeWindow(WindowConfig)
 										local AY = (math.clamp(Mouse.Y - AlphaFrame.AbsolutePosition.Y, 0, AlphaFrame.AbsoluteSize.Y) / AlphaFrame.AbsoluteSize.Y)
 										AlphaSelection.Position = UDim2.new(0.5, 0, AY, 0)
 										AlphaValue = 1 - AY
-										ColorpickerConfig.Callback(Colorpicker.Value, AlphaValue)
+										OrionLib:SafeScript(ColorpickerConfig.Callback, Colorpicker.Value, AlphaValue)
 									end)
 								end
 							end)
@@ -3549,7 +4185,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								if Alpha then
 									AlphaValue = Alpha
 									AlphaSelection.Position = UDim2.new(0.5, 0, 1 - AlphaValue, 0)
-									ColorpickerConfig.Callback(Colorpicker.Value, AlphaValue)
+									OrionLib:SafeScript(ColorpickerConfig.Callback, Colorpicker.Value, AlphaValue)
 								end
 							end
 						
@@ -3562,6 +4198,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						
 						local ElementFunction = {}
 						function ElementFunction:AddSection(SectionConfig)
+							SectionConfig = SectionConfig or {}
 							SectionConfig.Name = SectionConfig.Name or "Section"
 							SectionConfig.Flag = SectionConfig.Flag or nil
 							local Section = {Type = "Section"}
@@ -3677,6 +4314,29 @@ function OrionLib:BuildSettings(Tab: table)
 			OrionLib:SetKeyBindVisible(Value)
 		end    
 	})
+	
+	local function WatermarkFound()
+		for i, v in pairs(Orion:GetChildren()) do
+			if v:IsA("Frame") and v.Name:lower():find("watermark") then
+				return true
+			end
+		end
+	    return false
+    end
+    
+    if WatermarkFound() then
+	    Tab:AddToggle({
+			Name = "Toggle Watermark",
+			Default = false,
+			Callback = function(Value)
+				for i, v in pairs(Orion:GetChildren()) do
+					if v:IsA("Frame") and v.Name:lower():find("watermark") then
+						v.Visible = Value
+					end
+				end
+			end    
+		})
+    end
     
     Tab:AddSlider({
         Name = "Notify Volume",
@@ -3778,6 +4438,21 @@ function OrionLib:BuildSettings(Tab: table)
             configList:Refresh(GetSavedConfigs(), true)
         end
     })
+	
+	if Orion and Orion:FindFirstChildWhichIsA("VideoFrame") then
+	    Tab:AddDivider()
+	    
+	    local VideoLink = Tab:AddTextbox({
+	        Name = "Video Link"
+	    })
+	    
+	    Tab:AddButton({
+	        Name = "Set Video Main",
+	        Callback = function()
+	            OrionLib:SetVideoLink(VideoLink.Value)
+	        end
+	    })
+    end
 end
 
 function OrionLib:Destroy()
@@ -3800,5 +4475,3 @@ function OrionLib:OnDestroy(fn)
 		table.insert(OrionLib.OnDestroyTo, fn)
 	end
 end
-
-return OrionLib
