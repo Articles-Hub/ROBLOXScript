@@ -262,21 +262,75 @@ Save = <bool> - The save of the colorpicker
 ]]
 ```
 
-### Setting the color picker's value
+
+
+## Creating a Viewport
 ```lua
-ColorPicker:Set(Color3.fromRGB(255,255,255))
-OrionLib.Flags["Color"]:Set(Color3.fromRGB(255,255,255))
+local Viewport = Tab:AddViewport({
+	Object = Instance.new("Part"),
+	Camera = Instance.new("Camera"),
+	Orbit = true,
+	Control = true,
+	Zoom = true,
+	Visible = true,
+	Flag = "Viewport",
+	Size = 270
+})
+
+--[[
+Object = <Instance or Object> - You can create a part or whatever you want, then assign it to an Object.
+Camera = <Camera> - Make a camera or something that can see.
+Orbit = <bool> - Orbit can rotate a object 180°
+Control = <bool> - You can rotate it wherever you want.
+Zoom = <bool> - You can use two fingers or the mouse to zoom in, just like you zoom in on your avatar.
+Visible = <bool> - Show or hide of the viewport.
+Size = <number> - Enlarge the viewport 
+]]
 ```
 
-### Changing the script of an colorpicker
+### Changing the object of an viewport
 ```lua
-ColorPicker:SetCallback(function(Value)
-        print("This is a Colorpicker!", Value)
-end)
+local Part = Instance.new("Part")
+Part.Size = Vector3.new(1, 1, 1)
+Part.Transparency = 0.5
 
-OrionLib.Flags["Color"]:SetCallback(function(Value)
-        print("This is a Colorpicker!", Value)
-end)
+Viewport:SetObject(Part)
+OrionLib.Flag["Viewport"]:SetObject(Part)
+
+----------- Create Directly --------------
+
+Viewport:SetObject("Part", {Size = Vector3.new(1, 1, 1), Transparency = 0.5})
+OrionLib.Flag["Viewport"]:SetObject("Part", {Size = Vector3.new(1, 1, 1), Transparency = 0.5})
+```
+
+### Set visible a viewport
+```lua
+Viewport:SetVisible(<bool>)
+OrionLib.Flag["Viewport"]:SetVisible(<bool>)
+```
+
+### Set control a viewport
+```lua
+Viewport:SetControl(<bool>)
+OrionLib.Flag["Viewport"]:SetControl(<bool>)
+```
+
+### Set orbit a viewport
+```lua
+Viewport:SetOrbit(<bool>)
+OrionLib.Flag["Viewport"]:SetOrbit(<bool>)
+```
+
+### Set zoom a viewport
+```lua
+Viewport:SetZoom(<bool>)
+OrionLib.Flag["Viewport"]:SetZoom(<bool>)
+```
+
+### Set zoom camera a viewport
+```lua
+Viewport:SetZoomCamera({MaxZoom = 50, MinZoom = 15, Distance = 20})
+OrionLib.Flag["Viewport"]:SetZoomCamera({MaxZoom = 50, MinZoom = 15, Distance = 20})
 ```
 
 
