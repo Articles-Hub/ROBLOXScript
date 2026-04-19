@@ -12449,7 +12449,7 @@ end
 })
 
 Glove1Group:AddToggle("Godmobe Player", {
-    Text = "Auto Godmobe Player",
+    Text = "Auto Godmode Player",
     Default = false, 
     Callback = function(Value) 
 if SaveThePlayer == nil then
@@ -13746,7 +13746,8 @@ Window = Library:CreateWindow({
     ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
     
 Tabs = {
@@ -13811,7 +13812,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 if workspace:FindFirstChild("VoidPart") == nil then
@@ -14166,7 +14168,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -14903,7 +14906,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -14998,7 +15002,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -15029,7 +15034,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 if game.Workspace:FindFirstChild("VoidPart") == nil then
@@ -15468,7 +15474,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -15620,7 +15627,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -15653,7 +15661,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -15703,7 +15712,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -15767,7 +15777,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -15791,7 +15802,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 if workspace.Game:FindFirstChild("Buildings") and workspace.Game.Buildings:FindFirstChild("City") and workspace.Game.Buildings.City:FindFirstChild("City") == nil then
@@ -15838,7 +15850,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -15908,7 +15921,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -16014,7 +16028,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -16085,7 +16100,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -16119,7 +16135,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+	ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -16165,7 +16182,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -16373,7 +16391,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -16403,7 +16422,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+	ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -16535,7 +16555,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -16921,7 +16942,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -16961,7 +16983,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -17023,7 +17046,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -17068,7 +17092,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -17145,7 +17170,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -17241,7 +17267,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -17381,7 +17408,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -17580,7 +17608,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+    ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -17621,7 +17650,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+	ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -17863,7 +17893,8 @@ Window = Library:CreateWindow({
 	ShowCustomCursor = true,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+	ShowMobileButtons = false,
 })
 
 Tabs = {
@@ -18427,7 +18458,7 @@ local toggleui = TopBar.new()
     :align("Center")
 
 toggleui.toggled:Connect(function(isOn)
-    Window:Toggle()
+    Library:Toggle()
 end)
 
 gloveHits = {
