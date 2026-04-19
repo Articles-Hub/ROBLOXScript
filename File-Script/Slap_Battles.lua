@@ -1413,7 +1413,8 @@ Window = Library:CreateWindow({
 	Icon = 83462777349222,
     NotifySide = "Right",
     TabPadding = 2,
-    MenuFadeTime = 0
+    MenuFadeTime = 0,
+	ShowMobileButtons = false,
 })
     
 Tabs = {
@@ -18417,6 +18418,17 @@ end))
 local function safe(g)
 	return game.ReplicatedStorage:FindFirstChild(g) or nil
 end
+
+local TopBar = loadstring(game:HttpGet("https://raw.githubusercontent.com/tanhoangviet/ToolForLua/refs/heads/main/TopbarPlus.lua"))().get()
+
+local toggleui = TopBar.new()
+    :setImage(84731676862244, "Selected")
+    :setImage(124211460043941, "Deselected")
+    :align("Center")
+
+toggleui.toggled:Connect(function(isOn)
+    Window:Toggle()
+end)
 
 gloveHits = {
 	["All"] = safe("GeneralHit"),
