@@ -5,7 +5,7 @@ local Pre  = tpx.Presets
 
 local wm = Ex.watermark({text = "v1.0 | Script"})
 
-local wm = Ex.watermark({
+local wminfo = Ex.watermark({
     text     = "v36.67 | FPS: {fps} | {time} | Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]" ,
     realtime = true,
     interval = 1,
@@ -14,7 +14,7 @@ local wm = Ex.watermark({
 
 task.spawn(function()
 		while true and task.wait() do
-		wm.setText("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]")
+		wminfo.setText("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]")
 		end
 	end
 
