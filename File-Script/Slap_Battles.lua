@@ -13,10 +13,19 @@ local wminfo = Ex.watermark({
 })
 
 task.spawn(function()
-		while true and task.wait() do
-		wminfo.setText("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]")
-		end
-	end)
+	while task.wait() do
+		local t = workspace.DistributedGameTime
+		
+		local hours = math.floor(t / 3600)
+		local minutes = math.floor((t % 3600) / 60)
+		local seconds = math.floor(t % 60)
+
+		wminfo.setText(string.format(
+			"Server Time [ %02d Hour | %02d Minute | %02d Second ]",
+			hours, minutes, seconds
+		))
+	end
+end)
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
