@@ -18476,11 +18476,13 @@ local TopBar = loadstring(game:HttpGet("https://raw.githubusercontent.com/tanhoa
 local toggleui = TopBar.new()
     :setImage(84731676862244, "Selected")
     :setImage(124211460043941, "Deselected")
-    :align("Center")
+    :align("Left")
+    :setImageRatio(0.32)
 
 toggleui.toggled:Connect(function(isOn)
     Library:Toggle()
 end)
+
 
 gloveHits = {
 	["All"] = safe("GeneralHit"),
