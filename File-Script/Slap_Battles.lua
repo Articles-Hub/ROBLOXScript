@@ -16,7 +16,7 @@ task.spawn(function()
 		while true and task.wait() do
 		wminfo.setText("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]")
 		end
-	end
+	end)
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
