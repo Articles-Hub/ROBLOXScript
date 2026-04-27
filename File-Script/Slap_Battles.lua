@@ -13,7 +13,9 @@ local wm = Ex.watermark({
 })
 
 task.spawn(function()
+		while true and task.wait() do
 		wm.setText("Server Time [ "..math.floor(workspace.DistributedGameTime / 60 / 60).." Hour | "..math.floor(workspace.DistributedGameTime / 60) - (math.floor(workspace.DistributedGameTime / 60 / 60) * 60).." Minute | "..math.floor(workspace.DistributedGameTime) - (math.floor(workspace.DistributedGameTime / 60) * 60).." Second ]")
+		end
 	end
 
 if not game:IsLoaded() then
