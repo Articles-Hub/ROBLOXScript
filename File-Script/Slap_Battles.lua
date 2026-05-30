@@ -9720,9 +9720,9 @@ end
 task.wait()
 end
 elseif Value == true then
-Notification("You don't have Stick equipped", _G.TimeNotify)
+Notification("You don't have Wormhole equipped", _G.TimeNotify)
 wait(0.05)
-Toggles["Auto Mastery Stick"]:SetValue(false)
+Toggles["Auto Mastery Wormhole"]:SetValue(false)
 end
     end
 })
@@ -12646,7 +12646,7 @@ _G.ReachHitbox = Value
 })
 
 Misc1Basic:AddToggle("Hitbox Player Mod", {
-    Text = "Hitbox Player & Mod",
+    Text = "Hitbox Player & Mod,",
     Default = false, 
     Callback = function(Value) 
 _G.HitboxPlayer = Value
@@ -18540,6 +18540,104 @@ for _, j in pairs({"Plate", "Scythe", "Brick", "Jerry", "Prop", "Pineapple"}) do
 		end
 	end)
 end
+elseif game.PlaceId == 15228348051 then
+spawn(function()
+	repeat task.wait()
+		local success, gloves = pcall(function()
+			return require(game.ReplicatedStorage.TowerDefenceAssets.TD_Dictionary)
+		end)
+		if success then
+			_G.TDDefence = gloves
+		end
+	until _G.TDDefence
+end)
+SaveDefence = {
+    ["Defence2"] = {
+        CFrame.new(29.400, 9.667, 4.490),
+        CFrame.new(67.450, 9.667, 22.996),
+        CFrame.new(19.844, 9.667, 8.144),
+        CFrame.new(24.326, 9.667, 50.881),
+        CFrame.new(14.049, 9.667, 32.988),
+    },
+    ["Defence3"] = {
+        CFrame.new(22.585, 9.150, 23.971),
+        CFrame.new(58.277, 9.150, 21.029),
+        CFrame.new(55.227, 9.150, 22.113),
+        CFrame.new(22.134, 9.150, -13.296),
+        CFrame.new(30.495, 9.150, 18.987),
+        CFrame.new(48.039, 9.150, -15.423),
+    },
+    ["Defence1"] = {
+        CFrame.new(23.324, 9.667, -10.980),
+        CFrame.new(50.683, 9.667, -7.535),
+        CFrame.new(50.611, 9.667, 9.831),
+        CFrame.new(38.331, 9.667, -13.706),
+        CFrame.new(38.883, 9.667, 16.625),
+        CFrame.new(48.638, 9.667, -18.055),
+        CFrame.new(49.790, 9.667, 2.143),
+        CFrame.new(53.311, 9.667, 14.962),
+    }
+}
+
+Window:ChangeTitle("Map Tower Defence 🌻")
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Main")
+
+MainGroup:AddButton("Get Badge", function()
+local LocalPlayer = game.Players.LocalPlayer
+local DefenceFile = game.Workspace.Maps:WaitForChild(LocalPlayer.Name.."'s Map"):WaitForChild("Defences")
+local TD_Event = game:GetService("ReplicatedStorage"):WaitForChild("TowerDefenceAssets"):WaitForChild("TD_Event")
+local function DeployDefences(targetName)
+    local cframe = SaveDefence[targetName]
+    if not cframe then return end
+    for _, targetCF in ipairs(cframe) do
+        repeat task.wait(0.7)
+            local found = false
+            for _, v in pairs(DefenceFile:GetChildren()) do
+                if v.Name == targetName and v:FindFirstChild("HumanoidRootPart") and (v.HumanoidRootPart.Position - targetCF.Position).Magnitude < 1 then
+                    found = true
+                    break
+                end
+            end
+            wait(0.5)
+			if not found and _G.TDDefence and _G.TDDefence.Defences[targetName] then
+                local cost = _G.TDDefence.Defences[targetName].Cost
+                local currentGold = LocalPlayer:GetAttribute("Gold")
+                if currentGold >= cost then
+				    TD_Event:FireServer("PlaceDefence", {
+                        ["cf"] = targetCF,
+                        ["defencename"] = targetName
+                    })
+                    wait(0.5)
+                end
+			end
+        until found == true
+    end
+end
+local DefenceList = {"Defence1", "Defence2", "Defence3"}
+for _, v in ipairs(DefenceList) do
+    DeployDefences(v)
+end
+while task.wait() do
+    if _G.TDDefence then
+        for _, v in pairs(DefenceFile:GetChildren()) do
+            local config = _G.TDDefence.Defences[v.Name]
+            local level = v:GetAttribute("Level")
+            if config and level and level < 3 then
+                local baseCost = tonumber(config.Cost) or 0
+                local upgradeCost = baseCost * 1.3 * level
+                if LocalPlayer:GetAttribute("Gold") >= upgradeCost then
+                    TD_Event:FireServer("Upgrade", {["defence"] = v})
+                end
+            end
+        end
+    end
+end
+end)
 elseif game.PlaceId == 128229958211947 then
 Window:ChangeTitle("Chicken Boss 🐣")
 Tabs = {
@@ -18622,6 +18720,64 @@ MainGroup:AddButton("Get Badge", function()
 						break
 					end
 				end
+			end
+		end
+	end
+end)
+elseif game.PlaceId == 77283826005207 then
+Window:ChangeTitle("Map Opera ⭕")
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Main")
+
+MainGroup:AddButton("Get Badge", function()
+	local map = workspace:FindFirstChild("Map")
+	local lobby = map and map:FindFirstChild("Lobby")
+	local function firetouch(part)
+		if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = part.CFrame * CFrame.new(0, 5, 0)
+			if firetouchinterest then
+				firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, part, 0)
+				firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, part, 1)
+			end
+		end
+	end
+	local function fireclick(click, part)
+		if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = part.CFrame * CFrame.new(0, 5, 0)
+		end
+		if fireclickdetector then
+			fireclickdetector(click)
+		end
+	end
+	local function AutoComplete(number)
+		if lobby and lobby:FindFirstChild("Portal"..number) and lobby["Portal"..number]:FindFirstChild("Part"):FindFirstChild("TouchInterest") then
+			firetouch(lobby["Portal"..number].Part)
+			repeat task.wait() until map and map:FindFirstChild("Challenge"..number)
+			wait(0.5)
+			if map:FindFirstChild("Challenge"..number) and map["Challenge"..number]:FindFirstChild("RedButton") then
+				fireclick(map["Challenge"..number].RedButton.Button:FindFirstChild("ClickDetector"), map["Challenge"..number].RedButton.Button.Sphere)
+			end
+			repeat task.wait() until not map:FindFirstChild("Challenge"..number) and not lobby["Portal"..number].Part:FindFirstChild("TouchInterest")
+		end
+	end
+	if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		AutoComplete(1)
+		wait(0.5)
+		AutoComplete(2)
+		wait(0.5)
+		AutoComplete(3)
+		wait(0.5)
+		if lobby and lobby:FindFirstChild("EndPortal") then
+			local portal1 = not lobby["Portal1"].Part:FindFirstChild("TouchInterest")
+			local portal2 = not lobby["Portal2"].Part:FindFirstChild("TouchInterest")
+			local portal3 = not lobby["Portal3"].Part:FindFirstChild("TouchInterest")
+			local getglove = lobby:FindFirstChild("EndPortal"):FindFirstChild("Portal")
+			if portal1 and portal2 and portal3 and getglove then
+				firetouch(getglove)
 			end
 		end
 	end
