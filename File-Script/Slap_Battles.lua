@@ -873,6 +873,7 @@ AnimationSlapHit = {
 }
 
 _G.GetPotion = {
+	  ["Idiot"] = {"Cake Mix"},
       ["Grug"] = {"Mushroom"},
       ["Nightmare"] = {"Dark Root","Dark Root","Dark Root"},
       ["Confusion"] = {"Red Crystal","Blue Crystal","Glowing Mushroom"},
@@ -890,7 +891,7 @@ _G.GetPotion = {
       ["Slow"] = {"Mushroom","Mushroom","Blue Crystal","Blue Crystal","Jade Stone","Plane Flower"},
       ["Antitoxin"] = {"Blue Crystal","Glowing Mushroom","Plane Flower","Plane Flower","Elder Wood"},
       ["Corrupted Vine"] = {"Wild Vine","Wild Vine","Wild Vine","Blood Rose","Dark Root","Elder Wood","Jade Stone"},
-      ["Field"] = {"Hazel Lily","Plane Flower","Plane Flower"},
+      ["Corrupted Field"] = {"Hazel Lily","Plane Flower","Plane Flower"},
       ["Lost"] = {"Blue Crystal","Elder Wood","Elder Wood","Elder Wood","Red Crystal"}
 }
 
@@ -1045,7 +1046,7 @@ function UpdateTaskGloveMastery()
 		end
 	end
 	if #taskGlove == 0 then
-		taskGlove[1] = {Text = "Soon or fail glove (N/A) (0%)", IsFallback = true}
+		taskGlove[1] = {Text = "No "..(CheckGlove and CheckGlove() or "Unknown").." glove mastery (N/A) (0%)", IsFallback = true}
 	else
 		for _, task in ipairs(taskGlove) do
 			task.Percent = math.floor((task.Current / task.Max) * 100)
@@ -1149,11 +1150,23 @@ if hookmetamethod and getnamecallmethod then
 				if tostring(method) == "GeneralAbility" and args[1] == "antispam" and getgenv().AntiSpamBypass then
 					return
 				end
+				if tostring(method) == "Piano" and getgenv().AntiPiano then
+					return
+				end
 			elseif methodcall == "InvokeServer" then
 				if tostring(method) == "Psychokinesis" and MethodGlove == true then
 					if typeof(args[1]) == "table" and typeof(args[1]["throwbackAlpha"]) == "number" then
 						args[1]["throwbackAlpha"] = math.huge
 						return getgenv().HookFun(method, unpack(args))
+					end
+				end
+			elseif methodcall == "FireClient" or methodcall == "FireAllClients" then
+				if tostring(method) == "Confuse" and getgenv().AntiConfuse then
+					return
+				end
+				if tostring(method) == "VFX" then
+					if args[1] == "NightmareEffect" and getgenv().AntiNightmare then
+						return 
 					end
 				end
 		    end
@@ -3286,6 +3299,20 @@ if _G.AntiRagdoll then
 					end
 				end
 			end
+			if _G.AntiRagdolledV == "V0.5" then
+				if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+					local velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity
+				    local horizontalVelocity = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
+				    if horizontalVelocity >= 5 then
+					    if not hasBounced then
+					        local currentVel = game.Players.LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity
+					        local bounceVector = (currentVel * -0.5) + Vector3.new(0, 50, 0)
+					        game.Players.LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = bounceVector
+					        hasBounced = true
+					    end
+					end
+				end
+			end
 			if _G.AntiRagdolledV == "V1" then
 				if game.Players.LocalPlayer.Character:FindFirstChild("Torso") then
 					game.Players.LocalPlayer.Character.Torso.Anchored = true
@@ -3313,6 +3340,7 @@ if _G.AntiRagdoll then
 		        end
 			end
 		elseif game.Players.LocalPlayer.Character:WaitForChild("Ragdolled").Value == false then
+			hasBounced = false
 			CreateFreezeBV({Remove = true, Name = "AntiRagBV"})
 			if game.Players.LocalPlayer.Character:FindFirstChild("Torso") then
 				game.Players.LocalPlayer.Character.Torso.Anchored = false
@@ -7404,7 +7432,7 @@ if #players ~= 0 then
 		wait(0.2)
 	end
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
-	task.wait(3.5)
+	task.wait(3)
 end
 end
 task.wait()
@@ -7502,6 +7530,40 @@ elseif Value == true then
 Notification("You don't have Stick equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Stick Mastery"]:SetValue(false)
+end
+    end
+})
+
+Badge3Group:AddToggle("Auto Dice Mastery", {
+    Text = "Auto Dice Mastery",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoDiceMastery = Value
+if CheckGlove() == "Dice" then
+while _G.AutoDiceMastery do
+if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	local RandomPlayer = MasteryPlayers(CheckGlove(), true)
+	if RandomPlayer then
+		CreateFreezeBV()
+		for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RandomPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0, -6, 5))
+		repeat task.wait() until _G.AutoDiceMastery == false or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - RandomPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 8
+		slapglove(RandomPlayer.Character.Head)
+		wait(0.1)
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["SafeBox"].CFrame * CFrame.new(0,5,0)
+		task.wait(0.7)
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Dice equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Dice Mastery"]:SetValue(false)
 end
     end
 })
@@ -9760,6 +9822,46 @@ elseif Value == true then
 Notification("You don't have Moon equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Mastery Moon"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Dice", {
+    Text = "Auto Mastery Dice",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoDiceMasteryHelp = Value
+if not _G.AutoDiceMasteryHelp then
+	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
+end
+if _G.Players1CloneHelp or CheckGlove() == "Dice" then
+while _G.AutoDiceMasteryHelp do
+CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,7,0),
+})
+if not _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") then
+		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
+				for i = 1, 10 do
+					slapglove(root1)
+					task.wait(0.78)
+				end
+				wait(0.4)
+				repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
+				task.wait(0.4)
+			end
+		end
+	end
+end
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Dice equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Dice"]:SetValue(false)
 end
     end
 })
@@ -12434,6 +12536,7 @@ function SlapHitbox()
             CurrentHitbox:Destroy()
         end
     end)
+    return HitPlayer
 end
 local Cooldown = false
 local function IsSlapping(humanoid)
@@ -12468,9 +12571,10 @@ table.insert(_G.ConnectFun, game:GetService("RunService").Heartbeat:Connect(func
                         Cooldown = true
                         task.spawn(function()
                             while ToolGlove.Parent == char and IsSlapping(hum) and ragdoll and not ragdoll.Value and (_G.SlapAura and _G.SlapAuraChoose == "Hitbox") do
-	                            if ragdoll and not ragdoll.Value then
-	                                SlapHitbox()
-								end
+	                            local hasHit = SlapHitbox() 
+						        if hasHit then 
+						            break 
+						        end
                                 task.wait()
                             end
                             Cooldown = false
@@ -16173,27 +16277,33 @@ Fly(Value)
 
 local Misc2Group = Tabs.Tab:AddRightGroupbox("Combat")
 
+function slapglove(object)
+	local player = game.Players.LocalPlayer
+	if not player then return end
+	local char = player.Character
+	local backpack = player.Backpack
+	if not char then return end
+	local part = object
+	if not part then return end
+	if backpack:FindFirstChild("Lantern") then
+		backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
+	end
+	if char:FindFirstChild("Lantern") and char.Lantern:FindFirstChild("Network") then
+		char.Lantern:Activate()
+		char.Lantern.Network:FireServer("Hit", part)
+	end
+end
+
 Misc2Group:AddToggle("Fight Trask", {
-    Text = "Fight Trask",
+    Text = "Auto Slap Trask",
     Default = false, 
     Callback = function(Value) 
 _G.BringTrask = Value
 while _G.BringTrask do
-if game.Workspace:FindFirstChild("TrackGloveMissile") then
 for i,v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "TrackGloveMissile" then
-if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
-elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-if game.Workspace:FindFirstChild("TrackGloveMissile") and game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
-if game.Players.LocalPlayer.Character:FindFirstChild("Lantern") and game.Players.LocalPlayer.Character.Lantern:FindFirstChild("Network") then
-game:GetService("Players").LocalPlayer.Character.Lantern.Network:FireServer("Hit", v)
-end
-end
-end
-end
-end
+	if v.Name:lower() == "trackglovemissile" then
+		slapglove(v)
+	end
 end
 task.wait()
 end
@@ -16206,26 +16316,13 @@ end
 })
 
 Misc2Group:AddToggle("Fight Boss Final", {
-    Text = "Fight Boss Final",
+    Text = "Slap  Boss Final",
     Default = false, 
     Callback = function(Value) 
 _G.FightBossFinal = Value
 while _G.FightBossFinal do
-if game.Workspace:FindFirstChild("GuideNPC") then
-for i,v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "GuideNPC" and v:FindFirstChild("HumanoidRootPart") then
-if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
-elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-if game.Workspace:FindFirstChild("GuideNPC") and game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
-if game.Players.LocalPlayer.Character:FindFirstChild("Lantern") and game.Players.LocalPlayer.Character.Lantern:FindFirstChild("Network") then
-game:GetService("Players").LocalPlayer.Character.Lantern.Network:FireServer("Hit", v:FindFirstChild("HumanoidRootPart"))
-end
-end
-end
-end
-end
+if game.Workspace:FindFirstChild("GuideNPC") and game.Workspace.GuideNPC:FindFirstChild("HumanoidRootPart") then
+	slapglove(game.Workspace.GuideNPC.HumanoidRootPart)
 end
 task.wait()
 end
@@ -16243,21 +16340,10 @@ Misc2Group:AddToggle("Fight Replica", {
     Callback = function(Value) 
 _G.FightReplica = Value
 while _G.FightReplica do
-if game.Workspace:FindFirstChild("ReplicaNPC") then
 for i,v in pairs(game.workspace:GetChildren()) do
-if v.Name == "ReplicaNPC" and v:FindFirstChild("HumanoidRootPart") then
-if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
-elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-if game.Workspace:FindFirstChild("ReplicaNPC") and game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
-if game.Players.LocalPlayer.Character:FindFirstChild("Lantern") and game.Players.LocalPlayer.Character.Lantern:FindFirstChild("Network") then
-game:GetService("Players").LocalPlayer.Character.Lantern.Network:FireServer("Hit", v:FindFirstChild("HumanoidRootPart"))
-end
-end
-end
-end
-end
+	if v.Name:lower() == "replicanpc" and v:FindFirstChild("HumanoidRootPart") then
+		slapglove(v.HumanoidRootPart)
+	end
 end
 task.wait()
 end
@@ -16275,36 +16361,10 @@ Misc2Group:AddToggle("Fight Golem", {
     Callback = function(Value) 
 _G.FightGolem = Value
 while _G.FightGolem do
-if game.Workspace:FindFirstChild("golem") and game.Workspace.golem:FindFirstChild("Hitbox") then
 for i,v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "golem" and v:FindFirstChild("Hitbox") then
-if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
-elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-if game.Workspace:FindFirstChild("golem") and game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
-if game.Players.LocalPlayer.Character:FindFirstChild("Lantern") and game.Players.LocalPlayer.Character.Lantern:FindFirstChild("Network") then
-game:GetService("Players").LocalPlayer.Character.Lantern.Network:FireServer("Hit", v:FindFirstChild("Hitbox"))
-end
-end
-end
-end
-end
-elseif game.Workspace:FindFirstChild("DungeonGolem") then
-for i,v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "DungeonGolem" and v:FindFirstChild("Cube.001") then
-if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
-elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-if game.Workspace:FindFirstChild("DungeonGolem") and game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
-if game.Players.LocalPlayer.Character:FindFirstChild("Lantern") and game.Players.LocalPlayer.Character.Lantern:FindFirstChild("Network") then
-game:GetService("Players").LocalPlayer.Character.Lantern.Network:FireServer("Hit", v:FindFirstChild("Cube.001"))
-end
-end
-end
-end
-end
+	if v.Name:lower() == "golem" or v.Name:lower() == "dungeongolem" then
+		slapglove(v:FindFirstChild("Hitbox") or v:FindFirstChild("Cube.001"))
+	end
 end
 task.wait()
 end
@@ -16323,18 +16383,9 @@ Misc2Group:AddToggle("Fight All", {
 _G.FightAll = Value
 while _G.FightAll do
 for i,v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "TrackGloveMissile" or v.Name == "golem" or v.Name == "DungeonGolem" or v.Name == "ReplicaNPC" or v.Name == "GuideNPC" then
-if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
-elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-if game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
-if game.Players.LocalPlayer.Character:FindFirstChild("Lantern") and game.Players.LocalPlayer.Character.Lantern:FindFirstChild("Network") then
-game:GetService("Players").LocalPlayer.Character.Lantern.Network:FireServer("Hit", v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Hitbox") or v:FindFirstChild("Cube.001") or v)
-end
-end
-end
-end
+	if v.Name:lower() == "trackglovemissile" or v.Name:lower() == "golem" or v.Name:lower() == "dungeongolem" or v.Name:lower() == "replicanpc" or v.Name:lower() == "guidenpc" then
+		slapglove(v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Hitbox") or v:FindFirstChild("Cube.001") or v)
+	end
 end
 task.wait()
 end
@@ -16347,21 +16398,8 @@ end
 })
 
 Misc2Group:AddButton("Fight Potato", function()
-if game.Workspace:FindFirstChild("PotatoLord") then
-for i,v in pairs(game.workspace:GetChildren()) do
-if v.Name == "PotatoLord" and v:FindFirstChild("HumanoidRootPart") then
-if game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Backpack:FindFirstChild("Lantern").Parent = game.Players.LocalPlayer.Character
-elseif game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-if game.Workspace:FindFirstChild("PotatoLord") and game.Players.LocalPlayer.Character:FindFirstChild("Lantern") then
-game.Players.LocalPlayer.Character:FindFirstChild("Lantern"):Activate()
-if game.Players.LocalPlayer.Character:FindFirstChild("Lantern") and game.Players.LocalPlayer.Character.Lantern:FindFirstChild("Network") then
-game:GetService("Players").LocalPlayer.Character.Lantern.Network:FireServer("Hit", v.HumanoidRootPart)
-end
-end
-end
-end
-end
+if game.Workspace:FindFirstChild("PotatoLord") and game.Workspace.PotatoLord:FindFirstChild("HumanoidRootPart") then
+	slapglove(game.Workspace.PotatoLord.HumanoidRootPart)
 end
 end)
 
@@ -18551,33 +18589,68 @@ spawn(function()
 		end
 	until _G.TDDefence
 end)
-SaveDefence = {
-    ["Defence2"] = {
-        CFrame.new(29.400, 9.667, 4.490),
-        CFrame.new(67.450, 9.667, 22.996),
-        CFrame.new(19.844, 9.667, 8.144),
-        CFrame.new(24.326, 9.667, 50.881),
-        CFrame.new(14.049, 9.667, 32.988),
-    },
-    ["Defence3"] = {
-        CFrame.new(22.585, 9.150, 23.971),
-        CFrame.new(58.277, 9.150, 21.029),
-        CFrame.new(55.227, 9.150, 22.113),
-        CFrame.new(22.134, 9.150, -13.296),
-        CFrame.new(30.495, 9.150, 18.987),
-        CFrame.new(48.039, 9.150, -15.423),
-    },
-    ["Defence1"] = {
-        CFrame.new(23.324, 9.667, -10.980),
-        CFrame.new(50.683, 9.667, -7.535),
-        CFrame.new(50.611, 9.667, 9.831),
-        CFrame.new(38.331, 9.667, -13.706),
-        CFrame.new(38.883, 9.667, 16.625),
-        CFrame.new(48.638, 9.667, -18.055),
-        CFrame.new(49.790, 9.667, 2.143),
-        CFrame.new(53.311, 9.667, 14.962),
-    }
-}
+
+local LocalPlayer = game.Players.LocalPlayer
+local DefenceFile = game.Workspace.Maps:WaitForChild(LocalPlayer.Name.."'s Map"):WaitForChild("Defences")
+local TD_Event = game:GetService("ReplicatedStorage"):WaitForChild("TowerDefenceAssets"):WaitForChild("TD_Event")
+
+if LocalPlayer:GetAttribute("CurrentMap") and LocalPlayer:GetAttribute("CurrentMap"):lower() == "mapfarm" then
+	SaveDefence = {
+	    ["Scarecrow"] = {
+	        CFrame.new(18.160, 9.250, -18.350),
+	        CFrame.new(18.674, 9.250, -21.802),
+	        CFrame.new(15.060, 9.250, -17.360),
+	        CFrame.new(17.183, 9.250, -19.138),
+	        CFrame.new(16.553, 9.250, -20.415),
+	    },
+	    ["Farmer2"] = {
+	        CFrame.new(46.449, 9.900, -9.293),
+	        CFrame.new(26.838, 9.900, 22.784),
+	        CFrame.new(58.493, 9.900, 14.624),
+	        CFrame.new(20.492, 9.900, 41.426),
+	    },
+	    ["Farmer1"] = {
+	        CFrame.new(-2.882, 9.900, 7.012),
+	        CFrame.new(-0.657, 9.900, 6.825),
+	        CFrame.new(1.067, 9.900, 6.587),
+	        CFrame.new(3.232, 9.900, 6.386),
+	        CFrame.new(5.214, 9.900, 5.814),
+	    },
+	    ["Farmer Tencelll"] = {
+	        CFrame.new(21.962, 9.150, -11.323),
+	        CFrame.new(80.139, 9.150, -4.739),
+	        CFrame.new(37.594, 9.150, 6.968),
+	    }
+	}
+else
+	SaveDefence = {
+	    ["Defence2"] = {
+	        CFrame.new(29.400, 9.667, 4.490),
+	        CFrame.new(67.450, 9.667, 22.996),
+	        CFrame.new(19.844, 9.667, 8.144),
+	        CFrame.new(24.326, 9.667, 50.881),
+	        CFrame.new(14.049, 9.667, 32.988),
+	    },
+	    ["Defence3"] = {
+	        CFrame.new(22.585, 9.150, 23.971),
+	        CFrame.new(58.277, 9.150, 21.029),
+	        CFrame.new(55.227, 9.150, 22.113),
+	        CFrame.new(22.134, 9.150, -13.296),
+	        CFrame.new(30.495, 9.150, 18.987),
+	        CFrame.new(48.039, 9.150, -15.423),
+	    },
+	    ["Defence1"] = {
+	        CFrame.new(23.324, 9.667, -10.980),
+	        CFrame.new(50.683, 9.667, -7.535),
+	        CFrame.new(50.611, 9.667, 9.831),
+	        CFrame.new(38.331, 9.667, -13.706),
+	        CFrame.new(38.883, 9.667, 16.625),
+	        CFrame.new(48.638, 9.667, -18.055),
+	        CFrame.new(49.790, 9.667, 2.143),
+	        CFrame.new(53.311, 9.667, 14.962),
+	    }
+	}
+end
 
 Window:ChangeTitle("Map Tower Defence 🌻")
 Tabs = {
@@ -18588,9 +18661,6 @@ Tabs = {
 local MainGroup = Tabs.Tab:AddLeftGroupbox("Main")
 
 MainGroup:AddButton("Get Badge", function()
-local LocalPlayer = game.Players.LocalPlayer
-local DefenceFile = game.Workspace.Maps:WaitForChild(LocalPlayer.Name.."'s Map"):WaitForChild("Defences")
-local TD_Event = game:GetService("ReplicatedStorage"):WaitForChild("TowerDefenceAssets"):WaitForChild("TD_Event")
 local function DeployDefences(targetName)
     local cframe = SaveDefence[targetName]
     if not cframe then return end
@@ -18618,7 +18688,11 @@ local function DeployDefences(targetName)
         until found == true
     end
 end
-local DefenceList = {"Defence1", "Defence2", "Defence3"}
+if LocalPlayer:GetAttribute("CurrentMap"):lower() == "mapfarm" then
+	DefenceList = {"Scarecrow", "Farmer1", "Farmer2", "Farmer Tencelll"}
+else
+	DefenceList = {"Defence1", "Defence2", "Defence3"}
+end
 for _, v in ipairs(DefenceList) do
     DeployDefences(v)
 end
