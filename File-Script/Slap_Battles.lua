@@ -937,72 +937,104 @@ end)
 
 if not game.CoreGui:FindFirstChild("MasteryGui") then
 	Create("ScreenGui", {
-		AutoLocalize = false,
-		Name = "MasteryGui",
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		Parent = game.CoreGui
+	    Name = "MasteryGui",
+	    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+	    Parent = game.CoreGui
 	}, {
-		Create("Frame", {
-			Active = true,
-			BorderSizePixel = 0,
-			BackgroundColor3 = Color3.fromRGB(111, 111, 111),
-			ClipsDescendants = true,
-			Size = UDim2.new(0, 238, 0, 134),
-			Position = UDim2.new(0.65, 0, 0, 0),
-			Name = "Main",
+	    Create("Frame", {
+	        Name = "Main",
+	        Active = true,
+	        BorderSizePixel = 0,
+	        BackgroundColor3 = Color3.fromRGB(112, 112, 112),
+	        ClipsDescendants = true,
 			Visible = false,
-			BackgroundTransparency = 0.3
-		}, {
-			Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
-			Create("UIStroke", {Transparency = 0.3, Thickness = 1.5}),
-			Create("UIDragDetector", {}),
-			Create("Frame", {
-				BorderSizePixel = 0,
-				BackgroundColor3 = Color3.fromRGB(137, 137, 137),
-				Size = UDim2.new(0, 226, 0, 126),
-				Position = UDim2.new(0.02521, 0, 0.02985, 0),
-				Name = "masteryGlove",
-				BackgroundTransparency = 0.2
-			}, {
-				Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
-				Create("ScrollingFrame", {
-					Active = true,
-					BorderSizePixel = 0,
-					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-					Name = "Progress",
-					ScrollBarImageTransparency = 1,
-					AutomaticCanvasSize = Enum.AutomaticSize.Y,
-					Size = UDim2.new(0, 210, 0, 112),
-					Position = UDim2.new(0.0354, 0, 0.04762, 0),
-					ScrollBarThickness = 0,
-					BackgroundTransparency = 1
-				}, {
-					Create("UIListLayout", {
-						HorizontalAlignment = Enum.HorizontalAlignment.Center,
-						Padding = UDim.new(0, 2)
-					}),
-					Create("Folder", {Name = "TaskLabel"}, {
-						Create("TextLabel", {
-							TextWrapped = true,
-							BorderSizePixel = 0,
-							TextSize = 10,
+	        Size = UDim2.new(0, 238, 0, 134),
+	        Position = UDim2.new(0.65, 0, 0, 0),
+	        BackgroundTransparency = 0.3
+	    }, {
+	        Create("UICorner", { CornerRadius = UDim.new(0, 5) }),
+	        Create("UIStroke", { Transparency = 0.3, Thickness = 1.5 }),
+	        Create("UIDragDetector", {}),
+	        Create("UIAspectRatioConstraint", { AspectRatio = 1.77612 }),
+	        
+	        Create("Frame", {
+	            Name = "masteryGlove",
+	            BorderSizePixel = 0,
+	            BackgroundColor3 = Color3.fromRGB(138, 138, 138),
+	            Size = UDim2.new(0, 226, 0, 126),
+	            Position = UDim2.new(0.02521, 0, 0.02985, 0),
+	            BackgroundTransparency = 0.2
+	        }, {
+	            Create("UICorner", { CornerRadius = UDim.new(0, 5) }),
+	            
+	            Create("ScrollingFrame", {
+	                Name = "Progress",
+	                Active = true,
+	                BorderSizePixel = 0,
+	                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+	                ScrollBarImageTransparency = 1,
+	                AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	                Size = UDim2.new(0, 210, 0, 112),
+	                Position = UDim2.new(0.0354, 0, 0.04762, 0),
+	                ScrollBarThickness = 0,
+	                BackgroundTransparency = 1
+	            }, {
+	                Create("UIListLayout", {
+	                    HorizontalAlignment = Enum.HorizontalAlignment.Center,
+	                    Padding = UDim.new(0, 2)
+	                }),
+	                
+	                Create("Folder", { Name = "TaskHere" }, {
+	                    Create("Frame", {
+	                        Name = "Task [???]",
+	                        BorderSizePixel = 0,
+	                        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+	                        Size = UDim2.new(0, 210, 0, 36),
 							Visible = false,
-							TextStrokeColor3 = Color3.fromRGB(255, 255, 255),
-							TextScaled = true,
-							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-							FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-							TextColor3 = Color3.fromRGB(0, 0, 0),
-							BackgroundTransparency = 0.2,
-							Size = UDim2.new(1, 0, 0.25, 0),
-							Text = "Soon",
-							Name = "Task [???]"
-						}, {
-							Create("UICorner", {CornerRadius = UDim.new(0, 5)})
-						})
-					})
-				})
-			})
-		})
+	                        BackgroundTransparency = 0.2
+	                    }, {
+	                        Create("UICorner", { CornerRadius = UDim.new(0, 5) }),
+	                        
+	                        Create("TextLabel", {
+	                            Name = "ProgressTask",
+	                            TextWrapped = true,
+	                            BorderSizePixel = 0,
+	                            TextSize = 10,
+	                            TextStrokeColor3 = Color3.fromRGB(255, 255, 255),
+	                            TextScaled = true,
+	                            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+	                            FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+	                            TextColor3 = Color3.fromRGB(0, 0, 0),
+	                            BackgroundTransparency = 1,
+	                            Size = UDim2.new(0, 170, 0, 28),
+								Position = UDim2.new(0.02857, 0, 0.11111, 0),
+	                            Text = "Soon"
+	                        }),
+	                        Create("ImageLabel", {
+	                            Name = "TaskUnComplete",
+	                            BorderSizePixel = 0,
+	                            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+	                            Image = "rbxassetid://100988669582287",
+	                            Size = UDim2.new(0, 22, 0, 22),
+	                            BackgroundTransparency = 1,
+	                            Position = UDim2.new(0.8619, 0, 0.18, 0)
+	                        }, {
+	                            Create("ImageLabel", {
+	                                Name = "Complete",
+	                                BorderSizePixel = 0,
+	                                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+	                                Image = "rbxassetid://88066926099934",
+	                                Size = UDim2.new(0, 28, 0, 26),
+	                                BackgroundTransparency = 1,
+									Visible = false,
+	                                Position = UDim2.new(0, 0, -0.18182, 0)
+	                            })
+	                        })
+	                    })
+	                })
+	            })
+	        })
+	    })
 	})
 end
 
@@ -1049,7 +1081,7 @@ function UpdateTaskGloveMastery()
 		taskGlove[1] = {Text = "No "..(CheckGlove and CheckGlove() or "Unknown").." glove mastery (N/A) (0%)", IsFallback = true}
 	else
 		for _, task in ipairs(taskGlove) do
-			task.Percent = math.floor((task.Current / task.Max) * 100)
+			task.Percent = math.min(math.floor((task.Current / task.Max) * 100), 100)
 		end
 	end
 	return taskGlove
@@ -1061,11 +1093,11 @@ table.insert(_G.ConnectFun, game:GetService("RunService").RenderStepped:Connect(
 	if main and not main.Visible then return end
 	local masteryFrame = main and main:FindFirstChild("masteryGlove")
 	local progress = masteryFrame and masteryFrame:FindFirstChild("Progress")
-	local taskFolder = progress and progress:FindFirstChild("TaskLabel")
+	local taskFolder = progress and progress:FindFirstChild("TaskHere")
 	if not taskFolder then return end
-	local currentGlove = CheckGlove()
+	local currentGlove = CheckGlove() or "Unknown"
 	local update = UpdateTaskGloveMastery()
-	local template = taskFolder:FindFirstChild("Task [???]") or taskFolder:FindFirstChildOfClass("TextLabel")
+	local template = taskFolder:FindFirstChild("Task [???]") or taskFolder:FindFirstChildOfClass("Frame")
 	for i = 1, 4 do
 		local existingLabel = progress:FindFirstChild("Task [" .. i .. "]")
 		if not existingLabel and template then
@@ -1076,18 +1108,29 @@ table.insert(_G.ConnectFun, game:GetService("RunService").RenderStepped:Connect(
 		end
 	end
 	for i = 1, 4 do
-		local label = progress:FindFirstChild("Task [" .. i .. "]")
-		if label and label:IsA("TextLabel") then
+		local frame = progress:FindFirstChild("Task [" .. i .. "]")
+		local textlabel = frame and frame:FindFirstChild("ProgressTask")
+		local complete = frame and frame:FindFirstChild("TaskUnComplete") and frame.TaskUnComplete:FindFirstChild("Complete")
+		if textlabel and textlabel:IsA("TextLabel") then
 			local taskData = update[i]
 			if taskData then
 				if taskData.IsFallback then
-					label.Text = taskData.Text
+					textlabel.Text = taskData.Text
+					if complete then complete.Visible = false end
 				else
-					label.Text = string.format("%s (%d/%d) (%d%%)", taskData.Text, taskData.Current, taskData.Max, taskData.Percent)
+					textlabel.Text = string.format("%s (%d/%d) (%d%%)", taskData.Text, taskData.Current, taskData.Max, taskData.Percent)
+					if complete then
+						if taskData.Current >= taskData.Max then
+							complete.Visible = true
+						else
+							complete.Visible = false
+						end
+					end
 				end
-				label.Visible = true
+				frame.Visible = true
 			else
-				label.Visible = false
+				frame.Visible = false
+				if complete then complete.Visible = false end
 			end
 		end
 	end
@@ -1143,8 +1186,12 @@ if hookmetamethod and getnamecallmethod then
 			local args = {...}
 			local methodcall = getnamecallmethod()
 		    if methodcall == "FireServer" then
-			    if ((tostring(method) == "GoldenHit" and EquipGlove:lower():find("golden")) or (tostring(method) == "GeneralHit" and (EquipGlove:lower():find("glovel") or EquipGlove:lower():find("mace") or EquipGlove:lower():find("charge")))) and MethodGlove == true then
-					args[2] = (EquipGlove:lower():find("mace") and 200 or true)
+			    if ((tostring(method) == "GoldenHit" and EquipGlove:lower():find("golden")) or (tostring(method) == "GeneralHit" and (EquipGlove:lower():find("glovel") or EquipGlove:lower():find("mace") or EquipGlove:lower():find("charge") or EquipGlove:lower():find("stalker")))) and MethodGlove == true then
+					if not EquipGlove:lower():find("stalker") then
+						args[2] = (EquipGlove:lower():find("mace") and 200 or true)
+					else
+						args[3] = 48
+					end
 					return getgenv().HookFun(method, unpack(args))
 				end
 				if tostring(method) == "GeneralAbility" and args[1] == "antispam" and getgenv().AntiSpamBypass then
@@ -2548,6 +2595,20 @@ if hookmetamethod then
 	})
 end
 
+_G.AntiToggles["Anti Piano"] = Anti2Group:AddToggle("Anti Piano", {
+    Text = "Anti Piano",
+    Default = false,
+    Callback = function(Value)
+if hookmetamethod then getgenv().AntiPiano = Value end
+if not hookmetamethod then
+	local Piano = game:GetService("ReplicatedStorage"):FindFirstChild("Piano") or game:GetService("ReplicatedStorage"):FindFirstChild("_Piano_")
+	if Piano then
+		Piano.Name = Value and "_Piano_" or "Piano"
+	end
+end
+    end
+})
+
 _G.AntiToggles["Anti Boss Guide"] = Anti2Group:AddToggle("Anti Boss Guide", {
     Text = "Anti Join Boss Guide",
     Default = false,
@@ -3303,13 +3364,9 @@ if _G.AntiRagdoll then
 				if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 					local velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity
 				    local horizontalVelocity = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
-				    if horizontalVelocity >= 5 then
-					    if not hasBounced then
-					        local currentVel = game.Players.LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity
-					        local bounceVector = (currentVel * -0.5) + Vector3.new(0, 50, 0)
-					        game.Players.LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = bounceVector
-					        hasBounced = true
-					    end
+				    if horizontalVelocity >= 10 then
+					    local currentVel = game.Players.LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity
+				        game.Players.LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = (currentVel * -3)
 					end
 				end
 			end
@@ -3519,6 +3576,55 @@ elseif not teleportFunc then
 Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
 end
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Lobby.brazil.portal.CFrame
+    end
+})
+
+Badge1Group:AddButton({
+    Text = "Auto Get Boxing",
+    Func = function()
+local teleportFunc = queueonteleport or queue_on_teleport
+    if teleportFunc then
+        teleportFunc([[
+            if not game:IsLoaded() then
+                game.Loaded:Wait()
+            end
+            repeat wait() until game.Players.LocalPlayer
+wait(2)
+if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	local OpenedDoors = {}
+	while true and task.wait() do
+		if workspace:FindFirstChild("Hallways") then
+			for i, v in pairs(workspace.Hallways:GetChildren()) do
+				local HallwayDoor = v:FindFirstChild("Doors")
+				if HallwayDoor then
+					for j, b in pairs(HallwayDoor:GetChildren()) do
+						if b:IsA("Model") and tonumber(b.Name) then
+							if OpenedDoors[b] then 
+                                continue 
+                            end
+							local DoorHitbox = b:FindFirstChild("Hitbox")
+							local Click = DoorHitbox and DoorHitbox:FindFirstChild("ClickDetector")
+							if DoorHitbox then
+								repeat task.wait()
+									if fireclickdetector then
+										fireclickdetector(Click)
+									end
+									game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = DoorHitbox.CFrame * CFrame.new(0, 0, -5)
+								until b:GetAttribute("Open")
+								OpenedDoors[b] = true
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+]])
+elseif not teleportFunc then
+Notification("Bruh, Not only executor you autoexe", _G.TimeNotify)
+end
+game:GetService("TeleportService"):Teleport(125845699717230)
     end
 })
 
@@ -5393,8 +5499,13 @@ function SpawnFarmMastery()
 		player.Character.HumanoidRootPart.CFrame = workspace.BountyHunterRoom.Build.Union.CFrame * CFrame.new(0,0,5)
 	end
 	task.wait(0.6)
-	abilityspawn()
-	repeat task.wait() until gloveEquip:lower() ~= "null" or (workspace:FindFirstChild("Imp") and workspace.Imp:FindFirstChild("Body"))
+	if gloveEquip:lower() ~= "null" then
+		abilityspawn()
+	else
+		repeat task.wait()
+			abilityspawn()
+		until gloveEquip:lower() ~= "null" or (workspace:FindFirstChild("Imp") and workspace.Imp:FindFirstChild("Body"))
+	end
 	if gloveEquip:lower() ~= "null" then
 		player.Reset:FireServer()
 		repeat task.wait() until player.Character and player.Character:FindFirstChild("HumanoidRootPart") and not player.Character:FindFirstChild("entered")
@@ -5996,7 +6107,7 @@ if _G.ObbyMastery:match("Entity") then
 	repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered")
 	wait(0.5)
 	for _,v in ipairs(workspace:GetChildren()) do
-		if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+		if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 			repeat task.wait()
 				if v:FindFirstChild("HumanoidRootPart") then
 					slapglove(v:FindFirstChild("HumanoidRootPart"))
@@ -6166,7 +6277,7 @@ if _G.CarMastery == "Farm Exp (Clone)" then
 	repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered")
 	wait(0.5)
 	for _,v in ipairs(workspace:GetChildren()) do
-		if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+		if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 			repeat task.wait()
 				if v:FindFirstChild("HumanoidRootPart") then
 					if game.Players.LocalPlayer.Character:FindFirstChild("CarKeysCar") then
@@ -6612,7 +6723,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered")
 	wait(0.6)
 	for _,v in ipairs(workspace:GetChildren()) do
-		if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+		if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 			repeat task.wait()
 				if v:FindFirstChild("HumanoidRootPart") then
 					slapglove(v:FindFirstChild("HumanoidRootPart"))
@@ -6765,7 +6876,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	wait(0.6)
 	game:GetService("ReplicatedStorage").FlashTeleport:FireServer()
 	for _,v in ipairs(workspace:GetChildren()) do
-		if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+		if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 			spawn(function()
 				repeat task.wait(5.4)
 					if CheckGlove() == "Flash" and v:FindFirstChild("HumanoidRootPart") then
@@ -6942,18 +7053,32 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered")
 	wait(0.5)
 	CreateFreezeBV()
+	local function AbilityRob()
+		game:GetService("ReplicatedStorage").rob:FireServer()
+		for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
+			if v.Name == "whiteframe" then
+				v:Destroy()
+			end
+		end
+	end
 	for _,v in ipairs(workspace:GetChildren()) do
-		if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+		if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 			repeat task.wait()
-				if v:FindFirstChild("HumanoidRootPart") then
-					v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+				AbilityRob()
+				if game.Players.LocalPlayer.Character:FindFirstChild("Head") and game.Players.LocalPlayer.Character.Head.Transparency >= 1 then
+					if v:FindFirstChild("HumanoidRootPart") then
+						v.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+					end
 				end
 			until v:FindFirstChild("HumanoidRootPart") == nil or (v:FindFirstChild("Head") and v.Head.Transparency >= 1) or _G.AutoRobMastery == false
 		end
 		if v.Name == "Imp" and v:FindFirstChild("Body") then
 			repeat task.wait()
-				if v:FindFirstChild("Body") then
-					v:FindFirstChild("Body").CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+				AbilityRob()
+				if game.Players.LocalPlayer.Character:FindFirstChild("Head") and game.Players.LocalPlayer.Character.Head.Transparency >= 1 then
+					if v:FindFirstChild("Body") then
+						v:FindFirstChild("Body").CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+					end
 				end
 			until v:FindFirstChild("Body") == nil or _G.AutoRobMastery == false
 		end
@@ -7107,7 +7232,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	wait(0.5)
 	game:GetService("ReplicatedStorage").WormholeTP:FireServer(CFrame.new(-57.48336410522461, -4.672852516174316, 67.94768524169922, 0.5769212245941162, 0.0005397791974246502, 0.8167997002601624, 1.468715993269143e-07, 0.9999997615814209, -0.0006609398988075554, -0.8167998790740967, 0.00038141835830174387, 0.5769210457801819))
 	for _,v in ipairs(workspace:GetChildren()) do
-		if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+		if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 			repeat task.wait()
 				if v:FindFirstChild("HumanoidRootPart") then
 					slapglove(v:FindFirstChild("HumanoidRootPart"))
@@ -7246,7 +7371,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered")
 	wait(0.5)
 	for _,v in ipairs(workspace:GetChildren()) do
-		if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+		if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 			repeat task.wait()
 				if v:FindFirstChild("HumanoidRootPart") then
 					slapglove(v:FindFirstChild("HumanoidRootPart"))
@@ -7459,7 +7584,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	wait(0.5)
 	spawn(function()
 		for _,v in ipairs(workspace:GetChildren()) do
-			if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+			if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 				repeat task.wait()
 					if v:FindFirstChild("HumanoidRootPart") then
 						slapglove(v:FindFirstChild("HumanoidRootPart"))
@@ -7505,7 +7630,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered")
 	wait(0.5)
 	for _,v in ipairs(workspace:GetChildren()) do
-		if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+		if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 			repeat task.wait()
 				if v:FindFirstChild("HumanoidRootPart") then
 					slapglove(v:FindFirstChild("HumanoidRootPart"))
@@ -7581,7 +7706,7 @@ if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
 	repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("entered")
 	wait(0.5)
 	for _,v in ipairs(workspace:GetChildren()) do
-		if v.Name:match("Å") and v:FindFirstChild("HumanoidRootPart") then
+		if v.Name:find("Å") and v:FindFirstChild("HumanoidRootPart") then
 			for o = 1, 35 do
 				if v:FindFirstChild("HumanoidRootPart") then
 					slapglove(v:FindFirstChild("HumanoidRootPart"))
@@ -8374,6 +8499,79 @@ end
     end
 })
 
+Badge4Group:AddDropdown("Hexa Mastery", {
+    Text = "Hexa Mastery",
+    Values = {"Ability Clone", "Slap + Ability Clone", "Kill Clone"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.HexaMasteryHelp = Value
+    end
+})
+
+Badge4Group:AddToggle("Auto Mastery Hexa", {
+    Text = "Auto Mastery Hexa",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoHexaMasteryHelp = Value
+if not _G.AutoBonkMasteryHelp then
+	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
+end
+if _G.Players1CloneHelp or CheckGlove() == "Hexa" then
+spawn(function()
+	while _G.AutoHexaMasteryHelp do
+		if _G.Players1CloneHelp then
+			CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+			if Players1 and Players2 and Players2:FindFirstChild("entered") and Players1:FindFirstChild("entered") then
+				if _G.HexaMasteryHelp == "Kill Clone" then
+					repeat task.wait() until _G.AutoHexaMasteryHelp == false or Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("Ragdolled") and Players2.Ragdolled.Value
+					wait(1)
+					repeat task.wait()
+						Players2:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
+					until not Players2 or Players2:FindFirstChild("Humanoid") and Players2:FindFirstChild("Humanoid").Health <= 0
+					repeat task.wait() until not _G.AutoHexaMasteryHelp or game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+					wait(0.5)
+				end
+			end
+		end
+		task.wait()
+	end
+end)
+while _G.AutoHexaMasteryHelp do
+pcall(function()
+HelpMasteryJoin({
+	CloneCF = CFrame.new(0,5,0),
+	MainCF = CFrame.new(0,5,-7),
+})
+if not _G.Players1CloneHelp then
+	if Players2 and Players2:FindFirstChild("entered") then
+		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) <= 100 then
+				if _G.HexaMasteryHelp == "Ability Clone" or _G.HexaMasteryHelp == "Kill Clone" then
+					game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+				elseif _G.HexaMasteryHelp == "Slap + Ability Clone" then
+					slapglove(root1)
+					task.wait(0.6)
+					game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+				end
+				task.wait(0.5)
+				repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
+				task.wait(0.5)
+			end
+		end
+	end
+end
+end)
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have BONK equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery BONK"]:SetValue(false)
+end
+    end
+})
+
 Badge4Group:AddDropdown("Thanos Mastery", {
     Text = "Thanos Mastery",
     Values = {"Ambush Clone", "Recover/Save Yourself", "Combo Clone"},
@@ -8958,6 +9156,7 @@ if not _G.Players1CloneHelp and _G.AutoObbyMasteryHelp and _G.ObbyMasteryHelp ==
 				game:GetService("ReplicatedStorage").Fortlol:FireServer()
 				wait(3.6)
 			end
+			game:GetService("Players").LocalPlayer.Reset:FireServer()
 			wait(0.3)
 			repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 			wait(0.5)
@@ -8972,6 +9171,7 @@ if not _G.Players1CloneHelp and _G.AutoObbyMasteryHelp and _G.ObbyMasteryHelp ==
 					root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
 				end
 			until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+			CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
 			wait(0.4)
 			root.CFrame = CFrame.new(209, -28006, 1) * CFrame.Angles(math.rad(0), -55, 0)
 			wait(0.6)
@@ -9267,6 +9467,104 @@ elseif Value == true then
 Notification("You don't have Hive equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Mastery Hive"]:SetValue(false)
+end
+    end
+})
+
+Badge4Group:AddDropdown("Dice Mastery", {
+    Text = "Dice Mastery",
+    Values = {"Slap Clone", "Kill Clone"},
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+_G.DiceMasteryHelp = Value
+    end
+})
+
+function foundDice(rootD)
+	local DiceMax, Dice = 0, nil
+	for i, v in pairs(workspace:GetChildren()) do
+		if v.Name:lower():find("DicePart") and v:FindFirstChild("BillboardGui") and v.BillboardGui:FindFirstChild("ImageLabel") and v.BillboardGui.ImageLabel:FindFirstChild("TextLabel") then
+			if v.BillboardGui.ImageLabel.BackgroundTransparency <= 0.5 then
+				local Dice = (rootD.Position - v.Position).Magnitude
+				if Dice and Dice <= 70 then
+					DiceMax, Dice = math.max(DiceMax, tonumber(v.BillboardGui.ImageLabel.TextLabel)), v
+				end
+			end
+		end
+	end
+	return DiceMax, Dice
+end
+Badge4Group:AddToggle("Auto Mastery Dice", {
+    Text = "Auto Mastery Dice",
+    Default = false, 
+    Callback = function(Value) 
+_G.AutoDiceMasteryHelp = Value
+if not _G.AutoDiceMasteryHelp then
+	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
+end
+if _G.Players1CloneHelp or CheckGlove() == "Dice" then
+spawn(function()
+	while _G.AutoDiceMasteryHelp do
+		pcall(function()
+			if _G.Players1CloneHelp then
+				if Players2 and Players2:FindFirstChild("entered") then
+					CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
+					if _G.DiceMasteryHelp == "Kill Clone" then
+						local DiceMax, Dice = foundDice(root)
+						if DiceMax and tonumber(DiceMax) <= 60 then
+							repeat task.wait() until Players2 and Players2:FindFirstChild("Ragdolled") and Players2.Ragdolled.Value
+							wait(0.4)
+							repeat task.wait()
+								Players2:SetPrimaryPartCFrame(game.Workspace.DEATHBARRIER.CFrame)
+							until not Players2 or Players2:FindFirstChild("Humanoid") and Players2:FindFirstChild("Humanoid").Health <= 0
+							wait(0.1)
+							repeat task.wait() until not _G.DiceMasteryHelp or game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+							wait(0.5)
+							if Dice then
+								Dice:Destroy()
+							end
+						end
+					end
+				end
+			end
+		end)
+		task.wait()
+	end
+end)
+while _G.AutoDiceMasteryHelp do
+pcall(function()
+	HelpMasteryJoin({
+		CloneCF = CFrame.new(0,5,0),
+		MainCF = CFrame.new(0,7,0),
+	})
+	if not _G.Players1CloneHelp then
+		if Players2 and Players2:FindFirstChild("entered") then
+			if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+				if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
+					if _G.DiceMasteryHelp == "Slap Clone" then
+						for i = 1, 10 do
+							slapglove(root1)
+							task.wait(0.78)
+						end
+					else
+						slapglove(root1)
+						task.wait(0.4)
+					end
+					wait(0.4)
+					repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
+					task.wait(0.4)
+				end
+			end
+		end
+	end
+end)
+task.wait()
+end
+elseif Value == true then
+Notification("You don't have Dice equipped", _G.TimeNotify)
+wait(0.05)
+Toggles["Auto Mastery Dice"]:SetValue(false)
 end
     end
 })
@@ -9649,6 +9947,7 @@ if not _G.Players1CloneHelp and _G.AutoMoaiMasteryHelp then
 				game:GetService("ReplicatedStorage").Fortlol:FireServer()
 				wait(3.6)
 			end
+			game:GetService("Players").LocalPlayer.Reset:FireServer()
 			wait(0.3)
 			repeat task.wait() until game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 			wait(0.5)
@@ -9663,6 +9962,7 @@ if not _G.Players1CloneHelp and _G.AutoMoaiMasteryHelp then
 					root.CFrame = game.Workspace:FindFirstChild("Lobby"):FindFirstChild("Teleport1").CFrame
 				end
 			until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+			CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
 			wait(0.4)
 			root.CFrame = CFrame.new(209, -28006, 1) * CFrame.Angles(math.rad(0), -55, 0)
 			wait(0.6)
@@ -9822,46 +10122,6 @@ elseif Value == true then
 Notification("You don't have Moon equipped", _G.TimeNotify)
 wait(0.05)
 Toggles["Auto Mastery Moon"]:SetValue(false)
-end
-    end
-})
-
-Badge4Group:AddToggle("Auto Mastery Dice", {
-    Text = "Auto Mastery Dice",
-    Default = false, 
-    Callback = function(Value) 
-_G.AutoDiceMasteryHelp = Value
-if not _G.AutoDiceMasteryHelp then
-	CreateFreezeBV({Remove = true, Name = "HelpMasteryFreezeBv"})
-end
-if _G.Players1CloneHelp or CheckGlove() == "Dice" then
-while _G.AutoDiceMasteryHelp do
-CreateFreezeBV({Name = "HelpMasteryFreezeBv"})
-HelpMasteryJoin({
-	CloneCF = CFrame.new(0,5,0),
-	MainCF = CFrame.new(0,7,0),
-})
-if not _G.Players1CloneHelp then
-	if Players2 and Players2:FindFirstChild("entered") then
-		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
-			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
-				for i = 1, 10 do
-					slapglove(root1)
-					task.wait(0.78)
-				end
-				wait(0.4)
-				repeat task.wait() until Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false
-				task.wait(0.4)
-			end
-		end
-	end
-end
-task.wait()
-end
-elseif Value == true then
-Notification("You don't have Dice equipped", _G.TimeNotify)
-wait(0.05)
-Toggles["Auto Mastery Dice"]:SetValue(false)
 end
     end
 })
@@ -10147,26 +10407,28 @@ if not _G.AutoRobMasteryHelp then
 end
 if _G.Players1CloneHelp or CheckGlove() == "rob" then
 while _G.AutoRobMasteryHelp do
-HelpMasteryJoin({
-	CloneCF = CFrame.new(0,5,0),
-	MainCF = CFrame.new(0,5,-3),
-})
-if not _G.Players1CloneHelp then
-	if Players2 and Players2:FindFirstChild("entered") then
-		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
-			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
-				game:GetService("ReplicatedStorage").rob:FireServer()
-				for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
-					if v.Name == "whiteframe" then
-						v:Destroy()
+pcall(function()
+	HelpMasteryJoin({
+		CloneCF = CFrame.new(0,5,0),
+		MainCF = CFrame.new(0,5,-3),
+	})
+	if not _G.Players1CloneHelp then
+		if Players2 and Players2:FindFirstChild("entered") then
+			if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
+				if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
+					game:GetService("ReplicatedStorage").rob:FireServer()
+					for i, v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
+						if v.Name == "whiteframe" then
+							v:Destroy()
+						end
 					end
+					repeat task.wait() until _G.AutoRobMasteryHelp == false or Players2:FindFirstChild("entered") and Players2 and Players2:FindFirstChild("Humanoid") and Players2:FindFirstChild("Humanoid").Health > 0 and tonumber(Players2:FindFirstChild("Head").Transparency) < 1
+					wait(0.3)
 				end
-				repeat task.wait() until _G.AutoRobMasteryHelp == false or Players2:FindFirstChild("entered") and Players2 and Players2:FindFirstChild("Humanoid") and Players2:FindFirstChild("Humanoid").Health > 0 and tonumber(Players2:FindFirstChild("Head").Transparency) < 1
-				wait(0.3)
 			end
 		end
 	end
-end
+end)
 task.wait()
 end
 elseif Value == true then
@@ -10193,7 +10455,7 @@ HelpMasteryJoin({
 	MainCF = CFrame.new(0,4,-3),
 })
 if not _G.Players1CloneHelp then
-	if Players2 and Players2:FindFirstChild("entered") and Players2:FindFirstChild("ReadyToBurst") then
+	if Players2 and Players2:FindFirstChild("entered") then
 		if Players1 and Players1:FindFirstChild("entered") and Players1:FindFirstChild("Ragdolled") and Players1.Ragdolled.Value == false then
 			if (root and root1 and (root.Position - root1.Position).Magnitude or 0) < 50 then
 				for i = 1, 9 do
@@ -10905,7 +11167,7 @@ _G.DelaySlapClone = Value
 
 Misc1Basic:AddDropdown("FarmSlap", {
     Text = "AutoFarm Slap",
-    Values = {"Aimbot","Teleport", "Tween", "Clone Help (Duel)"},
+    Values = {"Aimbot","Teleport", "Tween", "Clone Help"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -10943,14 +11205,12 @@ table.insert(_G.ConnectFun, game:GetService("RunService").RenderStepped:Connect(
 				end
 			end
 			if not _G.CloneAccHelpFarm then
-				if CheckGlove() == "Duel" then
-					if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
-						if _G.HelpPlayer1Slap and _G.HelpPlayer1Slap.Character and _G.HelpPlayer1Slap.Character:FindFirstChild("entered") and _G.HelpPlayer1Slap.Character:FindFirstChild("HumanoidRootPart") then
-							if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - _G.HelpPlayer1Slap.Character.HumanoidRootPart.Position).Magnitude < 50 then
-								if tick() - slapgloveclone >= (_G.DelaySlapClone or 0.75) then
-									slapgloveclone = tick()
-									slapglove(_G.HelpPlayer1Slap.Character.HumanoidRootPart)
-								end
+				if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+					if _G.HelpPlayer1Slap and _G.HelpPlayer1Slap.Character and _G.HelpPlayer1Slap.Character:FindFirstChild("entered") and _G.HelpPlayer1Slap.Character:FindFirstChild("HumanoidRootPart") then
+						if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - _G.HelpPlayer1Slap.Character.HumanoidRootPart.Position).Magnitude < 50 then
+							if tick() - slapgloveclone >= (_G.DelaySlapClone or 0.75) then
+								slapgloveclone = tick()
+								slapglove(_G.HelpPlayer1Slap.Character.HumanoidRootPart)
 							end
 						end
 					end
@@ -11210,7 +11470,7 @@ local players = {}
 for i, v in pairs(game.Players:GetChildren()) do
 	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true and notSlap(v.Character, BlackList) then
 		local Magnitude = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
-		if Magnitude < 100 then
+		if Magnitude < 200 then
 			table.insert(players, v)
 		end
 	end
@@ -11271,7 +11531,7 @@ local players = {}
 for i, v in pairs(game.Players:GetChildren()) do
 	if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true and notSlap(v.Character, BlackList) then
 		local Magnitude = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
-		if Magnitude < 100 then
+		if Magnitude < 500 then
 			table.insert(players, v)
 		end
 	end
@@ -11795,7 +12055,7 @@ end
 if hookmetamethod and getnamecallmethod then
 Misc1Basic:AddToggle("Method Glove", {
     Text = "Method Glove",
-    Tooltip = "Mathod: Glovel, Charge, Golden, Psython",
+    Tooltip = "Method: Glovel, Charge, Golden, Psython, Stalker",
     Default = false, 
     Callback = function(Value) 
 MethodGlove = Value
@@ -11878,7 +12138,7 @@ end
 
 Misc1Basic:AddDropdown("Aimbot", {
     Text = "Aimbot",
-    Values = {"Shard", "Horse", "Retro (Rocket Launcher)", "Scythe", "Tableflip", "Slasher"},
+    Values = {"Shard", "Horse", "Retro (Rocket Launcher)", "Scythe", "Tableflip", "Slasher", "G-X"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -11993,7 +12253,7 @@ table.insert(_G.ConnectFun, game:GetService("RunService").Heartbeat:Connect(func
 					AimbotEnable = true
 				end
 			end
-			if (_G.AimbotGlove == "Scythe" and CheckGlove():lower():find("scythe")) or (_G.AimbotGlove == "Slasher" and CheckGlove():lower():find("slasher")) then
+			if (_G.AimbotGlove == "Scythe" and CheckGlove():lower():find("scythe")) or (_G.AimbotGlove == "Slasher" and CheckGlove():lower():find("slasher")) or (_G.AimbotGlove == "G-X" and CheckGlove():lower():find("g-x")) then
 				if AnimationTrack then
 					for _, v in ipairs(AnimationTrack:GetPlayingAnimationTracks()) do
 						local idAnim = v.Animation.AnimationId:match("%d+")
@@ -12002,8 +12262,13 @@ table.insert(_G.ConnectFun, game:GetService("RunService").Heartbeat:Connect(func
 								AimbotEnable = true
 							end
 						end
+						if _G.AimbotGlove == "G-X" and CheckGlove():lower():find("g-x") then
+							if idAnim:find("86347899198448") then
+								AimbotEnable = true
+							end
+						end
 						if _G.AimbotGlove == "Slasher" and CheckGlove():lower():find("slasher") then
-							if idAnim:find("123476113915973") or idAnim:find("79720215321255") then
+							if (idAnim:find("123476113915973") or idAnim:find("79720215321255")) and not idAnim:find("136125547655440") then
 								AimbotEnable = true
 							end
 						end
@@ -17112,7 +17377,7 @@ local function CalculatePanel(number)
 	local needed = def - abc
 	local result = {}
 	if needed < 0 then
-		return {}, "The second number is smaller than the first number."
+		return {}, ""
 	end
 	local countX = needed // 10
 	needed = needed % 10
@@ -17137,53 +17402,57 @@ local Numberchar = {
 	["II"] = 2
 }
 repeat task.wait() 
-	repeat task.wait() until MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and (typeof(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text) == "number" or MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "unlocked" or MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "error")
-	repeat task.wait() until MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "unlocked" or tonumber(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text)
-	wait(0.7)
-	if MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() ~= "unlocked" then
-		local result, remainder = CalculatePanel(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text)
-		if #result <= 0 then
-			Notification(remainder, 5)
-			for i = 1, 10 do
-				for j, k in pairs(MapStuff.AddAmountsPanel:GetChildren()) do
-					if k.Name == "Key" then
-						if fireclickdetector then
-							fireclickdetector(k.ClickDetector)
-						end
-					end
-				end
-			end
-		else
-			for _, v in pairs(result) do
-				if count[v] then
-					count[v] += 1
-				end
-			end
-			for _, k in pairs(MapStuff.AddAmountsPanel:GetChildren()) do
-				if k.Name == "Key" then
-					local amount = k:GetAttribute("AddAmount")
-					local label = k:FindFirstChild("SurfaceGui") and k.SurfaceGui:FindFirstChild("TextLabel")
-					for char, num in pairs(Numberchar) do
-						if num == amount then
-							if label then
-								label.Text = char..": "..count[char]
+	pcall(function()
+		repeat task.wait() until MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and (tonumber(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text) or MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "unlocked" or MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "error")
+		repeat task.wait() until MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "unlocked" or tonumber(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text)
+		wait(0.7)
+		local count = {X = 0, V = 0, II = 0}
+		if MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() ~= "unlocked" then
+			local result, remainder = CalculatePanel(MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text)
+			if #result <= 0 then
+				Notification("The second number is smaller than the first number.", 5)
+				for i = 1, 10 do
+					for j, k in pairs(MapStuff.AddAmountsPanel:GetChildren()) do
+						if k.Name == "Key" then
+							if fireclickdetector then
+								fireclickdetector(k.ClickDetector)
 							end
 						end
 					end
 				end
-			end
-			for _, v in pairs(result) do
+				repeat task.wait() until MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "unlocked" or MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "error"
+			else
+				for _, v in pairs(result) do
+					if count[v] then
+						count[v] += 1
+					end
+				end
 				for _, k in pairs(MapStuff.AddAmountsPanel:GetChildren()) do
-					if k.Name == "Key" and k:GetAttribute("AddAmount") == Numberchar[v] then
-						if fireclickdetector and k:FindFirstChild("ClickDetector") then
-							fireclickdetector(k.ClickDetector)
+					if k.Name == "Key" then
+						local amount = k:GetAttribute("AddAmount")
+						local label = k:FindFirstChild("SurfaceGui") and k.SurfaceGui:FindFirstChild("TextLabel")
+						for char, num in pairs(Numberchar) do
+							if num == amount then
+								if label then
+									label.Text = char..": "..count[char]
+								end
+							end
 						end
 					end
 				end
-				wait(0.7)
+				for _, v in pairs(result) do
+					for _, k in pairs(MapStuff.AddAmountsPanel:GetChildren()) do
+						if k.Name == "Key" and k:GetAttribute("AddAmount") == Numberchar[v] then
+							if fireclickdetector and k:FindFirstChild("ClickDetector") then
+								fireclickdetector(k.ClickDetector)
+							end
+						end
+					end
+					wait(0.7)
+				end
 			end
 		end
-	end
+	end)
 until MapStuff:FindFirstChild("AddAmountsPanel") and MapStuff.AddAmountsPanel:FindFirstChild("Screen") and MapStuff.AddAmountsPanel.Screen:FindFirstChild("SurfaceGui") and MapStuff.AddAmountsPanel.Screen.SurfaceGui:FindFirstChild("TextLabel") and MapStuff.AddAmountsPanel.Screen.SurfaceGui.TextLabel.Text:lower() == "unlocked"
 wait(0.8)
 for i, v in pairs(MapStuff.RotatedPaintings:GetChildren()) do
@@ -18852,6 +19121,47 @@ MainGroup:AddButton("Get Badge", function()
 			local getglove = lobby:FindFirstChild("EndPortal"):FindFirstChild("Portal")
 			if portal1 and portal2 and portal3 and getglove then
 				firetouch(getglove)
+			end
+		end
+	end
+end)
+elseif game.PlaceId == 125845699717230 then
+Window:ChangeTitle("Map Doors 🚪")
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Main")
+
+MainGroup:AddButton("Get Badge", function()
+	if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		local OpenedDoors = {}
+		while true and task.wait() do
+			if workspace:FindFirstChild("Hallways") then
+				for i, v in pairs(workspace.Hallways:GetChildren()) do
+					local HallwayDoor = v:FindFirstChild("Doors")
+					if HallwayDoor then
+						for j, b in pairs(HallwayDoor:GetChildren()) do
+							if b:IsA("Model") and tonumber(b.Name) then
+								if OpenedDoors[b] then 
+	                                continue 
+	                            end
+								local DoorHitbox = b:FindFirstChild("Hitbox")
+								local Click = DoorHitbox and DoorHitbox:FindFirstChild("ClickDetector")
+								if DoorHitbox then
+									repeat task.wait()
+										if fireclickdetector then
+											fireclickdetector(Click)
+										end
+										game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = DoorHitbox.CFrame * CFrame.new(0, 0, -5)
+									until b:GetAttribute("Open")
+									OpenedDoors[b] = true
+								end
+							end
+						end
+					end
+				end
 			end
 		end
 	end
