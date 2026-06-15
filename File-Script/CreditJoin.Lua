@@ -58,7 +58,7 @@ function MakeAsset(list, options)
     return assets
 end
 
-local InviteCode = "KQAFmjw44H"
+local InviteCode = "R9hf4nPxeV"
 local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
 success, result = pcall(function()
     return HttpService:JSONDecode(quest({
