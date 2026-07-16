@@ -1,4 +1,4 @@
-return Translate = {
+return {
     ["Main"] = "Chính",
     ["Esp"] = "ESP",
     ["Misc"] = "Cái Khác",
