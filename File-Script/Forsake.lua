@@ -98,6 +98,12 @@ _G.ListAsset = {
 			["112902284724598"] = true, ["100725497418533"] = true,
 		}
 	},
+	["Corrupt Energy"] = {
+		["Animation"] = {
+			["127172483138092"] = true, ["93432652624003"] = true, ["117623646053053"] = true, ["86758834842420"] = true, ["98054702192257"] = true,
+			["96811405806507"] = true, ["93432652624003"] = true, ["93432652624003"] = true
+		}
+	},
 	["Axe"] = {
 		["Animation"] = {
 			["111918351126361"] = true,
@@ -272,23 +278,31 @@ local function t(text)
 end
 
 local function foundObject(object, name)
-	local Object
-	local function Find(objectJ)
-		if objectJ.Name:lower():gsub("%s+", ""):find(name:lower():gsub("%s+", "")) then
-			Object = objectJ
+	local targetObject
+	local targetName = name:lower():gsub("%s+", "")
+	local function check(item)
+		if item and item.Name and item.Name:lower():gsub("%s+", ""):find(targetName) then
+			targetObject = item
+			return true
 		end
 	end
-	if typeof(object) ~= "table" then
-		for i, v in pairs(object:GetChildren()) do
-			Find(v)
+	if type(object) == "table" then
+		for _, parentInstance in pairs(object) do
+			if typeof(parentInstance) == "Instance" then
+				for _, child in ipairs(parentInstance:GetChildren()) do
+					if check(child) then break end
+				end
+			end
+			if targetObject then break end
 		end
-	else
-		for i, v in pairs(object) do
-			Find(v)
+	elseif typeof(object) == "Instance" then
+		for _, child in ipairs(object:GetChildren()) do
+			if check(child) then break end
 		end
 	end
-	return Object
+	return targetObject
 end
+
 
 function CooldownReady(ability)
 	ability = ability or {}
@@ -449,7 +463,7 @@ function AddedSound(character, folder, listTrue, func)
             found = table.find(soundList, soundId)
         end
         if found then
-            task.spawn(func, sound)
+            task.spawn(func)
         end
     end
     for _, descendant in ipairs(character:GetDescendants()) do
@@ -460,9 +474,6 @@ function AddedSound(character, folder, listTrue, func)
     character.DescendantAdded:Connect(function(descendant)
         if descendant:IsA("Sound") then
             checkSound(descendant)
-            descendant.Played:Connect(function()
-                checkSound(descendant)
-            end)
         end
     end)
 end
@@ -484,7 +495,7 @@ function AddedAnimation(humanoid, folder, listTrue, func)
             found = table.find(animationList, animId)
         end
         if found then
-            task.spawn(func, track)
+            task.spawn(func)
         end
     end)
 end
@@ -854,6 +865,17 @@ function ClosestSurvivor()
 	                shortestDist = dist
 	            end
 	        end
+		end
+    end
+    if not closest then
+	    for _, v in ipairs(workspace.Map.Lobby:GetChildren()) do
+			if v:IsA("Folder") and v.Name:lower():find("npc") then
+				for _, i in pairs(v:GetChildren()) do
+					if i:IsA("Model") and i.Name:lower():find("pizza") then
+						closest = i
+					end
+				end
+			end
 		end
     end
     return closest
@@ -1294,6 +1316,7 @@ local playerChances = {}
 local lastKillerModel = nil
 local lastKillerPos = nil
 local smoothedSpeed = 0
+local CorruptEnergyLoading = false
 Connect(RunService.Heartbeat, function()
 FrameCounter = FrameCounter + 1
 if (tick() - FrameTimer) >= 1 then
@@ -1468,26 +1491,36 @@ if _G.AutoPlayMinigame then
 		end
 	end
 end
-if Character and Character.Name:lower():find("slash") then
-	for _, v in ipairs(Players:GetPlayers()) do
-		if v ~= LocalPlayer and v.Character then
-			local RootPartPlayers = v.Character:FindFirstChild("HumanoidRootPart")
-			local HumanoidPlayers = v.Character:FindFirstChildOfClass("Humanoid")
-			if RootPartPlayers and Distance(RootPartPlayers.Position) <= (_G.DetectionRangeSlasher or 18) then
-				local ParryFromSound = _G.AutoParrySound and HasSound(RootPartPlayers, "Parry", true)
-				local ParryFromAnimation = _G.AutoParryAnimation and HasAnimation(HumanoidPlayers, "Parry", true)
-				if ParryFromSound or ParryFromAnimation then
-					if CooldownReady({Name = "RagingPace"}) then
-						Remote:FireServer("UseActorAbility", {buffer.fromstring(stringChar("RagingPace"))})
+if AutoRotate and Humanoid then
+	Humanoid.AutoRotate = true
+	AutoRotate = nil
+end
+if Character and Character.Name:lower():find("johndoe") then
+	targetSurvivor = ClosestSurvivor()
+	if targetSurvivor and targetSurvivor:FindFirstChild("HumanoidRootPart") then
+		if _G.AimbotCorruptEnergy then
+			local AnimationEnergy, TrackAnimationEnergy = HasAnimation(Humanoid, "Corrupt Energy", true)
+			if AnimationEnergy and TrackAnimationEnergy then
+				if TrackAnimationEnergy.TimePosition > (_G.DelayAimbotJohnDoe or 0.65) then
+					if not CorruptEnergyLoading then
+						CorruptEnergyLoading = true
+						while Humanoid and Humanoid.WalkSpeed < 0.05 and task.wait() do
+							pcall(function()
+								AutoRotates()
+					            Aimbot(targetSurvivor.HumanoidRootPart, _G.SharpnessCorruptEnergy or 1)
+							end)
+						end
+						CorruptEnergyLoading = false
+					end
+				end
+				if TrackAnimationEnergy.TimePosition <= (_G.DelayAimbotJohnDoe or 0.65) then
+					if _G.SpinCorruptEnergy and not CorruptEnergyLoading then
+						RootPart.CFrame = RootPart.CFrame * CFrame.Angles(0, math.rad(_G.SpeedSpinCorruptEnergy or 20), 0)
 					end
 				end
 			end
 		end
 	end
-end
-if AutoRotate and Humanoid then
-	Humanoid.AutoRotate = true
-	AutoRotate = nil
 end
 if Character and Character.Name:lower():find("janedoe") then
 	targetKiller = ClosestKiller()
@@ -1653,12 +1686,16 @@ if Character and Character.Name:lower():find("guest") then
 		end
 		if targetKiller and workspace:FindFirstChild("RangeHB (Block)") then
 			local position
-		    if _G.FacingDirection then
-		        local hrpSize = targetKiller.HumanoidRootPart.Size.Z / 2
-				position = targetKiller.HumanoidRootPart.Position + targetKiller.HumanoidRootPart.CFrame.LookVector * (rangeHB + hrpSize)
-		    else
-		        position = targetKiller.HumanoidRootPart.Position
-		    end
+			local currentRange = rangeHB
+			if _G.FacingDirection then
+			    local hrp = targetKiller.HumanoidRootPart
+			    local hrpSize = hrp.Size.Z / 2
+			    local offset = rangeHB * 0.5 + hrpSize
+			    currentRange = math.max(rangeHB - offset, 0)
+			    position = hrp.Position + hrp.CFrame.LookVector * offset
+			else
+			    position = targetKiller.HumanoidRootPart.Position
+			end
 			local ignore = {}
 			for _, v in ipairs(workspace.Players:GetChildren()) do
 				for i, k in pairs(v:GetChildren()) do
@@ -1825,56 +1862,94 @@ Connect(RunService.RenderStepped, function()
 	end)
 end)
 
-local function TryAutoBlock(player)
-    if not Character or not Character.Parent then return end
-    if not Character.Name:lower():find("guest") then return end
+local function TryAutoBlock(player, detectType)
+    if not Character or not Character.Parent or not Character.Name then return end
     if player == LocalPlayer then return end
     local enemyCharacter = player.Character
     if not enemyCharacter then return end
     local rootPartPlayers = enemyCharacter:FindFirstChild("HumanoidRootPart")
     if not rootPartPlayers then return end
-    if Distance(rootPartPlayers.Position) > (_G.DetectionRangeGuest or 18) then return end
-    if _G.FacingDirection and not DotPlr(RootPart, rootPartPlayers, "Front") then return end
-    if not CooldownReady({Name = "Block"}) then return end
-    Remote:FireServer("UseActorAbility", {buffer.fromstring(stringChar("Block"))})
+    local charName = Character.Name:lower()
+    if detectType == "Parry" then
+        if Distance(rootPartPlayers.Position) <= (_G.DetectionRangeSlasher or 18) then
+            if charName:find("slash") then
+                if CooldownReady({Name = "RagingPace"}) then
+                    Remote:FireServer("UseActorAbility", {buffer.fromstring(stringChar("RagingPace"))})
+                end
+            elseif charName:find("johndoe") then
+                if CooldownReady({Name = "404Error"}) then
+                    Remote:FireServer("UseActorAbility", {buffer.fromstring(stringChar("404Error"))})
+                end
+            end
+        end
+    elseif charName:find("guest") and detectType == "Slash" then
+        if Distance(rootPartPlayers.Position) > (_G.DetectionRangeGuest or 18) then return end
+        if _G.FacingDirection and not DotPlr(RootPart, rootPartPlayers, "Front") then return end
+        if CooldownReady({Name = "Block"}) then
+            Remote:FireServer("UseActorAbility", {buffer.fromstring(stringChar("Block"))})
+        end
+    end
 end
 
 local function SetupPlayer(player)
     local function SetupCharacter(character)
-	    if player == LocalPlayer then return end
+        if player == LocalPlayer then return end
         local humanoid = character:WaitForChild("Humanoid", 10)
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 10)
-        if not humanoid or not humanoidRootPart then return end
+        if not humanoid or not humanoidRootPart then return end        
+        
+        local function RunLoop(detectType, isEnabled)
+            if isEnabled then
+                local startTimer = tick()
+                while tick() - startTimer < 0.1 and task.wait() do
+                    TryAutoBlock(player, detectType)
+                end
+            end
+        end
+
         AddedSound(humanoidRootPart, "Slash", true, function()
-	        if character.Parent and character.Parent.Name:lower():find("killers") then
-	            if _G.AutoBlockSound then
-		            local startSound = tick()
-					while startSound - tick() < 0.06 and task.wait() do
-		                TryAutoBlock(player)
-	                end
-	            end
-			end
+            if character.Parent and character.Parent.Name:lower():find("killers") then
+                RunLoop("Slash", _G.AutoBlockSound)
+            end
         end)
+
         AddedAnimation(humanoid, "Slash", true, function()
-	        if character.Parent and character.Parent.Name:lower():find("killers") then
-	            if _G.AutoBlockAnimation then
-	                local startAnima = tick()
-					while startAnima - tick() < 0.06 and task.wait() do
-		                TryAutoBlock(player)
-	                end
-	            end
-			end
+            if character.Parent and character.Parent.Name:lower():find("killers") then
+                RunLoop("Slash", _G.AutoBlockAnimation)
+            end
+        end)
+        
+        AddedSound(humanoidRootPart, "Parry", true, function()
+            if character.Parent and character.Parent.Name:lower():find("survivors") then
+                local charName = Character and Character.Name:lower() or ""
+                if charName:find("johndoe") then
+                    RunLoop("Parry", _G.AutoParryJohnSound)
+                else
+                    RunLoop("Parry", _G.AutoParrySound)
+                end
+            end
+        end)
+        
+        AddedAnimation(humanoid, "Parry", true, function()
+            if character.Parent and character.Parent.Name:lower():find("survivors") then
+                local charName = Character and Character.Name:lower() or ""
+                if charName:find("johndoe") then
+                    RunLoop("Parry", _G.AutoParryJohnAnimation)
+                else
+                    RunLoop("Parry", _G.AutoParryAnimation)
+                end
+            end
         end)
     end
-    player.CharacterAdded:Connect(SetupCharacter)
+    Connect(player.CharacterAdded, SetupCharacter)
     if player.Character then
         task.spawn(SetupCharacter, player.Character)
     end
 end
 
-Players.PlayerAdded:Connect(SetupPlayer)
-for _, v in ipairs(Players:GetPlayers()) do
-    task.spawn(SetupPlayer, v)
+Connect(Players.PlayerAdded, SetupPlayer)
+for _, p in ipairs(Players:GetPlayers()) do
+    SetupPlayer(p)
 end
 
 AddHookObject(game, "__namecall", function(oldHook, self, ...)
@@ -2100,6 +2175,7 @@ GeneratorGroup:Dropdown({
     Title = t"Mode Auto Generator",
     Options = {"Show Path", "Auto-Solve"},
     Default = "",
+    Flag = "Mode Auto Generator",
     Callback = function(Value)
 		_G.AutoGenMode = Value
 		if Value == "Show Path" then
@@ -2220,7 +2296,7 @@ Connect(RunService.Heartbeat, function()
 			end
 		end
 		if _G.EspGraffitiCL then
-			if v.Name:lower() == "kkim_" then
+			if v.Name:lower():find("kkim_") then
 				for f, s in pairs(v:GetChildren()) do
 					if s:FindFirstChild("Hitbox") then
 						local graffitiColor = _G.ColorGraffiti or Color3.fromRGB(242, 128, 242)
@@ -2706,6 +2782,7 @@ SettingsEspGroup:Dropdown({
     Title = t"Font Esp",
     Options = Font,
     Default = "Code",
+    Flag = "Font Esp",
     Callback = function(value)
         if ESPLibrary then
 			ESPLibrary:SetFont(Value)
@@ -2759,6 +2836,7 @@ SettingsEspGroup:Dropdown({
     Title = t"Tracers Origin",
     Options = {"Bottom", "Top", "Center", "Mouse"},
     Default = "Bottom",
+    Flag = "Tracers Origin",
     Callback = function(Value)
         if ESPLibrary then
 			ESPLibrary:SetTracerOrigin(Value)
@@ -2845,6 +2923,7 @@ SettingsGroup:Dropdown({
     Title = t"Aimbot",
     Options = {"Camera", "Character", "Camera + Character"},
     Default = "Camera",
+    Flag = "Aimbot",
     Callback = function(Value)
 		_G.AimbotCharacter = Value
     end
@@ -2854,6 +2933,7 @@ SettingsGroup:Dropdown({
     Title = t"Lock Players",
     Options = {"Camera", "Character", "Camera + Character"},
     Default = "",
+    Flag = "Lock Players",
     Callback = function(Value)
 		_G.LockCharacter = Value
     end
@@ -2863,6 +2943,7 @@ SettingsGroup:Dropdown({
     Title = t"Set Device",
     Options = {"Mobile", "PC", "Console", "nil"},
     Default = "",
+    Flag = "Set Device",
     Callback = function(Value)
 	    if networkModule then
 			networkModule:FireServerConnection("SetDevice", "REMOTE_EVENT", Value)
@@ -2973,6 +3054,7 @@ MiscGroup:Dropdown({
     Title = t"Choose Auto Move",
     Options = {"Survivors", "Killers"},
     Default = "Survivors",
+    Flag = "Choose Auto Move",
     Callback = function(Value)
 		_G.AutoMoveChoose = Value
     end
@@ -3017,6 +3099,7 @@ MiscGroup:Dropdown({
     Title = t"Choose Lock",
     Options = {"Survivors", "Killers"},
     Default = "Survivors",
+    Flag = "Choose Lock",
     Callback = function(Value)
 		_G.AutoLockChoose = Value
     end
@@ -3057,11 +3140,12 @@ ChanceGroup:Dropdown({
     Title = t"Chance Mode",
     Options = {"Delay", "Normal", "Spin"},
     Default = "Normal",
+    Flag = "Chance Mode",
     Callback = function(Value)
         _G.ModeChance = Value
         if Flag then
-	        if Flag["Delay Aimbot"] then
-		        Flag["Delay Aimbot"]:SetVisible(Value == "Delay" and true or false)
+	        if Flag["Delay Aimbot Chance"] then
+		        Flag["Delay Aimbot Chance"]:SetVisible(Value == "Delay" and true or false)
 			end
 			if Flag["Spin Aimbot"] then
 		        Flag["Spin Aimbot"]:SetVisible(Value == "Spin" and true or false)
@@ -3076,7 +3160,7 @@ ChanceGroup:Slider({
     Max = 0.62,
     Value = 0.62,
     Increment = 0.01,
-    Flag = "Delay Aimbot",
+    Flag = "Delay Aimbot Chance",
     Visible = false,
     Callback = function(Value)
         _G.DelayAim = Value
@@ -3134,6 +3218,7 @@ TwoTimeGroup:Dropdown({
     Title = t"Two Time Mode",
     Options = {"Logic", "Teleport"},
     Default = "Logic",
+    Flag = "Two Time Mode",
     Callback = function(Value)
         _G.ModeTwoTime = Value
     end
@@ -3339,6 +3424,7 @@ JaneDoeGroup:Dropdown({
     Title = t"Mode Jane Doe",
     Options = {"Logic", "Teleport", "Normal"},
     Default = "Logic",
+    Flag = "Mode Jane Doe",
     Callback = function(Value)
         _G.ModeJaneDoe = Value
     end
@@ -3397,7 +3483,7 @@ JaneDoeGroup:Slider({
     Value = 0.27,
     Increment = 0.01,
     Visible = false,
-    Flag = "Delay Aimbot",
+    Flag = "Delay Aimbot Jane Doe",
     Callback = function(Value)
         _G.DelayAimbot = Value
     end
@@ -3410,8 +3496,8 @@ JaneDoeGroup:Toggle({
     Callback = function(Value)
         _G.AimbotAxe = Value
         if Flag then
-			if Flag["Delay Aimbot"] then
-		        Flag["Delay Aimbot"]:SetVisible(Value)
+			if Flag["Delay Aimbot Jane Doe"] then
+		        Flag["Delay Aimbot Jane Doe"]:SetVisible(Value)
 			end
 			if Flag["Power Axe Aimbot"] then
 		        Flag["Power Axe Aimbot"]:SetVisible(Value)
@@ -3453,7 +3539,6 @@ local VeeronicaGroup = SurvivorsRight:GroupBox({
 VeeronicaGroup:Toggle({
     Title = t"Auto Skateboard",
     Value = false,
-    Visible = false,
     Flag = "Auto Skateboard",
     Callback = function(Value)
         _G.AutoSkateboard = Value
@@ -3493,7 +3578,6 @@ SlasherGroup:Slider({
 SlasherGroup:Toggle({
     Title = t"Auto Parry (Animation)",
     Value = false,
-    Visible = false,
     Flag = "Auto Parry (Animation)",
     Callback = function(Value)
         _G.AutoParryAnimation = Value
@@ -3503,10 +3587,93 @@ SlasherGroup:Toggle({
 SlasherGroup:Toggle({
     Title = t"Auto Parry (Sound)",
     Value = false,
-    Visible = false,
     Flag = "Auto Parry (Sound)",
     Callback = function(Value)
         _G.AutoParrySound = Value
+    end
+})
+
+local JohnDoeGroup = KillersLeft:GroupBox({
+    Title = t"John Doe",
+})
+
+JohnDoeGroup:Toggle({
+    Title = t"Auto 404Error (Animation)",
+    Value = false,
+    Flag = "Auto 404Error (Animation)",
+    Callback = function(Value)
+        _G.AutoParryJohnAnimation = Value
+    end
+})
+
+JohnDoeGroup:Toggle({
+    Title = t"Auto 404Error (Sound)",
+    Value = false,
+    Flag = "Auto 404Error (Sound)",
+    Callback = function(Value)
+        _G.AutoParryJohnSound = Value
+    end
+})
+
+JohnDoeGroup:Toggle({
+    Title = t"Aimbot Corrupt Energy",
+    Value = false,
+    Flag = "Aimbot Corrupt Energy",
+    Callback = function(Value)
+        _G.AimbotCorruptEnergy = Value
+        if Flag["Spin Corrupt Energy"] then
+	        Flag["Spin Corrupt Energy"]:SetVisible(Value)
+        end
+    end
+})
+
+JohnDoeGroup:Slider({
+    Title = t"Delay Aimbot",
+    Min = 0,
+    Max = 0.7,
+    Value = 0.65,
+    Increment = 0.01,
+    Flag = "Delay Aimbot Corrupt Energy",
+    Callback = function(Value)
+        _G.DelayAimbotJohnDoe = Value
+    end
+})
+
+JohnDoeGroup:Slider({
+    Title = t"Sharpness Corrupt Energy",
+    Min = 0,
+    Max = 5,
+    Value = 1,
+    Increment = 1,
+    Flag = "Sharpness Corrupt Energy",
+    Callback = function(Value)
+        _G.SharpnessCorruptEnergy = Value
+    end
+})
+
+JohnDoeGroup:Toggle({
+    Title = t"Spin Corrupt Energy",
+    Value = false,
+    Visible = false,
+    Flag = "Spin Corrupt Energy",
+    Callback = function(Value)
+        _G.SpinCorruptEnergy = Value
+        if Flag["Speed Spin Corrupt Energy"] then
+	        Flag["Speed Spin Corrupt Energy"]:SetVisible(Value)
+        end
+    end
+})
+
+JohnDoeGroup:Slider({
+    Title = t"Speed Spin Corrupt Energy",
+    Min = 5,
+    Max = 45,
+    Value = 30,
+    Increment = 0.1,
+    Visible = false,
+    Flag = "Speed Spin Corrupt Energy",
+    Callback = function(Value)
+        _G.SpeedSpinCorruptEnergy = Value
     end
 })
 
