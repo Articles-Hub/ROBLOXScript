@@ -12,7 +12,32 @@ Fixed = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/
 fireclickdetector = fireclickdetector or Fixed.fireclickdetector
 fireproximityprompt = fireproximityprompt or Fixed.fireproximityprompt
 end)
+
+function getAttributes(object, name)
+	if not (object and object.Parent) then
+		return
+	end
+	name = name:lower()
+	for i, v in pairs(object:GetAttributes()) do
+		if i:lower():find(name) then
+			return v
+		end
+	end
+end
+
+BlackList = {"stevebody", "rock", "Counterd", "Mirage", "Reversed", "Digging"}
+allowedPlaces = {
+    [6403373529] = true,
+    [136802962479827] = true,
+    [127174121130060] = true,
+    [11520107397] = true,
+    [124596094333302] = true,
+    [2380077519] = true,
+    [9015014224] = true,
+}
+
 ----========== Script Start ===========----
+
 local repo = "https://raw.githubusercontent.com/tanhoangviet/Obsidian-UI-Modded/main/"
 local repoCacheKey = tostring(os.time())
 local function RepoAsset(Path)
@@ -28,10 +53,11 @@ local Toggles = Library.Toggles
 local Loading = Library:CreateLoading({
     Title = "Azusa Article Hub",
     Icon = 83462777349222,
-    TotalSteps = 4
+    TotalSteps = 5
 })
 Loading:SetMessage("Initializing...")
 Loading:SetDescription("Loading game data...")
+Loading:ShowSidebarPage(true)
 local LoadingData = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("LoadingIndicator", true)
 if LoadingData and LoadingData.Visible then
 	local Timeout = os.clock() + 12
@@ -149,17 +175,6 @@ function InsideBox(pos, box)
 	local size = box.Size / 2
 	return math.abs(relative.X) <= size.X + 1.2 and math.abs(relative.Y) <= size.Y and math.abs(relative.Z) <= size.Z + 1.2
 end
-function getAttributes(object, name)
-	if not (object and object.Parent) then
-		return
-	end
-	name = name:lower()
-	for i, v in pairs(object:GetAttributes()) do
-		if i:lower():find(name) then
-			return v
-		end
-	end
-end
 function TimeCountdown(duration, callback)
 	local startTime = os.time()
 	local lastSecond = -1
@@ -209,97 +224,108 @@ local function ResolveExecutorName()
 	return "Unknown"
 end
 
-local Features = {
-	namecall_hook = IsCallable(hookmetamethod) and IsCallable(getnamecallmethod),
-	newcclosure = IsCallable(newcclosure),
-	queue_on_teleport = IsCallable(queueonteleport) or IsCallable(queue_on_teleport),
-	fireclickdetector = IsCallable(fireclickdetector),
-	firetouchinterest = IsCallable(firetouchinterest),
-	fireproximityprompt = IsCallable(fireproximityprompt),
-	clipboard = IsCallable(setclipboard) or IsCallable(toclipboard),
-	custom_asset = IsCallable(getcustomasset) and IsCallable(writefile) and IsCallable(isfile),
+local UNC = {
+	["namecall hook"] = hookmetamethod and getnamecallmethod,
+	["newcclosure"] = newcclosure,
+	["queue on teleport"] = queueonteleport or queue_on_teleport,
+	["click detector fire"] = fireclickdetector,
+	["touch interest fire"] = firetouchinterest,
+	["proximity prompt fire"] = fireproximityprompt,
+	["clipboard"] = setclipboard or toclipboard,
+	["custom asset images"] = getcustomasset,
+	["write file"] = writefile and isfile,
+	["get connections"] = getconnections,
+	["fire signal"] = firesignal,
 }
 
-local FeatureLabels = {
-	namecall_hook = "namecall hook",
-	newcclosure = "newcclosure",
-	queue_on_teleport = "queue on teleport",
-	fireclickdetector = "click detector fire",
-	firetouchinterest = "touch interest fire",
-	fireproximityprompt = "proximity prompt fire",
-	clipboard = "clipboard",
-	custom_asset = "custom asset images",
-}
-
-local SupportedCore = 0
-for _, Supported in pairs({
-	Features.namecall_hook,
-	Features.queue_on_teleport,
-	Features.fireclickdetector,
-	Features.firetouchinterest,
-	Features.fireproximityprompt,
-	Features.custom_asset,
-}) do
-	if Supported then
-		SupportedCore += 1
-	end
+local Passed, Total = 0, 0
+for Label, Func in pairs(UNC) do
+	Total += 1
+	local Success = typeof(Func) == "function" or Func == true
+	if Success then Passed += 1 end
+	task.wait(0.3)
+	Loading.Sidebar:AddLabel(Label .. ": " .. (Success and "Success" or "Fail"))
 end
 
-ExecutorSupport = Features
+ExecutorSupport = UNC
 ExecutorSupport.Name = ResolveExecutorName()
-ExecutorSupport.Summary = string.format("%d/6 core APIs", SupportedCore)
+ExecutorSupport.Summary = string.format("%s (%d/%d core APIs)", ExecutorSupport.Name, Total, Passed)
 ExecutorSupport.Labels = FeatureLabels
-
-local UnsupportedNotified = {}
-
-function CheckExecutorSupport(FeatureName, ToggleName, Silent)
-	if ExecutorSupport and ExecutorSupport[FeatureName] == true then
-		return true
-	end
-
-	local Toggle = ToggleName and Toggles and Toggles[ToggleName]
-	if Toggle and Toggle.Value == true and IsCallable(Toggle.SetValue) then
-		Toggle:SetValue(false)
-	end
-
-	if not Silent and not UnsupportedNotified[FeatureName] then
-		UnsupportedNotified[FeatureName] = true
-		local Label = (ExecutorSupport and ExecutorSupport.Labels and ExecutorSupport.Labels[FeatureName])
-			or tostring(FeatureName)
-		local Message = "Executor does not support " .. Label .. ". Disabled unsupported function."
-		if Notification then
-			Notification(Message, _G.TimeNotify or 5)
-		elseif Library and Library.Notify then
-			Library:Notify(Message, _G.TimeNotify or 5)
-		end
-	end
-
-	return false
-end
-
-local function InstallUnsupportedStub(FeatureName, GlobalName)
-	if ExecutorSupport[FeatureName] == true then
-		return
-	end
-
-	local Environment = (getgenv and getgenv()) or _G
-	if IsCallable(Environment[GlobalName]) then
-		return
-	end
-
-	Environment[GlobalName] = function()
-		CheckExecutorSupport(FeatureName)
-	end
-end
-
-InstallUnsupportedStub("fireclickdetector", "fireclickdetector")
-InstallUnsupportedStub("firetouchinterest", "firetouchinterest")
-InstallUnsupportedStub("fireproximityprompt", "fireproximityprompt")
 
 if Loading then
 	Loading:SetCurrentStep(2)
-	Loading:SetDescription("Executor support: " .. ExecutorSupport.Name .. " (" .. ExecutorSupport.Summary .. ")")
+	Loading:SetDescription(ExecutorSupport.Summary)
 	task.wait(0.25)
+end
+
+--- Bypass Skibidi ---
+
+Loading.Sidebar:AddLabel("Bypass Anticheat...")
+local total, pass, fail = 0, 0, 0
+if allowedPlaces[game.PlaceId] or getAttributes(workspace, "no_one_shot") or getAttributes(workspace, "killstreak") then
+    place = "Slap Battles"
+elseif game.PlaceId == 9431156611 then
+    place = "Slap Royale"
+end
+
+if place and type(place) == "string" then
+    local yasss = pcall(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/NewNexer/NexerHub/refs/heads/main/SB/Modules/CleanClientAntiCheat.luau"))(place)
+	end)
+    if yasss then
+        successbypass = true
+    end
+end
+
+if successbypass then
+    Loading.Sidebar:AddLabel("Check UNC...")
+    task.wait(1.3)
+    if ExecutorSupport["get connections"] then
+        Loading.Sidebar:AddLabel("Test Bypass Anti Cheat...")
+        task.wait(0.5)
+        local RemotesToCheck = {
+            "SetApiEnv", "ToggleApiMode", "Ban", "AdminGUI", "SpecialGloveAccess", 
+            "PlaySoundRemote", "GRAB", "LegacyBan", "WalkSpeedChanged", 
+            "LegacyAntiCheatFunction", "KickedBind"
+        }
+        for _, v in ipairs(RemotesToCheck) do
+            local remoteSkibidi = game.ReplicatedStorage:FindFirstChild(v, true)
+            if remoteSkibidi then
+                total += 1
+                local hasFunction = false
+                if remoteSkibidi:IsA("RemoteFunction") then
+                    local ok, isBound = pcall(function()
+                        return remoteSkibidi.OnClientInvoke ~= nil
+                    end)
+                    if ok and isBound then
+                        hasFunction = true
+                    end
+                elseif remoteSkibidi:IsA("RemoteEvent") then
+                    pcall(function()
+                        for _, conn in ipairs(getconnections(remoteSkibidi.OnClientEvent)) do
+                            if conn.Function or (conn.Enabled and typeof(conn.ForeignState) ~= "nil") then
+                                hasFunction = true
+                                break
+                            end
+                        end
+                    end)
+                end
+                if hasFunction then
+                    fail += 1
+                    Loading.Sidebar:AddLabel(v .. " UNSAFE")
+                else
+                    pass += 1
+                    Loading.Sidebar:AddLabel(v .. " SAFE")
+                end
+            end
+        end
+    end
+end
+
+if Loading then
+	Loading:SetCurrentStep(3)
+	Loading:SetDescription("There are "..total.." anti-cheat systems, bypass success: "..pass..", fail: "..fail)
+	task.wait(1.78)
 end
 
 local UserInputService = game:GetService("UserInputService")
@@ -889,39 +915,7 @@ while _G.StartFly do
 	end
 end
 _G.TimeNotify = 5
-local allowedPlaces = {
-    [6403373529] = true,
-    [136802962479827] = true,
-    [127174121130060] = true,
-    [11520107397] = true,
-    [124596094333302] = true,
-    [2380077519] = true,
-    [9015014224] = true,
-}
-
 if allowedPlaces[game.PlaceId] or getAttributes(workspace, "no_one_shot") or getAttributes(workspace, "killstreak") then
-if game.ReplicatedStorage:FindFirstChild("AdminGUI") then
-	game.ReplicatedStorage.AdminGUI:Destroy()
-end
-if game.ReplicatedStorage:FindFirstChild("Ban") then
-	game.ReplicatedStorage.Ban:Destroy()
-end
-if game.StarterPlayer.StarterPlayerScripts:FindFirstChild("AntiMobileExploits", true) then
-	game.StarterPlayer.StarterPlayerScripts:FindFirstChild("AntiMobileExploits", true):Destroy()
-end
-if game.ReplicatedStorage:FindFirstChild("GRAB") then
-	game.ReplicatedStorage.GRAB:Destroy()
-end
-if game.ReplicatedStorage:FindFirstChild("SpecialGloveAccess") then
-	game.ReplicatedStorage.SpecialGloveAccess:Destroy()
-end
-if game.ReplicatedStorage:FindFirstChild("WalkSpeedChanged") then
-	game.ReplicatedStorage.WalkSpeedChanged:Destroy()
-end
-
---- List ---
-
-BlackList = {"stevebody", "rock", "Counterd", "Mirage", "Reversed"}
 
 AnimationSlapHit = {
 	["134954960138305"] = true,
@@ -1320,6 +1314,13 @@ function CheckSlap()
 	if not slaps then return 0 end
 	return tonumber(slaps.Value) or 0
 end
+local function CheckBadge(id)
+	local success, hasBadge = pcall(function()
+		return game:GetService("BadgeService"):UserHasBadgeAsync(game:GetService("Players").LocalPlayer.UserId, id)
+	end)
+	return success and hasBadge or false
+end
+
 function IsNetworkOwner(Part)
     return Part.ReceiveAge == 0
 end
@@ -1343,6 +1344,24 @@ function notSlap(part, list)
         end
     end
     return true
+end
+function TargetPlayers(skipfriends)
+	local target, targetroot, distance = nil, nil, math.huge
+	for i,v in pairs(game.Players:GetChildren()) do
+		if v ~= game.Players.LocalPlayer and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and v.Character then
+			if v.Character:FindFirstChild("entered") and v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart.BrickColor ~= BrickColor.new("New Yeller") and notSlap(v.Character, BlackList) then
+				if v.Character.Head:FindFirstChild("UnoReverseCard") == nil and v:FindFirstChild("leaderstats"):FindFirstChild("Glove") and v.leaderstats.Glove.Value:lower() ~= "parry" then
+					local distanceTarget = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+					if distanceTarget and distanceTarget <= distance then
+						if not skipfriends or not game.Players.LocalPlayer:IsFriendsWith(v.UserId) then
+							target, targetroot, distance = v.Character, v.Character:FindFirstChild("HumanoidRootPart"), distanceTarget
+						end
+					end
+				end
+			end
+		end
+	end
+	return target, targetroot, distance
 end
 
 local function GetHookGloveName()
@@ -1526,7 +1545,7 @@ end
 function findGroup(maxDist, groupSize)
 	local players = {}
 	for i, v in pairs(game.Players:GetChildren()) do
-		if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true and notSlap(v.Character, BlackList)then
+		if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Ragdolled") and not v.Character.HumanoidRootPart:FindFirstChild("BlockedShield") and v.Character.Ragdolled.Value == false and v.Character.isInArena.Value == true and notSlap(v.Character, BlackList) then
 			table.insert(players, v)
 		end
 	end
@@ -1977,23 +1996,9 @@ local VoidPart = Create("Part", {
 	})
 })
 end
-elseif game.PlaceId == 9431156611 then
-	local Remotes = game.ReplicatedStorage.Remotes
-	if Remotes:FindFirstChild("Ban") then
-		Remotes:FindFirstChild("Ban"):Destroy()
-	end
-	if Remotes:FindFirstChild("Grab") then
-		Remotes:FindFirstChild("Grab"):Destroy()
-	end
-	if Remotes:FindFirstChild("LegacyBan") then
-		Remotes:FindFirstChild("LegacyBan"):Destroy()
-	end
-	if Remotes:FindFirstChild("LegacyAntiCheatFunction") then
-		Remotes:FindFirstChild("LegacyAntiCheatFunction"):Destroy()
-	end
 end
-Loading:SetCurrentStep(3)
-task.wait(3)
+Loading:SetCurrentStep(4)
+task.wait(1)
 local ESPLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/bocaj111004/ESPLibrary/refs/heads/main/Library.lua"))()
 function Notification(Message, Time)
 	if _G.ChooseNotify == "Obsidian" then
@@ -2041,7 +2046,7 @@ wminfo.setText(("FPS: %s | %s MS | [%s] | %02d Hour / %02d Minute / %02d Second"
 ))
 end))
 
-Loading:SetCurrentStep(4)
+Loading:SetCurrentStep(5)
 Loading:SetMessage("Done!")
 Loading:SetDescription("Really!")
 task.wait(1)
@@ -3836,7 +3841,7 @@ local Badge1Group = Tabs.Tab3:AddLeftGroupbox("Badge Auto")
 
 Badge1Group:AddDropdown("Map Kraken", {
     Text = "Badge Auto Get",
-    Values = {"Boxing", "Doorkeeper", "Bind", "Lotus", "Conker", "FrostBite", "Plate", "Plunger", "Admin", "Chain", "Riftshot", "Fan", "Reflect", "Fight Guide", "Counter + Elude"},
+    Values = {"Boxing", "Doorkeeper", "Bind", "Lotus", "Conker", "FrostBite", "Plate", "Plunger", "Admin", "Chain", "Riftshot", "Fan", "Reflect", "Fight Guide", "Counter + Elude", "Summer"},
     Default = "",
     Multi = false,
     Callback = function(Value)
@@ -4339,6 +4344,29 @@ if game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRoot
             end
             task.wait()
         end
+    elseif _G.AutoGetBadgeGlove == "Summer" then
+	    task.wait(3)
+	    if workspace:FindFirstChild("ObjectSpawner_Objects") then
+			workspace.ObjectSpawner_Objects:Destroy()
+		end
+		local Dialogue
+		for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
+			if v:IsA("ScreenGui") and v:FindFirstChild("Dialogue") then
+				Dialogue = v.Dialogue
+			end
+		end
+		if Dialogue and Dialogue.Parent and (not Dialogue.Visible or not Dialogue.Parent.Enabled) then
+			TP(Workspace.Island["John Surfboard"].Head.CFrame * CFrame.new(0, 5, 0))
+			task.wait(0.36)
+			fire(workspace.Island["John Surfboard"].Head:FindFirstChildOfClass("ProximityPrompt"), {fireprompt = true})
+			wait(0.5)
+			repeat task.wait() until Dialogue.Visible or Dialogue.Parent.Enabled
+			task.wait(0.35)
+			repeat task.wait()
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Common"):WaitForChild("Dialogue"):WaitForChild("Remotes"):WaitForChild("ResondToDialogue"):FireServer(0)
+			until not Dialogue.Visible or not Dialogue.Parent.Enabled
+			workspace.Camera.CameraSubject = game:GetService("Players").LocalPlayer.Character
+		end
     else
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/File-Script/Slap_Battles.lua"))()
     end
@@ -4366,6 +4394,8 @@ elseif _G.AutoGetBadgeGlove == "Plate" then
 	TPS:Teleport(106620300132058)
 elseif _G.AutoGetBadgeGlove == "Chain" then
 	TPS:Teleport(9431156611)
+elseif _G.AutoGetBadgeGlove == "Summer" then
+	TPS:Teleport(122902713960550)
 elseif _G.AutoGetBadgeGlove == "Counter + Elude" then
 	TPS:Teleport(11828384869)
 elseif _G.AutoGetBadgeGlove == "Plunger" then
@@ -4423,34 +4453,61 @@ local Badge2Group = Tabs.Tab3:AddRightGroupbox("Badge")
 Badge2Group:AddButton({
     Text = "Get Glove Kinetic",
     Func = function()
-if CheckGlove() == "Stun" and game.Players.LocalPlayer.Character:FindFirstChild("entered") then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-repeat task.wait()
-game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = -99})
-until game.Players.LocalPlayer.Character:WaitForChild("KineticSlappedBadgeCounter").Value >= 100
-wait(1.5)
-repeat
-if game.Players.LocalPlayer.Character.Humanoid.Health == 0 or game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then break end
-if game.Players.LocalPlayer.Backpack:FindFirstChild("Stun") then
-game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack.Stun)
-end
-wait(0.1)
-local players = game.Players:GetChildren()
-local RandomPlayer = players[math.random(1, #players)]
-repeat RandomPlayer = players[math.random(1, #players)] until RandomPlayer ~= game.Players.LocalPlayer and RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Head:FindFirstChild("UnoReverseCard") == nil and RandomPlayer.Character.Humanoid.Health ~= 0
-Target = RandomPlayer
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Target.Character.HumanoidRootPart.CFrame * CFrame.new(0,-20,0)
-wait(0.25)
-game.ReplicatedStorage.StunR:FireServer(game.Players.LocalPlayer.Character.Stun)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-wait(0.5)
-if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("EMPStunBadgeCounter") then
-Notification("Counter Stun [ "..game.Players.LocalPlayer.Character.EMPStunBadgeCounter.Value.." ]", _G.TimeNotify)
-end
-wait(12.3)
-until game.Players.LocalPlayer.Character:FindFirstChild("EMPStunBadgeCounter") and game.Players.LocalPlayer.Character.EMPStunBadgeCounter.Value >= 50
+if CheckGlove() == "Stun" then
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer:FindFirstChild("leaderstats"):FindFirstChild("Slaps").Value >= 666 then
+		equipglove("Ghost")
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
+		repeat task.wait() until CheckGlove():lower() == "ghost"
+		game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
+		equipglove("Stun")
+		task.wait(1)
+		for i,v in pairs(char:GetChildren()) do
+			if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+				v.Transparency = 0
+			end
+		end
+	end
+	wait(0.6)
+	if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		repeat task.wait()
+			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace.Lobby.Teleport1.CFrame)
+		until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+	end
+	local NotifyStun = Library:Notify({Title = "Counter Stun", Description = "Stun Players: 0", Persist = true})
+	spawn(function()
+		repeat task.wait()
+			if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("EMPStunBadgeCounter") then
+				NotifyStun:ChangeDescription("Stun Players: "..game.Players.LocalPlayer.Character:FindFirstChild("EMPStunBadgeCounter").Value)
+			end
+		until game.Players.LocalPlayer.Character:FindFirstChild("EMPStunBadgeCounter") and game.Players.LocalPlayer.Character.EMPStunBadgeCounter.Value >= 50
+		if NotifyStun then NotifyStun:Destroy() end
+	end)
+	repeat task.wait()
+		game.ReplicatedStorage.SelfKnockback:FireServer({["Force"] = -99})
+	until game.Players.LocalPlayer.Character:WaitForChild("KineticSlappedBadgeCounter").Value >= 100
+	wait(1.5)
+	repeat task.wait()
+		if game.Players.LocalPlayer.Character.Humanoid.Health <= 0 or game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then break end
+		if game.Players.LocalPlayer.Backpack:FindFirstChild("Stun") then
+			game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack.Stun)
+		end
+		wait(0.5)
+		local Target, RootPart = TargetPlayers(true)
+		if Target and RootPart then
+			if game.Players.LocalPlayer.Character:FindFirstChild("Stun") then
+				game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(RootPart.CFrame * CFrame.new(0,-20,0))
+				wait(0.25)
+				game.ReplicatedStorage.StunR:FireServer(game.Players.LocalPlayer.Character.Stun)
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
+				if game.Players.LocalPlayer.Character:FindFirstChild("Stun") then
+					game.Players.LocalPlayer.Character.Stun.Parent = game.Players.LocalPlayer.Backpack
+				end
+				wait(12.3)
+			end
+		end
+	until game.Players.LocalPlayer.Character:FindFirstChild("EMPStunBadgeCounter") and game.Players.LocalPlayer.Character.EMPStunBadgeCounter.Value >= 50
 else
-Notification("You don't have Stun equipped, or you aren't in the arena", _G.TimeNotify)
+	Notification("You don't have Stun equipped", _G.TimeNotify)
 end
     end
 })
@@ -4459,20 +4516,19 @@ Badge2Group:AddButton({
     Text = "Auto Win Kraken",
     Func = function()
 if game.Workspace:FindFirstChild("Abyss") ~= nil then
-Notification("When the kraken stops attack, click to hit.", _G.TimeNotify)
-repeat task.wait()
-if game.Workspace:FindFirstChild("Abyss") and game.Workspace.Abyss:FindFirstChild("Ship") and game.Workspace.Abyss.Ship:FindFirstChild("Ghost_Ship") and game.Workspace.Abyss.Ship.Ghost_Ship:FindFirstChild("Wall") then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Abyss.Ship.Ghost_Ship.Wall.CFrame * CFrame.new(0,10,0)
-else break
-end
-for i,v in pairs(game.Workspace:GetChildren()) do
-if v.Name == "kraken_hurtbox" then
-v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-end
-end
-until game.Workspace:FindFirstChild("Abyss") == nil
+	Notification("When the kraken stops attack, click to hit.", _G.TimeNotify)
+	repeat task.wait()
+		if game.Workspace:FindFirstChild("Abyss") and game.Workspace.Abyss:FindFirstChild("Ship") and game.Workspace.Abyss.Ship:FindFirstChild("Ghost_Ship") and game.Workspace.Abyss.Ship.Ghost_Ship:FindFirstChild("Wall") then
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Abyss.Ship.Ghost_Ship.Wall.CFrame * CFrame.new(0,10,0)
+		else break end
+		for i,v in pairs(game.Workspace:GetChildren()) do
+			if v.Name == "kraken_hurtbox" then
+				v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+			end
+		end
+	until game.Workspace:FindFirstChild("Abyss") == nil
 else
-Notification("You have enter Map Abyss [ don't show all, not work ]", _G.TimeNotify)
+	Notification("You have enter Map Abyss [ don't show all, not work ]", _G.TimeNotify)
 end
     end
 })
@@ -4480,22 +4536,21 @@ end
 Badge2Group:AddButton({
     Text = "Get Glove Bomb",
     Func = function()
-if CheckGlove() == "Warp" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2124919840) then
-OldTouch = workspace.DEATHBARRIER.CanTouch
-local players = game.Players:GetChildren()
-local RandomPlayer = players[math.random(1, #players)]
-repeat RandomPlayer = players[math.random(1, #players)] until RandomPlayer ~= game.Players.LocalPlayer and RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("Ragdolled").Value == false
-Target = RandomPlayer
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Target.Character:FindFirstChild("HumanoidRootPart").CFrame
-task.wait(0.2)
-game.ReplicatedStorage.WarpHt:FireServer(Target.Character:WaitForChild("HumanoidRootPart"))
-task.wait(0.15)
-workspace.DEATHBARRIER.CanTouch = true
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").DEATHBARRIER.CFrame
-wait(0.1)
-game:GetService("ReplicatedStorage").WLOC:FireServer()
-wait(0.2)
-workspace.DEATHBARRIER.CanTouch = OldTouch
+if CheckGlove() == "Warp" and not CheckBadge(2124919840) then
+	OldTouch = workspace.DEATHBARRIER.CanTouch
+	local Target, RootPart = TargetPlayers(true)
+	if Target and RootPart then
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = RootPart
+		task.wait(0.2)
+		game.ReplicatedStorage.WarpHt:FireServer(Target.Character:WaitForChild("HumanoidRootPart"))
+		task.wait(0.15)
+		workspace.DEATHBARRIER.CanTouch = true
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").DEATHBARRIER.CFrame
+		wait(0.1)
+		game:GetService("ReplicatedStorage").WLOC:FireServer()
+		wait(0.2)
+		workspace.DEATHBARRIER.CanTouch = OldTouch
+	end
 else
 Notification("You don't have Warp equipped, or you have owner badge", _G.TimeNotify)
 end
@@ -4505,17 +4560,19 @@ end
 Badge2Group:AddButton({
     Text = "Get Glove Plank",
     Func = function()
-if CheckGlove() == "Fort" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 4031317971987872) then
-local OldCFrew = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.SafeBoxSpace.CFrame * CFrame.new(0,60,0)
-wait(0.3)
-game:GetService("ReplicatedStorage").Fortlol:FireServer()
-wait(0.7)
-for i, v in pairs(workspace:GetChildren()) do
-if v.Name == "Part" and v:FindFirstChild("brownsmoke") and v:FindFirstChild("Sound") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude <= 200 then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0, 25, 0)
-end
-end
+if CheckGlove() == "Fort" and not CheckBadge(4031317971987872) then
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.SafeBoxSpace.CFrame * CFrame.new(0,60,0)
+	wait(0.3)
+	game:GetService("ReplicatedStorage").Fortlol:FireServer()
+	wait(0.7)
+	local startFort = tick()
+	repeat task.wait()
+		for i, v in pairs(workspace:GetChildren()) do
+			if v.Name == "Part" and v:FindFirstChild("brownsmoke") and v:FindFirstChild("Sound") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude <= 200 then
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0, 25, 0)
+			end
+		end
+	until startFort - tick() >= 0.2
 else
 Notification("You don't have Fort equipped, or you have Owner Badge", _G.TimeNotify)
 end
@@ -4569,34 +4626,56 @@ end
 Badge2Group:AddButton({
     Text = "Get Glove Blasphemy",
     Func = function()
-if CheckGlove() == "bus" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 3335299217032061) then
-OGL = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-_G.AntiRagdolledV = "V3"
-Toggles["Anti Ragdoll"]:SetValue(true)
-repeat
-if game.Players.LocalPlayer.Character.Humanoid.Health == 0 or game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then break end
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
-local players = game.Players:GetChildren()
-local RandomPlayer = players[math.random(1, #players)]
-repeat RandomPlayer = players[math.random(1, #players)] until RandomPlayer ~= game.Players.LocalPlayer and RandomPlayer.Character:FindFirstChild("rock") == nil and RandomPlayer.Character.Head:FindFirstChild("UnoReverseCard") == nil and RandomPlayer.Character:FindFirstChild("entered")
-Target = RandomPlayer
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Target.Character.HumanoidRootPart.CFrame
-task.wait(0.34)
-game:GetService("ReplicatedStorage").busmoment:FireServer()
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = OGL
-wait(0.8)
-repeat task.wait()
-for i,v in pairs(game.Workspace:GetChildren()) do
-	if v.Name == "BusModel" then
-		v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+if CheckGlove() == "bus" and not CheckBadge(3335299217032061) then
+	if Toggles["Anti Ragdoll"] then
+		_G.AntiRagdolledV = "V3"
+		Toggles["Anti Ragdoll"]:SetValue(true)
 	end
-end
-until game.Workspace:FindFirstChild("BusModel") == nil
-end
-wait(5.5)
-until game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 3335299217032061)
+	if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game.Players.LocalPlayer:FindFirstChild("leaderstats"):FindFirstChild("Slaps").Value >= 666 then
+		equipglove("Ghost")
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
+		repeat task.wait() until CheckGlove():lower() == "ghost"
+		game.ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
+		equipglove("bus")
+		task.wait(1)
+		for i,v in pairs(char:GetChildren()) do
+			if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+				v.Transparency = 0
+			end
+		end
+	end
+	wait(0.6)
+	if not game.Players.LocalPlayer.Character:FindFirstChild("entered") and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		repeat task.wait()
+			game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(workspace.Lobby.Teleport1.CFrame)
+		until game.Players.LocalPlayer.Character:FindFirstChild("entered")
+	end
+	wait(0.59)
+	repeat task.wait()
+		if game.Players.LocalPlayer.Character.Humanoid.Health == 0 or game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil then break end
+		if game.Players.LocalPlayer.Character:FindFirstChild("bus") then
+			game.Players.LocalPlayer.Character.bus.Parent = game.Players.LocalPlayer.Backpack
+		end
+		if game.Players.LocalPlayer.Character:FindFirstChild("entered") then
+			local Target, RootPart = TargetPlayers(true)
+			if Target and RootPart then
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = RootPart
+				task.wait(0.34)
+				game:GetService("ReplicatedStorage").busmoment:FireServer()
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["Safespot"].CFrame * CFrame.new(0,10,0)
+				repeat task.wait()
+					for i,v in pairs(game.Workspace:GetChildren()) do
+						if v.Name == "BusModel" then
+							v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+						end
+					end
+				until game.Workspace:FindFirstChild("BusModel") == nil
+			end
+		end
+		wait(5.5)
+	until CheckBadge(3335299217032061)
 else
-Notification("You don't have bus equipped, or you have owner badge", _G.TimeNotify)
+	Notification("You don't have bus equipped, or you have owner badge", _G.TimeNotify)
 end
     end
 })
@@ -4679,7 +4758,7 @@ end
 Badge2Group:AddButton({
     Text = "Get Duck & Orange & Knife Badge",
     Func = function()
-if not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2124760907) or not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2128220957) or not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2124760916) then
+if not CheckBadge(2124760907) or not CheckBadge(2124919840) or not CheckBadge(2124760916) then
 fireclickdetector(game.Workspace.Lobby.Scene.knofe.ClickDetector)
 fireclickdetector(game.Workspace.Arena.island5.Orange.ClickDetector) 
 fireclickdetector(game.Workspace.Arena["default island"]["Rubber Ducky"].ClickDetector)
@@ -4692,7 +4771,7 @@ end
 Badge2Group:AddButton({
     Text = "Get Free Ice Skate",
     Func = function()
-if not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2906002612987222) then
+if not CheckBadge(2906002612987222) then
 game:GetService("ReplicatedStorage").IceSkate:FireServer("Freeze")
 else
 Notification("You have Owner badge", _G.TimeNotify)
@@ -4703,7 +4782,7 @@ end
 Badge2Group:AddButton({
     Text = "Get Free Lamp",
     Func = function()
-if CheckGlove() == "ZZZZZZZ" and not game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 490455814138437) then
+if CheckGlove() == "ZZZZZZZ" and not CheckBadge(490455814138437) then
 for i = 1, 5 do
 game:GetService("ReplicatedStorage").nightmare:FireServer("LightBroken")
 end
@@ -8003,7 +8082,7 @@ function HelpMasteryJoin(data)
 	end
 end
 
-Badge4Group:AddLabel("[<font color=\"rgb(73, 230, 133)\">Mastery Help</font>] Please have a input Account Clone ready to help.", true)
+Badge4Group:AddLabel("[<font color=\"rgb(73, 230, 133)\">How to use mastery help</font>] The main account inputs the clone account, and the clone account inputs the main account and clone accounts. Enable help enabled for both accounts, and the main account can choose to have the clone account help, Otherwise, both accounts need to have the correct settings enabled for cloning, and it will help you.", true)
 CloneAccHelp = Badge4Group:AddInput("Players", {
     Text = "Clone Account",
     Finished = true,
@@ -11443,15 +11522,15 @@ local function IsValidTarget(player)
 end
 
 local function IsNearMissPart(position, safeRadius)
-    for v, _ in ipairs(MissPart) do
+    for _, v in ipairs(MissPart) do
         if v and v:IsA("BasePart") then
             local dist = (v.Position - position).Magnitude
-            if dist <= (safeRadius + math.max(v.Size.X, v.Size.Z) / 2) then
-                return true
+            if dist <= safeRadius + math.max(v.Size.X, v.Size.Z) / 2 then
+                return true, v
             end
         end
     end
-    return false
+    return false, nil
 end
 
 local function IsSafeGround(position)
@@ -11571,7 +11650,9 @@ table.insert(_G.ConnectFun, RunService.RenderStepped:Connect(function()
 			if Target then
                 local targetHrp = Target.HumanoidRootPart
                 local targetHumanoid = Target:FindFirstChildOfClass("Humanoid")
-                hrp.CFrame = CFrame.new(hrp.Position, Vector3.new(targetHrp.Position.X, hrp.Position.Y, targetHrp.Position.Z))
+                if char and char:FindFirstChild("Ragdolled") and not char.Ragdolled.Value then
+	                hrp.CFrame = CFrame.new(hrp.Position, Vector3.new(targetHrp.Position.X, hrp.Position.Y, targetHrp.Position.Z))
+				end
                 EquipGlove()
                 if HugeTarget <= 10 then
                     humanoid:MoveTo(targetHrp.Position)
@@ -11582,7 +11663,7 @@ table.insert(_G.ConnectFun, RunService.RenderStepped:Connect(function()
                         end
                     end
                 else
-                    local Path = PathfindingService:CreatePath({
+                    local Path = PFS:CreatePath({
 						AgentRadius = 3,
 						WaypointSpacing = 10,
 						AgentHeight = 5,
@@ -11604,7 +11685,7 @@ table.insert(_G.ConnectFun, RunService.RenderStepped:Connect(function()
 					            humanoid:MoveTo(safeDodgePos)
 					        else
 								local waypoint2D = waypoint.Position * Vector3.new(1, 0, 1)
-				                local current2D = RootPart.Position * Vector3.new(1, 0, 1)
+				                local current2D = hrp.Position * Vector3.new(1, 0, 1)
 				                if (waypoint2D - current2D).Magnitude <= 2 then
 				                    currentWaypointIndex += 1
 				                else
@@ -14076,7 +14157,7 @@ end
 end)
 
 Misc3Group:AddButton("Help Player Goofy", function()
-if CheckGlove() == "Confusion" and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2133016756) then
+if CheckGlove() == "Confusion" and game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and CheckBadge(2133016756) then
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = _G.PlayerPut1.Character.HumanoidRootPart.CFrame
 wait(0.2)
 game:GetService("ReplicatedStorage").GeneralHit:FireServer(_G.PlayerPut1.Character:WaitForChild("HumanoidRootPart"))
@@ -14847,7 +14928,7 @@ _G.BlackHoleCre = Value
 })
 
 Glove1Group:AddButton("Auto Create Black Hole", function()
-if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2125950512) and game:GetService("BadgeService"):UserHasBadgeAsync(game.Players.LocalPlayer.UserId, 2147429609) then
+if game.Players.LocalPlayer.Character:FindFirstChild("entered") == nil and CheckBadge(2125950512) and CheckBadge(2147429609) then
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Origo.CFrame * CFrame.new(0,30,0)
 	wait(0.1)
 	game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
@@ -15055,7 +15136,7 @@ for i, v in pairs(_G.GetPotion) do
     table.insert(PotionNames, i)
 end
 Glove2Group:AddDropdown("Potion", {
-    Text = "Potion",
+    Text = "Choose Craft Potion",
     Values = PotionNames,
     Default = "",
     Multi = false,
@@ -15065,7 +15146,7 @@ _G.MakePotion = Value
 })
 
 Glove2Group:AddSlider("Potion1", {
-    Text = "Potion",
+    Text = "Number Potion",
     Default = 1,
     Min = 1,
     Max = 100,
@@ -15077,7 +15158,7 @@ _G.PotionNumber = Value
 })
 
 Glove2Group:AddDropdown("Potion2", {
-    Text = "Potion",
+    Text = "Craft Potion",
     Values = {"Number","Normal"},
     Default = "",
     Multi = false,
@@ -15206,7 +15287,7 @@ _G.PlayerButton2 = FoundPlr(Value, true).Name
 Glove2Group:AddInput("SpeedOrbit", {
     Default = "20",
     Numeric = false,
-    Text = "Speed",
+    Text = "Speed Orbit",
     Placeholder = "UserSpeed",
     Callback = function(Value)
 if Value == "inf" or Value == "Inf" or Value == "infinity" or Value == "Infinity" then
@@ -15292,7 +15373,7 @@ _G.PingPongServer = Value
 })
 
 Glove2Group:AddToggle("PingPong", {
-    Text = "Ping Pong",
+    Text = "Start Ping Pong",
     Default = false, 
     Callback = function(Value) 
 _G.PingPongServerBr = Value
@@ -20083,6 +20164,40 @@ Misc1Group:AddToggle("Anti Ducks", {
 _G.AntiDucks = Value
     end
 })
+elseif game.PlaceId == 122902713960550 then
+Window:ChangeTitle("Map Summer ⛱️")
+Tabs = {
+	Tab = Window:AddTab("Main", "rbxassetid://4370318685"),
+	["UI Settings"] = Window:AddTab("UI Settings", "rbxassetid://7733955511")
+}
+
+local MainGroup = Tabs.Tab:AddLeftGroupbox("Main")
+
+MainGroup:AddButton("Get Badge", function()
+	if workspace:FindFirstChild("ObjectSpawner_Objects") then
+		workspace.ObjectSpawner_Objects:Destroy()
+	end
+	local Dialogue
+	for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
+		if v:IsA("ScreenGui") and v:FindFirstChild("Dialogue") then
+			Dialogue = v.Dialogue
+		end
+	end
+	if Dialogue and Dialogue.Parent and (not Dialogue.Visible or not Dialogue.Parent.Enabled) then
+		game:GetService("Players").LocalPlayer.Character:PivotTo(Workspace.Island["John Surfboard"].Head.CFrame * CFrame.new(0, 5, 0))
+		task.wait(0.36)
+		if fireproximityprompt then
+			fireproximityprompt(workspace.Island["John Surfboard"].Head:FindFirstChildOfClass("ProximityPrompt"), 0)
+			fireproximityprompt(workspace.Island["John Surfboard"].Head:FindFirstChildOfClass("ProximityPrompt"), 1)
+		end
+		repeat task.wait() until Dialogue.Visible or Dialogue.Parent.Enabled
+		wait(0.6)
+		repeat task.wait()
+			game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Common"):WaitForChild("Dialogue"):WaitForChild("Remotes"):WaitForChild("ResondToDialogue"):FireServer(0)
+		until not Dialogue.Visible or not Dialogue.Parent.Enabled
+		workspace.Camera.CameraSubject = game:GetService("Players").LocalPlayer.Character
+	end
+end)
 end
 getgenv().LoadingScriptSlap = false
 if MobileOn then
