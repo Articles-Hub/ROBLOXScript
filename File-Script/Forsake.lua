@@ -45,6 +45,12 @@ function stringChar(s)
 	return string.char(3, (#s), 0, 0, 0)..s
 end
 
+local function stringBool(value)
+	local bytes = value and "\1\1" or "\1\0"
+	return buffer.fromstring(bytes)
+end
+
+
 _G.ListAsset = {
 	["Slash"] = {
 		["Animation"] = {
@@ -89,7 +95,7 @@ _G.ListAsset = {
 		["Sound"] = {
 			["86710781315432"] = true, ["99820161736138"] = true, ["609342351"] = true, ["81976396729343"] = true, ["12222225"] = true,
 		    ["12222208"] = true, ["99100240941590"] = true, ["80521472651047"] = true, ["139012439429121"] = true, ["91194698358028"] = true,
-		    ["111910850942168"] = true, ["83851356262523"] = true
+		    ["111910850942168"] = true, ["83851356262523"] = true, ["12222216"] = true
 	    }
 	},
 	["Stab"] = {
@@ -106,7 +112,7 @@ _G.ListAsset = {
 	},
 	["Axe"] = {
 		["Animation"] = {
-			["111918351126361"] = true,
+			["111918351126361"] = true, ["79331370895011"] = true, ["127821549546951"] = true, ["81227838714974"] = true
 		}
 	},
 	["Skateboard"] = {
@@ -366,7 +372,7 @@ function Distance(pos)
 	end
 end
 
-local function CanHit(myRoot, targetRoot)
+local function Wallcheck(myRoot, targetRoot)
     local params = RaycastParams.new()
     params.FilterType = Enum.RaycastFilterType.Exclude
     params.FilterDescendantsInstances = {Character, targetRoot.Parent}
@@ -1330,6 +1336,13 @@ local chanceKiller
 local targetKiller
 local targetSurvivor
 local playerChances = {}
+local QTE
+for i, v in pairs(PlayerGui.TemporaryUI:GetChildren()) do
+	if v.Name:lower():find("qte") then
+		QTE = v
+		break
+	end
+end
 for i, v in pairs(game.Workspace.Players.Killers:GetChildren()) do
 	if v:IsA("Model") and v:GetAttribute("Username") ~= LocalPlayer.Name then
 		Killer = v.Name
@@ -1412,13 +1425,11 @@ if staminaModule then
 	if _G.CustomStamina then
 		if staminaModule.DefaultConfig then
 			if staminaModule.MaxStamina and _G.CustomMaxStamina then
-				staminaModule.DefaultConfig.MaxStamina = _G.MaxStamina or 100
 				staminaModule.MaxStamina = _G.MaxStamina or 100
 			end
 			if staminaModule.MinStamina and _G.CustomMinStamina then
 				local Minsprint = tonumber(_G.MinStamina or 100)
 				staminaModule.MinStamina = Minsprint
-		        staminaModule.DefaultConfig.MinStamina = Minsprint
 		        if staminaModule.Stamina < Minsprint then
 		            staminaModule.Stamina = Minsprint
 		        end
@@ -1473,20 +1484,38 @@ if _G.AntiShadow then
 		end
 	end
 end
+if _G.InstantPlayMinigameAzure then
+	if QTE and QTE.Parent and QTE:FindFirstChild("Line") then
+		local FoundQTEAzure
+		for _, v in ipairs(QTE:GetChildren()) do
+			if v.Name:lower():find("zone") and v.Visible then
+				FoundQTEAzure = v
+				break
+			end
+		end
+		if FoundQTEAzure and FoundQTEAzure.Parent and RootPart then
+			for i, v in pairs(workspace.Map.Ingame:GetChildren()) do
+				if v.Name:lower():find(Killer.."'s vine") or v.Name:lower():find(Killer.."'s groundbulb") then
+					local partQTE = v:FindFirstChildWhichIsA("BasePart")
+					if partQTE and Distance(partQTE.Position) <= 6 then
+						local boolEnd = stringBool(true)
+						Remote:FireServer(LocalPlayer.Name.."EndAzureQTE", {partQTE, boolEnd})
+					end
+				end
+			end
+		end
+	end
+end
 if _G.AutoPlayMinigame then
-	local QTE = PlayerGui.TemporaryUI:FindFirstChild("QTE", true)
-	if QTE then
+	if QTE and QTE.Parent then
 		local ButtonTap = QTE:FindFirstChildOfClass("ImageButton") 
 		local ButtonTapReal = ButtonTap and ButtonTap:FindFirstChildOfClass("TextLabel")
-		local Line, Zone = QTE:FindFirstChild("Line"), QTE:FindFirstChild("Zone")
 		if ButtonTap and ButtonTap.Visible and ButtonTapReal and ButtonTapReal.Text:lower():find("tap") then
 			ButtonTap.Size = UDim2.new(1, 0, 1, 0)
 		end
-		if Line and Zone then
-			for _, v in ipairs(Zone:GetChildren()) do
-				if v:IsA("ImageLabel") then
-					v.Position = Line.Position
-				end
+		for _, v in ipairs(QTE:GetChildren()) do
+			if v.Name:lower():find("zone") and v.Visible and QTE:FindFirstChild("Line") then
+				v.Position = QTE.Line.Position
 			end
 		end
 	end
@@ -1501,7 +1530,7 @@ if Character and Character.Name:lower():find("johndoe") then
 		if _G.AimbotCorruptEnergy then
 			local AnimationEnergy, TrackAnimationEnergy = HasAnimation(Humanoid, "Corrupt Energy", true)
 			if AnimationEnergy and TrackAnimationEnergy then
-				if TrackAnimationEnergy.TimePosition > (_G.DelayAimbotJohnDoe or 0.65) then
+				if TrackAnimationEnergy.TimePosition > (_G.DelayAimbotJohnDoe or 0.8) then
 					if not CorruptEnergyLoading then
 						CorruptEnergyLoading = true
 						while Humanoid and Humanoid.WalkSpeed < 0.05 and task.wait() do
@@ -1522,13 +1551,31 @@ if Character and Character.Name:lower():find("johndoe") then
 		end
 	end
 end
+if Character and Character.Name:lower():find("veeronica") then
+	if _G.ControllSkateboard then
+		local AnimationSk8 = HasAnimation(Humanoid, "Skateboard", true)
+		if AnimationSk8 then
+			RootPartLock(true)
+			local Look = RootPart.CFrame.LookVector
+			local Horizontal = Vector3.new(Look.X, 0, Look.Z)
+			if Horizontal.Magnitude > 0 then
+			    Humanoid:Move(Horizontal.Unit)
+			end
+		else
+			if Humanoid and not AutoRotate then
+				Humanoid.AutoRotate = true
+				RootPartLock(false)
+			end
+		end
+	end
+end
 if Character and Character.Name:lower():find("janedoe") then
 	targetKiller = ClosestKiller()
 	if targetKiller and targetKiller:FindFirstChild("HumanoidRootPart") then
 		if _G.AimbotAxe then
 			if Humanoid then
 				local AnimationAxe, TrackAnimationAxe = HasAnimation(Humanoid, "Axe", true)
-				if AnimationAxe and TrackAnimationAxe and TrackAnimationAxe.TimePosition >= (_G.DelayAimbot or 0.27) and TrackAnimationAxe.TimePosition <= 0.86 then
+				if AnimationAxe and TrackAnimationAxe and TrackAnimationAxe.TimePosition > (_G.DelayAimbot or 0.27) and TrackAnimationAxe.TimePosition < 0.86 then
 					if _G.PowerAxeAimbot then
 						if not start or tick() - start >= 8 then
 							start = tick()
@@ -1625,7 +1672,7 @@ if Character and Character.Name:lower():find("chance") then
 			for _, part in ipairs(workspace:GetPartBoundsInBox(hb.CFrame, hb.Size, overlap)) do
 			    local model = part:FindFirstAncestorOfClass("Model")
 			    if model and Players:GetPlayerFromCharacter(model) then
-			        if CanHit(RootPart, targetKiller.HumanoidRootPart) then
+			        if Wallcheck(RootPart, targetKiller.HumanoidRootPart) then
 						FoundSuccess = true
 						break
 					end
@@ -1713,10 +1760,10 @@ if Character and Character.Name:lower():find("guest") then
 		    else
 		        workspace["RangeHB (Block)"].CFrame = CFrame.new(position - Vector3.new(0, 3, 0)) * CFrame.Angles(0, 0, math.rad(90))
 		    end
-			workspace["RangeHB (Block)"].Size = Vector3.new(0.2, rangeHB * 2, rangeHB * 2)
+			workspace["RangeHB (Block)"].Size = Vector3.new(0.2, currentRange * 2, currentRange * 2)
 			workspace["RangeHB (Block)"].Transparency = 0.7
 			local distance = (workspace["RangeHB (Block)"].Position - RootPart.Position).Magnitude
-	        local wall = CanHit(RootPart, targetKiller.HumanoidRootPart)
+	        local wall = Wallcheck(RootPart, targetKiller.HumanoidRootPart)
 	        if distance <= rangeHB and wall then
 	            workspace["RangeHB (Block)"].Color = Color3.fromRGB(0,255,0)
 	        else
@@ -2431,7 +2478,6 @@ end)
 EspGroup:Toggle({
     Title = t"Esp Generator",
     Value = false,
-    Flag = "Esp Generator",
     Callback = function(Value)
         _G.EspGenerator = Value
         if _G.EspGeneral == false then
@@ -2454,7 +2500,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Killer",
     Value = false,
-    Flag = "Esp Killer",
     Callback = function(Value)
         _G.EspKiller = Value
         if not _G.EspKiller then
@@ -2479,7 +2524,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Survivors",
     Value = false,
-    Flag = "Esp Survivors",
     Callback = function(Value)
         _G.EspSurvivors = Value
         if not _G.EspSurvivors then
@@ -2504,7 +2548,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Clone",
     Value = false,
-    Flag = "Esp Clone",
     Callback = function(Value)
         _G.EspClone = Value
         if not _G.EspClone then
@@ -2525,7 +2568,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Item",
     Value = false,
-    Flag = "Esp Item",
     Callback = function(Value)
         _G.EspItem = Value
 		task.spawn(function()
@@ -2556,7 +2598,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Dispenser",
     Value = false,
-    Flag = "Esp Dispenser",
     Callback = function(Value)
         _G.EspDispenser = Value
         if not _G.EspDispenser then
@@ -2577,7 +2618,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Sentry",
     Value = false,
-    Flag = "Esp Sentry",
     Callback = function(Value)
         _G.EspSentry = Value
         if not _G.EspSentry then
@@ -2598,7 +2638,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Tripmine",
     Value = false,
-    Flag = "Esp Tripmine",
     Callback = function(Value)
         _G.EspTripmine = Value
         if not _G.EspTripmine then
@@ -2619,7 +2658,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Tripwire",
     Value = false,
-    Flag = "Esp Tripwire",
     Callback = function(Value)
         _G.EspTripwire = Value
         if not _G.EspTripwire then
@@ -2640,7 +2678,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Digital Footprint",
     Value = false,
-    Flag = "Esp Digital Footprint",
     Callback = function(Value)
         _G.EspDigitalFootprint = Value
         if not _G.EspDigitalFootprint then
@@ -2665,7 +2702,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Pizza",
     Value = false,
-    Flag = "Esp Pizza",
     Callback = function(Value)
         _G.EspPizza = Value
         if not _G.EspPizza then
@@ -2686,7 +2722,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Mass Infection",
     Value = false,
-    Flag = "Esp Mass Infection",
     Callback = function(Value)
         _G.EspMassInfection = Value
         if not _G.EspMassInfection then
@@ -2710,7 +2745,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Ground Bulb",
     Value = false,
-    Flag = "Esp Ground Bulb",
     Callback = function(Value)
         _G.EspGroundBulb = Value
         if not _G.EspGroundBulb then
@@ -2731,7 +2765,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Vine",
     Value = false,
-    Flag = "Esp Vine",
     Callback = function(Value)
         _G.EspVine = Value
         if not _G.EspVine then
@@ -2752,7 +2785,6 @@ EspGroup:Toggle({
 EspGroup:Toggle({
     Title = t"Esp Graffiti",
     Value = false,
-    Flag = "Esp Graffiti",
     Callback = function(Value)
         _G.EspGraffitiCL = Value
         if not _G.EspGraffitiCL then
@@ -3111,12 +3143,17 @@ MiscGroup:Toggle({
     Flag = "Auto Lock",
     Callback = function(Value)
         _G.AutoLock = Value
+        if Flag and Flag["WallCheck Lock"] then
+	        Flag["WallCheck Lock"]:SetVisible(Value)
+        end
 		while _G.AutoLock do
 			pcall(function()
 				local Players = (_G.AutoLockChoose == "Survivors" and ClosestSurvivor() or ClosestKiller())
 				local Destination = Players and Players:FindFirstChild("HumanoidRootPart")
 				if Destination and Humanoid then
-					Aimbot(Destination, 0.1, _G.LockCharacter)
+					if not _G.WallCheckLock or Wallcheck(RootPart, Destination) then
+						Aimbot(Destination, _G.SharpnessLock or 0.1, _G.LockCharacter)
+					end
 				end
 			end)
 			task.wait()
@@ -3126,6 +3163,28 @@ MiscGroup:Toggle({
     Default = Enum.KeyCode.Q,
     Hold = true,
     Flag = "Lock Players",
+})
+
+MiscGroup:Toggle({
+    Title = t"Wallcheck Lock",
+    Value = false,
+    Visible = false,
+    Flag = "WallCheck Lock",
+    Callback = function(Value)
+        _G.WallCheckLock = Value
+    end
+})
+
+MiscGroup:Slider({
+    Title = t"Sharpness Lock",
+    Min = 0,
+    Max = 5,
+    Value = 1,
+    Increment = 1,
+    Flag = "Sharpness Lock",
+    Callback = function(Value)
+        _G.SharpnessLock = Value
+    end
 })
 
 local Survivors, SurvivorsTab = Tabs.Survivors, Tabs.SurvivorsGroup
@@ -3547,6 +3606,15 @@ VeeronicaGroup:Toggle({
 })
 
 VeeronicaGroup:Toggle({
+    Title = t"Controll Skateboard",
+    Value = false,
+    Flag = "Controll Skateboard",
+    Callback = function(Value)
+        _G.ControllSkateboard = Value
+    end
+})
+
+VeeronicaGroup:Toggle({
     Title = t"Anti Objects",
     Value = false,
     Flag = "Anti Objects",
@@ -3630,7 +3698,7 @@ JohnDoeGroup:Toggle({
 JohnDoeGroup:Slider({
     Title = t"Delay Aimbot",
     Min = 0,
-    Max = 0.7,
+    Max = 0.85,
     Value = 0.65,
     Increment = 0.01,
     Flag = "Delay Aimbot Corrupt Energy",
