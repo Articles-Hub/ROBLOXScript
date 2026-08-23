@@ -1,4 +1,4 @@
--- [[ ROBLOX ADVANCED ESP FRAMEWORK - ULTRA CLEAN ]] --
+-- [[ ROBLOX ADVANCED ESP FRAMEWORK - ULTRA CLEAN + BILLBOARD SKELETON ]] --
 local Players, RunService, CoreGui, UserInputService = game:GetService("Players"), game:GetService("RunService"), game:GetService("CoreGui"), game:GetService("UserInputService")
 local LocalPlayer, Camera = Players.LocalPlayer, workspace.CurrentCamera
 local HasDrawing = type(Drawing) == "table" and type(Drawing.new) == "function"
@@ -67,6 +67,15 @@ function ESP:SetDelayEsp(d) if type(d)=="number" then self.RenderDelay=d end end
 function ESP:SetTweenTime(t) if type(t)=="number" then self.TweenTime=t end end
 function ESP:SetTracerOrigin(m) if type(m)=="string" then self.TracerOrigin = m:sub(1,1):upper()..m:sub(2):lower() end end
 
+function ESP:SetBoxTransparent(transTable)
+    if type(transTable) == "table" then
+        if transTable.Outline ~= nil then self.Transparency.Outline = transTable.Outline end
+        if transTable.Fill ~= nil then self.Transparency.Fill = transTable.Fill end
+        if transTable[1] ~= nil then self.Transparency.Outline = transTable[1] end
+        if transTable[2] ~= nil then self.Transparency.Fill = transTable[2] end
+    end
+end
+
 -- Core Drawing Setup
 local function createDrawObject(isPlayer)
     local obj = { Highlight = Instance.new("Highlight", ESP_Folder), Alpha = 0, CurrBoxPos = Vector2.zero, CurrBoxSize = Vector2.zero }
@@ -84,17 +93,36 @@ local function createDrawObject(isPlayer)
     else
         obj.Billboard = Instance.new("BillboardGui", ESP_Folder)
         obj.Billboard.Size, obj.Billboard.AlwaysOnTop = UDim2.new(0, 200, 0, isPlayer and 60 or 50), true
+        
+        obj.BoxFrame = Instance.new("Frame", obj.Billboard)
+        obj.BoxFrame.Size, obj.BoxFrame.Position = UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0)
+        obj.BoxFrame.BackgroundTransparency = 1
+        obj.BoxFrame.BorderSizePixel = 0
+
         obj.NameLabel = Instance.new("TextLabel", obj.Billboard)
         obj.NameLabel.Size, obj.NameLabel.BackgroundTransparency, obj.NameLabel.TextSize, obj.NameLabel.TextColor3 = UDim2.new(1,0,0,20), 1, 14, ESP.TextColor
         obj.NameLabel.TextStrokeTransparency = 0
         obj.DistLabel = Instance.new("TextLabel", obj.Billboard)
         obj.DistLabel.Size, obj.DistLabel.Position, obj.DistLabel.BackgroundTransparency, obj.DistLabel.TextSize, obj.DistLabel.TextColor3 = UDim2.new(1,0,0,15), UDim2.new(0,0,0,20), 1, 12, ESP.TextColor
         obj.DistLabel.TextStrokeTransparency = 0
+        
         if isPlayer then
             obj.HealthBG = Instance.new("Frame", obj.Billboard)
             obj.HealthBG.Size, obj.HealthBG.Position, obj.HealthBG.BackgroundColor3, obj.HealthBG.BorderSizePixel = UDim2.new(0.6,0,0,4), UDim2.new(0.2,0,0,38), Color3.new(0,0,0), 0
             obj.HealthBar = Instance.new("Frame", obj.HealthBG)
             obj.HealthBar.Size, obj.HealthBar.BackgroundColor3, obj.HealthBar.BorderSizePixel = UDim2.new(1,0,1,0), Color3.new(0,1,0), 0
+            
+            -- Gui dùng để chứa các đoạn xương ScreenGui/Frame 2D
+            obj.SkeletonGui = Instance.new("ScreenGui", ESP_Folder)
+            obj.SkeletonGui.ResetOnSpawn = false
+            obj.Skeletons = {}
+            for i = 1, #SkeletonBones do
+                local f = Instance.new("Frame", obj.SkeletonGui)
+                f.AnchorPoint = Vector2.new(0.5, 0.5)
+                f.BorderSizePixel = 0
+                f.Visible = false
+                obj.Skeletons[i] = f
+            end
         end
     end
     return obj
@@ -106,9 +134,17 @@ local function cleanObject(obj)
     if HasDrawing then
         for _, k in pairs({"Text", "DistText", "Tracer", "Box", "HlOutline", "HlBar"}) do if obj[k] then pcall(function() obj[k]:Remove() end) end end
         if obj.Skeletons then for _, l in pairs(obj.Skeletons) do pcall(function() l:Remove() end) end end
+    else
+        if obj.SkeletonGui then pcall(function() obj.SkeletonGui:Destroy() end) end
     end
     if obj.Highlight then pcall(function() obj.Highlight:Destroy() end) end
     if obj.Billboard then pcall(function() obj.Billboard:Destroy() end) end
+end
+
+function ESP:RemoveEsp(target)
+    if not target then return end
+    if ObjectsCache[target] then cleanObject(ObjectsCache[target]); ObjectsCache[target] = nil end
+    if Cache[target] then cleanObject(Cache[target]); Cache[target] = nil end
 end
 
 -- Add Object ESP
@@ -163,7 +199,7 @@ function ESP:AddESP(target, config)
                 local h = math.max(math.abs(top.Y - bot.Y), 10)
                 local w = math.clamp(h * (size.X / size.Y), 10, 500)
                 obj.CurrBoxSize, obj.CurrBoxPos = lerpVec(obj.CurrBoxSize, Vector2.new(w, h), dt*15), lerpVec(obj.CurrBoxPos, Vector2.new(pos.X - w/2, pos.Y - h/2), dt*15)
-                obj.Box.Thickness, obj.Box.Size, obj.Box.Position, obj.Box.Color, obj.Box.Transparency, obj.Box.Visible = ESP.BoxThickness, obj.CurrBoxSize, obj.CurrBoxPos, boxCol, obj.Alpha, true
+                obj.Box.Thickness, obj.Box.Size, obj.Box.Position, obj.Box.Color, obj.Box.Transparency, obj.Box.Visible = ESP.BoxThickness, obj.CurrBoxSize, obj.CurrBoxPos, boxCol, ESP.Transparency.Outline * obj.Alpha, true
             else obj.Box.Visible = false end
 
             if ESP.Tracers then
@@ -175,6 +211,14 @@ function ESP:AddESP(target, config)
             obj.DistLabel.Visible = ESP.ShowDistance
             if ESP.ShowDistance then obj.DistLabel.Text, obj.DistLabel.TextColor3 = string.format("[%dm]", math.floor(dist)), txtCol end
             obj.Billboard.Enabled = ESP.Names
+            
+            if ESP.Boxes and obj.BoxFrame then
+                obj.BoxFrame.BackgroundColor3 = boxCol
+                obj.BoxFrame.BackgroundTransparency = 1 - (ESP.Transparency.Fill * obj.Alpha)
+                obj.BoxFrame.Visible = true
+            elseif obj.BoxFrame then
+                obj.BoxFrame.Visible = false
+            end
         end
 
         if ESP.Highlight then
@@ -209,7 +253,12 @@ local function setupPlayer(player, config)
 
         local char, hum, hrp = player.Character, player.Character and player.Character:FindFirstChildOfClass("Humanoid"), player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if not ESP.Enabled or not char or not hrp or not hum or hum.Health <= 0 or ESP:CheckTeam(player) then
-            if HasDrawing then obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false; for _,l in pairs(obj.Skeletons) do l.Visible=false end end
+            if HasDrawing then
+                obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false
+                for _,l in pairs(obj.Skeletons) do l.Visible=false end
+            else
+                if obj.Skeletons then for _,f in pairs(obj.Skeletons) do f.Visible=false end end
+            end
             obj.Highlight.Enabled = false; if obj.Billboard then obj.Billboard.Enabled = false end
             return
         end
@@ -220,7 +269,12 @@ local function setupPlayer(player, config)
 
         obj.Alpha = lerpVal(obj.Alpha, (dist <= ESP.MaxDistance and onScreen and pos.Z > 0) and 1 or 0, dt * (1 / math.max(ESP.TweenTime, 0.05)))
         if obj.Alpha < 0.05 then
-            if HasDrawing then obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false; for _,l in pairs(obj.Skeletons) do l.Visible=false end end
+            if HasDrawing then
+                obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false
+                for _,l in pairs(obj.Skeletons) do l.Visible=false end
+            else
+                if obj.Skeletons then for _,f in pairs(obj.Skeletons) do f.Visible=false end end
+            end
             obj.Highlight.Enabled = false; return
         end
 
@@ -253,7 +307,7 @@ local function setupPlayer(player, config)
             obj.CurrBoxSize, obj.CurrBoxPos = lerpVec(obj.CurrBoxSize, Vector2.new(w, h), dt*15), lerpVec(obj.CurrBoxPos, Vector2.new(pos.X - w/2, pos.Y - h/2), dt*15)
 
             if ESP.Boxes then
-                obj.Box.Thickness, obj.Box.Size, obj.Box.Position, obj.Box.Color, obj.Box.Transparency, obj.Box.Visible = ESP.BoxThickness, obj.CurrBoxSize, obj.CurrBoxPos, boxCol, obj.Alpha, true
+                obj.Box.Thickness, obj.Box.Size, obj.Box.Position, obj.Box.Color, obj.Box.Transparency, obj.Box.Visible = ESP.BoxThickness, obj.CurrBoxSize, obj.CurrBoxPos, boxCol, ESP.Transparency.Outline * obj.Alpha, true
             else obj.Box.Visible = false end
 
             if ESP.Tracers then
@@ -285,10 +339,45 @@ local function setupPlayer(player, config)
             obj.DistLabel.Visible = ESP.ShowDistance
             if ESP.ShowDistance then obj.DistLabel.Text, obj.DistLabel.TextColor3 = string.format("[%dm]", math.floor(dist)), txtCol end
             obj.Billboard.Enabled = ESP.Names
+            
+            if ESP.Boxes and obj.BoxFrame then
+                obj.BoxFrame.BackgroundColor3 = boxCol
+                obj.BoxFrame.BackgroundTransparency = 1 - (ESP.Transparency.Fill * obj.Alpha)
+                obj.BoxFrame.Visible = true
+            elseif obj.BoxFrame then
+                obj.BoxFrame.Visible = false
+            end
+
             if ESP.Healthbar then
                 obj.HealthBar.Size = UDim2.new(math.clamp(hum.Health / math.max(hum.MaxHealth, 1), 0, 1), 0, 1, 0)
+                obj.HealthBG.BackgroundTransparency = 1 - (ESP.Transparency.Outline * obj.Alpha)
+                obj.HealthBar.BackgroundTransparency = 1 - (ESP.Transparency.Fill * obj.Alpha)
                 obj.HealthBG.Visible = true
             else obj.HealthBG.Visible = false end
+
+            -- Vẽ Skeleton bằng các đoạn Frame 2D xoay theo tọa độ màn hình
+            if ESP.Skeletons then
+                for idx, pair in ipairs(SkeletonBones) do
+                    local p1, p2, frame = char:FindFirstChild(pair[1]), char:FindFirstChild(pair[2]), obj.Skeletons[idx]
+                    if p1 and p2 then
+                        local v1, vis1 = Camera:WorldToViewportPoint(p1.Position)
+                        local v2, vis2 = Camera:WorldToViewportPoint(p2.Position)
+                        if vis1 and vis2 then
+                            local pos1, pos2 = Vector2.new(v1.X, v1.Y), Vector2.new(v2.X, v2.Y)
+                            local mid = (pos1 + pos2) / 2
+                            local len = (pos1 - pos2).Magnitude
+                            local rot = math.deg(math.atan2(pos2.Y - pos1.Y, pos2.X - pos1.X))
+
+                            frame.Size = UDim2.new(0, len, 0, ESP.SkeletonThickness)
+                            frame.Position = UDim2.new(0, mid.X, 0, mid.Y)
+                            frame.Rotation = rot
+                            frame.BackgroundColor3 = skelCol
+                            frame.BackgroundTransparency = 1 - obj.Alpha
+                            frame.Visible = true
+                        else frame.Visible = false end
+                    else frame.Visible = false end
+                end
+            else for _, f in pairs(obj.Skeletons) do f.Visible = false end end
         end
 
         if ESP.Highlight then
@@ -311,6 +400,7 @@ end
 
 for _, p in pairs(Players:GetPlayers()) do setupPlayer(p) end
 Connections.PlayerAdded = Players.PlayerAdded:Connect(function(p) setupPlayer(p) end)
+Connections.PlayerRemoving = Players.PlayerRemoving:Connect(function(p) ESP:RemoveEsp(p) end)
 
 function ESP:Unload()
     self.Enabled = false
