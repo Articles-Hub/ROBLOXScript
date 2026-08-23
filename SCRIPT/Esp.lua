@@ -74,7 +74,7 @@ function ESP:SetBoxTransparent(transTable)
 end
 
 local function createDrawObject(isPlayer)
-    local obj = { Highlight = Instance.new("Highlight", ESP_Folder), Alpha = 0, CurrBoxPos = Vector2.zero, CurrBoxSize = Vector2.zero }
+    local obj = { Highlight = Instance.new("Highlight", ESP_Folder), Alpha = 0, CurrBoxPos = Vector2.zero, CurrBoxSize = Vector2.zero, Config = {} }
     obj.Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     if HasDrawing then
         obj.Text, obj.DistText, obj.Tracer, obj.Box = Drawing.new("Text"), Drawing.new("Text"), Drawing.new("Line"), Drawing.new("Square")
@@ -144,19 +144,17 @@ end
 
 function ESP:AddESP(target, arg2, arg3)
     if not target or ObjectsCache[target] then return ObjectsCache[target] end
-    
-    local config = {}
-    if type(arg2) == "string" or typeof(arg3) == "Color3" then
-        config.Name = type(arg2) == "string" and arg2 or target.Name
-        config.Color = typeof(arg3) == "Color3" and arg3 or nil
-    elseif type(arg2) == "table" then
-        config = arg2
-    end
-
     local obj = createDrawObject(false)
     ObjectsCache[target] = obj
-    local lastRender = 0
 
+    if type(arg2) == "string" or typeof(arg3) == "Color3" then
+        obj.Config.Name = type(arg2) == "string" and arg2 or target.Name
+        obj.Config.TextColor = typeof(arg3) == "Color3" and arg3 or nil
+    elseif type(arg2) == "table" then
+        obj.Config = arg2
+    end
+
+    local lastRender = 0
     obj.Connection = RunService.RenderStepped:Connect(function(dt)
         if ESP.RenderDelay > 0 and (tick() - lastRender) < ESP.RenderDelay then return end
         lastRender = tick()
@@ -180,14 +178,14 @@ function ESP:AddESP(target, arg2, arg3)
         end
 
         local baseCol = ESP.Rainbow and CurrentRainbowColor or nil
-        local txtCol = resolveColor(config.TextColor or ESP.TextColorFunction, target, baseCol or config.Color or ESP.TextColor)
-        local boxCol = resolveColor(config.BoxColor or ESP.BoxColorFunction, target, baseCol or config.Color or ESP.BoxColor)
-        local traceCol = resolveColor(config.TracerColor or ESP.TracerColorFunction, target, baseCol or config.Color or ESP.TracerColor)
-        local hlCol = resolveColor(config.HighlightColor or ESP.HighlightColorFunction, target, baseCol or config.Color or ESP.BoxColor)
+        local txtCol = resolveColor(obj.Config.TextColor or ESP.TextColorFunction, target, baseCol or obj.Config.Color or ESP.TextColor)
+        local boxCol = resolveColor(obj.Config.BoxColor or ESP.BoxColorFunction, target, baseCol or obj.Config.Color or ESP.BoxColor)
+        local traceCol = resolveColor(obj.Config.TracerColor or ESP.TracerColorFunction, target, baseCol or obj.Config.Color or ESP.TracerColor)
+        local hlCol = resolveColor(obj.Config.HighlightColor or ESP.HighlightColorFunction, target, baseCol or obj.Config.Color or ESP.BoxColor)
 
         if HasDrawing then
             if ESP.Names then
-                obj.Text.Size, obj.Text.Font, obj.Text.Outline, obj.Text.Text = ESP.TextSize, ESP.Font, ESP.TextOutline, tostring(config.Name or target.Name)
+                obj.Text.Size, obj.Text.Font, obj.Text.Outline, obj.Text.Text = ESP.TextSize, ESP.Font, ESP.TextOutline, tostring(obj.Config.Name or target.Name)
                 obj.Text.Position, obj.Text.Color, obj.Text.Transparency, obj.Text.Visible = lerpVec(obj.CurrBoxPos, Vector2.new(pos.X, pos.Y-20), dt*15), txtCol, ESP.Transparency.Text * obj.Alpha, true
                 obj.DistText.Visible = ESP.ShowDistance
                 if ESP.ShowDistance then
@@ -209,7 +207,7 @@ function ESP:AddESP(target, arg2, arg3)
             else obj.Tracer.Visible = false end
         else
             obj.Billboard.Adornee = target:IsA("Model") and (target.PrimaryPart or target:FindFirstChildWhichIsA("BasePart")) or target
-            obj.NameLabel.Text, obj.NameLabel.TextColor3 = tostring(config.Name or target.Name), txtCol
+            obj.NameLabel.Text, obj.NameLabel.TextColor3 = tostring(obj.Config.Name or target.Name), txtCol
             obj.DistLabel.Visible = ESP.ShowDistance
             if ESP.ShowDistance then obj.DistLabel.Text, obj.DistLabel.TextColor3 = string.format("[%dm]", math.floor(dist)), txtCol end
             obj.Billboard.Enabled = ESP.Names
@@ -233,6 +231,62 @@ function ESP:AddESP(target, arg2, arg3)
     return obj
 end
 
+-- Hàm SetText: {Object, Text, Color}
+function ESP:SetText(Object, Text, Color)
+    if not Object then return end
+    local obj = ObjectsCache[Object] or Cache[Object]
+    if not obj then
+        obj = self:AddESP(Object, Text, Color)
+    else
+        if Text ~= nil then obj.Config.Name = Text end
+        if typeof(Color) == "Color3" then obj.Config.TextColor = Color end
+    end
+    return obj
+end
+
+-- Hàm SetColor: {Object, Modes ("All" hoặc {"Text", "Boxes", "Tracer", "Highlight", "Skeleton"}), Color}
+function ESP:SetColor(Object, Modes, Color)
+    if not Object or typeof(Color) ~= "Color3" then return end
+    local obj = ObjectsCache[Object] or Cache[Object]
+    if not obj then
+        obj = self:AddESP(Object)
+    end
+
+    local keyMap = {
+        ["TEXT"] = "TextColor",
+        ["BOXES"] = "BoxColor",
+        ["BOX"] = "BoxColor",
+        ["TRACER"] = "TracerColor",
+        ["TRACERS"] = "TracerColor",
+        ["HIGHLIGHT"] = "HighlightColor",
+        ["SKELETON"] = "SkeletonColor",
+        ["SKELETONS"] = "SkeletonColor",
+        ["LINE"] = "TracerColor"
+    }
+
+    if Modes == "All" or Modes == "ALL" or Modes == "all" then
+        obj.Config.Color = Color
+        obj.Config.TextColor = Color
+        obj.Config.BoxColor = Color
+        obj.Config.TracerColor = Color
+        obj.Config.HighlightColor = Color
+        obj.Config.SkeletonColor = Color
+    elseif type(Modes) == "table" then
+        for _, mode in ipairs(Modes) do
+            local cfgKey = keyMap[tostring(mode):upper()]
+            if cfgKey then
+                obj.Config[cfgKey] = Color
+            end
+        end
+    elseif type(Modes) == "string" then
+        local cfgKey = keyMap[Modes:upper()]
+        if cfgKey then
+            obj.Config[cfgKey] = Color
+        end
+    end
+    return obj
+end
+
 function ESP:CheckTeam(p)
     if not p or p == LocalPlayer then return true end
     if type(self.CheckTeamFunction) == "function" then local s, r = pcall(self.CheckTeamFunction, p); if s then return r end end
@@ -244,6 +298,7 @@ local function setupPlayer(player, config)
     if not player or player == LocalPlayer or Cache[player] then return end
     config = config or ESP.PlayerConfig
     local obj = createDrawObject(true)
+    obj.Config = config
     Cache[player] = obj
     local lastRender = 0
 
@@ -280,19 +335,19 @@ local function setupPlayer(player, config)
         end
 
         local baseCol = ESP.Rainbow and CurrentRainbowColor or nil
-        local txtCol = resolveColor(config.TextColor or ESP.TextColorFunction, player, baseCol or ESP.TextColor)
-        local boxCol = resolveColor(config.BoxColor or ESP.BoxColorFunction, player, baseCol or ESP.BoxColor)
-        local traceCol = resolveColor(config.TracerColor or ESP.TracerColorFunction, player, baseCol or ESP.TracerColor)
-        local hlCol = resolveColor(config.HighlightColor or ESP.HighlightColorFunction, player, baseCol or ESP.HighlightColor)
-        local skelCol = resolveColor(ESP.SkeletonColorFunction, player, baseCol or ESP.SkeletonColor)
+        local txtCol = resolveColor(obj.Config.TextColor or ESP.TextColorFunction, player, baseCol or ESP.TextColor)
+        local boxCol = resolveColor(obj.Config.BoxColor or ESP.BoxColorFunction, player, baseCol or ESP.BoxColor)
+        local traceCol = resolveColor(obj.Config.TracerColor or ESP.TracerColorFunction, player, baseCol or ESP.TracerColor)
+        local hlCol = resolveColor(obj.Config.HighlightColor or ESP.HighlightColorFunction, player, baseCol or ESP.HighlightColor)
+        local skelCol = resolveColor(obj.Config.SkeletonColor or ESP.SkeletonColorFunction, player, baseCol or ESP.SkeletonColor)
 
-        if config.TeamColor and player.TeamColor then
+        if obj.Config.TeamColor and player.TeamColor then
             txtCol, boxCol, traceCol, hlCol, skelCol = player.TeamColor.Color, player.TeamColor.Color, player.TeamColor.Color, player.TeamColor.Color, player.TeamColor.Color
         end
 
         if HasDrawing then
             if ESP.Names then
-                obj.Text.Size, obj.Text.Font, obj.Text.Outline, obj.Text.Text = ESP.TextSize, ESP.Font, ESP.TextOutline, player.DisplayName
+                obj.Text.Size, obj.Text.Font, obj.Text.Outline, obj.Text.Text = ESP.TextSize, ESP.Font, ESP.TextOutline, obj.Config.Name or player.DisplayName
                 obj.Text.Position, obj.Text.Color, obj.Text.Transparency, obj.Text.Visible = Vector2.new(pos.X, pos.Y - 32), txtCol, ESP.Transparency.Text * obj.Alpha, true
                 obj.DistText.Visible = ESP.ShowDistance
                 if ESP.ShowDistance then
@@ -336,7 +391,7 @@ local function setupPlayer(player, config)
             else for _, l in pairs(obj.Skeletons) do l.Visible = false end end
         else
             obj.Billboard.Adornee = head or hrp
-            obj.NameLabel.Text, obj.NameLabel.TextColor3 = player.DisplayName, txtCol
+            obj.NameLabel.Text, obj.NameLabel.TextColor3 = obj.Config.Name or player.DisplayName, txtCol
             obj.DistLabel.Visible = ESP.ShowDistance
             if ESP.ShowDistance then obj.DistLabel.Text, obj.DistLabel.TextColor3 = string.format("[%dm]", math.floor(dist)), txtCol end
             obj.Billboard.Enabled = ESP.Names
@@ -345,7 +400,7 @@ local function setupPlayer(player, config)
                 obj.BoxFrame.BackgroundColor3 = boxCol
                 obj.BoxFrame.BackgroundTransparency = 1 - (ESP.Transparency.Fill * obj.Alpha)
                 obj.BoxFrame.Visible = true
-            elseif obj.BoxFrame then
+            elseif obj.BoxFrame meand
                 obj.BoxFrame.Visible = false
             end
 
