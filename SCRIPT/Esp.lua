@@ -137,67 +137,96 @@ end
 
 function ESP:SetTransparency(data)
     if type(data) ~= "table" then return end
+
     local mode = data[1] or data.mode or data.Mode
-    local outline = data[2] or data.outline or data.Outline
-    local fill = data[3] or data.fill or data.Fill or outline -- Nếu không truyền fill thì dùng outline
+    local inputOutline = data[2] or data.outline or data.Outline
+    local inputFill = data[3] or data.fill or data.Fill
 
     if not mode then return end
     mode = tostring(mode):lower()
-    self.TransparencyConfig = self.TransparencyConfig or {}
 
-    local config = {
-        Outline = type(outline) == "number" and outline or 1,
-        Fill = type(fill) == "number" and fill or 1
+    self.TransparencyConfig = self.TransparencyConfig or {
+        Box = { Outline = 1, Fill = 0.5 },
+        Tracer = { Outline = 1, Fill = 1 },
+        Skeleton = { Outline = 1, Fill = 1 },
+        Text = { Outline = 1, Fill = 1 },
+        Highlight = { Outline = 1, Fill = 0.5 }
     }
-    if mode == "box" or mode == "boxes" or mode == "boxer" then
-        self.TransparencyConfig.Box = config
-    elseif mode == "line" or mode == "tracer" or mode == "tracers" then
-        self.TransparencyConfig.Tracer = config
-    elseif mode == "skeleton" or mode == "skeletons" then
-        self.TransparencyConfig.Skeleton = config
-    elseif mode == "text" or mode == "names" then
-        self.TransparencyConfig.Text = config
-    elseif mode == "highlight" then
-        self.TransparencyConfig.Highlight = config
-    elseif mode == "all" then
-        self.TransparencyConfig.Box = config
-        self.TransparencyConfig.Tracer = config
-        self.TransparencyConfig.Skeleton = config
-        self.TransparencyConfig.Text = config
-        self.TransparencyConfig.Highlight = config
+
+    local function applyModeConfig(targetMode)
+        local current = self.TransparencyConfig[targetMode] or { Outline = 1, Fill = 0.5 }
+        
+        -- Nếu outline = nil thì giữ nguyên outline cũ, nếu fill = nil thì giữ nguyên fill cũ
+        local finalOutline = type(inputOutline) == "number" and inputOutline or current.Outline
+        local finalFill = type(inputFill) == "number" and inputFill or (type(inputOutline) == "number" and inputOutline or current.Fill)
+
+        self.TransparencyConfig[targetMode] = {
+            Outline = finalOutline,
+            Fill = finalFill
+        }
     end
+
+    -- Cập nhật bảng cấu hình
+    if mode == "all" then
+        applyModeConfig("Box")
+        applyModeConfig("Tracer")
+        applyModeConfig("Skeleton")
+        applyModeConfig("Text")
+        applyModeConfig("Highlight")
+    elseif mode == "box" or mode == "boxes" or mode == "boxer" then
+        applyModeConfig("Box")
+    elseif mode == "line" or mode == "tracer" or mode == "tracers" then
+        applyModeConfig("Tracer")
+    elseif mode == "skeleton" or mode == "skeletons" then
+        applyModeConfig("Skeleton")
+    elseif mode == "text" or mode == "names" then
+        applyModeConfig("Text")
+    elseif mode == "highlight" then
+        applyModeConfig("Highlight")
+    end
+
+    -- Áp dụng ngay lập tức vào Render Cache
     local function applyToCache(cacheTable)
         if not cacheTable then return end
         for _, obj in pairs(cacheTable) do
-            if (mode == "box" or mode == "boxes" or mode == "boxer" or mode == "all") then
-                if obj.Box then obj.Box.Transparency = config.Outline end
-                if obj.BoxOutline then obj.BoxOutline.Transparency = config.Outline end
-                if obj.BoxFill or obj.BoxFrame then 
-                    local fillObj = obj.BoxFill or obj.BoxFrame
-                    fillObj.Transparency = config.Fill 
-                    if fillObj:IsA("Frame") then fillObj.BackgroundTransparency = 1 - config.Fill end
-                end
-            end
-            
-            if (mode == "line" or mode == "tracer" or mode == "tracers" or mode == "all") and obj.Tracer then
-                obj.Tracer.Transparency = config.Outline
-            end
-
-            if (mode == "skeleton" or mode == "skeletons" or mode == "all") and obj.Skeleton then
-                for _, line in pairs(obj.Skeleton) do
-                    if type(line) == "table" and line.Transparency then
-                        line.Transparency = config.Outline
+            for key, cfg in pairs(self.TransparencyConfig) do
+                local isAll = (mode == "all")
+                
+                -- Update Box
+                if (isAll or mode == "box" or mode == "boxes" or mode == "boxer") and key == "Box" then
+                    if obj.Box then obj.Box.Transparency = cfg.Outline end
+                    if obj.BoxOutline then obj.BoxOutline.Transparency = cfg.Outline end
+                    if obj.BoxFill or obj.BoxFrame then
+                        local fillObj = obj.BoxFill or obj.BoxFrame
+                        fillObj.Transparency = cfg.Fill
+                        if fillObj:IsA("Frame") then fillObj.BackgroundTransparency = 1 - cfg.Fill end
                     end
                 end
-            end
 
-            if (mode == "text" or mode == "names" or mode == "all") and obj.Text then
-                obj.Text.Transparency = config.Outline
-            end
+                -- Update Line / Tracer
+                if (isAll or mode == "line" or mode == "tracer" or mode == "tracers") and key == "Tracer" and obj.Tracer then
+                    obj.Tracer.Transparency = cfg.Outline
+                end
 
-            if (mode == "highlight" or mode == "all") and obj.Highlight then
-                obj.Highlight.OutlineTransparency = 1 - config.Outline
-                obj.Highlight.FillTransparency = 1 - config.Fill
+                -- Update Skeleton
+                if (isAll or mode == "skeleton" or mode == "skeletons") and key == "Skeleton" and obj.Skeleton then
+                    for _, line in pairs(obj.Skeleton) do
+                        if type(line) == "table" and line.Transparency then
+                            line.Transparency = cfg.Outline
+                        end
+                    end
+                end
+
+                -- Update Text
+                if (isAll or mode == "text" or mode == "names") and key == "Text" and obj.Text then
+                    obj.Text.Transparency = cfg.Outline
+                end
+
+                -- Update Highlight
+                if (isAll or mode == "highlight") and key == "Highlight" and obj.Highlight then
+                    obj.Highlight.OutlineTransparency = 1 - cfg.Outline
+                    obj.Highlight.FillTransparency = 1 - cfg.Fill
+                end
             end
         end
     end
@@ -205,7 +234,6 @@ function ESP:SetTransparency(data)
     applyToCache(self.Cache)
     applyToCache(self.ObjectsCache)
 end
-
 
 local function createDrawObject(isPlayer)
     local obj = { Highlight = Instance.new("Highlight", ESP_Folder), Alpha = 0, CurrBoxPos = Vector2.zero, CurrBoxSize = Vector2.zero, Config = {} }
