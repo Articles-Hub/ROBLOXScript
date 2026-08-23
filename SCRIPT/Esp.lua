@@ -400,7 +400,7 @@ local function setupPlayer(player, config)
                 obj.BoxFrame.BackgroundColor3 = boxCol
                 obj.BoxFrame.BackgroundTransparency = 1 - (ESP.Transparency.Fill * obj.Alpha)
                 obj.BoxFrame.Visible = true
-            elseif obj.BoxFrame meand
+            elseif obj.BoxFrame then
                 obj.BoxFrame.Visible = false
             end
 
