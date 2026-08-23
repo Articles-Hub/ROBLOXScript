@@ -1,4 +1,3 @@
--- [[ ROBLOX ADVANCED ESP FRAMEWORK - ULTRA CLEAN + BILLBOARD SKELETON ]] --
 local Players, RunService, CoreGui, UserInputService = game:GetService("Players"), game:GetService("RunService"), game:GetService("CoreGui"), game:GetService("UserInputService")
 local LocalPlayer, Camera = Players.LocalPlayer, workspace.CurrentCamera
 local HasDrawing = type(Drawing) == "table" and type(Drawing.new) == "function"
@@ -24,7 +23,6 @@ Connections.Rainbow = RunService.RenderStepped:Connect(function()
     if ESP.Rainbow then CurrentRainbowColor = Color3.fromHSV((tick() * ESP.RainbowSpeed) % 5 / 5, 1, 1) end
 end)
 
--- Helpers
 local function getOriginPos()
     return (ESP.DistanceOriginPart and ESP.DistanceOriginPart:IsDescendantOf(workspace)) and ESP.DistanceOriginPart.Position or Camera.CFrame.Position
 end
@@ -58,7 +56,6 @@ local SkeletonBones = {
     {"Head","Torso"},{"Torso","Left Arm"},{"Torso","Right Arm"},{"Torso","Left Leg"},{"Torso","Right Leg"}
 }
 
--- API Setters
 for _, k in ipairs({"Toggle", "SetTracers", "SetBoxes", "SetHighlight", "SetNames", "SetDistance", "SetSkeletons", "SetHealthbar", "SetRainbow"}) do
     ESP[k] = function(self, state) self[k:gsub("Set", "")] = (state ~= nil) and state or not self[k:gsub("Set", "")] end
 end
@@ -76,7 +73,6 @@ function ESP:SetBoxTransparent(transTable)
     end
 end
 
--- Core Drawing Setup
 local function createDrawObject(isPlayer)
     local obj = { Highlight = Instance.new("Highlight", ESP_Folder), Alpha = 0, CurrBoxPos = Vector2.zero, CurrBoxSize = Vector2.zero }
     obj.Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -112,7 +108,6 @@ local function createDrawObject(isPlayer)
             obj.HealthBar = Instance.new("Frame", obj.HealthBG)
             obj.HealthBar.Size, obj.HealthBar.BackgroundColor3, obj.HealthBar.BorderSizePixel = UDim2.new(1,0,1,0), Color3.new(0,1,0), 0
             
-            -- Gui dùng để chứa các đoạn xương ScreenGui/Frame 2D
             obj.SkeletonGui = Instance.new("ScreenGui", ESP_Folder)
             obj.SkeletonGui.ResetOnSpawn = false
             obj.Skeletons = {}
@@ -147,10 +142,17 @@ function ESP:RemoveEsp(target)
     if Cache[target] then cleanObject(Cache[target]); Cache[target] = nil end
 end
 
--- Add Object ESP
-function ESP:AddESP(target, config)
+function ESP:AddESP(target, arg2, arg3)
     if not target or ObjectsCache[target] then return ObjectsCache[target] end
-    config = config or {}
+    
+    local config = {}
+    if type(arg2) == "string" or typeof(arg3) == "Color3" then
+        config.Name = type(arg2) == "string" and arg2 or target.Name
+        config.Color = typeof(arg3) == "Color3" and arg3 or nil
+    elseif type(arg2) == "table" then
+        config = arg2
+    end
+
     local obj = createDrawObject(false)
     ObjectsCache[target] = obj
     local lastRender = 0
@@ -231,7 +233,6 @@ function ESP:AddESP(target, config)
     return obj
 end
 
--- Player ESP Setup
 function ESP:CheckTeam(p)
     if not p or p == LocalPlayer then return true end
     if type(self.CheckTeamFunction) == "function" then local s, r = pcall(self.CheckTeamFunction, p); if s then return r end end
@@ -355,7 +356,6 @@ local function setupPlayer(player, config)
                 obj.HealthBG.Visible = true
             else obj.HealthBG.Visible = false end
 
-            -- Vẽ Skeleton bằng các đoạn Frame 2D xoay theo tọa độ màn hình
             if ESP.Skeletons then
                 for idx, pair in ipairs(SkeletonBones) do
                     local p1, p2, frame = char:FindFirstChild(pair[1]), char:FindFirstChild(pair[2]), obj.Skeletons[idx]
