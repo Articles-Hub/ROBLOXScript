@@ -64,14 +64,148 @@ function ESP:SetDelayEsp(d) if type(d)=="number" then self.RenderDelay=d end end
 function ESP:SetTweenTime(t) if type(t)=="number" then self.TweenTime=t end end
 function ESP:SetTracerOrigin(m) if type(m)=="string" then self.TracerOrigin = m:sub(1,1):upper()..m:sub(2):lower() end end
 
-function ESP:SetBoxTransparent(transTable)
-    if type(transTable) == "table" then
-        if transTable.Outline ~= nil then self.Transparency.Outline = transTable.Outline end
-        if transTable.Fill ~= nil then self.Transparency.Fill = transTable.Fill end
-        if transTable[1] ~= nil then self.Transparency.Outline = transTable[1] end
-        if transTable[2] ~= nil then self.Transparency.Fill = transTable[2] end
+function ESP:SetText(Object, Text, Color)
+    if not Object then return end
+    local obj = ObjectsCache[Object] or Cache[Object]
+    if not obj then
+        obj = self:AddESP(Object, Text, Color)
+    else
+        if Text ~= nil then obj.Config.Name = Text end
+        if typeof(Color) == "Color3" then obj.Config.TextColor = Color end
+    end
+    return obj
+end
+
+function ESP:SetTextSize(size)
+    if type(size) == "number" then
+        self.TextSize = size
+        
+        if self.Cache then
+            for _, obj in pairs(self.Cache) do
+                if obj.Text then obj.Text.Size = size end
+            end
+        end
+        if self.ObjectsCache then
+            for _, obj in pairs(self.ObjectsCache) do
+                if obj.Text then obj.Text.Size = size end
+            end
+        end
     end
 end
+
+function ESP:SetColor(Object, Modes, Color)
+    if not Object or typeof(Color) ~= "Color3" then return end
+    local obj = ObjectsCache[Object] or Cache[Object]
+    if not obj then
+        obj = self:AddESP(Object)
+    end
+
+    local keyMap = {
+        ["TEXT"] = "TextColor",
+        ["BOXES"] = "BoxColor",
+        ["BOX"] = "BoxColor",
+        ["TRACER"] = "TracerColor",
+        ["TRACERS"] = "TracerColor",
+        ["HIGHLIGHT"] = "HighlightColor",
+        ["SKELETON"] = "SkeletonColor",
+        ["SKELETONS"] = "SkeletonColor",
+        ["LINE"] = "TracerColor"
+    }
+
+    if Modes == "All" or Modes == "ALL" or Modes == "all" then
+        obj.Config.Color = Color
+        obj.Config.TextColor = Color
+        obj.Config.BoxColor = Color
+        obj.Config.TracerColor = Color
+        obj.Config.HighlightColor = Color
+        obj.Config.SkeletonColor = Color
+    elseif type(Modes) == "table" then
+        for _, mode in ipairs(Modes) do
+            local cfgKey = keyMap[tostring(mode):upper()]
+            if cfgKey then
+                obj.Config[cfgKey] = Color
+            end
+        end
+    elseif type(Modes) == "string" then
+        local cfgKey = keyMap[Modes:upper()]
+        if cfgKey then
+            obj.Config[cfgKey] = Color
+        end
+    end
+    return obj
+end
+
+function ESP:SetTransparency(data)
+    if type(data) ~= "table" then return end
+    local mode = data[1] or data.mode or data.Mode
+    local outline = data[2] or data.outline or data.Outline
+    local fill = data[3] or data.fill or data.Fill or outline -- Nếu không truyền fill thì dùng outline
+
+    if not mode then return end
+    mode = tostring(mode):lower()
+    self.TransparencyConfig = self.TransparencyConfig or {}
+
+    local config = {
+        Outline = type(outline) == "number" and outline or 1,
+        Fill = type(fill) == "number" and fill or 1
+    }
+    if mode == "box" or mode == "boxes" or mode == "boxer" then
+        self.TransparencyConfig.Box = config
+    elseif mode == "line" or mode == "tracer" or mode == "tracers" then
+        self.TransparencyConfig.Tracer = config
+    elseif mode == "skeleton" or mode == "skeletons" then
+        self.TransparencyConfig.Skeleton = config
+    elseif mode == "text" or mode == "names" then
+        self.TransparencyConfig.Text = config
+    elseif mode == "highlight" then
+        self.TransparencyConfig.Highlight = config
+    elseif mode == "all" then
+        self.TransparencyConfig.Box = config
+        self.TransparencyConfig.Tracer = config
+        self.TransparencyConfig.Skeleton = config
+        self.TransparencyConfig.Text = config
+        self.TransparencyConfig.Highlight = config
+    end
+    local function applyToCache(cacheTable)
+        if not cacheTable then return end
+        for _, obj in pairs(cacheTable) do
+            if (mode == "box" or mode == "boxes" or mode == "boxer" or mode == "all") then
+                if obj.Box then obj.Box.Transparency = config.Outline end
+                if obj.BoxOutline then obj.BoxOutline.Transparency = config.Outline end
+                if obj.BoxFill or obj.BoxFrame then 
+                    local fillObj = obj.BoxFill or obj.BoxFrame
+                    fillObj.Transparency = config.Fill 
+                    if fillObj:IsA("Frame") then fillObj.BackgroundTransparency = 1 - config.Fill end
+                end
+            end
+            
+            if (mode == "line" or mode == "tracer" or mode == "tracers" or mode == "all") and obj.Tracer then
+                obj.Tracer.Transparency = config.Outline
+            end
+
+            if (mode == "skeleton" or mode == "skeletons" or mode == "all") and obj.Skeleton then
+                for _, line in pairs(obj.Skeleton) do
+                    if type(line) == "table" and line.Transparency then
+                        line.Transparency = config.Outline
+                    end
+                end
+            end
+
+            if (mode == "text" or mode == "names" or mode == "all") and obj.Text then
+                obj.Text.Transparency = config.Outline
+            end
+
+            if (mode == "highlight" or mode == "all") and obj.Highlight then
+                obj.Highlight.OutlineTransparency = 1 - config.Outline
+                obj.Highlight.FillTransparency = 1 - config.Fill
+            end
+        end
+    end
+
+    applyToCache(self.Cache)
+    applyToCache(self.ObjectsCache)
+end
+
 
 local function createDrawObject(isPlayer)
     local obj = { Highlight = Instance.new("Highlight", ESP_Folder), Alpha = 0, CurrBoxPos = Vector2.zero, CurrBoxSize = Vector2.zero, Config = {} }
@@ -228,77 +362,6 @@ function ESP:AddESP(target, arg2, arg3)
             obj.Highlight.Enabled = true
         else obj.Highlight.Enabled = false end
     end)
-    return obj
-end
-
-function ESP:SetText(Object, Text, Color)
-    if not Object then return end
-    local obj = ObjectsCache[Object] or Cache[Object]
-    if not obj then
-        obj = self:AddESP(Object, Text, Color)
-    else
-        if Text ~= nil then obj.Config.Name = Text end
-        if typeof(Color) == "Color3" then obj.Config.TextColor = Color end
-    end
-    return obj
-end
-
-function ESP:SetTextSize(size)
-    if type(size) == "number" then
-        self.TextSize = size
-        
-        if self.Cache then
-            for _, obj in pairs(self.Cache) do
-                if obj.Text then obj.Text.Size = size end
-            end
-        end
-        if self.ObjectsCache then
-            for _, obj in pairs(self.ObjectsCache) do
-                if obj.Text then obj.Text.Size = size end
-            end
-        end
-    end
-end
-
-function ESP:SetColor(Object, Modes, Color)
-    if not Object or typeof(Color) ~= "Color3" then return end
-    local obj = ObjectsCache[Object] or Cache[Object]
-    if not obj then
-        obj = self:AddESP(Object)
-    end
-
-    local keyMap = {
-        ["TEXT"] = "TextColor",
-        ["BOXES"] = "BoxColor",
-        ["BOX"] = "BoxColor",
-        ["TRACER"] = "TracerColor",
-        ["TRACERS"] = "TracerColor",
-        ["HIGHLIGHT"] = "HighlightColor",
-        ["SKELETON"] = "SkeletonColor",
-        ["SKELETONS"] = "SkeletonColor",
-        ["LINE"] = "TracerColor"
-    }
-
-    if Modes == "All" or Modes == "ALL" or Modes == "all" then
-        obj.Config.Color = Color
-        obj.Config.TextColor = Color
-        obj.Config.BoxColor = Color
-        obj.Config.TracerColor = Color
-        obj.Config.HighlightColor = Color
-        obj.Config.SkeletonColor = Color
-    elseif type(Modes) == "table" then
-        for _, mode in ipairs(Modes) do
-            local cfgKey = keyMap[tostring(mode):upper()]
-            if cfgKey then
-                obj.Config[cfgKey] = Color
-            end
-        end
-    elseif type(Modes) == "string" then
-        local cfgKey = keyMap[Modes:upper()]
-        if cfgKey then
-            obj.Config[cfgKey] = Color
-        end
-    end
     return obj
 end
 
