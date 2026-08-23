@@ -1,966 +1,325 @@
+-- [[ ROBLOX ADVANCED ESP FRAMEWORK - ULTRA CLEAN ]] --
+local Players, RunService, CoreGui, UserInputService = game:GetService("Players"), game:GetService("RunService"), game:GetService("CoreGui"), game:GetService("UserInputService")
+local LocalPlayer, Camera = Players.LocalPlayer, workspace.CurrentCamera
+local HasDrawing = type(Drawing) == "table" and type(Drawing.new) == "function"
+local Connections, Cache, ObjectsCache = {}, {}, {}
 
-local Library = {
+local ESP_Folder = CoreGui:FindFirstChild("ESP_Storage") or Instance.new("Folder", CoreGui)
+ESP_Folder.Name, ESP_Folder.Parent = "ESP_Storage", CoreGui
 
-	ObjectsFolder = Instance.new("Folder"),
-	ScreenGui = Instance.new("ScreenGui"),
-	HighlightsFolder = Instance.new("Folder"),
-	BillboardsFolder = Instance.new("Folder"),
-	TracersFrame = Instance.new("Frame"),
-	ArrowsFrame = Instance.new("Frame"),
-	Highlights = {},
-	Labels = {},
-	Elements = {},
-	ElementsEnabled = {},
-	Frames = {},
-	TotalObjects = {},
-	TransparencyEnabled = {},
-	Connections = {},
-	Billboards = {},
-	ColorTable = {},
-	TextTable = {},
-	Lines = {},
-	ArrowsTable = {},
-	Font = Enum.Font.Oswald,
-	ConnectionsTable = {},
-	Objects = {},
-	ConnectionsManager = {},
-	TracerTable = {},
-	HighlightNames = {},
-	HighlightedObjects = {},
-	RemoveIfNotVisible = true,
-	Rainbow = false,
-	UseBillboards = false,
-	Tracers = false,
-	Bold = false,
-	Unloaded = false,
-	ShowDistance = false,
-	MatchColors = true,
-	Arrows = false,
-	TextTransparency = 0,
-	TracerOrigin = "Bottom",
-	FillTransparency = 0.75,
-	OutlineTransparency = 0,
-	TextOffset = 0,
-	TextOutlineTransparency = 0,
-	FadeTime = 0,
-	TracerSize = 0.5,
-	ArrowRadius = 200,
-	TextSize = 20,
-	DistanceSizeRatio = 1,
-	OutlineColor = Color3.fromRGB(255,255,255),
-	RainbowColor = Color3.fromRGB(255,255,255),
+local ESP = {
+    Enabled = true, Boxes = true, Highlight = false, Tracers = true, TracerOrigin = "Bottom",
+    Names = true, ShowDistance = true, Skeletons = false, Healthbar = false,
+    BoxThickness = 2, TracerThickness = 2, SkeletonThickness = 1.5, HealthbarThickness = 2,
+    TextSize = 16, TextOutline = true, MaxDistance = 2000, DistanceOriginPart = nil,
+    TweenTime = 0.3, RenderDelay = 0, Transparency = { Text = 1, Outline = 1, Fill = 0.5 }, Font = 2,
+    TextColor = Color3.new(1,1,1), BoxColor = Color3.new(1,0,0), TracerColor = Color3.new(1,0,0),
+    HighlightColor = Color3.new(1,0,0), FillColor = Color3.new(1,0,0), SkeletonColor = Color3.new(1,1,1),
+    PlayerConfig = { Team = false, TeamColor = false, Name = {["Show Name"]=true, ["Show DisplayName"]=true}, Distance = true },
+    Rainbow = false, RainbowSpeed = 1, Cache = Cache, ObjectsCache = ObjectsCache, IsDrawingSupported = HasDrawing
 }
 
+local CurrentRainbowColor = Color3.new(1,1,1)
+Connections.Rainbow = RunService.RenderStepped:Connect(function()
+    if ESP.Rainbow then CurrentRainbowColor = Color3.fromHSV((tick() * ESP.RainbowSpeed) % 5 / 5, 1, 1) end
+end)
 
+-- Helpers
+local function getOriginPos()
+    return (ESP.DistanceOriginPart and ESP.DistanceOriginPart:IsDescendantOf(workspace)) and ESP.DistanceOriginPart.Position or Camera.CFrame.Position
+end
 
-local RainbowTable = {
-	HueSetup = 0,
-	Hue = 0,
-	Step = 0,
-	Color = Color3.new(),
-	Enabled = false,
+local function getTracerPos(mode)
+    local size = Camera.ViewportSize
+    if mode == "Top" then return Vector2.new(size.X/2, 0)
+    elseif mode == "Center" then return size/2
+    elseif mode == "Mouse" then local m = UserInputService:GetMouseLocation() return Vector2.new(m.X, m.Y) end
+    return Vector2.new(size.X, size.Y) * Vector2.new(0.5, 1)
+end
 
+local function resolveColor(opt, target, def)
+    if type(opt) == "function" then local s, c = pcall(opt, target); if s and typeof(c) == "Color3" then return c end
+    elseif typeof(opt) == "Color3" then return opt end
+    return def
+end
 
+local function getBounding(t)
+    if not t or not t.Parent then return end
+    return t:IsA("Model") and t:GetBoundingBox() or (t:IsA("BasePart") and t.CFrame or nil), t.Size
+end
+
+local function lerpVal(a, b, t) return a + (b - a) * math.clamp(t, 0, 1) end
+local function lerpVec(a, b, t) return Vector2.new(lerpVal(a.X, b.X, t), lerpVal(a.Y, b.Y, t)) end
+
+local SkeletonBones = {
+    {"Head","UpperTorso"},{"UpperTorso","LowerTorso"},{"UpperTorso","LeftUpperArm"},{"LeftUpperArm","LeftLowerArm"},{"LeftLowerArm","LeftHand"},
+    {"UpperTorso","RightUpperArm"},{"RightUpperArm","RightLowerArm"},{"RightLowerArm","RightHand"},{"LowerTorso","LeftUpperLeg"},{"LeftUpperLeg","LeftLowerLeg"},
+    {"LeftLowerLeg","LeftFoot"},{"LowerTorso","RightUpperLeg"},{"RightUpperLeg","RightLowerLeg"},{"RightLowerLeg","RightFoot"},
+    {"Head","Torso"},{"Torso","Left Arm"},{"Torso","Right Arm"},{"Torso","Left Leg"},{"Torso","Right Leg"}
 }
 
+-- API Setters
+for _, k in ipairs({"Toggle", "SetTracers", "SetBoxes", "SetHighlight", "SetNames", "SetDistance", "SetSkeletons", "SetHealthbar", "SetRainbow"}) do
+    ESP[k] = function(self, state) self[k:gsub("Set", "")] = (state ~= nil) and state or not self[k:gsub("Set", "")] end
+end
+function ESP:SetRainbowSpeed(s) if type(s)=="number" then self.RainbowSpeed=s end end
+function ESP:SetDelayEsp(d) if type(d)=="number" then self.RenderDelay=d end end
+function ESP:SetTweenTime(t) if type(t)=="number" then self.TweenTime=t end end
+function ESP:SetTracerOrigin(m) if type(m)=="string" then self.TracerOrigin = m:sub(1,1):upper()..m:sub(2):lower() end end
 
-
-ObjectsFolder = Library.ObjectsFolder
-HttpService = game:GetService("HttpService")
-HighlightedObjects = Library.HighlightedObjects
-Highlights = Library.Highlights
-ConnectionsTable = Library.ConnectionsTable
-Objects = Library.Objects
-TotalObjects = Library.TotalObjects
-Billboards = Library.Billboards
-Frames = Library.Frames
-ScreenGui = Library.ScreenGui
-ArrowsTable = Library.ArrowsTable
-HighlightsFolder = Library.HighlightsFolder
-Labels = Library.Labels
-Connections = Library.Connections
-Elements = Library.Elements
-TextTable = Library.TextTable
-Players = game:GetService("Players")
-CoreGui = (identifyexecutor ~= nil and game:GetService("CoreGui") or Players.LocalPlayer.PlayerGui)
-HttpService = game:GetService("HttpService")
-RunService = game:GetService("RunService")
-TweenService = game:GetService("TweenService")
-GetHUI = (CoreGui:FindFirstChild("RobloxGui") or CoreGui);
-ColorTable = Library.ColorTable
-ScreenGui.Parent = GetHUI
-TracersFrame = Library.TracersFrame
-ArrowsFrame = Library.ArrowsFrame
-HighlightsFolder.Parent = ScreenGui
-BillboardsFolder = Library.BillboardsFolder
-BillboardsFolder.Parent = ScreenGui
-
-
-ScreenGui.ResetOnSpawn = false
-ScreenGui.IgnoreGuiInset = true
-
-TracersFrame.Size = UDim2.new(1,0,1,0)
-TracersFrame.BackgroundTransparency = 1
-
-TracersFrame.Parent = ScreenGui
-
-ArrowsFrame.Size = UDim2.new(1,0,1,0)
-ArrowsFrame.BackgroundTransparency = 1
-ArrowsFrame.Parent = ScreenGui
-
-TracersFrame.Visible = false
-ArrowsFrame.Visible = false
-
-Camera = workspace.CurrentCamera
-
-local arrowTemplate = Instance.new("ImageLabel")
-arrowTemplate.Image = "rbxassetid://2418687610"
-arrowTemplate.Size = UDim2.new(0, 72,0, 72)
-arrowTemplate.AnchorPoint = Vector2.new(0.5, 0.5)
-arrowTemplate.BackgroundTransparency = 1
-arrowTemplate.ImageTransparency = 1
-
-local Constraint = Instance.new("UIAspectRatioConstraint")
-Constraint.Parent = arrowTemplate
-Constraint.AspectRatio = 0.75
-Constraint.Name = "Constraint"
-
-
-
--- Functions --
-
-function Library:GenerateRandomString()
-
-	--"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890{}[]<>/#@?!()"
-
-	local Characters = ""
-	local RandomString = ""
-
-
-	Characters = Characters .. "abcdefabcdef"
-
-	Characters = Characters .. "ghijklmnopqrstuvwxyzghijklmnopqrstuvwxyz"
-
-
-
-
-	Characters = Characters .. "123456789123456789"
-
-
-
-	Characters = Characters .. "!$%&*(){}[]:;@'~#?/><.,=+|_-`"
-
-
-
-
-
-	local function GenerateSegment()
-
-		local Result = {}
-		local RandomNumber = math.random(6,6)
-		for i = 1, RandomNumber do
-
-			local RandomIndex = math.random(1, #Characters)
-			local RandomCharacter = Characters:sub(RandomIndex, RandomIndex)
-
-			local FinishedCharacter = RandomCharacter
-
-			local UpperIndex = math.random(1,2)
-
-
-
-
-			if UpperIndex == 1 then
-				FinishedCharacter = string.lower(RandomCharacter)
-			else
-				FinishedCharacter = string.upper(RandomCharacter)
-			end
-
-
-
-			table.insert(Result, FinishedCharacter)
-		end
-		return table.concat(Result)
-	end
-
-	local Segment1 = GenerateSegment()
-	local Segment2 = GenerateSegment() 
-	local Segment3 = GenerateSegment() 
-	local Segment4 = GenerateSegment()
-	local Segment5 = GenerateSegment()
-	RandomString = Segment1 .. Segment2 .. Segment3 .. Segment4 .. Segment5
-	return RandomString
-
+-- Core Drawing Setup
+local function createDrawObject(isPlayer)
+    local obj = { Highlight = Instance.new("Highlight", ESP_Folder), Alpha = 0, CurrBoxPos = Vector2.zero, CurrBoxSize = Vector2.zero }
+    obj.Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    if HasDrawing then
+        obj.Text, obj.DistText, obj.Tracer, obj.Box = Drawing.new("Text"), Drawing.new("Text"), Drawing.new("Line"), Drawing.new("Square")
+        obj.Text.Center, obj.DistText.Center = true, true
+        if isPlayer then
+            obj.HlOutline, obj.HlBar = Drawing.new("Square"), Drawing.new("Square")
+            obj.Skeletons = {}
+            for i = 1, #SkeletonBones do
+                local l = Drawing.new("Line") l.Thickness = ESP.SkeletonThickness; obj.Skeletons[i] = l
+            end
+        end
+    else
+        obj.Billboard = Instance.new("BillboardGui", ESP_Folder)
+        obj.Billboard.Size, obj.Billboard.AlwaysOnTop = UDim2.new(0, 200, 0, isPlayer and 60 or 50), true
+        obj.NameLabel = Instance.new("TextLabel", obj.Billboard)
+        obj.NameLabel.Size, obj.NameLabel.BackgroundTransparency, obj.NameLabel.TextSize, obj.NameLabel.TextColor3 = UDim2.new(1,0,0,20), 1, 14, ESP.TextColor
+        obj.NameLabel.TextStrokeTransparency = 0
+        obj.DistLabel = Instance.new("TextLabel", obj.Billboard)
+        obj.DistLabel.Size, obj.DistLabel.Position, obj.DistLabel.BackgroundTransparency, obj.DistLabel.TextSize, obj.DistLabel.TextColor3 = UDim2.new(1,0,0,15), UDim2.new(0,0,0,20), 1, 12, ESP.TextColor
+        obj.DistLabel.TextStrokeTransparency = 0
+        if isPlayer then
+            obj.HealthBG = Instance.new("Frame", obj.Billboard)
+            obj.HealthBG.Size, obj.HealthBG.Position, obj.HealthBG.BackgroundColor3, obj.HealthBG.BorderSizePixel = UDim2.new(0.6,0,0,4), UDim2.new(0.2,0,0,38), Color3.new(0,0,0), 0
+            obj.HealthBar = Instance.new("Frame", obj.HealthBG)
+            obj.HealthBar.Size, obj.HealthBar.BackgroundColor3, obj.HealthBar.BorderSizePixel = UDim2.new(1,0,1,0), Color3.new(0,1,0), 0
+        end
+    end
+    return obj
 end
 
-
-if Library.Unloaded == true then return end
-function Library:AddESP(Parameters)
-	local Object = Parameters.Object
-
-	if Library.ElementsEnabled[Object] == true or Library.Unloaded == true then return end
-
-	if not Object:IsA("BasePart") and not Object:IsA("Model") then
-		return
-	end
-
-
-
-
-
-	Library.TransparencyEnabled[Object] = false
-
-
-
-	if Highlights[Object] then
-		Highlights[Object]:Destroy()
-		Highlights[Object] = nil
-	end
-
-
-
-	local MainPart = nil
-	if Parameters.BasePart then
-		MainPart = Parameters.BasePart
-	end
-
-	local highlight = Instance.new("Highlight")
-	highlight.FillTransparency = 1
-	highlight.OutlineTransparency = 1
-	highlight.Name = Library.HighlightNames[Object] or Library:GenerateRandomString()
-	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-	highlight.Parent = HighlightsFolder
-	highlight.Adornee = Object
-	Highlights[Object] = highlight
-	local ObjectTable = {Object}
-	TextTable[Object] = Parameters.Text
-
-	local TextFrame = Instance.new("Frame")
-	TextFrame.Visible = false
-	TextFrame.Name = Library:GenerateRandomString()
-	TextFrame.Size = UDim2.fromScale(1,1)
-	TextFrame.Parent = BillboardsFolder
-	TextFrame.BackgroundTransparency = 1
-	TextFrame.AnchorPoint = Vector2.new(0.5,0.5)
-	local TextLabel = Instance.new("TextLabel")
-	TextLabel.Name = Library:GenerateRandomString()
-	TextLabel.BackgroundTransparency = 1
-	TextLabel.Text = Parameters.Text
-	TextLabel.TextTransparency = 1
-	TextLabel.TextStrokeTransparency = Library.TextOutlineTransparency
-	TextLabel.Size = UDim2.new(1,0,1,0)
-	TextLabel.Font = Library.Font
-	TextLabel.TextSize = Library.TextSize
-	TextLabel.RichText = true
-	TextLabel.Parent = TextFrame
-	TextLabel.TextColor3 = Parameters.Color
-
-	Labels[Object] = TextLabel
-	Objects[Object] = ObjectTable
-
-
-
-
-	Library.ElementsEnabled[Object] = true
-
-
-
-
-
-	Labels[Object] = TextLabel
-
-	Library.HighlightNames[Object] = Library:GenerateRandomString()
-
-	if Library.ConnectionsTable[Object] == nil then
-		Library.ConnectionsManager[Object] = {}
-	end
-
-
-	local Manager = Library.ConnectionsManager[Object]
-
-	if highlight then
-		TweenService:Create(highlight,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{FillTransparency = Library.FillTransparency}):Play()
-		TweenService:Create(highlight,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{OutlineTransparency = Library.OutlineTransparency}):Play()
-	end
-
-
-
-
-
-
-
-	Frames[Object] = TextFrame
-	Labels[Object] = TextLabel
-
-	Objects[Object] = Object
-	ColorTable[Object] = Parameters.Color 
-
-	local lineFrame = Instance.new("Frame")
-	lineFrame.Size = UDim2.new(0,0,0,0)
-	lineFrame.BackgroundTransparency = 1
-	lineFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	lineFrame.Parent = TracersFrame
-	lineFrame.Name = Library:GenerateRandomString()
-	local stroke = Instance.new("UIStroke")
-	stroke.Thickness = Library.TracerSize
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Parent = lineFrame
-	stroke.Transparency = 1
-	stroke.Name = Library:GenerateRandomString()
-
-	TweenService:Create(lineFrame,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{BackgroundTransparency = 0}):Play()
-
-
-	TweenService:Create(stroke,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{Transparency = 0}):Play()
-
-
-
-	Library.Lines[Object] = {lineFrame, stroke}
-
-
-
-
-	if TextLabel then
-		local Tween = TweenService:Create(TextLabel,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{TextTransparency = Library.TextTransparency})
-		Tween:Play()
-		TweenService:Create(TextLabel,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{TextStrokeTransparency = Library.TextOutlineTransparency}):Play()
-		local TweenConnection = Tween.Completed:Connect(function()
-			Library.TransparencyEnabled[Object] = true
-
-		end)
-		table.insert(Manager, TweenConnection)
-	end
-
-
-
-
-
-
-	table.insert(Elements,TextFrame)
-	table.insert(TotalObjects, Object)
-
-
-
-
-	local Destroying1 = Object:GetPropertyChangedSignal("Parent"):Connect(function()
-		Library:RemoveESP(Object)
-
-	end)
-	table.insert(Manager, Destroying1)
-	if Object.Parent ~= nil then
-		local Destroying2 = Object.Parent:GetPropertyChangedSignal("Parent"):Connect(function()
-			Library:RemoveESP(Object)
-
-
-
-		end)
-		table.insert(Manager, Destroying2)
-	end
-	if Object:IsA("Model") and Object.PrimaryPart then
-		local Destroying3 = Object.PrimaryPart:GetPropertyChangedSignal("Parent"):Connect(function()
-			Library:RemoveESP(Object)
-
-		end)
-		table.insert(Manager, Destroying3)
-	end
-
-
-
-
-
-
-
-
-
+local function cleanObject(obj)
+    if not obj then return end
+    if obj.Connection then pcall(function() obj.Connection:Disconnect() end) end
+    if HasDrawing then
+        for _, k in pairs({"Text", "DistText", "Tracer", "Box", "HlOutline", "HlBar"}) do if obj[k] then pcall(function() obj[k]:Remove() end) end end
+        if obj.Skeletons then for _, l in pairs(obj.Skeletons) do pcall(function() l:Remove() end) end end
+    end
+    if obj.Highlight then pcall(function() obj.Highlight:Destroy() end) end
+    if obj.Billboard then pcall(function() obj.Billboard:Destroy() end) end
 end
 
-function Library:SetColorTable(Name,Color)
-	ColorTable[Name] = Color
+-- Add Object ESP
+function ESP:AddESP(target, config)
+    if not target or ObjectsCache[target] then return ObjectsCache[target] end
+    config = config or {}
+    local obj = createDrawObject(false)
+    ObjectsCache[target] = obj
+    local lastRender = 0
+
+    obj.Connection = RunService.RenderStepped:Connect(function(dt)
+        if ESP.RenderDelay > 0 and (tick() - lastRender) < ESP.RenderDelay then return end
+        lastRender = tick()
+        if not target or not target.Parent then cleanObject(obj); ObjectsCache[target] = nil; return end
+        
+        if not ESP.Enabled then
+            if HasDrawing then obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false end
+            obj.Highlight.Enabled = false; if obj.Billboard then obj.Billboard.Enabled = false end
+            return
+        end
+
+        local cf, size = getBounding(target)
+        if not cf then return end
+        local pos, onScreen = Camera:WorldToViewportPoint(cf.Position)
+        local dist = (getOriginPos() - cf.Position).Magnitude
+
+        obj.Alpha = lerpVal(obj.Alpha, (dist <= ESP.MaxDistance and onScreen and pos.Z > 0) and 1 or 0, dt * (1 / math.max(ESP.TweenTime, 0.05)))
+        if obj.Alpha < 0.05 then
+            if HasDrawing then obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false end
+            obj.Highlight.Enabled = false; return
+        end
+
+        local baseCol = ESP.Rainbow and CurrentRainbowColor or nil
+        local txtCol = resolveColor(config.TextColor or ESP.TextColorFunction, target, baseCol or config.Color or ESP.TextColor)
+        local boxCol = resolveColor(config.BoxColor or ESP.BoxColorFunction, target, baseCol or config.Color or ESP.BoxColor)
+        local traceCol = resolveColor(config.TracerColor or ESP.TracerColorFunction, target, baseCol or config.Color or ESP.TracerColor)
+        local hlCol = resolveColor(config.HighlightColor or ESP.HighlightColorFunction, target, baseCol or config.Color or ESP.BoxColor)
+
+        if HasDrawing then
+            if ESP.Names then
+                obj.Text.Size, obj.Text.Font, obj.Text.Outline, obj.Text.Text = ESP.TextSize, ESP.Font, ESP.TextOutline, tostring(config.Name or target.Name)
+                obj.Text.Position, obj.Text.Color, obj.Text.Transparency, obj.Text.Visible = lerpVec(obj.CurrBoxPos, Vector2.new(pos.X, pos.Y-20), dt*15), txtCol, ESP.Transparency.Text * obj.Alpha, true
+                obj.DistText.Visible = ESP.ShowDistance
+                if ESP.ShowDistance then
+                    obj.DistText.Size, obj.DistText.Font, obj.DistText.Outline, obj.DistText.Text = ESP.TextSize-2, ESP.Font, ESP.TextOutline, string.format("[%dm]", math.floor(dist))
+                    obj.DistText.Position, obj.DistText.Color, obj.DistText.Transparency = Vector2.new(pos.X, pos.Y-5), txtCol, ESP.Transparency.Text * obj.Alpha
+                end
+            else obj.Text.Visible, obj.DistText.Visible = false, false end
+
+            if ESP.Boxes then
+                local top, bot = Camera:WorldToViewportPoint((cf * CFrame.new(0, size.Y/2, 0)).Position), Camera:WorldToViewportPoint((cf * CFrame.new(0, -size.Y/2, 0)).Position)
+                local h = math.max(math.abs(top.Y - bot.Y), 10)
+                local w = math.clamp(h * (size.X / size.Y), 10, 500)
+                obj.CurrBoxSize, obj.CurrBoxPos = lerpVec(obj.CurrBoxSize, Vector2.new(w, h), dt*15), lerpVec(obj.CurrBoxPos, Vector2.new(pos.X - w/2, pos.Y - h/2), dt*15)
+                obj.Box.Thickness, obj.Box.Size, obj.Box.Position, obj.Box.Color, obj.Box.Transparency, obj.Box.Visible = ESP.BoxThickness, obj.CurrBoxSize, obj.CurrBoxPos, boxCol, obj.Alpha, true
+            else obj.Box.Visible = false end
+
+            if ESP.Tracers then
+                obj.Tracer.Thickness, obj.Tracer.From, obj.Tracer.To, obj.Tracer.Color, obj.Tracer.Transparency, obj.Tracer.Visible = ESP.TracerThickness, getTracerPos(ESP.TracerOrigin), Vector2.new(pos.X, pos.Y), traceCol, obj.Alpha, true
+            else obj.Tracer.Visible = false end
+        else
+            obj.Billboard.Adornee = target:IsA("Model") and (target.PrimaryPart or target:FindFirstChildWhichIsA("BasePart")) or target
+            obj.NameLabel.Text, obj.NameLabel.TextColor3 = tostring(config.Name or target.Name), txtCol
+            obj.DistLabel.Visible = ESP.ShowDistance
+            if ESP.ShowDistance then obj.DistLabel.Text, obj.DistLabel.TextColor3 = string.format("[%dm]", math.floor(dist)), txtCol end
+            obj.Billboard.Enabled = ESP.Names
+        end
+
+        if ESP.Highlight then
+            obj.Highlight.Adornee = target
+            obj.Highlight.OutlineColor, obj.Highlight.FillColor = hlCol, ESP.FillColor
+            obj.Highlight.OutlineTransparency, obj.Highlight.FillTransparency = 1 - (ESP.Transparency.Outline * obj.Alpha), 1 - (ESP.Transparency.Fill * obj.Alpha)
+            obj.Highlight.Enabled = true
+        else obj.Highlight.Enabled = false end
+    end)
+    return obj
 end
 
-function Library:SetFadeTime(Number)
-	Library.FadeTime = Number
+-- Player ESP Setup
+function ESP:CheckTeam(p)
+    if not p or p == LocalPlayer then return true end
+    if type(self.CheckTeamFunction) == "function" then local s, r = pcall(self.CheckTeamFunction, p); if s then return r end end
+    if self.PlayerConfig.Team and p.Team and LocalPlayer.Team then return p.Team == LocalPlayer.Team end
+    return false
 end
 
-function Library:SetTextTransparency(Number)
-	Library.TextTransparency = Number
-	for i,Label in pairs(Labels) do
-		Label.TextTransparency = Number
-	end
+local function setupPlayer(player, config)
+    if not player or player == LocalPlayer or Cache[player] then return end
+    config = config or ESP.PlayerConfig
+    local obj = createDrawObject(true)
+    Cache[player] = obj
+    local lastRender = 0
+
+    obj.Connection = RunService.RenderStepped:Connect(function(dt)
+        if ESP.RenderDelay > 0 and (tick() - lastRender) < ESP.RenderDelay then return end
+        lastRender = tick()
+        if not player.Parent then cleanObject(obj); Cache[player] = nil; return end
+
+        local char, hum, hrp = player.Character, player.Character and player.Character:FindFirstChildOfClass("Humanoid"), player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if not ESP.Enabled or not char or not hrp or not hum or hum.Health <= 0 or ESP:CheckTeam(player) then
+            if HasDrawing then obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false; for _,l in pairs(obj.Skeletons) do l.Visible=false end end
+            obj.Highlight.Enabled = false; if obj.Billboard then obj.Billboard.Enabled = false end
+            return
+        end
+
+        local head = char:FindFirstChild("Head")
+        local pos, onScreen = Camera:WorldToViewportPoint(head and head.Position or hrp.Position)
+        local dist = (getOriginPos() - hrp.Position).Magnitude
+
+        obj.Alpha = lerpVal(obj.Alpha, (dist <= ESP.MaxDistance and onScreen and pos.Z > 0) and 1 or 0, dt * (1 / math.max(ESP.TweenTime, 0.05)))
+        if obj.Alpha < 0.05 then
+            if HasDrawing then obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false; for _,l in pairs(obj.Skeletons) do l.Visible=false end end
+            obj.Highlight.Enabled = false; return
+        end
+
+        local baseCol = ESP.Rainbow and CurrentRainbowColor or nil
+        local txtCol = resolveColor(config.TextColor or ESP.TextColorFunction, player, baseCol or ESP.TextColor)
+        local boxCol = resolveColor(config.BoxColor or ESP.BoxColorFunction, player, baseCol or ESP.BoxColor)
+        local traceCol = resolveColor(config.TracerColor or ESP.TracerColorFunction, player, baseCol or ESP.TracerColor)
+        local hlCol = resolveColor(config.HighlightColor or ESP.HighlightColorFunction, player, baseCol or ESP.HighlightColor)
+        local skelCol = resolveColor(ESP.SkeletonColorFunction, player, baseCol or ESP.SkeletonColor)
+
+        if config.TeamColor and player.TeamColor then
+            txtCol, boxCol, traceCol, hlCol, skelCol = player.TeamColor.Color, player.TeamColor.Color, player.TeamColor.Color, player.TeamColor.Color, player.TeamColor.Color
+        end
+
+        if HasDrawing then
+            if ESP.Names then
+                obj.Text.Size, obj.Text.Font, obj.Text.Outline, obj.Text.Text = ESP.TextSize, ESP.Font, ESP.TextOutline, player.DisplayName
+                obj.Text.Position, obj.Text.Color, obj.Text.Transparency, obj.Text.Visible = Vector2.new(pos.X, pos.Y - 32), txtCol, ESP.Transparency.Text * obj.Alpha, true
+                obj.DistText.Visible = ESP.ShowDistance
+                if ESP.ShowDistance then
+                    obj.DistText.Size, obj.DistText.Font, obj.DistText.Outline, obj.DistText.Text = ESP.TextSize-2, ESP.Font, ESP.TextOutline, string.format("[%dm]", math.floor(dist))
+                    obj.DistText.Position, obj.DistText.Color, obj.DistText.Transparency = Vector2.new(pos.X, pos.Y - 14), txtCol, ESP.Transparency.Text * obj.Alpha
+                end
+            else obj.Text.Visible, obj.DistText.Visible = false, false end
+
+            local headV = Camera:WorldToViewportPoint(head and head.Position or pos)
+            local legV = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
+            local h = math.abs(headV.Y - legV.Y)
+            local w = h / 1.5
+            obj.CurrBoxSize, obj.CurrBoxPos = lerpVec(obj.CurrBoxSize, Vector2.new(w, h), dt*15), lerpVec(obj.CurrBoxPos, Vector2.new(pos.X - w/2, pos.Y - h/2), dt*15)
+
+            if ESP.Boxes then
+                obj.Box.Thickness, obj.Box.Size, obj.Box.Position, obj.Box.Color, obj.Box.Transparency, obj.Box.Visible = ESP.BoxThickness, obj.CurrBoxSize, obj.CurrBoxPos, boxCol, obj.Alpha, true
+            else obj.Box.Visible = false end
+
+            if ESP.Tracers then
+                obj.Tracer.Thickness, obj.Tracer.From, obj.Tracer.To, obj.Tracer.Color, obj.Tracer.Transparency, obj.Tracer.Visible = ESP.TracerThickness, getTracerPos(ESP.TracerOrigin), Vector2.new(pos.X, pos.Y), traceCol, obj.Alpha, true
+            else obj.Tracer.Visible = false end
+
+            if ESP.Healthbar then
+                local hpPct = math.clamp(hum.Health / math.max(hum.MaxHealth, 1), 0, 1)
+                obj.HlOutline.Size, obj.HlOutline.Position, obj.HlOutline.Color, obj.HlOutline.Filled, obj.HlOutline.Transparency, obj.HlOutline.Visible = Vector2.new(4, obj.CurrBoxSize.Y+2), Vector2.new(obj.CurrBoxPos.X - 8, obj.CurrBoxPos.Y - 1), Color3.new(0,0,0), true, 0.5 * obj.Alpha, true
+                local bH = obj.CurrBoxSize.Y * hpPct
+                obj.HlBar.Size, obj.HlBar.Position, obj.HlBar.Color, obj.HlBar.Filled, obj.HlBar.Transparency, obj.HlBar.Visible = Vector2.new(2, bH), Vector2.new(obj.CurrBoxPos.X - 7, obj.CurrBoxPos.Y + (obj.CurrBoxSize.Y - bH)), Color3.new(1,0,0):Lerp(Color3.new(0,1,0), hpPct), true, obj.Alpha, true
+            else obj.HlOutline.Visible, obj.HlBar.Visible = false, false end
+
+            if ESP.Skeletons then
+                for idx, pair in ipairs(SkeletonBones) do
+                    local p1, p2, line = char:FindFirstChild(pair[1]), char:FindFirstChild(pair[2]), obj.Skeletons[idx]
+                    if p1 and p2 then
+                        local v1, vis1 = Camera:WorldToViewportPoint(p1.Position)
+                        local v2, vis2 = Camera:WorldToViewportPoint(p2.Position)
+                        if vis1 and vis2 then
+                            line.From, line.To, line.Color, line.Thickness, line.Transparency, line.Visible = Vector2.new(v1.X, v1.Y), Vector2.new(v2.X, v2.Y), skelCol, ESP.SkeletonThickness, obj.Alpha, true
+                        else line.Visible = false end
+                    else line.Visible = false end
+                end
+            else for _, l in pairs(obj.Skeletons) do l.Visible = false end end
+        else
+            obj.Billboard.Adornee = head or hrp
+            obj.NameLabel.Text, obj.NameLabel.TextColor3 = player.DisplayName, txtCol
+            obj.DistLabel.Visible = ESP.ShowDistance
+            if ESP.ShowDistance then obj.DistLabel.Text, obj.DistLabel.TextColor3 = string.format("[%dm]", math.floor(dist)), txtCol end
+            obj.Billboard.Enabled = ESP.Names
+            if ESP.Healthbar then
+                obj.HealthBar.Size = UDim2.new(math.clamp(hum.Health / math.max(hum.MaxHealth, 1), 0, 1), 0, 1, 0)
+                obj.HealthBG.Visible = true
+            else obj.HealthBG.Visible = false end
+        end
+
+        if ESP.Highlight then
+            obj.Highlight.Adornee = char
+            obj.Highlight.OutlineColor, obj.Highlight.FillColor = hlCol, ESP.FillColor
+            obj.Highlight.OutlineTransparency, obj.Highlight.FillTransparency = 1 - (ESP.Transparency.Outline * obj.Alpha), 1 - (ESP.Transparency.Fill * obj.Alpha)
+            obj.Highlight.Enabled = true
+        else obj.Highlight.Enabled = false end
+    end)
 end
 
-function Library:SetFillTransparency(Number)
-	Library.FillTransparency = Number
-	for i,Highlight in pairs(Highlights) do
-		if Highlight:IsA("Highlight") then
-			Highlight.FillTransparency = Number
-		end
-	end
+function ESP:AddEspPlayer(params)
+    local cfg = {} for k,v in pairs(self.PlayerConfig) do cfg[k]=v end
+    if type(params) == "table" then
+        if type(params.Team) == "function" then self.CheckTeamFunction = params.Team elseif params.Team ~= nil then cfg.Team = params.Team end
+        for _, k in ipairs({"Text", "Name", "TeamColor", "Distance", "Color"}) do if params[k] ~= nil then cfg[k] = params[k] end end
+    end
+    for _, p in pairs(Players:GetPlayers()) do setupPlayer(p, cfg) end
 end
 
-function Library:SetOutlineTransparency(Number)
-	Library.OutlineTransparency = Number
-	for i,Highlight in pairs(Highlights) do
-		if Highlight:IsA("Highlight") then
-			Highlight.OutlineTransparency = Number
-		end
-	end
+for _, p in pairs(Players:GetPlayers()) do setupPlayer(p) end
+Connections.PlayerAdded = Players.PlayerAdded:Connect(function(p) setupPlayer(p) end)
+
+function ESP:Unload()
+    self.Enabled = false
+    for _, conn in pairs(Connections) do pcall(function() conn:Disconnect() end) end
+    table.clear(Connections)
+    for _, obj in pairs(Cache) do cleanObject(obj) end
+    for _, obj in pairs(ObjectsCache) do cleanObject(obj) end
+    if ESP_Folder then pcall(function() ESP_Folder:Destroy() end) end
+    table.clear(Cache); table.clear(ObjectsCache)
 end
 
-function Library:SetTextSize(Number)
-	Library.TextSize = Number
-	for i,Label in pairs(Labels) do
-		Label.TextSize = Number
-	end
-end
-function Library:SetTextOutlineTransparency(Number)
-	Library.TextOutlineTransparency = Number
-	for i,Label in pairs(Labels) do
-		Label.TextStrokeTransparency = Number
-	end
-end
-function Library:SetFont(Font)
-	Library.Font = Font
-	for i,Label in pairs(Labels) do
-		Label.Font = Font
-	end
-end
-
-function Library:UpdateObjectText(Object,Text)
-	if Labels[Object] then
-		TextTable[Object] = Text
-	end
-end
-function Library:UpdateObjectColor(Object,Color)
-	ColorTable[Object] = Color
-	if Labels[Object] then
-		Labels[Object].TextColor3 = Color
-	end
-
-end
-
-function Library:SetOutlineColor(Color)
-	Library.OutlineColor = Color
-end
-
-function Library:SetRainbow(Value)
-	Library.Rainbow = Value
-end
-
-function Library:SetShowDistance(Value)
-	Library.ShowDistance = Value
-end
-
-function Library:SetMatchColors(Value)
-	Library.MatchColors = Value
-end
-
-function Library:SetTracers(Value)
-	Library.Tracers = Value
-	TracersFrame.Visible = Value
-end
-
-function Library:SetArrows(Value)
-	Library.Arrows = Value
-	ArrowsFrame.Visible = Value
-end
-
-function Library:SetArrowRadius(Value)
-	Library.ArrowRadius = Value
-end
-
-function Library:SetTracerOrigin(Value)
-	Library.TracerOrigin = Value
-end
-
-function Library:SetDistanceSizeRatio(Value)
-	Library.DistanceSizeRatio = Value
-end
-
-function Library:SetTracerSize(Value)
-	Library.TracerSize = 0.5 * Value
-end
-
-
-
-
-function removeObjectFromTables(object)
-	for index, obj in pairs(TotalObjects) do
-
-		if obj == object then
-
-			table.remove(TotalObjects, index)
-
-			break
-		end
-
-	end
-end
-
-
-function Library:RemoveESP(Object)
-	if Library.Unloaded == true or Library.ElementsEnabled[Object] ~= true then return end
-
-	Library.ElementsEnabled[Object] = false
-
-
-	Library.TransparencyEnabled[Object] = false
-
-
-
-
-	local Value = Instance.new("Frame", game.ReplicatedStorage)
-	Value.BackgroundTransparency = 0
-	Value.Name = Library:GenerateRandomString()
-
-	game:GetService("Debris"):AddItem(Value, Library.FadeTime + 0.5)
-
-
-	local TextFrame = Frames[Object]
-
-	local Manager = Library.ConnectionsManager[Object]
-	for i,Connection in pairs(Manager) do
-		if Connection ~= nil then
-			Connection:Disconnect()
-		end
-	end
-
-
-
-	local TextLabel = Labels[Object]
-
-	if TextLabel then
-		TweenService:Create(TextLabel,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{TextTransparency = 1}):Play()
-
-	end
-
-
-
-	if Library.Lines[Object] ~= nil then
-		if Library.Lines[Object][1] ~= nil  then
-			TweenService:Create(Library.Lines[Object][1],TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{BackgroundTransparency = 1}):Play()
-		end
-		if Library.Lines[Object][2] ~= nil  then
-			TweenService:Create(Library.Lines[Object][2],TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{Transparency = 1}):Play()
-		end
-
-	end
-
-	local Highlight
-	if Highlights[Object] then
-
-		TweenService:Create(Highlights[Object],TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{FillTransparency = 1}):Play()
-		TweenService:Create(Highlights[Object],TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{OutlineTransparency = 1}):Play()
-		Highlight = Highlights[Object]
-
-	end
-
-	if Library.Lines[Object][2] ~= nil then
-		TweenService:Create(Library.Lines[Object][2] ,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{Transparency = 1}):Play()
-
-	end
-
-	if ArrowsTable[Object] ~= nil then
-		TweenService:Create(ArrowsTable[Object] ,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{ImageTransparency = 1}):Play()
-
-	end
-
-	if Object.Parent == nil then
-		if Library.ElementsEnabled[Object] == false then
-
-			if Frames[Object] then
-				Frames[Object]:Destroy()
-				Frames[Object] = nil
-			end
-			Objects[Object] = nil
-
-
-
-			if Highlight then
-				Highlight:Destroy()
-				Highlights[Object] = nil
-
-			end
-
-
-
-			removeObjectFromTables(Object)
-
-			if ArrowsTable[Object] then
-				ArrowsTable[Object]:Destroy()
-				ArrowsTable[Object] = nil
-			end
-
-			if Connections[Object] then
-				Connections[Object]:Disconnect()
-			end
-
-			if Library.Lines[Object] ~= nil then
-				if Library.Lines[Object][1] ~= nil  then
-					Library.Lines[Object][1]:Destroy()
-				end
-				if Library.Lines[Object][2] ~= nil  then
-					Library.Lines[Object][2]:Destroy()
-				end
-				Library.Lines[Object] = {}
-			end
-
-			if Library.TracerTable[Object] ~= nil then
-				Library.TracerTable[Object]:Destroy()
-
-			end
-
-
-
-
-
-			Value:Destroy()
-		else
-			if Highlight then
-				TweenService:Create(Highlight,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{FillTransparency = Library.FillTransparency}):Play()
-				TweenService:Create(Highlight,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{OutlineTransparency = Library.OutlineTransparency}):Play()
-			end
-
-		end
-
-	else
-		local DestroyTween = TweenService:Create(Value,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{BackgroundTransparency = 1})
-		DestroyTween:Play()
-
-
-
-
-
-		local DestroyTween1 = DestroyTween.Completed:Connect(function()
-			if Library.ElementsEnabled[Object] == false then
-
-				if Frames[Object] then
-					Frames[Object]:Destroy()
-					Frames[Object] = nil
-				end
-
-				removeObjectFromTables(Object)
-				if Connections[Object] then
-					Connections[Object]:Disconnect()
-				end
-
-				if ArrowsTable[Object] then
-					ArrowsTable[Object]:Destroy()
-					ArrowsTable[Object] = nil
-				end
-
-
-
-				if Highlight then
-					Highlight:Destroy()
-					Highlights[Object] = nil
-
-				end
-
-
-
-
-				if Library.Lines[Object] ~= nil then
-					if Library.Lines[Object][1] ~= nil  then
-						Library.Lines[Object][1]:Destroy()
-					end
-					if Library.Lines[Object][2] ~= nil  then
-						Library.Lines[Object][2]:Destroy()
-					end
-					Library.Lines[Object] = {}
-				end
-
-				if Library.TracerTable[Object] ~= nil then
-					Library.TracerTable[Object]:Destroy()
-
-				end
-
-
-
-
-
-				Value:Destroy()
-			else
-				if Highlight then
-					TweenService:Create(Highlight,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{FillTransparency = Library.FillTransparency}):Play()
-					TweenService:Create(Highlight,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{OutlineTransparency = Library.OutlineTransparency}):Play()
-				end
-
-			end
-		end)
-		table.insert(Manager, DestroyTween1)
-	end
-end
-
-
-
-
-
-
-
-
-
-
-
-
-ConnectionsTable.RainbowConnection = RunService.RenderStepped:Connect(function(Delta)
-
-	RainbowTable.Step = RainbowTable.Step + Delta
-
-	if RainbowTable.Step >= (1 / 60) then
-		RainbowTable.Step = 0
-
-		RainbowTable.HueSetup = RainbowTable.HueSetup + (1 / 400);
-		if RainbowTable.HueSetup > 1 then RainbowTable.HueSetup = 0; end;
-		RainbowTable.Hue = RainbowTable.HueSetup;
-		RainbowTable.Color = Color3.fromHSV(RainbowTable.Hue, 0.8, 1);
-		Library.RainbowColor = Color3.fromHSV(RainbowTable.Hue, 0.8, 1);
-
-	end
-end)
-
-CameraConnection = workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
-	Camera = workspace.CurrentCamera
-end)
-
-
-
-
-
-local RenderConnection = RunService.Heartbeat:Connect(function()
-
-		if Library.Unloaded or Camera ~= workspace.CurrentCamera then
-			return
-		end
-
-
-
-
-
-		for i,Object in pairs(TotalObjects) do
-
-
-			local object = Object
-
-
-			local pos
-
-			pos = object:GetPivot().Position
-
-
-			if pos then
-
-				local screenPoint, onScreen = Camera:WorldToViewportPoint(pos)
-
-				local frame = Frames[object]
-				local label = Labels[object]
-				local highlight = Highlights[object]
-
-				if Library.Lines[object][1] then
-					Library.Lines[object][1].Visible = (onScreen)
-				end
-
-				if frame then frame.Visible = onScreen end
-				if not onScreen then
-					-- Hide tracers/highlights without destroying
-					if highlight then highlight:Destroy() Highlights[object] = nil highlight = nil end
-
-
-				elseif frame then
-
-					frame.Position = UDim2.new(0,screenPoint.X,0,screenPoint.Y)
-				end
-
-
-
-
-
-				if Library.ElementsEnabled[object] == true and onScreen then
-
-					if not highlight then
-
-						highlight = Instance.new("Highlight")
-						highlight.FillTransparency = 1
-						highlight.OutlineTransparency = 1
-						highlight.Name = Library.HighlightNames[object] or Library:GenerateRandomString()
-						highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-						highlight.Parent = HighlightsFolder
-						highlight.Adornee = object
-						Highlights[object] = highlight
-					end
-				end
-
-
-
-				label.TextColor3 = Library.Rainbow and RainbowTable.Color or ColorTable[object] or Color3.fromRGB(255,255,255)
-
-				if highlight then
-
-					local distance = math.round((Camera.CFrame.Position - pos).Magnitude)
-					local distanceText = Library.ShowDistance and ("\n" .. '<font size="' .. math.round(Library.TextSize * Library.DistanceSizeRatio) .. '">[' .. distance .. ']</font>') or ""
-					label.Text = TextTable[object] .. distanceText
-					highlight.Enabled = true
-					highlight.FillColor = Library.Rainbow and RainbowTable.Color or ColorTable[object] or Color3.fromRGB(255,255,255)
-					highlight.OutlineColor = Library.MatchColors and highlight.FillColor or Library.OutlineColor
-					highlight.FillColor = Library.Rainbow and RainbowTable.Color or ColorTable[object] or Color3.fromRGB(255,255,255)
-					if Library.TransparencyEnabled[object] == true then
-						highlight.FillTransparency = Library.FillTransparency
-						highlight.OutlineTransparency = Library.OutlineTransparency
-						label.TextTransparency = Library.TextTransparency
-						label.TextStrokeTransparency = Library.TextOutlineTransparency
-					end
-				end
-
-				local lineFrame = Library.Lines[object][1]
-				local stroke = Library.Lines[object][2]
-				local origin = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y * 1)
-
-
-
-
-
-
-
-
-
-
-				if lineFrame and highlight and Library.Tracers == true and onScreen then
-					if Library.TracerOrigin == "Center" then
-						local mousePos = game:GetService("UserInputService"):GetMouseLocation();
-						origin = Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2)
-
-					elseif Library.TracerOrigin == "Top" then
-						origin = Vector2.new(Camera.ViewportSize.X/2, 0)	
-					elseif Library.TracerOrigin == "Mouse" then
-
-						origin = Vector2.new(game.Players.LocalPlayer:GetMouse().X,game:GetService("UserInputService"):GetMouseLocation().Y)
-
-
-					end
-					local destination = Vector2.new(screenPoint.X, screenPoint.Y)
-					local position = (origin + destination) / 2
-					local rotation = math.deg(math.atan2(destination.Y - origin.Y, destination.X - origin.X))
-					local length = (origin - destination).Magnitude
-
-					lineFrame.Position = UDim2.new(0, position.X, 0, position.Y)
-					lineFrame.Size = UDim2.new(0, length, 0, 1)
-					lineFrame.Rotation = rotation
-					lineFrame.BackgroundColor3 = highlight.FillColor
-					lineFrame.BorderSizePixel = 0
-					stroke.Color = highlight.FillColor
-					stroke.Thickness = Library.TracerSize
-					lineFrame.Visible = true
-				end
-
-				local function getArrowData(objPos)
-					local screenSize = Camera.ViewportSize
-					local screenCenter = Vector2.new(screenSize.X / 2, screenSize.Y / 2)
-
-
-					local toObj = (objPos - Camera.CFrame.Position).Unit
-					local camForward = Camera.CFrame.LookVector
-
-
-					local dir = Vector2.new(screenPoint.X, screenPoint.Y) - screenCenter
-
-					local dot = camForward:Dot(toObj)
-
-
-
-					if dot < 0 then
-						dir = -dir
-
-					end
-
-
-					local angle = math.atan2(dir.Y, dir.X)
-					local radius = math.min(screenSize.X, screenSize.Y) / 2 - (400 - Library.ArrowRadius)
-					local arrowPos = screenCenter + dir.Unit * radius
-
-					return arrowPos, math.deg(angle)
-				end
-
-				local obj = Object
-
-				if obj and Library.Arrows == true then
-					local arrow = ArrowsTable[obj] or nil
-					if arrow == nil and Library.ElementsEnabled[obj] == true then
-						arrow = arrowTemplate:Clone()
-						arrow.Parent = ArrowsFrame
-						arrow.Name = Library:GenerateRandomString()
-
-
-						arrow:WaitForChild("Constraint").Name = Library:GenerateRandomString()
-
-
-
-
-						ArrowsTable[obj] = arrow
-
-
-						TweenService:Create(arrow ,TweenInfo.new(Library.FadeTime,Enum.EasingStyle.Quad),{ImageTransparency = 0}):Play()
-
-
-					elseif Library.ElementsEnabled[obj] == true then
-
-						if onScreen and screenPoint.Z > 0 then
-							ArrowsTable[obj].Visible = false
-						else
-							local arrowPos, angle = getArrowData(obj:GetPivot().Position)
-							ArrowsTable[obj].Position = UDim2.new(0, arrowPos.X, 0, arrowPos.Y)
-							ArrowsTable[obj].Rotation = angle - 180
-							ArrowsTable[obj].Visible = true
-
-							ArrowsTable[obj].ImageColor3 = (Library.Rainbow == true and Library.RainbowColor or ColorTable[obj])
-
-
-						end
-
-
-					end
-				end
-			end
-
-		end
-	end)
-
-
-
-
-
-
-function Library:Unload()
-	for i,Object in pairs(Library.Objects) do
-
-		Library:RemoveESP(Object)
-	end
-
-	for i,Connection in pairs(ConnectionsTable) do
-		Connection:Disconnect()
-	end
-
-
-	CameraConnection:Disconnect()
-
-RenderConnection:Disconnect()
-
-
-
-	ScreenGui.Enabled = false
-	Library.Unloaded = true
-
-
-end
--- Finishing Touches --
-
-ObjectsFolder.Name = Library:GenerateRandomString()
-ScreenGui.Name = Library:GenerateRandomString()
-HighlightsFolder.Name = Library:GenerateRandomString()
-TracersFrame.Name = Library:GenerateRandomString()
-ArrowsFrame.Name = Library:GenerateRandomString()
-BillboardsFolder.Name = Library:GenerateRandomString()
-if getgenv ~= nil then
-	getgenv().ESPLibrary = Library
-end
-
-return Library
+return ESP
