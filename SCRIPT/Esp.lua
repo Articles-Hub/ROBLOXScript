@@ -231,7 +231,6 @@ function ESP:AddESP(target, arg2, arg3)
     return obj
 end
 
--- Hàm SetText: {Object, Text, Color}
 function ESP:SetText(Object, Text, Color)
     if not Object then return end
     local obj = ObjectsCache[Object] or Cache[Object]
@@ -244,7 +243,23 @@ function ESP:SetText(Object, Text, Color)
     return obj
 end
 
--- Hàm SetColor: {Object, Modes ("All" hoặc {"Text", "Boxes", "Tracer", "Highlight", "Skeleton"}), Color}
+function ESP:SetTextSize(size)
+    if type(size) == "number" then
+        self.TextSize = size
+        
+        if self.Cache then
+            for _, obj in pairs(self.Cache) do
+                if obj.Text then obj.Text.Size = size end
+            end
+        end
+        if self.ObjectsCache then
+            for _, obj in pairs(self.ObjectsCache) do
+                if obj.Text then obj.Text.Size = size end
+            end
+        end
+    end
+end
+
 function ESP:SetColor(Object, Modes, Color)
     if not Object or typeof(Color) ~= "Color3" then return end
     local obj = ObjectsCache[Object] or Cache[Object]
