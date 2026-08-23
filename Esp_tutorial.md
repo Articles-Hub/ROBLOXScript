@@ -32,13 +32,15 @@
 
 Place the source inside a Roblox "ModuleScript".
 
-local Esp = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/SCRIPT/Esp.lua"))()
+local ESP = require(path.to.ESP)
 
 The module returns the "ESP" object.
 
 ---
 
 ✦ Quick Start
+
+local ESP = require(path.to.ESP)
 
 ESP.Enabled = true
 
@@ -427,7 +429,7 @@ ESP:Unload()
 
 ◇ Complete Example
 
-local Esp = loadstring(game:HttpGet("https://raw.githubusercontent.com/Articles-Hub/ROBLOXScript/refs/heads/main/SCRIPT/Esp.lua"))()
+local ESP = require(path.to.ESP)
 
 -- Core
 ESP:Toggle(true)
