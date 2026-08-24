@@ -1,10 +1,17 @@
-local Players, RunService, CoreGui, UserInputService = game:GetService("Players"), game:GetService("RunService"), game:GetService("CoreGui"), game:GetService("UserInputService")
-local LocalPlayer, Camera = Players.LocalPlayer, workspace.CurrentCamera
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
 local HasDrawing = type(Drawing) == "table" and type(Drawing.new) == "function"
 local Connections, Cache, ObjectsCache = {}, {}, {}
 
-local ESP_Folder = CoreGui:FindFirstChild("ESP_Storage") or Instance.new("Folder", CoreGui)
-ESP_Folder.Name, ESP_Folder.Parent = "ESP_Storage", CoreGui
+local ESP_Folder = CoreGui:FindFirstChild("ESP_Storage") or Instance.new("Folder")
+ESP_Folder.Name = "ESP_Storage"
+ESP_Folder.Parent = CoreGui
 
 local ESP = {
     Enabled = true, Boxes = true, Highlight = false, Tracers = true, TracerOrigin = "Bottom",
@@ -20,30 +27,47 @@ local ESP = {
 
 local CurrentRainbowColor = Color3.new(1,1,1)
 Connections.Rainbow = RunService.RenderStepped:Connect(function()
-    if ESP.Rainbow then CurrentRainbowColor = Color3.fromHSV((tick() * ESP.RainbowSpeed) % 5 / 5, 1, 1) end
+    if ESP.Rainbow then 
+        CurrentRainbowColor = Color3.fromHSV((tick() * ESP.RainbowSpeed) % 5 / 5, 1, 1) 
+    end
 end)
 
 local function getOriginPos()
-    return (ESP.DistanceOriginPart and ESP.DistanceOriginPart:IsDescendantOf(workspace)) and ESP.DistanceOriginPart.Position or Camera.CFrame.Position
+    if ESP.DistanceOriginPart and ESP.DistanceOriginPart:IsDescendantOf(workspace) then
+        return ESP.DistanceOriginPart.Position
+    end
+    return Camera.CFrame.Position
 end
 
 local function getTracerPos(mode)
     local size = Camera.ViewportSize
     if mode == "Top" then return Vector2.new(size.X/2, 0)
     elseif mode == "Center" then return size/2
-    elseif mode == "Mouse" then local m = UserInputService:GetMouseLocation() return Vector2.new(m.X, m.Y) end
-    return Vector2.new(size.X, size.Y) * Vector2.new(0.5, 1)
+    elseif mode == "Mouse" then 
+        local m = UserInputService:GetMouseLocation() 
+        return Vector2.new(m.X, m.Y) 
+    end
+    return Vector2.new(size.X / 2, size.Y)
 end
 
 local function resolveColor(opt, target, def)
-    if type(opt) == "function" then local s, c = pcall(opt, target); if s and typeof(c) == "Color3" then return c end
-    elseif typeof(opt) == "Color3" then return opt end
+    if type(opt) == "function" then 
+        local s, c = pcall(opt, target)
+        if s and typeof(c) == "Color3" then return c end
+    elseif typeof(opt) == "Color3" then 
+        return opt 
+    end
     return def
 end
 
 local function getBounding(t)
     if not t or not t.Parent then return end
-    return t:IsA("Model") and t:GetBoundingBox() or (t:IsA("BasePart") and t.CFrame or nil), t.Size
+    if t:IsA("Model") then
+        return t:GetBoundingBox()
+    elseif t:IsA("BasePart") then
+        return t.CFrame, t.Size
+    end
+    return nil, nil
 end
 
 local function lerpVal(a, b, t) return a + (b - a) * math.clamp(t, 0, 1) end
@@ -57,8 +81,16 @@ local SkeletonBones = {
 }
 
 for _, k in ipairs({"Toggle", "SetTracers", "SetBoxes", "SetHighlight", "SetNames", "SetDistance", "SetSkeletons", "SetHealthbar", "SetRainbow"}) do
-    ESP[k] = function(self, state) self[k:gsub("Set", "")] = (state ~= nil) and state or not self[k:gsub("Set", "")] end
+    local keyName = k:gsub("Set", "")
+    ESP[k] = function(self, state) 
+        if keyName == "Toggle" then
+            self.Enabled = (state ~= nil) and state or not self.Enabled
+        else
+            self[keyName] = (state ~= nil) and state or not self[keyName] 
+        end
+    end
 end
+
 function ESP:SetRainbowSpeed(s) if type(s)=="number" then self.RainbowSpeed=s end end
 function ESP:SetDelayEsp(d) if type(d)=="number" then self.RenderDelay=d end end
 function ESP:SetTweenTime(t) if type(t)=="number" then self.TweenTime=t end end
@@ -79,14 +111,8 @@ end
 function ESP:SetTextSize(size)
     if type(size) == "number" then
         self.TextSize = size
-        
-        if self.Cache then
-            for _, obj in pairs(self.Cache) do
-                if obj.Text then obj.Text.Size = size end
-            end
-        end
-        if self.ObjectsCache then
-            for _, obj in pairs(self.ObjectsCache) do
+        for _, tbl in pairs({self.Cache, self.ObjectsCache}) do
+            for _, obj in pairs(tbl) do
                 if obj.Text then obj.Text.Size = size end
             end
         end
@@ -95,24 +121,15 @@ end
 
 function ESP:SetColor(Object, Modes, Color)
     if not Object or typeof(Color) ~= "Color3" then return end
-    local obj = ObjectsCache[Object] or Cache[Object]
-    if not obj then
-        obj = self:AddESP(Object)
-    end
+    local obj = ObjectsCache[Object] or Cache[Object] or self:AddESP(Object)
 
     local keyMap = {
-        ["TEXT"] = "TextColor",
-        ["BOXES"] = "BoxColor",
-        ["BOX"] = "BoxColor",
-        ["TRACER"] = "TracerColor",
-        ["TRACERS"] = "TracerColor",
-        ["HIGHLIGHT"] = "HighlightColor",
-        ["SKELETON"] = "SkeletonColor",
-        ["SKELETONS"] = "SkeletonColor",
-        ["LINE"] = "TracerColor"
+        ["TEXT"] = "TextColor", ["BOXES"] = "BoxColor", ["BOX"] = "BoxColor",
+        ["TRACER"] = "TracerColor", ["TRACERS"] = "TracerColor", ["HIGHLIGHT"] = "HighlightColor",
+        ["SKELETON"] = "SkeletonColor", ["SKELETONS"] = "SkeletonColor", ["LINE"] = "TracerColor"
     }
 
-    if Modes == "All" or Modes == "ALL" or Modes == "all" then
+    if type(Modes) == "string" and Modes:upper() == "ALL" then
         obj.Config.Color = Color
         obj.Config.TextColor = Color
         obj.Config.BoxColor = Color
@@ -122,122 +139,42 @@ function ESP:SetColor(Object, Modes, Color)
     elseif type(Modes) == "table" then
         for _, mode in ipairs(Modes) do
             local cfgKey = keyMap[tostring(mode):upper()]
-            if cfgKey then
-                obj.Config[cfgKey] = Color
-            end
+            if cfgKey then obj.Config[cfgKey] = Color end
         end
     elseif type(Modes) == "string" then
         local cfgKey = keyMap[Modes:upper()]
-        if cfgKey then
-            obj.Config[cfgKey] = Color
-        end
+        if cfgKey then obj.Config[cfgKey] = Color end
     end
     return obj
 end
 
-function ESP:SetTransparency(data)
-    if type(data) ~= "table" then return end
-
-    local mode = data[1] or data.mode or data.Mode
-    local inputOutline = data[2] or data.outline or data.Outline
-    local inputFill = data[3] or data.fill or data.Fill
-
-    if not mode then return end
-    mode = tostring(mode):lower()
-
-    self.TransparencyConfig = self.TransparencyConfig or {
-        Box = { Outline = 1, Fill = 0.5 },
-        Tracer = { Outline = 1, Fill = 1 },
-        Skeleton = { Outline = 1, Fill = 1 },
-        Text = { Outline = 1, Fill = 1 },
-        Highlight = { Outline = 1, Fill = 0.5 }
-    }
-
-    local function applyModeConfig(targetMode)
-        local current = self.TransparencyConfig[targetMode] or { Outline = 1, Fill = 0.5 }
-        
-        -- Nếu outline = nil thì giữ nguyên outline cũ, nếu fill = nil thì giữ nguyên fill cũ
-        local finalOutline = type(inputOutline) == "number" and inputOutline or current.Outline
-        local finalFill = type(inputFill) == "number" and inputFill or (type(inputOutline) == "number" and inputOutline or current.Fill)
-
-        self.TransparencyConfig[targetMode] = {
-            Outline = finalOutline,
-            Fill = finalFill
-        }
-    end
-
-    -- Cập nhật bảng cấu hình
-    if mode == "all" then
-        applyModeConfig("Box")
-        applyModeConfig("Tracer")
-        applyModeConfig("Skeleton")
-        applyModeConfig("Text")
-        applyModeConfig("Highlight")
-    elseif mode == "box" or mode == "boxes" or mode == "boxer" then
-        applyModeConfig("Box")
-    elseif mode == "line" or mode == "tracer" or mode == "tracers" then
-        applyModeConfig("Tracer")
-    elseif mode == "skeleton" or mode == "skeletons" then
-        applyModeConfig("Skeleton")
-    elseif mode == "text" or mode == "names" then
-        applyModeConfig("Text")
-    elseif mode == "highlight" then
-        applyModeConfig("Highlight")
-    end
-
-    -- Áp dụng ngay lập tức vào Render Cache
-    local function applyToCache(cacheTable)
-        if not cacheTable then return end
-        for _, obj in pairs(cacheTable) do
-            for key, cfg in pairs(self.TransparencyConfig) do
-                local isAll = (mode == "all")
-                
-                -- Update Box
-                if (isAll or mode == "box" or mode == "boxes" or mode == "boxer") and key == "Box" then
-                    if obj.Box then obj.Box.Transparency = cfg.Outline end
-                    if obj.BoxOutline then obj.BoxOutline.Transparency = cfg.Outline end
-                    if obj.BoxFill or obj.BoxFrame then
-                        local fillObj = obj.BoxFill or obj.BoxFrame
-                        fillObj.Transparency = cfg.Fill
-                        if fillObj:IsA("Frame") then fillObj.BackgroundTransparency = 1 - cfg.Fill end
-                    end
-                end
-
-                -- Update Line / Tracer
-                if (isAll or mode == "line" or mode == "tracer" or mode == "tracers") and key == "Tracer" and obj.Tracer then
-                    obj.Tracer.Transparency = cfg.Outline
-                end
-
-                -- Update Skeleton
-                if (isAll or mode == "skeleton" or mode == "skeletons") and key == "Skeleton" and obj.Skeleton then
-                    for _, line in pairs(obj.Skeleton) do
-                        if type(line) == "table" and line.Transparency then
-                            line.Transparency = cfg.Outline
-                        end
-                    end
-                end
-
-                -- Update Text
-                if (isAll or mode == "text" or mode == "names") and key == "Text" and obj.Text then
-                    obj.Text.Transparency = cfg.Outline
-                end
-
-                -- Update Highlight
-                if (isAll or mode == "highlight") and key == "Highlight" and obj.Highlight then
-                    obj.Highlight.OutlineTransparency = 1 - cfg.Outline
-                    obj.Highlight.FillTransparency = 1 - cfg.Fill
-                end
-            end
+local function cleanObject(obj)
+    if not obj then return end
+    if obj.Connection then pcall(function() obj.Connection:Disconnect() end) end
+    if HasDrawing then
+        for _, k in ipairs({"Text", "DistText", "Tracer", "Box", "HlOutline", "HlBar"}) do 
+            if obj[k] then pcall(function() obj[k]:Remove() end) end 
         end
+        if obj.Skeletons then 
+            for _, l in pairs(obj.Skeletons) do pcall(function() l:Remove() end) end 
+        end
+    else
+        if obj.SkeletonGui then pcall(function() obj.SkeletonGui:Destroy() end) end
     end
+    if obj.Highlight then pcall(function() obj.Highlight:Destroy() end) end
+    if obj.Billboard then pcall(function() obj.Billboard:Destroy() end) end
+end
 
-    applyToCache(self.Cache)
-    applyToCache(self.ObjectsCache)
+function ESP:RemoveEsp(target)
+    if not target then return end
+    if ObjectsCache[target] then cleanObject(ObjectsCache[target]); ObjectsCache[target] = nil end
+    if Cache[target] then cleanObject(Cache[target]); Cache[target] = nil end
 end
 
 local function createDrawObject(isPlayer)
     local obj = { Highlight = Instance.new("Highlight", ESP_Folder), Alpha = 0, CurrBoxPos = Vector2.zero, CurrBoxSize = Vector2.zero, Config = {} }
     obj.Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+
     if HasDrawing then
         obj.Text, obj.DistText, obj.Tracer, obj.Box = Drawing.new("Text"), Drawing.new("Text"), Drawing.new("Line"), Drawing.new("Square")
         obj.Text.Center, obj.DistText.Center = true, true
@@ -245,13 +182,15 @@ local function createDrawObject(isPlayer)
             obj.HlOutline, obj.HlBar = Drawing.new("Square"), Drawing.new("Square")
             obj.Skeletons = {}
             for i = 1, #SkeletonBones do
-                local l = Drawing.new("Line") l.Thickness = ESP.SkeletonThickness; obj.Skeletons[i] = l
+                local l = Drawing.new("Line") 
+                l.Thickness = ESP.SkeletonThickness 
+                obj.Skeletons[i] = l
             end
         end
     else
         obj.Billboard = Instance.new("BillboardGui", ESP_Folder)
         obj.Billboard.Size, obj.Billboard.AlwaysOnTop = UDim2.new(0, 200, 0, isPlayer and 60 or 50), true
-        
+
         obj.BoxFrame = Instance.new("Frame", obj.Billboard)
         obj.BoxFrame.Size, obj.BoxFrame.Position = UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0)
         obj.BoxFrame.BackgroundTransparency = 1
@@ -260,16 +199,17 @@ local function createDrawObject(isPlayer)
         obj.NameLabel = Instance.new("TextLabel", obj.Billboard)
         obj.NameLabel.Size, obj.NameLabel.BackgroundTransparency, obj.NameLabel.TextSize, obj.NameLabel.TextColor3 = UDim2.new(1,0,0,20), 1, 14, ESP.TextColor
         obj.NameLabel.TextStrokeTransparency = 0
+
         obj.DistLabel = Instance.new("TextLabel", obj.Billboard)
         obj.DistLabel.Size, obj.DistLabel.Position, obj.DistLabel.BackgroundTransparency, obj.DistLabel.TextSize, obj.DistLabel.TextColor3 = UDim2.new(1,0,0,15), UDim2.new(0,0,0,20), 1, 12, ESP.TextColor
         obj.DistLabel.TextStrokeTransparency = 0
-        
+
         if isPlayer then
             obj.HealthBG = Instance.new("Frame", obj.Billboard)
             obj.HealthBG.Size, obj.HealthBG.Position, obj.HealthBG.BackgroundColor3, obj.HealthBG.BorderSizePixel = UDim2.new(0.6,0,0,4), UDim2.new(0.2,0,0,38), Color3.new(0,0,0), 0
             obj.HealthBar = Instance.new("Frame", obj.HealthBG)
             obj.HealthBar.Size, obj.HealthBar.BackgroundColor3, obj.HealthBar.BorderSizePixel = UDim2.new(1,0,1,0), Color3.new(0,1,0), 0
-            
+
             obj.SkeletonGui = Instance.new("ScreenGui", ESP_Folder)
             obj.SkeletonGui.ResetOnSpawn = false
             obj.Skeletons = {}
@@ -283,25 +223,6 @@ local function createDrawObject(isPlayer)
         end
     end
     return obj
-end
-
-local function cleanObject(obj)
-    if not obj then return end
-    if obj.Connection then pcall(function() obj.Connection:Disconnect() end) end
-    if HasDrawing then
-        for _, k in pairs({"Text", "DistText", "Tracer", "Box", "HlOutline", "HlBar"}) do if obj[k] then pcall(function() obj[k]:Remove() end) end end
-        if obj.Skeletons then for _, l in pairs(obj.Skeletons) do pcall(function() l:Remove() end) end end
-    else
-        if obj.SkeletonGui then pcall(function() obj.SkeletonGui:Destroy() end) end
-    end
-    if obj.Highlight then pcall(function() obj.Highlight:Destroy() end) end
-    if obj.Billboard then pcall(function() obj.Billboard:Destroy() end) end
-end
-
-function ESP:RemoveEsp(target)
-    if not target then return end
-    if ObjectsCache[target] then cleanObject(ObjectsCache[target]); ObjectsCache[target] = nil end
-    if Cache[target] then cleanObject(Cache[target]); Cache[target] = nil end
 end
 
 function ESP:AddESP(target, arg2, arg3)
@@ -321,7 +242,7 @@ function ESP:AddESP(target, arg2, arg3)
         if ESP.RenderDelay > 0 and (tick() - lastRender) < ESP.RenderDelay then return end
         lastRender = tick()
         if not target or not target.Parent then cleanObject(obj); ObjectsCache[target] = nil; return end
-        
+
         if not ESP.Enabled then
             if HasDrawing then obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false end
             obj.Highlight.Enabled = false; if obj.Billboard then obj.Billboard.Enabled = false end
@@ -347,12 +268,17 @@ function ESP:AddESP(target, arg2, arg3)
 
         if HasDrawing then
             if ESP.Names then
+                local topPos = Camera:WorldToViewportPoint((cf * CFrame.new(0, size.Y/2, 0)).Position)
+                local nameY = topPos.Y - (ESP.ShowDistance and 28 or 16)
+                local distY = topPos.Y - 14
+
                 obj.Text.Size, obj.Text.Font, obj.Text.Outline, obj.Text.Text = ESP.TextSize, ESP.Font, ESP.TextOutline, tostring(obj.Config.Name or target.Name)
-                obj.Text.Position, obj.Text.Color, obj.Text.Transparency, obj.Text.Visible = lerpVec(obj.CurrBoxPos, Vector2.new(pos.X, pos.Y-20), dt*15), txtCol, ESP.Transparency.Text * obj.Alpha, true
+                obj.Text.Position, obj.Text.Color, obj.Text.Transparency, obj.Text.Visible = Vector2.new(pos.X, nameY), txtCol, ESP.Transparency.Text * obj.Alpha, true
+                
                 obj.DistText.Visible = ESP.ShowDistance
                 if ESP.ShowDistance then
-                    obj.DistText.Size, obj.DistText.Font, obj.DistText.Outline, obj.DistText.Text = ESP.TextSize-2, ESP.Font, ESP.TextOutline, string.format("[%dm]", math.floor(dist))
-                    obj.DistText.Position, obj.DistText.Color, obj.DistText.Transparency = Vector2.new(pos.X, pos.Y-5), txtCol, ESP.Transparency.Text * obj.Alpha
+                    obj.DistText.Size, obj.DistText.Font, obj.DistText.Outline, obj.DistText.Text = ESP.TextSize - 2, ESP.Font, ESP.TextOutline, string.format("[%dm]", math.floor(dist))
+                    obj.DistText.Position, obj.DistText.Color, obj.DistText.Transparency = Vector2.new(pos.X, distY), txtCol, ESP.Transparency.Text * obj.Alpha
                 end
             else obj.Text.Visible, obj.DistText.Visible = false, false end
 
@@ -373,7 +299,7 @@ function ESP:AddESP(target, arg2, arg3)
             obj.DistLabel.Visible = ESP.ShowDistance
             if ESP.ShowDistance then obj.DistLabel.Text, obj.DistLabel.TextColor3 = string.format("[%dm]", math.floor(dist)), txtCol end
             obj.Billboard.Enabled = ESP.Names
-            
+
             if ESP.Boxes and obj.BoxFrame then
                 obj.BoxFrame.BackgroundColor3 = boxCol
                 obj.BoxFrame.BackgroundTransparency = 1 - (ESP.Transparency.Fill * obj.Alpha)
@@ -395,7 +321,10 @@ end
 
 function ESP:CheckTeam(p)
     if not p or p == LocalPlayer then return true end
-    if type(self.CheckTeamFunction) == "function" then local s, r = pcall(self.CheckTeamFunction, p); if s then return r end end
+    if type(self.CheckTeamFunction) == "function" then 
+        local s, r = pcall(self.CheckTeamFunction, p)
+        if s then return r end 
+    end
     if self.PlayerConfig.Team and p.Team and LocalPlayer.Team then return p.Team == LocalPlayer.Team end
     return false
 end
@@ -413,7 +342,10 @@ local function setupPlayer(player, config)
         lastRender = tick()
         if not player.Parent then cleanObject(obj); Cache[player] = nil; return end
 
-        local char, hum, hrp = player.Character, player.Character and player.Character:FindFirstChildOfClass("Humanoid"), player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        local char = player.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
         if not ESP.Enabled or not char or not hrp or not hum or hum.Health <= 0 or ESP:CheckTeam(player) then
             if HasDrawing then
                 obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false
@@ -454,10 +386,11 @@ local function setupPlayer(player, config)
         if HasDrawing then
             if ESP.Names then
                 obj.Text.Size, obj.Text.Font, obj.Text.Outline, obj.Text.Text = ESP.TextSize, ESP.Font, ESP.TextOutline, obj.Config.Name or player.DisplayName
-                obj.Text.Position, obj.Text.Color, obj.Text.Transparency, obj.Text.Visible = Vector2.new(pos.X, pos.Y - 32), txtCol, ESP.Transparency.Text * obj.Alpha, true
+                obj.Text.Position, obj.Text.Color, obj.Text.Transparency, obj.Text.Visible = Vector2.new(pos.X, pos.Y - (ESP.ShowDistance and 30 or 20)), txtCol, ESP.Transparency.Text * obj.Alpha, true
+                
                 obj.DistText.Visible = ESP.ShowDistance
                 if ESP.ShowDistance then
-                    obj.DistText.Size, obj.DistText.Font, obj.DistText.Outline, obj.DistText.Text = ESP.TextSize-2, ESP.Font, ESP.TextOutline, string.format("[%dm]", math.floor(dist))
+                    obj.DistText.Size, obj.DistText.Font, obj.DistText.Outline, obj.DistText.Text = ESP.TextSize - 2, ESP.Font, ESP.TextOutline, string.format("[%dm]", math.floor(dist))
                     obj.DistText.Position, obj.DistText.Color, obj.DistText.Transparency = Vector2.new(pos.X, pos.Y - 14), txtCol, ESP.Transparency.Text * obj.Alpha
                 end
             else obj.Text.Visible, obj.DistText.Visible = false, false end
@@ -501,7 +434,7 @@ local function setupPlayer(player, config)
             obj.DistLabel.Visible = ESP.ShowDistance
             if ESP.ShowDistance then obj.DistLabel.Text, obj.DistLabel.TextColor3 = string.format("[%dm]", math.floor(dist)), txtCol end
             obj.Billboard.Enabled = ESP.Names
-            
+
             if ESP.Boxes and obj.BoxFrame then
                 obj.BoxFrame.BackgroundColor3 = boxCol
                 obj.BoxFrame.BackgroundTransparency = 1 - (ESP.Transparency.Fill * obj.Alpha)
@@ -516,29 +449,6 @@ local function setupPlayer(player, config)
                 obj.HealthBar.BackgroundTransparency = 1 - (ESP.Transparency.Fill * obj.Alpha)
                 obj.HealthBG.Visible = true
             else obj.HealthBG.Visible = false end
-
-            if ESP.Skeletons then
-                for idx, pair in ipairs(SkeletonBones) do
-                    local p1, p2, frame = char:FindFirstChild(pair[1]), char:FindFirstChild(pair[2]), obj.Skeletons[idx]
-                    if p1 and p2 then
-                        local v1, vis1 = Camera:WorldToViewportPoint(p1.Position)
-                        local v2, vis2 = Camera:WorldToViewportPoint(p2.Position)
-                        if vis1 and vis2 then
-                            local pos1, pos2 = Vector2.new(v1.X, v1.Y), Vector2.new(v2.X, v2.Y)
-                            local mid = (pos1 + pos2) / 2
-                            local len = (pos1 - pos2).Magnitude
-                            local rot = math.deg(math.atan2(pos2.Y - pos1.Y, pos2.X - pos1.X))
-
-                            frame.Size = UDim2.new(0, len, 0, ESP.SkeletonThickness)
-                            frame.Position = UDim2.new(0, mid.X, 0, mid.Y)
-                            frame.Rotation = rot
-                            frame.BackgroundColor3 = skelCol
-                            frame.BackgroundTransparency = 1 - obj.Alpha
-                            frame.Visible = true
-                        else frame.Visible = false end
-                    else frame.Visible = false end
-                end
-            else for _, f in pairs(obj.Skeletons) do f.Visible = false end end
         end
 
         if ESP.Highlight then
@@ -551,10 +461,17 @@ local function setupPlayer(player, config)
 end
 
 function ESP:AddEspPlayer(params)
-    local cfg = {} for k,v in pairs(self.PlayerConfig) do cfg[k]=v end
+    local cfg = {} 
+    for k,v in pairs(self.PlayerConfig) do cfg[k]=v end
     if type(params) == "table" then
-        if type(params.Team) == "function" then self.CheckTeamFunction = params.Team elseif params.Team ~= nil then cfg.Team = params.Team end
-        for _, k in ipairs({"Text", "Name", "TeamColor", "Distance", "Color"}) do if params[k] ~= nil then cfg[k] = params[k] end end
+        if type(params.Team) == "function" then 
+            self.CheckTeamFunction = params.Team 
+        elseif params.Team ~= nil then 
+            cfg.Team = params.Team 
+        end
+        for _, k in ipairs({"Text", "Name", "TeamColor", "Distance", "Color"}) do 
+            if params[k] ~= nil then cfg[k] = params[k] end 
+        end
     end
     for _, p in pairs(Players:GetPlayers()) do setupPlayer(p, cfg) end
 end
@@ -570,7 +487,8 @@ function ESP:Unload()
     for _, obj in pairs(Cache) do cleanObject(obj) end
     for _, obj in pairs(ObjectsCache) do cleanObject(obj) end
     if ESP_Folder then pcall(function() ESP_Folder:Destroy() end) end
-    table.clear(Cache); table.clear(ObjectsCache)
+    table.clear(Cache)
+    table.clear(ObjectsCache)
 end
 
 return ESP
