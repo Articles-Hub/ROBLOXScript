@@ -15,7 +15,7 @@ ESP_Folder.Parent = CoreGui
 
 local ESP = {
     Enabled = true, Boxes = true, Highlight = false, Tracers = true, TracerOrigin = "Bottom",
-    Names = true, ShowDistance = true, Skeletons = false, Healthbar = false,
+    Names = true, ShowDistance = true, Skeletons = true, Healthbar = false,
     BoxThickness = 2, TracerThickness = 2, SkeletonThickness = 1.5, HealthbarThickness = 2,
     TextSize = 16, TextOutline = true, MaxDistance = 2000, DistanceOriginPart = nil,
     TweenTime = 0.3, RenderDelay = 0, Transparency = { Text = 1, Outline = 1, Fill = 0.5 }, Font = 2,
@@ -349,7 +349,7 @@ local function setupPlayer(player, config)
         if not ESP.Enabled or not char or not hrp or not hum or hum.Health <= 0 or ESP:CheckTeam(player) then
             if HasDrawing then
                 obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false
-                for _,l in pairs(obj.Skeletons) do l.Visible=false end
+                if obj.Skeletons then for _,l in pairs(obj.Skeletons) do l.Visible=false end end
             else
                 if obj.Skeletons then for _,f in pairs(obj.Skeletons) do f.Visible=false end end
             end
@@ -365,7 +365,7 @@ local function setupPlayer(player, config)
         if obj.Alpha < 0.05 then
             if HasDrawing then
                 obj.Text.Visible, obj.DistText.Visible, obj.Tracer.Visible, obj.Box.Visible = false, false, false, false
-                for _,l in pairs(obj.Skeletons) do l.Visible=false end
+                if obj.Skeletons then for _,l in pairs(obj.Skeletons) do l.Visible=false end end
             else
                 if obj.Skeletons then for _,f in pairs(obj.Skeletons) do f.Visible=false end end
             end
@@ -422,10 +422,10 @@ local function setupPlayer(player, config)
                     if p1 and p2 then
                         local v1, vis1 = Camera:WorldToViewportPoint(p1.Position)
                         local v2, vis2 = Camera:WorldToViewportPoint(p2.Position)
-                        if vis1 and vis2 then
+                        if vis1 and vis2 and line then
                             line.From, line.To, line.Color, line.Thickness, line.Transparency, line.Visible = Vector2.new(v1.X, v1.Y), Vector2.new(v2.X, v2.Y), skelCol, ESP.SkeletonThickness, obj.Alpha, true
-                        else line.Visible = false end
-                    else line.Visible = false end
+                        elseif line then line.Visible = false end
+                    elseif line then line.Visible = false end
                 end
             else for _, l in pairs(obj.Skeletons) do l.Visible = false end end
         else
@@ -449,6 +449,32 @@ local function setupPlayer(player, config)
                 obj.HealthBar.BackgroundTransparency = 1 - (ESP.Transparency.Fill * obj.Alpha)
                 obj.HealthBG.Visible = true
             else obj.HealthBG.Visible = false end
+
+            -- Skeleton dành cho Fallback GUI
+            if ESP.Skeletons and obj.Skeletons then
+                for idx, pair in ipairs(SkeletonBones) do
+                    local p1, p2, frame = char:FindFirstChild(pair[1]), char:FindFirstChild(pair[2]), obj.Skeletons[idx]
+                    if p1 and p2 and frame then
+                        local v1, vis1 = Camera:WorldToViewportPoint(p1.Position)
+                        local v2, vis2 = Camera:WorldToViewportPoint(p2.Position)
+                        if vis1 and vis2 then
+                            local pos1, pos2 = Vector2.new(v1.X, v1.Y), Vector2.new(v2.X, v2.Y)
+                            local distLine = (pos2 - pos1).Magnitude
+                            local center = (pos1 + pos2) / 2
+                            local angle = math.deg(math.atan2(pos2.Y - pos1.Y, pos2.X - pos1.X))
+
+                            frame.Size = UDim2.new(0, distLine, 0, ESP.SkeletonThickness)
+                            frame.Position = UDim2.new(0, center.X, 0, center.Y)
+                            frame.Rotation = angle
+                            frame.BackgroundColor3 = skelCol
+                            frame.BackgroundTransparency = 1 - obj.Alpha
+                            frame.Visible = true
+                        else frame.Visible = false end
+                    elseif frame then frame.Visible = false end
+                end
+            elseif obj.Skeletons then
+                for _, f in pairs(obj.Skeletons) do f.Visible = false end
+            end
         end
 
         if ESP.Highlight then
