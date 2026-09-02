@@ -52,7 +52,6 @@ local countryToCode = {}
 for code, name in pairs(nativeCountries) do
 	countryToCode[string.lower(name)] = code
 end
-countryToCode["vietnam"] = "VN"
 
 function CountryData.getName(code)
 	if not code or code == "" then return "Unknown" end
@@ -64,6 +63,14 @@ function CountryData.getCode(countryName)
 	if not countryName or countryName == "" then return "N/A" end
 	local lowerName = string.lower(countryName)
 	return countryToCode[lowerName] or "N/A"
+end
+
+function CountryData.showCode()
+	return countryToCode
+end
+
+function CountryData.showName()
+	return nativeCountries
 end
 
 return CountryData
