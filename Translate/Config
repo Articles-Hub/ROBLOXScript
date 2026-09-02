@@ -1,4 +1,5 @@
 local CountryData = {}
+
 local nativeCountries = {
 	["AL"] = "Shqipëria", ["DZ"] = "الجزائر", ["AD"] = "Andorra", ["AO"] = "Angola", ["AG"] = "Antigua & Barbuda",
 	["AR"] = "Argentina", ["AM"] = "Հայաստան", ["AW"] = "Aruba", ["AU"] = "Australia", ["AT"] = "Österreich",
@@ -49,28 +50,31 @@ local nativeCountries = {
 }
 
 local countryToCode = {}
+local counter = {
+	code = {},
+	name = {}
+}
+
 for code, name in pairs(nativeCountries) do
 	countryToCode[string.lower(name)] = code
+	table.insert(counter.code, code)
 end
 
-function CountryData.getName(code)
-	if not code or code == "" then return "Unknown" end
-	local upperCode = string.upper(code)
-	return nativeCountries[upperCode] or code
+table.sort(counter.code)
+
+for _, code in ipairs(counter.code) do
+	table.insert(counter.name, nativeCountries[code])
 end
 
-function CountryData.getCode(countryName)
-	if not countryName or countryName == "" then return "N/A" end
-	local lowerName = string.lower(countryName)
-	return countryToCode[lowerName] or "N/A"
+function CountryData.getName(code: string): string
+	return (code and code ~= "") and (nativeCountries[string.upper(code)] or code) or "Unknown"
 end
 
-function CountryData.showCode()
-	return countryToCode
+function CountryData.getCode(countryName: string): string
+	return (countryName and countryName ~= "") and (countryToCode[string.lower(countryName)] or "N/A") or "N/A"
 end
 
-function CountryData.showName()
-	return nativeCountries
-end
+function CountryData.showCode() return counter.code end
+function CountryData.showName() return counter.name end
 
 return CountryData
