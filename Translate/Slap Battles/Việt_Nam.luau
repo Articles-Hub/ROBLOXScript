@@ -1,8 +1,3 @@
--- ik but I'm from the Gen Z generation, yet the translation in the text is practically untranslated.
--- But we Vietnamese only understand it if the translation is done this way; if it's too long, we won't know which is automatic and which is the mechanism.
--- Update this time I'm going to quit my job making slap battles scripts, and I don't know if I'll ever make any other scripts.
--- Goodluck :)
-
 return {
 	--- Khởi Đầu
 	["Initializing..."] = "Đang Khởi Động...",
