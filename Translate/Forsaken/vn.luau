@@ -44,7 +44,7 @@ return {
     ["Studs Run"] = "Đinh Tán Khi Chạy",
     ["Studs Stand"] = "Đinh Tán Khi Đi Bộ",
     ["Check Ping Stubs"] = "Kiểm Tra Mạng Khi Đinh Tán",
-    ["Auto Backstab"] = "Tự Động Hoá Muối (Đâm Sau Lưng),
+    ["Auto Backstab"] = "Tự Động Hoá Muối (Đâm Sau Lưng)",
     
     ["Jane Doe"] = "Vợ (Jane Doe)",
     ["Mode Jane Doe"] = "Chế độ Janedoe",
